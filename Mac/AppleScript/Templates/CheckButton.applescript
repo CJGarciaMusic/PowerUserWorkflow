@@ -30,4 +30,4 @@ on chooseMenuItem(theAppName, theMenuName, theMenuItemName)
 	end try
 end chooseMenuItem
 
-chooseMenuItem("Finale", "Edit", "Edit Filter…")
+chooseMenuItem("Edit", "Edit Filter…")

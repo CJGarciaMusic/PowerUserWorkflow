@@ -17,4 +17,4 @@ on JWLuaScripts(theAppName, theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end JWLuaScripts
 
-JWLuaScripts("Finale", "Plug-Ins", "JW Lua", "Split Articulations")
+JWLuaScripts("Plug-Ins", "JW Lua", "Split Articulations")

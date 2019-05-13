@@ -1,14 +1,11 @@
-on chooseMenuItem(theAppName, theMenuName, theMenuItemName)
+on chooseMenuItem(theMenuName, theMenuItemName)
+	tell application "System Events"
+		set appName to name of the first process whose frontmost is true
+	end tell
 	try
 		tell application "System Events"
-			tell process theAppName
-				tell menu bar 1
-					tell menu bar item theMenuName
-						tell menu theMenuName
-							click menu item theMenuItemName
-						end tell
-					end tell
-				end tell
+			tell process appName
+				click menu item theMenuItemName of menu theMenuName of menu bar 1
 			end tell
 		end tell
 		return true
@@ -20,4 +17,4 @@ on chooseMenuItem(theAppName, theMenuName, theMenuItemName)
 	end try
 end chooseMenuItem
 
-chooseMenuItem("Finale", "Tools", "Tuplet")
+chooseMenuItem("Tools", "Tuplet")

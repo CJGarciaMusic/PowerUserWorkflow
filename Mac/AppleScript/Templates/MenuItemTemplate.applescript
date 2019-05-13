@@ -23,4 +23,4 @@ on chooseMenuItem(theAppName, theMenuName, theMenuItemName)
 	end try
 end chooseMenuItem
 
-chooseMenuItem("Finale", "Tools", "Expression")
+chooseMenuItem("Tools", "Expression")

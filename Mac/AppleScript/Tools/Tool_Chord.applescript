@@ -5,13 +5,7 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 	try
 		tell application "System Events"
 			tell process appName
-				tell menu bar 1
-					tell menu bar item theMenuName
-						tell menu theMenuName
-							click menu item theMenuItemName
-						end tell
-					end tell
-				end tell
+				click menu item theMenuItemName of menu theMenuName of menu bar 1
 			end tell
 		end tell
 		return true
@@ -23,4 +17,4 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 	end try
 end chooseMenuItem
 
-chooseMenuItem("Finale", "Tools", "Chord")
+chooseMenuItem("Tools", "Chord")

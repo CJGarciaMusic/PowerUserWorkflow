@@ -1,7 +1,10 @@
-on subMenuItem(theAppName, theMenuName, theMenuItemName, theSubMenuItem)
+on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
+	tell application "System Events"
+		set appName to name of the first process whose frontmost is true
+	end tell
 	try
 		tell application "System Events"
-			tell process theAppName
+			tell process appName
 				click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
 			end tell
 		end tell
@@ -14,4 +17,4 @@ on subMenuItem(theAppName, theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end subMenuItem
 
-subMenuItem("Finale", "Tools", "Special Tools", "Accidental Mover")
+subMenuItem("Tools", "Special Tools", "Accidental Mover")
