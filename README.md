@@ -1,2 +1,2 @@
-# FinaleStreamDeck
-All assets related to my Stream Deck work
+# PowerUserWorkflow
+All assets related to my working as a Power User in music notation software
