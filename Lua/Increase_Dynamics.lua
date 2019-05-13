@@ -5,7 +5,7 @@ function plugindef()
     finaleplugin.Version = "0.1"
     finaleplugin.Date = "5/10/2019"
     finaleplugin.CategoryTags = "Expression"
-    return "Increase Dynamic", "Increase Dynamic", "Increases the dynamic by 1 up to ffff"
+    return "Increase Dynamic", "Increase Dynamic", "Increases the dynamic by 1 up to ffff starting at pppp"
 end
 
 expression_list = {}
