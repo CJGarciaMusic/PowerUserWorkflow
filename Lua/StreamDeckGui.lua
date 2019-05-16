@@ -19,10 +19,26 @@ static_text:SetText(str)
 
 local listbox = dialog:CreateListBox(0, 20)
 listbox:SetWidth(200)
-str.LuaString = "Function 1"
+str.LuaString = "Clear Lyrics"
 listbox:AddString(str)
 local function func_1()
-    finenv.UI():AlertInfo("you pressed button 1, nothing is going to happen though #DealWithIt",  "Sucks to suck.") 
+    for noteentry in eachentry(finenv.Region()) do
+        local cs = finale.FCChorusSyllable()
+        cs:SetNoteEntry(noteentry)
+        if cs:LoadFirst() then
+            cs:DeleteData()
+        end
+        local vs = finale.FCVerseSyllable()
+        vs:SetNoteEntry(noteentry)
+        if vs:LoadFirst() then
+            vs:DeleteData()
+        end
+        local ss = finale.FCSectionSyllable()
+        ss:SetNoteEntry(noteentry)
+        if ss:LoadFirst() then
+            ss:DeleteData()
+        end
+    end
 end
 
 str.LuaString = "Function 2"
