@@ -41,10 +41,58 @@ local function func_1()
     end
 end
 
-str.LuaString = "Function 2"
+str.LuaString = "Split Articulations"
 listbox:AddString(str)
 local function func_2()
-    finenv.UI():AlertInfo("you pressed button 2, nothing is going to happen though #DealWithIt",  "Sucks to suck.") 
+    art_table = {0, 0, 0, 0}
+    local articulationdefs = finale.FCArticulationDefs()
+    articulationdefs:LoadAll()
+
+    for ad in each(articulationdefs) do
+        if (ad:GetAboveSymbolChar() == 46) and (ad:GetFlippedSymbolChar() > 0)then
+            art_table[1] = ad.ItemNo
+        end
+        if (ad:GetAboveSymbolChar() == 62) and (ad:GetFlippedSymbolChar() > 0) then
+            art_table[2] = ad.ItemNo
+        end
+        if (ad:GetAboveSymbolChar() == 45) and (ad:GetFlippedSymbolChar() > 0) then
+            art_table[3] = ad.ItemNo
+        end
+        if (ad:GetAboveSymbolChar() == 94) and (ad:GetFlippedSymbolChar() > 0) then
+            art_table[4] = ad.ItemNo
+        end
+    end
+
+    for noteentry in eachentry(finenv.Region()) do
+        local a = finale.FCArticulation()
+        a:SetNoteEntry(noteentry)
+        if a:LoadFirst() then
+            local ad = finale.FCArticulationDef()
+            if ad:Load(a:GetID()) then
+                if ad:GetAboveSymbolChar() == 249 then
+                    a:SetID(art_table[2])
+                    a:Save()
+                    a:SetID(art_table[1])
+                    a:SaveNew()
+                elseif (ad:GetAboveSymbolChar() == 138) or (ad:GetAboveSymbolChar() == 251) then
+                    a:SetID(art_table[2])
+                    a:Save()
+                    a:SetID(art_table[3])
+                    a:SaveNew()
+                elseif ad:GetAboveSymbolChar() == 248 then
+                    a:SetID(art_table[3])
+                    a:Save()
+                    a:SetID(art_table[1])
+                    a:SaveNew()
+                elseif ad:GetAboveSymbolChar() == 172 then
+                    a:SetID(art_table[4])
+                    a:Save()
+                    a:SetID(art_table[1])
+                    a:SaveNew()
+                end
+            end
+        end 
+    end
 end
 
 str.LuaString = "Function 3"
