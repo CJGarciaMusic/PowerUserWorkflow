@@ -5,10 +5,18 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, subToolName)
 	try
 		tell application "System Events"
 			tell process appName
-				click menu item theMenuItemName of menu theMenuName of menu bar 1
-				click menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
-			end tell
-		end tell
+                click menu item theMenuItemName of menu theMenuName of menu bar 1
+                set getItem to value of attribute "AXEnabled" of menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+                if getItem then
+                    click menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+                else
+                    set theAlertText to "A Stream Deck error has occurred."
+                    set theAlertMessage to "Please click into a text frame and try again."
+                    display alert theAlertText message theAlertMessage as critical
+                    return false
+                end if
+                end tell
+            end tell
 		return true
 	on error
 		set theAlertText to "A Stream Deck error has occurred."
