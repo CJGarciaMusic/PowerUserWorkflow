@@ -10,23 +10,137 @@ end
 local dialog = finenv.UserValueInput()
 dialog.Title = "Stream Deck for Finale"
 
-local function func_1()
-    for noteentry in eachentry(finenv.Region()) do
-        local cs = finale.FCChorusSyllable()
-        cs:SetNoteEntry(noteentry)
-        if cs:LoadFirst() then
-            cs:DeleteData()
+local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
+local function addArticulation(art_id)
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local a = finale.FCArticulation()
+        a:SetNoteEntry(noteentry)
+        if a:LoadFirst() then
+            local ad = finale.FCArticulationDef()
+            if ad:Load(a:GetID()) then
+                if ad:GetItemNo() == art_id then
+                    a:DeleteData()
+                else
+                    a:SetID(art_id)
+                    a:SaveNew()  
+                end
+            end 
+        else
+            a:SetID(art_id)
+            a:SaveNew() 
         end
-        local vs = finale.FCVerseSyllable()
-        vs:SetNoteEntry(noteentry)
-        if vs:LoadFirst() then
-            vs:DeleteData()
-        end
-        local ss = finale.FCSectionSyllable()
-        ss:SetNoteEntry(noteentry)
-        if ss:LoadFirst() then
-            ss:DeleteData()
-        end
+    end
+end
+
+local function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent)
+    local ad = finale.FCArticulationDef()
+    ad:SetMainSymbolChar(MainSymbolChar)
+    ad:SetMainSymbolFont(MainSymbolFont)
+    ad:SetAboveSymbolChar(AboveSymbolChar)
+    ad:SetAboveUsesMain(AboveUsesMain)
+    ad:SetAlwaysPlaceOutsideStaff(AlwaysPlaceOutsideStaff)
+    ad:SetAttachToTopNote(AttachToTopNote)
+    ad:SetAttackIsPercent(AttackIsPercent)
+    ad:SetAutoPosSide(AutoPosSide)
+    ad:SetAvoidStaffLines(AvoidStaffLines)
+    ad:SetBelowSymbolChar(BelowSymbolChar)
+    ad:SetBelowUsesMain(BelowUsesMain)
+    ad:SetBottomAttack(BottomAttack)
+    ad:SetBottomDuration(BottomDuration)
+    ad:SetBottomVelocity(BottomVelocity)
+    ad:SetCenterHorizontally(CenterHorizontally)
+    ad:SetCopyMainSymbol(CopyMainSymbol)
+    ad:SetCopyMainSymbolHorizontally(CopyMainSymbolHorizontally)
+    ad:SetDefaultVerticalPos(DefaultVerticalPos)
+    ad:SetDurationIsPercent(DurationIsPercent)
+    ad:SetMainHandleHorizontalOffset(MainHandleHorizontalOffset)
+    ad:SetMainHandleVerticalOffset(MainHandleVerticalOffset)
+    ad:SetFlippedHandleHorizontalOffset(FlippedHandleHorizontalOffset)
+    ad:SetFlippedHandleVerticalOffset(FlippedHandleVerticalOffset)
+    ad:SetFlippedSymbolChar(FlippedSymbolChar)
+    ad:SetFlippedSymbolFont(FlippedSymbolFont)
+    ad:SetInsideSlurs(InsideSlurs)
+    ad:SetOnScreenOnly(OnScreenOnly)
+    ad:SetPlayback(Playback)
+    ad:SetTopAttack(TopAttack)
+    ad:SetTopDuration(TopDuration)
+    ad:SetTopVelocity(TopVelocity)
+    ad:SetVelocityIsPercent(VelocityIsPercent)
+    ad:SaveNew()
+    full_art_table[table_placement] = ad:GetItemNo()
+    addArticulation(full_art_table[table_placement])
+end
+
+local articulationdefs = finale.FCArticulationDefs()
+articulationdefs:LoadAll()
+
+for ad in each(articulationdefs) do
+    if (ad:GetAboveSymbolChar() == 62) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[1] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 94) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[2] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 46) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[3] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 45) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[4] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 171) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[5] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 174) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[6] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 33) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[7] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 64) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[8] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 190) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[9] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 85) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[10] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 43) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[11] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 111) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[12] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 178) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[13] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 179) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[14] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 217) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[15] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 109) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[16] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 77) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[17] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 84) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[18] = ad.ItemNo
+    end 
+    if (ad:GetAboveSymbolChar() == 155) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[19] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 152) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[20] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 147) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[21] = ad.ItemNo
+    end
+    if (ad:GetAboveSymbolChar() == 146) and (ad:GetFlippedSymbolChar() > 0) then
+        full_art_table[22] = ad.ItemNo
     end
 end
 
@@ -377,6 +491,28 @@ local function findExpression(font, glyph_nums, table_name, description_text)
     end
 end
 
+
+local function func_1()
+    for noteentry in eachentry(finenv.Region()) do
+        local cs = finale.FCChorusSyllable()
+        cs:SetNoteEntry(noteentry)
+        if cs:LoadFirst() then
+            cs:DeleteData()
+        end
+        local vs = finale.FCVerseSyllable()
+        vs:SetNoteEntry(noteentry)
+        if vs:LoadFirst() then
+            vs:DeleteData()
+        end
+        local ss = finale.FCSectionSyllable()
+        ss:SetNoteEntry(noteentry)
+        if ss:LoadFirst() then
+            ss:DeleteData()
+        end
+    end
+end
+
+
 local function func_2()
     art_table = {0, 0, 0, 0}
     local articulationdefs = finale.FCArticulationDefs()
@@ -558,6 +694,192 @@ local function func_27()
     setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
 end
 
+local function func_28()
+    if full_art_table[1] == 0 then
+        createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true)
+    else
+        addArticulation(full_art_table[1])
+    end
+end
+
+local function func_29()
+    if full_art_table[2] == 0 then
+        createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true)
+    else
+        addArticulation(full_art_table[2])
+    end
+end
+
+local function func_30()
+    if full_art_table[3] == 0 then
+        createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false)
+    else
+        addArticulation(full_art_table[3])
+    end
+end
+
+local function func_31()
+    if full_art_table[4] == 0 then
+        createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[4])
+    end
+end
+
+local function func_32()
+    if full_art_table[5] == 0 then
+        createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false)
+    else
+        addArticulation(full_art_table[5])
+    end
+end
+
+local function func_33()
+    if full_art_table[6] == 0 then
+        createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false)
+    else
+        addArticulation(full_art_table[6])
+    end
+end
+
+local function func_34()
+    if full_art_table[7] == 0 then
+        createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[7])
+    end
+end
+
+local function func_35()
+    if full_art_table[8] == 0 then
+        createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[8])
+    end
+end
+
+local function func_36()
+    if full_art_table[9] == 0 then
+        createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[9])
+    end
+end
+
+local function func_37()
+    if full_art_table[10] == 0 then
+        createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[10])
+    end
+end
+
+local function func_38()
+    if full_art_table[11] == 0 then
+        createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[11])
+    end
+end
+
+local function func_39()
+    if full_art_table[12] == 0 then
+        createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[12])
+    end
+end
+
+local function func_40()
+    if full_art_table[13] == 0 then
+        createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[13])
+    end
+end
+
+local function func_41()
+    if full_art_table[14] == 0 then
+        createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[14])
+    end
+end
+
+local function func_42()
+    if full_art_table[15] == 0 then
+        createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[15])
+    end
+end
+
+local function func_43()
+    if full_art_table[16] == 0 then
+        createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[16])
+    end
+end
+
+local function func_44()
+    if full_art_table[17] == 0 then
+        createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[17])
+    end
+end
+
+local function func_45()
+    if full_art_table[18] == 0 then
+        createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[18])
+    end
+end
+
+local function func_46()
+    if full_art_table[19] == 0 then
+        createArticulation(19, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, 42, 20, 42, 44, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[19])
+    end
+end
+
+local function func_47()
+    if full_art_table[20] == 0 then
+        createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 39, -20, 40, 10, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[20])
+    end
+end
+
+local function func_48()
+    if full_art_table[21] == 0 then
+        createArticulation(21, 147, "Broadway Copyist", 147, true, false, false, false, 2, false, 147, false, 0, 0, 0, true, false, false, 0, false, -66, -36, -66, -12, 147, "Broadway Copyist", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[21])
+    end
+end
+
+local function func_49()
+    if full_art_table[22] == 0 then
+        createArticulation(22, 146, "Broadway Copyist", 146, true, false, false, false, 2, false, 146, false, 0, 0, 0, true, false, false, 0, false, 66, -34, 66, -6, 146, "Broadway Copyist", false, false, false, 0, 0, 0, false)
+    else
+        addArticulation(full_art_table[22])
+    end
+end
+
+local function func_50()
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local a = finale.FCArticulation()
+        a:SetNoteEntry(noteentry)
+        while a:LoadFirst() do
+            a:DeleteData()
+        end
+    end
+end
+
 dialog:SetTypes("String")
 dialog:SetDescriptions("Function Number")
 
@@ -644,5 +966,74 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0027" then
         func_27()
+    end
+    if returnvalues[1] == "0028" then
+        func_28()
+    end
+    if returnvalues[1] == "0029" then
+        func_29()
+    end
+    if returnvalues[1] == "0030" then
+        func_30()
+    end
+    if returnvalues[1] == "0031" then
+        func_31()
+    end
+    if returnvalues[1] == "0032" then
+        func_32()
+    end
+    if returnvalues[1] == "0033" then
+        func_33()
+    end
+    if returnvalues[1] == "0034" then
+        func_34()
+    end
+    if returnvalues[1] == "0035" then
+        func_35()
+    end
+    if returnvalues[1] == "0036" then
+        func_36()
+    end
+    if returnvalues[1] == "0037" then
+        func_37()
+    end
+    if returnvalues[1] == "0038" then
+        func_38()
+    end
+    if returnvalues[1] == "0039" then
+        func_39()
+    end
+    if returnvalues[1] == "0040" then
+        func_40()
+    end
+    if returnvalues[1] == "0041" then
+        func_41()
+    end
+    if returnvalues[1] == "0042" then
+        func_42()
+    end
+    if returnvalues[1] == "0043" then
+        func_43()
+    end
+    if returnvalues[1] == "0044" then
+        func_44()
+    end
+    if returnvalues[1] == "0045" then
+        func_45()
+    end
+    if returnvalues[1] == "0046" then
+        func_46()
+    end
+    if returnvalues[1] == "0047" then
+        func_47()
+    end
+    if returnvalues[1] == "0048" then
+        func_48()
+    end
+    if returnvalues[1] == "0049" then
+        func_49()
+    end
+    if returnvalues[1] == "0050" then
+        func_50()
     end
 end
