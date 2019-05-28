@@ -6,9 +6,7 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 		tell application "System Events"
 			tell process appName
 				click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-                tell table 1 of scroll area 1 of window windowName
-                    select (row 1 where value of text field 1 is listItem)
-                end tell
+                keystroke listItem
                 click button "OK" of window windowName
 			end tell
 		end tell
@@ -21,4 +19,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "Add rfz")
+subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0023")

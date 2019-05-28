@@ -1,26 +1,15 @@
 function plugindef()
-    finaleplugin.RequireSelection = false
+    finaleplugin.RequireSelection = true
     finaleplugin.Author = "CJ Garcia"
     finaleplugin.Copyright = "© 2019 CJ Garcia Music"
-    finaleplugin.Version = "0.2"
-    finaleplugin.Date = "5/22/2019"
+    finaleplugin.Version = "0.3"
+    finaleplugin.Date = "5/27/2019"
     return "Stream Deck", "Stream Deck", "A selectable list of all Lua functions related to Stream Deck"
 end
 
-local str = finale.FCString()
-str.LuaString = "Stream Deck for Finale"
-local dialog = finale.FCCustomLuaWindow()
-dialog:SetTitle(str)
+local dialog = finenv.UserValueInput()
+dialog.Title = "Stream Deck for Finale"
 
-local static_text = dialog:CreateStatic(0, 0)
-str.LuaString = "Select Your Action"
-static_text:SetWidth(200)
-static_text:SetText(str)
-
-local listbox = dialog:CreateListBox(0, 20)
-listbox:SetWidth(200)
-str.LuaString = "Clear Lyrics"
-listbox:AddString(str)
 local function func_1()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -251,9 +240,11 @@ local function setSwellRange(smart_shape1, smart_shape2)
     half_way_meas:SetStartMeasure(start_meas)
     half_way_meas:SetEndMeasure(end_meas)
 
-    local half_way_pos = finenv.Region()
-    half_way_pos:SetStartMeasurePos(start_pos)
-    half_way_pos:SetEndMeasurePos(end_pos)
+    local half_way_region = finenv.Region()
+    half_way_region:SetStartMeasurePos(start_pos)
+    half_way_region:SetEndMeasurePos(end_pos)
+
+    local half_way_pos = half_way_region:CalcDuration()
 
     local get_time = finale.FCMeasure()
     get_time:Load(start_meas)
@@ -262,8 +253,8 @@ local function setSwellRange(smart_shape1, smart_shape2)
     local duration = signature:GetBeatDuration()
     local one_measure = beat * duration
     local half_measure = math.floor((half_way_meas:CalcMeasureSpan() / 2) + 0.5)
-    local half_point = math.floor((((half_measure * one_measure) + 0.5) - math.floor(half_way_pos:CalcDuration() / 2) + 0.5)) + duration
-    
+    local half_point = math.floor((((half_measure * one_measure) + 0.5) - math.floor(half_way_pos:CalcDuration() / 2) - 0.5)) - duration
+
     if count < 2 then
         end_pos = music_region:GetEndMeasurePos() 
     end
@@ -321,7 +312,11 @@ local function getFirstNoteInRegion()
                 end
             end
         end
-        addExpression(first_note[1][1], first_note[1][2], first_note[1][3])
+        if first_note[1] == nil then
+            return
+        else
+            addExpression(first_note[1][1], first_note[1][2], first_note[1][3])
+        end
     end
 end
 
@@ -382,8 +377,6 @@ local function findExpression(font, glyph_nums, table_name, description_text)
     end
 end
 
-str.LuaString = "Split Articulations"
-listbox:AddString(str)
 local function func_2()
     art_table = {0, 0, 0, 0}
     local articulationdefs = finale.FCArticulationDefs()
@@ -436,260 +429,220 @@ local function func_2()
     end
 end
 
-str.LuaString = "Add ffff"
-listbox:AddString(str)
 local function func_3()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add fff"
-listbox:AddString(str)
 local function func_4()    
     findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add ff"
-listbox:AddString(str)
 local function func_5()    
     findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add f"
-listbox:AddString(str)
 local function func_6()
     findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add mf"
-listbox:AddString(str)
 local function func_7()    
     findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add mp"
-listbox:AddString(str)
 local function func_8()    
     findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add p"
-listbox:AddString(str)
 local function func_9()    
     findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add pp"
-listbox:AddString(str)
 local function func_10()
     findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add ppp"
-listbox:AddString(str)
+
 local function func_11()    
     findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add pppp"
-listbox:AddString(str)
+
 local function func_12()    
     findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add n"
-listbox:AddString(str)
+
 local function func_13()
     findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add fp"
-listbox:AddString(str)
 local function func_14()
     findExpression("^^fontMus", {234}, first_expression, "forte piano")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add fz"
-listbox:AddString(str)
 local function func_15()
     findExpression("^^fontMus", {90}, first_expression, "forzando")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add sf"
-listbox:AddString(str)
 local function func_16()
     findExpression("^^fontMus", {83}, first_expression, "sforzando")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add sfz"
-listbox:AddString(str)
+
 local function func_17()
     findExpression("^^fontMus", {167}, first_expression, "sforzato")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add sffz"
-listbox:AddString(str)
+
 local function func_18()
     findExpression("^^fontMus", {141}, first_expression, "sforzato")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add sfzp"
-listbox:AddString(str)
 local function func_19()
     findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add sfpp"
-listbox:AddString(str)
 local function func_20()
     findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add sfp"
-listbox:AddString(str)
 local function func_21()
     findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add rfz"
-listbox:AddString(str)
+
 local function func_22()
     findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add rf"
-listbox:AddString(str)
+
 local function func_23()
     findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
     getFirstNoteInRegion()
 end
 
-str.LuaString = "Add <"
-listbox:AddString(str)
+
 local function func_24()
     setHairpinRange(finale.SMARTSHAPE_CRESCENDO)
 end
 
-str.LuaString = "Add >"
-listbox:AddString(str)
 local function func_25()
     setHairpinRange(finale.SMARTSHAPE_DIMINUENDO)
 end
 
-str.LuaString = "Add <>"
-listbox:AddString(str)
 local function func_26()
     setSwellRange(finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
 end
 
-str.LuaString = "Add ><"
-listbox:AddString(str)
 local function func_27()
     setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
 end
 
-dialog:CreateOkButton()
-dialog:CreateCancelButton()
+dialog:SetTypes("String")
+dialog:SetDescriptions("Function Number")
 
-if (dialog:ExecuteModal(nil) == 1) then
-    if listbox:GetSelectedItem() == 0 then
+local returnvalues = dialog:Execute() 
+
+if returnvalues ~= nil then
+    if returnvalues[1] == "0001" then
         func_1()
     end
-    if listbox:GetSelectedItem() == 1 then
+    if returnvalues[1] == "0002" then
         func_2()
     end
-    if listbox:GetSelectedItem() == 2 then
+    if returnvalues[1] == "0003" then
         func_3()
     end
-    if listbox:GetSelectedItem() == 3 then
+    if returnvalues[1] == "0004" then
         func_4()
     end
-    if listbox:GetSelectedItem() == 4 then
+    if returnvalues[1] == "0005" then
         func_5()
     end
-    if listbox:GetSelectedItem() == 5 then
+    if returnvalues[1] == "0006" then
         func_6()
     end
-    if listbox:GetSelectedItem() == 6 then
+    if returnvalues[1] == "0007" then
         func_7()
     end
-    if listbox:GetSelectedItem() == 7 then
+    if returnvalues[1] == "0008" then
         func_8()
     end
-    if listbox:GetSelectedItem() == 8 then
+    if returnvalues[1] == "0009" then
         func_9()
     end
-    if listbox:GetSelectedItem() == 9 then
+    if returnvalues[1] == "0010" then
         func_10()
     end
-    if listbox:GetSelectedItem() == 10 then
+    if returnvalues[1] == "0011" then
         func_11()
     end
-    if listbox:GetSelectedItem() == 11 then
+    if returnvalues[1] == "0012" then
         func_12()
     end
-    if listbox:GetSelectedItem() == 12 then
+    if returnvalues[1] == "0013" then
         func_13()
     end
-    if listbox:GetSelectedItem() == 13 then
+    if returnvalues[1] == "0014" then
         func_14()
     end
-    if listbox:GetSelectedItem() == 14 then
+    if returnvalues[1] == "0015" then
         func_15()
     end
-    if listbox:GetSelectedItem() == 15 then
+    if returnvalues[1] == "0016" then
         func_16()
     end
-    if listbox:GetSelectedItem() == 16 then
+    if returnvalues[1] == "0017" then
         func_17()
     end
-    if listbox:GetSelectedItem() == 17 then
+    if returnvalues[1] == "0018" then
         func_18()
     end
-    if listbox:GetSelectedItem() == 18 then
+    if returnvalues[1] == "0019" then
         func_19()
     end
-    if listbox:GetSelectedItem() == 19 then
+    if returnvalues[1] == "0020" then
         func_20()
     end
-    if listbox:GetSelectedItem() == 20 then
+    if returnvalues[1] == "0021" then
         func_21()
     end
-    if listbox:GetSelectedItem() == 21 then
+    if returnvalues[1] == "0022" then
         func_22()
     end
-    if listbox:GetSelectedItem() == 22 then
+    if returnvalues[1] == "0023" then
         func_23()
     end
-    if listbox:GetSelectedItem() == 23 then
+    if returnvalues[1] == "0024" then
         func_24()
     end
-    if listbox:GetSelectedItem() == 24 then
+    if returnvalues[1] == "0025" then
         func_25()
     end
-    if listbox:GetSelectedItem() == 25 then
+    if returnvalues[1] == "0026" then
         func_26()
     end
-    if listbox:GetSelectedItem() == 26 then
+    if returnvalues[1] == "0027" then
         func_27()
     end
 end
