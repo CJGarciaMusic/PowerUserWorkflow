@@ -6,7 +6,7 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 		tell application "System Events"
 			tell process appName
 				click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-				keystroke listItem
+                keystroke listItem
                 click button "OK" of window windowName
 			end tell
 		end tell

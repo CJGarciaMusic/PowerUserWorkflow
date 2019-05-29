@@ -115,7 +115,6 @@ local function createArticulation(table_placement, MainSymbolChar, MainSymbolFon
     addArticulation(full_art_table[table_placement])
 end
 
-
 local function findArticulation(table_placement, AboveSymbolChar)
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
@@ -475,29 +474,326 @@ local function findExpression(font, glyph_nums, table_name, description_text)
     end
 end
 
+local function func_0001()
+    findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
+    getFirstNoteInRegion()
+end
 
-local function func_1()
-    for noteentry in eachentry(finenv.Region()) do
-        local cs = finale.FCChorusSyllable()
-        cs:SetNoteEntry(noteentry)
-        if cs:LoadFirst() then
-            cs:DeleteData()
-        end
-        local vs = finale.FCVerseSyllable()
-        vs:SetNoteEntry(noteentry)
-        if vs:LoadFirst() then
-            vs:DeleteData()
-        end
-        local ss = finale.FCSectionSyllable()
-        ss:SetNoteEntry(noteentry)
-        if ss:LoadFirst() then
-            ss:DeleteData()
-        end
+local function func_0002()    
+    findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
+    getFirstNoteInRegion()
+end
+
+local function func_0003()    
+    findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
+    getFirstNoteInRegion()
+end
+
+local function func_0004()
+    findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
+    getFirstNoteInRegion()
+end
+
+local function func_0005()    
+    findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
+    getFirstNoteInRegion()
+end
+
+local function func_0006()    
+    findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
+    getFirstNoteInRegion()
+end
+
+local function func_0007()    
+    findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
+    getFirstNoteInRegion()
+end
+
+local function func_0008()
+    findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
+    getFirstNoteInRegion()
+end
+
+local function func_0009()    
+    findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
+    getFirstNoteInRegion()
+end
+
+local function func_0010()    
+    findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
+    getFirstNoteInRegion()
+end
+
+local function func_0011()
+    findExpression("^^fontMus", {234}, first_expression, "forte piano")
+    getFirstNoteInRegion()
+end
+
+local function func_0012()
+    findExpression("^^fontMus", {90}, first_expression, "forzando")
+    getFirstNoteInRegion()
+end
+
+local function func_0013()
+    findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
+    getFirstNoteInRegion()
+end
+
+local function func_0014()
+    findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
+    getFirstNoteInRegion()
+end
+
+local function func_0015()
+    findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
+    getFirstNoteInRegion()
+end
+
+local function func_0016()
+    findExpression("^^fontMus", {83}, first_expression, "sforzando")
+    getFirstNoteInRegion()
+end
+
+local function func_0017()
+    findExpression("^^fontMus", {141}, first_expression, "sforzato")
+    getFirstNoteInRegion()
+end
+
+local function func_0018()
+    findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
+    getFirstNoteInRegion()
+end
+
+local function func_0019()
+    findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
+    getFirstNoteInRegion()
+end
+
+local function func_0020()
+    findExpression("^^fontMus", {167}, first_expression, "sforzato")
+    getFirstNoteInRegion()
+end
+
+local function func_0021()
+    findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
+    getFirstNoteInRegion()
+end
+
+local function func_0022()
+    setHairpinRange(finale.SMARTSHAPE_CRESCENDO)
+end
+
+local function func_0023()
+    setHairpinRange(finale.SMARTSHAPE_DIMINUENDO)
+end
+
+local function func_0024()
+    setSwellRange(finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+end
+
+local function func_0025()
+    setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+end
+
+local function func_0100()
+    findArticulation(1, 62)
+    if full_art_table[1] == 0 then
+        createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[1])
     end
 end
 
+local function func_0101()
+    findArticulation(2, 94)
+    if full_art_table[2] == 0 then
+        createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[2])
+    end
+end
 
-local function func_2()
+local function func_0102()
+    findArticulation(3, 46)
+    if full_art_table[3] == 0 then
+        createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[3])
+    end
+end
+
+local function func_0103()
+    findArticulation(4, 45)
+    if full_art_table[4] == 0 then
+        createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
+    else
+        addArticulation(full_art_table[4])
+    end
+end
+
+local function func_0104()
+    findArticulation(5, 171)
+    if full_art_table[5] == 0 then
+        createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[5])
+    end
+end
+
+local function func_0105()
+    findArticulation(6, 174)
+    if full_art_table[6] == 0 then
+        createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[6])
+    end
+end
+
+local function func_0106()
+    findArticulation(7, 33)
+    if full_art_table[7] == 0 then
+        createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[7])
+    end
+end
+
+local function func_0107()
+    findArticulation(8, 64)
+    if full_art_table[8] == 0 then
+        createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[8])
+    end
+end
+
+local function func_0108()
+    findArticulation(9, 190)
+    if full_art_table[9] == 0 then
+        createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[9])
+    end
+end
+
+local function func_0109()
+    findArticulation(10, 85)
+    if full_art_table[10] == 0 then
+        createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
+    else
+        addArticulation(full_art_table[10])
+    end
+end
+
+local function func_0110()
+    findArticulation(11, 43)
+    if full_art_table[11] == 0 then
+        createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[11])
+    end
+end
+
+local function func_0111()
+    findArticulation(12, 111)
+    if full_art_table[12] == 0 then
+        createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[12])
+    end
+end
+
+local function func_0112()
+    findArticulation(13, 178)
+    if full_art_table[13] == 0 then
+        createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[13])
+    end
+end
+
+local function func_0113()
+    findArticulation(14, 179)
+    if full_art_table[14] == 0 then
+        createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[14])
+    end
+end
+
+local function func_0114()
+    findArticulation(15, 217)
+    if full_art_table[15] == 0 then
+        createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[15])
+    end
+end
+
+local function func_0115()
+    findArticulation(16, 109)
+    if full_art_table[16] == 0 then
+        createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[16])
+    end
+end
+
+local function func_0116()
+    findArticulation(17, 77)
+    if full_art_table[17] == 0 then
+        createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[17])
+    end
+end
+
+local function func_0117()
+    findArticulation(18, 84)
+    if full_art_table[18] == 0 then
+        createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[18])
+    end
+end
+
+local function func_0118()
+    findArticulation(19, 155)
+    if full_art_table[19] == 0 then
+        createArticulation(19, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, 42, 20, 42, 44, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[19])
+    end
+end
+
+local function func_0119()
+    findArticulation(20, 152)
+    if full_art_table[20] == 0 then
+        createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 39, -20, 40, 10, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[20])
+    end
+end
+
+local function func_0120()
+    findArticulation(21, 147)
+    if full_art_table[21] == 0 then
+        createArticulation(21, 147, "Broadway Copyist", 147, true, false, false, false, 2, false, 147, false, 0, 0, 0, true, false, false, 0, false, -66, -36, -66, -12, 147, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[21])
+    end
+end
+
+local function func_0121()
+    findArticulation(22, 146)
+    if full_art_table[22] == 0 then
+        createArticulation(22, 146, "Broadway Copyist", 146, true, false, false, false, 2, false, 146, false, 0, 0, 0, true, false, false, 0, false, 66, -34, 66, -6, 146, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[22])
+    end
+end
+
+local function func_0122()
     art_table = {0, 0, 0, 0}
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
@@ -549,339 +845,32 @@ local function func_2()
     end
 end
 
-local function func_3()
-    findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
-    getFirstNoteInRegion()
-end
-
-local function func_4()    
-    findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
-    getFirstNoteInRegion()
-end
-
-local function func_5()    
-    findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
-    getFirstNoteInRegion()
-end
-
-local function func_6()
-    findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
-    getFirstNoteInRegion()
-end
-
-local function func_7()    
-    findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
-    getFirstNoteInRegion()
-end
-
-local function func_8()    
-    findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
-    getFirstNoteInRegion()
-end
-
-local function func_9()    
-    findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
-    getFirstNoteInRegion()
-end
-
-local function func_10()
-    findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
-    getFirstNoteInRegion()
-end
-
-
-local function func_11()    
-    findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
-    getFirstNoteInRegion()
-end
-
-
-local function func_12()    
-    findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
-    getFirstNoteInRegion()
-end
-
-
-local function func_13()
-    findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
-    getFirstNoteInRegion()
-end
-
-local function func_14()
-    findExpression("^^fontMus", {234}, first_expression, "forte piano")
-    getFirstNoteInRegion()
-end
-
-local function func_15()
-    findExpression("^^fontMus", {90}, first_expression, "forzando")
-    getFirstNoteInRegion()
-end
-
-local function func_16()
-    findExpression("^^fontMus", {83}, first_expression, "sforzando")
-    getFirstNoteInRegion()
-end
-
-
-local function func_17()
-    findExpression("^^fontMus", {167}, first_expression, "sforzato")
-    getFirstNoteInRegion()
-end
-
-
-local function func_18()
-    findExpression("^^fontMus", {141}, first_expression, "sforzato")
-    getFirstNoteInRegion()
-end
-
-local function func_19()
-    findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
-    getFirstNoteInRegion()
-end
-
-local function func_20()
-    findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
-    getFirstNoteInRegion()
-end
-
-local function func_21()
-    findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
-    getFirstNoteInRegion()
-end
-
-
-local function func_22()
-    findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
-    getFirstNoteInRegion()
-end
-
-
-local function func_23()
-    findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
-    getFirstNoteInRegion()
-end
-
-
-local function func_24()
-    setHairpinRange(finale.SMARTSHAPE_CRESCENDO)
-end
-
-local function func_25()
-    setHairpinRange(finale.SMARTSHAPE_DIMINUENDO)
-end
-
-local function func_26()
-    setSwellRange(finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
-end
-
-local function func_27()
-    setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
-end
-
-local function func_28()
-    findArticulation(1, 62)
-    if full_art_table[1] == 0 then
-        createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[1])
-    end
-end
-
-local function func_29()
-    findArticulation(2, 94)
-    if full_art_table[2] == 0 then
-        createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[2])
-    end
-end
-
-local function func_30()
-    findArticulation(3, 46)
-    if full_art_table[3] == 0 then
-        createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[3])
-    end
-end
-
-local function func_31()
-    findArticulation(4, 45)
-    if full_art_table[4] == 0 then
-        createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
-    else
-        addArticulation(full_art_table[4])
-    end
-end
-
-local function func_32()
-    findArticulation(5, 171)
-    if full_art_table[5] == 0 then
-        createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[5])
-    end
-end
-
-local function func_33()
-    findArticulation(6, 174)
-    if full_art_table[6] == 0 then
-        createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[6])
-    end
-end
-
-local function func_34()
-    findArticulation(7, 33)
-    if full_art_table[7] == 0 then
-        createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[7])
-    end
-end
-
-local function func_35()
-    findArticulation(8, 64)
-    if full_art_table[8] == 0 then
-        createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[8])
-    end
-end
-
-local function func_36()
-    findArticulation(9, 190)
-    if full_art_table[9] == 0 then
-        createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[9])
-    end
-end
-
-local function func_37()
-    findArticulation(10, 85)
-    if full_art_table[10] == 0 then
-        createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
-    else
-        addArticulation(full_art_table[10])
-    end
-end
-
-local function func_38()
-    findArticulation(11, 43)
-    if full_art_table[11] == 0 then
-        createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[11])
-    end
-end
-
-local function func_39()
-    findArticulation(12, 111)
-    if full_art_table[12] == 0 then
-        createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[12])
-    end
-end
-
-local function func_40()
-    findArticulation(13, 178)
-    if full_art_table[13] == 0 then
-        createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[13])
-    end
-end
-
-local function func_41()
-    findArticulation(14, 179)
-    if full_art_table[14] == 0 then
-        createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[14])
-    end
-end
-
-local function func_42()
-    findArticulation(15, 217)
-    if full_art_table[15] == 0 then
-        createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[15])
-    end
-end
-
-local function func_43()
-    findArticulation(16, 109)
-    if full_art_table[16] == 0 then
-        createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[16])
-    end
-end
-
-local function func_44()
-    findArticulation(17, 77)
-    if full_art_table[17] == 0 then
-        createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[17])
-    end
-end
-
-local function func_45()
-    findArticulation(18, 84)
-    if full_art_table[18] == 0 then
-        createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[18])
-    end
-end
-
-local function func_46()
-    findArticulation(19, 155)
-    if full_art_table[19] == 0 then
-        createArticulation(19, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, 42, 20, 42, 44, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[19])
-    end
-end
-
-local function func_47()
-    findArticulation(20, 152)
-    if full_art_table[20] == 0 then
-        createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 39, -20, 40, 10, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[20])
-    end
-end
-
-local function func_48()
-    findArticulation(21, 147)
-    if full_art_table[21] == 0 then
-        createArticulation(21, 147, "Broadway Copyist", 147, true, false, false, false, 2, false, 147, false, 0, 0, 0, true, false, false, 0, false, -66, -36, -66, -12, 147, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[21])
-    end
-end
-
-local function func_49()
-    findArticulation(22, 146)
-    if full_art_table[22] == 0 then
-        createArticulation(22, 146, "Broadway Copyist", 146, true, false, false, false, 2, false, 146, false, 0, 0, 0, true, false, false, 0, false, 66, -34, 66, -6, 146, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
-    else
-        addArticulation(full_art_table[22])
-    end
-end
-
-local function func_50()
+local function func_0123()
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
         while a:LoadFirst() do
             a:DeleteData()
+        end
+    end
+end
+
+local function func_0300()
+    for noteentry in eachentry(finenv.Region()) do
+        local cs = finale.FCChorusSyllable()
+        cs:SetNoteEntry(noteentry)
+        if cs:LoadFirst() then
+            cs:DeleteData()
+        end
+        local vs = finale.FCVerseSyllable()
+        vs:SetNoteEntry(noteentry)
+        if vs:LoadFirst() then
+            vs:DeleteData()
+        end
+        local ss = finale.FCSectionSyllable()
+        ss:SetNoteEntry(noteentry)
+        if ss:LoadFirst() then
+            ss:DeleteData()
         end
     end
 end
@@ -893,153 +882,153 @@ local returnvalues = dialog:Execute()
 
 if returnvalues ~= nil then
     if returnvalues[1] == "0001" then
-        func_1()
+        func_0001()
     end
-    if returnvalues[1] == "0122" then
-        func_2()
+    if returnvalues[1] == "0002" then
+        func_0002()
     end
     if returnvalues[1] == "0003" then
-        func_3()
+        func_0003()
     end
     if returnvalues[1] == "0004" then
-        func_4()
+        func_0004()
     end
     if returnvalues[1] == "0005" then
-        func_5()
+        func_0005()
     end
     if returnvalues[1] == "0006" then
-        func_6()
+        func_0006()
     end
     if returnvalues[1] == "0007" then
-        func_7()
+        func_0007()
     end
     if returnvalues[1] == "0008" then
-        func_8()
+        func_0008()
     end
     if returnvalues[1] == "0009" then
-        func_9()
+        func_0009()
     end
     if returnvalues[1] == "0010" then
-        func_10()
+        func_0010()
     end
     if returnvalues[1] == "0011" then
-        func_11()
+        func_0011()
     end
     if returnvalues[1] == "0012" then
-        func_12()
+        func_0012()
     end
     if returnvalues[1] == "0013" then
-        func_13()
+        func_0013()
     end
     if returnvalues[1] == "0014" then
-        func_14()
+        func_0014()
     end
     if returnvalues[1] == "0015" then
-        func_15()
+        func_0015()
     end
     if returnvalues[1] == "0016" then
-        func_16()
+        func_0016()
     end
     if returnvalues[1] == "0017" then
-        func_17()
+        func_0017()
     end
     if returnvalues[1] == "0018" then
-        func_18()
+        func_0018()
     end
     if returnvalues[1] == "0019" then
-        func_19()
+        func_0019()
     end
     if returnvalues[1] == "0020" then
-        func_20()
+        func_0020()
     end
     if returnvalues[1] == "0021" then
-        func_21()
+        func_0021()
     end
     if returnvalues[1] == "0022" then
-        func_22()
+        func_0022()
     end
     if returnvalues[1] == "0023" then
-        func_23()
+        func_0023()
     end
     if returnvalues[1] == "0024" then
-        func_24()
+        func_0024()
     end
     if returnvalues[1] == "0025" then
-        func_25()
-    end
-    if returnvalues[1] == "0026" then
-        func_26()
-    end
-    if returnvalues[1] == "0027" then
-        func_27()
+        func_0025()
     end
     if returnvalues[1] == "0100" then
-        func_28()
+        func_0100()
     end
     if returnvalues[1] == "0101" then
-        func_29()
+        func_0101()
     end
     if returnvalues[1] == "0102" then
-        func_30()
+        func_0102()
     end
     if returnvalues[1] == "0103" then
-        func_31()
+        func_0103()
     end
     if returnvalues[1] == "0104" then
-        func_32()
+        func_0104()
     end
     if returnvalues[1] == "0105" then
-        func_33()
+        func_0105()
     end
     if returnvalues[1] == "0106" then
-        func_34()
+        func_0106()
     end
     if returnvalues[1] == "0107" then
-        func_35()
+        func_0107()
     end
     if returnvalues[1] == "0108" then
-        func_36()
+        func_0108()
     end
     if returnvalues[1] == "0109" then
-        func_37()
+        func_0109()
     end
     if returnvalues[1] == "0110" then
-        func_38()
+        func_0110()
     end
     if returnvalues[1] == "0111" then
-        func_39()
+        func_0111()
     end
     if returnvalues[1] == "0112" then
-        func_40()
+        func_0112()
     end
     if returnvalues[1] == "0113" then
-        func_41()
+        func_0113()
     end
     if returnvalues[1] == "0114" then
-        func_42()
+        func_0114()
     end
     if returnvalues[1] == "0115" then
-        func_43()
+        func_0115()
     end
     if returnvalues[1] == "0116" then
-        func_44()
+        func_0116()
     end
     if returnvalues[1] == "0117" then
-        func_45()
+        func_0117()
     end
     if returnvalues[1] == "0118" then
-        func_46()
+        func_0118()
     end
     if returnvalues[1] == "0119" then
-        func_47()
+        func_0119()
     end
     if returnvalues[1] == "0120" then
-        func_48()
+        func_0120()
     end
     if returnvalues[1] == "0121" then
-        func_49()
+        func_0121()
+    end
+    if returnvalues[1] == "0122" then
+        func_0122()
     end
     if returnvalues[1] == "0123" then
-        func_50()
+        func_0123()
+    end
+    if returnvalues[1] == "0300" then
+        func_0300()
     end
 end
