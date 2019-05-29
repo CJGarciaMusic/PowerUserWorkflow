@@ -18,25 +18,25 @@ local function addArticulation(art_id)
         a:SetNoteEntry(noteentry)
         local ad = finale.FCArticulationDef()
         if a:LoadFirst() then
-            print("there's an articulation at", noteentry.MeasurePos)
-            if ad:Load(a:GetID()) then
-                print(ad:GetItemNo(), art_id)
-                if ad:GetItemNo() == art_id then
-                    a:DeleteData()
-                else
-                    if noteentry:IsNote() then 
-                        a:SetID(art_id)
-                        a:SaveNew()
-                    end
-                    if noteentry:IsRest() then
-                        print(ad:GetAboveSymbolChar())
-                        if ad:GetAboveSymbolChar() == 85 then
+            while a:LoadFirst() do
+                if ad:Load(a:GetID()) then
+                    if ad:GetItemNo() == art_id then
+                        a:DeleteData()
+                    else
+                        if noteentry:IsNote() then 
                             a:SetID(art_id)
                             a:SaveNew()
                         end
+                        if noteentry:IsRest() then
+                            print(ad:GetAboveSymbolChar())
+                            if ad:GetAboveSymbolChar() == 85 then
+                                a:SetID(art_id)
+                                a:SaveNew()
+                            end
+                        end
                     end
-                end
-            end 
+                end 
+            end
         else
             ad:Load(art_id)
             if noteentry:IsNote() then 
@@ -123,6 +123,8 @@ local function findArticulation(table_placement, AboveSymbolChar)
         if (ad:GetAboveSymbolChar() == AboveSymbolChar) then
             table.insert(first_id_table, ad.ItemNo)
         end
+    end
+    if first_id_table[1] ~= nil then
         full_art_table[table_placement] = first_id_table[1]
     end
 end
