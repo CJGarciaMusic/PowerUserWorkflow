@@ -23,7 +23,7 @@ local function addArticulation(art_id)
                     if ad:GetItemNo() == art_id then
                         a:DeleteData()
                     else
-                        if noteentry:IsNote() then 
+                        if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
                             a:SetID(art_id)
                             a:SaveNew()
                         end
@@ -39,7 +39,7 @@ local function addArticulation(art_id)
             end
         else
             ad:Load(art_id)
-            if noteentry:IsNote() then 
+            if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
                 a:SetID(art_id)
                 a:SaveNew()
             else
