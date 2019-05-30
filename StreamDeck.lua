@@ -12,31 +12,47 @@ dialog.Title = "Stream Deck for Finale"
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
+local function deleteArticulations(art_id)
+    for noteentry in eachentry(finenv.Region()) do
+        local articulations = noteentry:CreateArticulations()
+        for a in eachbackwards(articulations) do
+            local ad = a:CreateArticulationDef()
+            if a:GetID() == art_id then
+                a:DeleteData()
+            end
+        end 
+    end
+end
+
 local function addArticulation(art_id)
+    -- for noteentry in eachentry(finenv.Region()) do
+        -- local articulations = noteentry:CreateArticulations()
+        -- for a in eachbackwards(articulations) do
+        --     local ad = a:CreateArticulationDef()
+        --     if a:GetID() == art_id then
+        --         a:DeleteData()
+        --     end
+        -- end
+    -- end
+
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
         local ad = finale.FCArticulationDef()
         if a:LoadFirst() then
-            while a:LoadFirst() do
-                if ad:Load(a:GetID()) then
-                    if ad:GetItemNo() == art_id then
-                        a:DeleteData()
-                    else
-                        if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
-                            a:SetID(art_id)
-                            a:SaveNew()
-                        end
-                        if noteentry:IsRest() then
-                            print(ad:GetAboveSymbolChar())
-                            if ad:GetAboveSymbolChar() == 85 then
-                                a:SetID(art_id)
-                                a:SaveNew()
-                            end
-                        end
+            -- if ad:Load(a:GetID()) then
+                deleteArticulations(art_id)              
+                if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
+                    a:SetID(art_id)
+                    a:SaveNew()
+                end
+                if noteentry:IsRest() then
+                    if ad:GetAboveSymbolChar() == 85 then
+                        a:SetID(art_id)
+                        a:SaveNew()
                     end
-                end 
-            end
+                end
+            -- end
         else
             ad:Load(art_id)
             if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
@@ -50,6 +66,46 @@ local function addArticulation(art_id)
             end 
         end
     end
+    
+        -- local ads = finale.FCArticulationDefs()
+        -- local a = finale.FCArticulation()
+        -- a:SetNoteEntry(noteentry)
+        -- if a:LoadFirst() then
+        --     for ad in each(ads) do
+                -- if ad:Load(a:GetID()) then
+                --     print("something!")
+                -- else
+    --                 if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
+    --                     if ad:GetItemNo() == art_id then
+    --                         if (ad:GetAboveSymbolChar() == 33)  or (ad:GetAboveSymbolChar() == 64) or (ad:GetAboveSymbolChar() == 190) then
+    --                             a:DeleteData()
+    --                         end
+    --                     end
+    --                     a:SetID(art_id)
+    --                     a:SaveNew()
+    --                 end
+    --                 if noteentry:IsRest() then
+    --                     if ad:GetAboveSymbolChar() == 85 then
+    --                         a:SetID(art_id)
+    --                         a:SaveNew()
+    --                     end
+    --                 end
+    --             end
+    --         -- end
+    --     else
+    --         local ad = finale.FCArticulationDef()
+    --         ad:Load(art_id)
+    --         if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
+    --             a:SetID(art_id)
+    --             a:SaveNew()
+    --         else
+    --             if ad:GetAboveSymbolChar() == 85 then
+    --                 a:SetID(art_id)
+    --                 a:SaveNew()
+    --             end
+    --         end 
+    --     end
+    -- end
 end
 
 local function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
@@ -796,22 +852,19 @@ local function func_0121()
 end
 
 local function func_0122()
-    art_table = {0, 0, 0, 0}
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
+    local art_table = {0, 0, 0, 0}
 
-    for ad in each(articulationdefs) do
-        if (ad:GetAboveSymbolChar() == 46) and (ad:GetFlippedSymbolChar() > 0)then
-            art_table[1] = ad.ItemNo
+    for k, v in pairs({46, 62, 45, 94}) do
+        local first_id_table = {}
+        for ad in each(articulationdefs) do
+            if (ad:GetAboveSymbolChar() == v) and (ad:GetFlippedSymbolChar() > 0) then
+                table.insert(first_id_table, ad.ItemNo)
+            end
         end
-        if (ad:GetAboveSymbolChar() == 62) and (ad:GetFlippedSymbolChar() > 0) then
-            art_table[2] = ad.ItemNo
-        end
-        if (ad:GetAboveSymbolChar() == 45) and (ad:GetFlippedSymbolChar() > 0) then
-            art_table[3] = ad.ItemNo
-        end
-        if (ad:GetAboveSymbolChar() == 94) and (ad:GetFlippedSymbolChar() > 0) then
-            art_table[4] = ad.ItemNo
+        if first_id_table[1] ~= nil then
+            art_table[k] = first_id_table[1]
         end
     end
 
