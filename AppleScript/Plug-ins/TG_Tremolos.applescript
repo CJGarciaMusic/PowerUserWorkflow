@@ -1,4 +1,4 @@
-on subMenuItem(firstMenu, firstSubMenu, firstOption, firstRadio, secondMenu, secondSubMenu, secondOption, secondRadio)
+on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, secondOption)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -7,14 +7,12 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, firstRadio, secondMenu, sec
 			tell process appName
 				if menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1 exists then
 					click menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1
-					click radio button firstRadio of tab group 1 of window " Align/Move 3.00rc3 "
 					key code 36
 					key code 53
 				else
 					click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
-					click radio button secondRadio of window "Align/Move Dynamics"
-					click button "Go" of window "Align/Move Dynamics"
-					click button "Close" of window "Align/Move Dynamics"
+					click button "Go" of window "Easy Tremolos" 
+					click button "Close" of window "Easy Tremolos"
 				end if
 			end tell
 		end tell
@@ -27,4 +25,4 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, firstRadio, secondMenu, sec
 	end try
 end subMenuItem
 
-subMenuItem("TGTools", "Modify", "Align/Move...", "to average distance", "Plug-ins", "TG Tools", "Align/Move Dynamics...", "To Average Distance")
+subMenuItem("TGTools", "Music", "Tremolos...", "Plug-ins", "TG Tools", "Easy Tremolos...")

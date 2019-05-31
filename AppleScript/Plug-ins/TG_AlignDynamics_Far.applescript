@@ -1,23 +1,30 @@
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, radio_button)
+on subMenuItem(firstMenu, firstSubMenu, firstOption, firstRadio, secondMenu, secondSubMenu, secondOption, secondRadio)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
 	try
 		tell application "System Events"
 			tell process appName
-				click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-                click radio button radio_button of window "Align/Move Dynamics"
-                click button "Go" of window "Align/Move Dynamics"
-                click button "Close" of window "Align/Move Dynamics"
+				if menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1 exists then
+					click menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1
+					click radio button firstRadio of tab group 1 of window " Align/Move 3.00rc3 "
+					key code 36
+					key code 53
+				else
+					click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
+					click radio button secondRadio of window "Align/Move Dynamics"
+					click button "Go" of window "Align/Move Dynamics"
+					click button "Close" of window "Align/Move Dynamics"
+				end if
 			end tell
 		end tell
 		return true
 	on error
 		set theAlertText to "A Stream Deck error has occurred."
-        set theAlertMessage to "The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease try again."
+        set theAlertMessage to "The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease try again."
         display alert theAlertText message theAlertMessage as critical
 		return false
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "TG Tools", "Align/Move Dynamics...", "To Farthest Element")
+subMenuItem("TGTools", "Modify", "Align/Move...", "to farthest element", "Plug-ins", "TG Tools", "Align/Move Dynamics...", "To Farthest Element")
