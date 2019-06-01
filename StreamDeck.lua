@@ -330,6 +330,30 @@ local function setHairpinRange(smart_shape)
     end
 end
 
+local function deleteHairpins()
+    local ssmm = finale.FCSmartShapeMeasureMarks()
+    ssmm:LoadAllForRegion(finenv.Region(), true) 
+    for mark in each(ssmm) do
+        local sm = mark:CreateSmartShape()
+        if sm:IsHairpin() then
+            sm:DeleteData()
+        end
+    end
+end
+
+local function deleteDynamics()
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(finenv.Region())
+    for exp in each(expressions) do
+        local ex_def = exp:CreateTextExpressionDef()
+        local cat_num = finale.FCCategoryDef()
+        cat_num:Load(1)
+        if ex_def:GetCategoryID(cat_num) then
+            exp:DeleteData()
+        end
+    end
+end
+
 local function setSwellRange(smart_shape1, smart_shape2)
     local music_region = finenv.Region()
     local measure_pos_table = {}
@@ -609,6 +633,14 @@ end
 
 local function func_0025()
     setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+end
+
+local function func_0026()
+    deleteHairpins()
+end
+
+local function func_0027()
+    deleteDynamics()
 end
 
 local function func_0100()
@@ -985,6 +1017,12 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0025" then
         func_0025()
+    end
+    if returnvalues[1] == "0026" then
+        func_0026()
+    end
+    if returnvalues[1] == "0027" then
+        func_0027()
     end
     if returnvalues[1] == "0100" then
         func_0100()

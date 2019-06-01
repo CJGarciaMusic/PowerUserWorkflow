@@ -5,20 +5,20 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, firstRadio, secondMenu, sec
 	try
 		tell application "System Events"
 			tell process appName
-				if menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1 exists then
-					click menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1
-					if name of front window contains "Align/Move" then
+				-- if menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1 exists then
+				-- 	click menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1
+				-- 	if name of front window contains "Align/Move" then
 						key code 69 using {command down, option down}
-						click radio button firstRadio of tab group 1 of front window 
-						click button "Go" of front window
-						click button "Close" of front window
-					end if
-				else
-					click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
-					click radio button secondRadio of window "Align/Move Dynamics"
-					click button "Go" of window "Align/Move Dynamics"
-					click button "Close" of window "Align/Move Dynamics"
-				end if
+				-- 		click radio button firstRadio of tab group 1 of front window 
+				-- 		click button "Go" of front window
+				-- 		click button "Close" of front window
+				-- 	end if
+				-- else
+				-- 	click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
+				-- 	click radio button secondRadio of window "Align/Move Dynamics"
+				-- 	click button "Go" of window "Align/Move Dynamics"
+				-- 	click button "Close" of window "Align/Move Dynamics"
+				-- end if
 			end tell
 		end tell
 		return true
