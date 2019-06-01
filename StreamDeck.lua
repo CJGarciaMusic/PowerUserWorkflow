@@ -12,119 +12,121 @@ dialog.Title = "Stream Deck for Finale"
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-local function deleteArticulations(art_id)
-    for noteentry in eachentry(finenv.Region()) do
-        local articulations = noteentry:CreateArticulations()
-        for a in eachbackwards(articulations) do
-            local ad = a:CreateArticulationDef()
-            if a:GetID() == art_id then
-                a:DeleteData()
+local function assignArticulation(art_id)
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local a = finale.FCArticulation()
+        a:SetNoteEntry(noteentry)
+        local ad = finale.FCArticulationDef()        
+        if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then
+            a:SetID(art_id)
+            a:SaveNew()
+        else
+            if ad:GetAboveSymbolChar() == 85 then
+                a:SetID(art_id)
+                a:SaveNew()
             end
         end 
     end
 end
 
-local function addArticulation(art_id)
-    finenv.UI():AlertInfo("\nArticulations be broken right now, please be patient :)\n\n -CJ", NULL)
-    return
-    -- for noteentry in eachentrysaved(finenv.Region()) do
-    --     local a = finale.FCArticulation()
-    --     a:SetNoteEntry(noteentry)
-    --     local ad = finale.FCArticulationDef()
-    --     print(ad:GetItemNo())
-    --     if ad:Load(art_id) then
-    --         local articulations = noteentry:CreateArticulations()
-    --         for adef in eachbackwards(articulations) do
-    --             if adef:GetID() == art_id then
-    --                 adef:DeleteData()
-    --             end
-    --         end
-    --         if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
-    --             a:SetID(art_id)
-    --             a:SaveNew()
-    --         else
-    --             if ad:GetAboveSymbolChar() == 85 then
-    --                 a:SetID(art_id)
-    --                 a:SaveNew()
-    --             end
-    --         end 
-    --     else
-    --         if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
-    --             a:SetID(art_id)
-    --             a:SaveNew()
-    --         else
-    --             if ad:GetAboveSymbolChar() == 85 then
-    --                 a:SetID(art_id)
-    --                 a:SaveNew()
-    --             end
-    --         end 
-    --     end
-    -- end
+local function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
+    local ad = finale.FCArticulationDef()
+    ad:SetMainSymbolChar(MainSymbolChar)
+    ad:SetMainSymbolFont(MainSymbolFont)
+    ad:SetAboveSymbolChar(AboveSymbolChar)
+    ad:SetAboveUsesMain(AboveUsesMain)
+    ad:SetAlwaysPlaceOutsideStaff(AlwaysPlaceOutsideStaff)
+    ad:SetAttachToTopNote(AttachToTopNote)
+    ad:SetAttackIsPercent(AttackIsPercent)
+    ad:SetAutoPosSide(AutoPosSide)
+    ad:SetAvoidStaffLines(AvoidStaffLines)
+    ad:SetBelowSymbolChar(BelowSymbolChar)
+    ad:SetBelowUsesMain(BelowUsesMain)
+    ad:SetBottomAttack(BottomAttack)
+    ad:SetBottomDuration(BottomDuration)
+    ad:SetBottomVelocity(BottomVelocity)
+    ad:SetCenterHorizontally(CenterHorizontally)
+    ad:SetCopyMainSymbol(CopyMainSymbol)
+    ad:SetCopyMainSymbolHorizontally(CopyMainSymbolHorizontally)
+    ad:SetDefaultVerticalPos(DefaultVerticalPos)
+    ad:SetDurationIsPercent(DurationIsPercent)
+    ad:SetMainHandleHorizontalOffset(MainHandleHorizontalOffset)
+    ad:SetMainHandleVerticalOffset(MainHandleVerticalOffset)
+    ad:SetFlippedHandleHorizontalOffset(FlippedHandleHorizontalOffset)
+    ad:SetFlippedHandleVerticalOffset(FlippedHandleVerticalOffset)
+    ad:SetFlippedSymbolChar(FlippedSymbolChar)
+    ad:SetFlippedSymbolFont(FlippedSymbolFont)
+    ad:SetInsideSlurs(InsideSlurs)
+    ad:SetOnScreenOnly(OnScreenOnly)
+    ad:SetPlayback(Playback)
+    ad:SetTopAttack(TopAttack)
+    ad:SetTopDuration(TopDuration)
+    ad:SetTopVelocity(TopVelocity)
+    ad:SetVelocityIsPercent(VelocityIsPercent)
+    local fonti = ad:CreateMainSymbolFontInfo()
+    fonti:SetAbsolute(fm_Absolute)
+    fonti:SetBold(fm_Bold)
+    fonti:SetEnigmaStyles(fm_EnigmaStyles)
+    fonti:SetHidden(fm_Hidden)
+    fonti:SetItalic(fm_Italic)
+    fonti:SetName(fm_Name)
+    fonti:SetSize(fm_Size)
+    fonti:SetSizeFloat(fm_SizeFloat)
+    fonti:SetStrikeOut(fm_StrikeOut)
+    fonti:SetUnderline(fm_Underline)
+    ad:SetMainSymbolFontInfo(fonti)
+    local fontif = ad:CreateFlippedSymbolFontInfo()
+    fontif:SetAbsolute(ff_Absolute)
+    fontif:SetBold(ff_Bold)
+    fontif:SetEnigmaStyles(ff_EnigmaStyles)
+    fontif:SetHidden(ff_Hidden)
+    fontif:SetItalic(ff_Italic)
+    fontif:SetName(ff_Name)
+    fontif:SetSize(ff_Size)
+    fontif:SetSizeFloat(ff_SizeFloat)
+    fontif:SetStrikeOut(ff_StrikeOut)
+    fontif:SetUnderline(ff_Underline)
+    ad:SetFlippedSymbolFontInfo(fontif)
+    ad:SaveNew()
+    full_art_table[table_placement] = ad:GetItemNo()
+    assignArticulation(full_art_table[table_placement])
 end
 
-local function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
-    finenv.UI():AlertInfo("\nArticulations be broken right now, please be patient :)\n -CJ", NULL)
-    return
-    -- local ad = finale.FCArticulationDef()
-    -- ad:SetMainSymbolChar(MainSymbolChar)
-    -- ad:SetMainSymbolFont(MainSymbolFont)
-    -- ad:SetAboveSymbolChar(AboveSymbolChar)
-    -- ad:SetAboveUsesMain(AboveUsesMain)
-    -- ad:SetAlwaysPlaceOutsideStaff(AlwaysPlaceOutsideStaff)
-    -- ad:SetAttachToTopNote(AttachToTopNote)
-    -- ad:SetAttackIsPercent(AttackIsPercent)
-    -- ad:SetAutoPosSide(AutoPosSide)
-    -- ad:SetAvoidStaffLines(AvoidStaffLines)
-    -- ad:SetBelowSymbolChar(BelowSymbolChar)
-    -- ad:SetBelowUsesMain(BelowUsesMain)
-    -- ad:SetBottomAttack(BottomAttack)
-    -- ad:SetBottomDuration(BottomDuration)
-    -- ad:SetBottomVelocity(BottomVelocity)
-    -- ad:SetCenterHorizontally(CenterHorizontally)
-    -- ad:SetCopyMainSymbol(CopyMainSymbol)
-    -- ad:SetCopyMainSymbolHorizontally(CopyMainSymbolHorizontally)
-    -- ad:SetDefaultVerticalPos(DefaultVerticalPos)
-    -- ad:SetDurationIsPercent(DurationIsPercent)
-    -- ad:SetMainHandleHorizontalOffset(MainHandleHorizontalOffset)
-    -- ad:SetMainHandleVerticalOffset(MainHandleVerticalOffset)
-    -- ad:SetFlippedHandleHorizontalOffset(FlippedHandleHorizontalOffset)
-    -- ad:SetFlippedHandleVerticalOffset(FlippedHandleVerticalOffset)
-    -- ad:SetFlippedSymbolChar(FlippedSymbolChar)
-    -- ad:SetFlippedSymbolFont(FlippedSymbolFont)
-    -- ad:SetInsideSlurs(InsideSlurs)
-    -- ad:SetOnScreenOnly(OnScreenOnly)
-    -- ad:SetPlayback(Playback)
-    -- ad:SetTopAttack(TopAttack)
-    -- ad:SetTopDuration(TopDuration)
-    -- ad:SetTopVelocity(TopVelocity)
-    -- ad:SetVelocityIsPercent(VelocityIsPercent)
-    -- local fonti = ad:CreateMainSymbolFontInfo()
-    -- fonti:SetAbsolute(fm_Absolute)
-    -- fonti:SetBold(fm_Bold)
-    -- fonti:SetEnigmaStyles(fm_EnigmaStyles)
-    -- fonti:SetHidden(fm_Hidden)
-    -- fonti:SetItalic(fm_Italic)
-    -- fonti:SetName(fm_Name)
-    -- fonti:SetSize(fm_Size)
-    -- fonti:SetSizeFloat(fm_SizeFloat)
-    -- fonti:SetStrikeOut(fm_StrikeOut)
-    -- fonti:SetUnderline(fm_Underline)
-    -- ad:SetMainSymbolFontInfo(fonti)
-    -- local fontif = ad:CreateFlippedSymbolFontInfo()
-    -- fontif:SetAbsolute(ff_Absolute)
-    -- fontif:SetBold(ff_Bold)
-    -- fontif:SetEnigmaStyles(ff_EnigmaStyles)
-    -- fontif:SetHidden(ff_Hidden)
-    -- fontif:SetItalic(ff_Italic)
-    -- fontif:SetName(ff_Name)
-    -- fontif:SetSize(ff_Size)
-    -- fontif:SetSizeFloat(ff_SizeFloat)
-    -- fontif:SetStrikeOut(ff_StrikeOut)
-    -- fontif:SetUnderline(ff_Underline)
-    -- ad:SetFlippedSymbolFontInfo(fontif)
-    -- ad:SaveNew()
-    -- full_art_table[table_placement] = ad:GetItemNo()
-    -- addArticulation(full_art_table[table_placement])
+local function deleteArticulation(id_num)
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local artics = noteentry:CreateArticulations()
+        for a in eachbackwards(artics) do
+            local defs = a:CreateArticulationDef()
+            if defs:GetItemNo() == id_num then
+                a:DeleteData()
+            end
+        end
+    end
+end
+
+local function addArticulation(art_id)
+    local artic_ids = {}
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local artics = noteentry:CreateArticulations()
+        for a in each(artics) do
+            local defs = a:CreateArticulationDef()
+            table.insert(artic_ids, defs:GetItemNo())
+        end
+    end
+
+    local found_artic = 0
+
+    for key, value in pairs(artic_ids) do
+        if value == art_id then
+            found_artic = 1
+        end
+    end
+
+    if found_artic ~= 0 then
+        deleteArticulation(art_id)
+    else
+        assignArticulation(art_id)
+    end
 end
 
 local function findArticulation(table_placement, AboveSymbolChar)
