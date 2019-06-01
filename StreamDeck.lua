@@ -25,76 +25,30 @@ local function deleteArticulations(art_id)
 end
 
 local function addArticulation(art_id)
-    -- for noteentry in eachentry(finenv.Region()) do
-        -- local articulations = noteentry:CreateArticulations()
-        -- for a in eachbackwards(articulations) do
-        --     local ad = a:CreateArticulationDef()
-        --     if a:GetID() == art_id then
-        --         a:DeleteData()
-        --     end
-        -- end
-    -- end
-
-    for noteentry in eachentrysaved(finenv.Region()) do
-        local a = finale.FCArticulation()
-        a:SetNoteEntry(noteentry)
-        local ad = finale.FCArticulationDef()
-        if a:LoadFirst() then
-            -- if ad:Load(a:GetID()) then
-                deleteArticulations(art_id)              
-                if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
-                    a:SetID(art_id)
-                    a:SaveNew()
-                end
-                if noteentry:IsRest() then
-                    if ad:GetAboveSymbolChar() == 85 then
-                        a:SetID(art_id)
-                        a:SaveNew()
-                    end
-                end
-            -- end
-        else
-            ad:Load(art_id)
-            if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
-                a:SetID(art_id)
-                a:SaveNew()
-            else
-                if ad:GetAboveSymbolChar() == 85 then
-                    a:SetID(art_id)
-                    a:SaveNew()
-                end
-            end 
-        end
-    end
-    
-        -- local ads = finale.FCArticulationDefs()
-        -- local a = finale.FCArticulation()
-        -- a:SetNoteEntry(noteentry)
-        -- if a:LoadFirst() then
-        --     for ad in each(ads) do
-                -- if ad:Load(a:GetID()) then
-                --     print("something!")
-                -- else
-    --                 if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
-    --                     if ad:GetItemNo() == art_id then
-    --                         if (ad:GetAboveSymbolChar() == 33)  or (ad:GetAboveSymbolChar() == 64) or (ad:GetAboveSymbolChar() == 190) then
-    --                             a:DeleteData()
-    --                         end
-    --                     end
-    --                     a:SetID(art_id)
-    --                     a:SaveNew()
-    --                 end
-    --                 if noteentry:IsRest() then
-    --                     if ad:GetAboveSymbolChar() == 85 then
-    --                         a:SetID(art_id)
-    --                         a:SaveNew()
-    --                     end
-    --                 end
+    finenv.UI():AlertInfo("\nArticulations be broken right now, please be patient :)\n\n -CJ", NULL)
+    return
+    -- for noteentry in eachentrysaved(finenv.Region()) do
+    --     local a = finale.FCArticulation()
+    --     a:SetNoteEntry(noteentry)
+    --     local ad = finale.FCArticulationDef()
+    --     print(ad:GetItemNo())
+    --     if ad:Load(art_id) then
+    --         local articulations = noteentry:CreateArticulations()
+    --         for adef in eachbackwards(articulations) do
+    --             if adef:GetID() == art_id then
+    --                 adef:DeleteData()
     --             end
-    --         -- end
+    --         end
+    --         if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
+    --             a:SetID(art_id)
+    --             a:SaveNew()
+    --         else
+    --             if ad:GetAboveSymbolChar() == 85 then
+    --                 a:SetID(art_id)
+    --                 a:SaveNew()
+    --             end
+    --         end 
     --     else
-    --         local ad = finale.FCArticulationDef()
-    --         ad:Load(art_id)
     --         if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then 
     --             a:SetID(art_id)
     --             a:SaveNew()
@@ -109,66 +63,68 @@ local function addArticulation(art_id)
 end
 
 local function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
-    local ad = finale.FCArticulationDef()
-    ad:SetMainSymbolChar(MainSymbolChar)
-    ad:SetMainSymbolFont(MainSymbolFont)
-    ad:SetAboveSymbolChar(AboveSymbolChar)
-    ad:SetAboveUsesMain(AboveUsesMain)
-    ad:SetAlwaysPlaceOutsideStaff(AlwaysPlaceOutsideStaff)
-    ad:SetAttachToTopNote(AttachToTopNote)
-    ad:SetAttackIsPercent(AttackIsPercent)
-    ad:SetAutoPosSide(AutoPosSide)
-    ad:SetAvoidStaffLines(AvoidStaffLines)
-    ad:SetBelowSymbolChar(BelowSymbolChar)
-    ad:SetBelowUsesMain(BelowUsesMain)
-    ad:SetBottomAttack(BottomAttack)
-    ad:SetBottomDuration(BottomDuration)
-    ad:SetBottomVelocity(BottomVelocity)
-    ad:SetCenterHorizontally(CenterHorizontally)
-    ad:SetCopyMainSymbol(CopyMainSymbol)
-    ad:SetCopyMainSymbolHorizontally(CopyMainSymbolHorizontally)
-    ad:SetDefaultVerticalPos(DefaultVerticalPos)
-    ad:SetDurationIsPercent(DurationIsPercent)
-    ad:SetMainHandleHorizontalOffset(MainHandleHorizontalOffset)
-    ad:SetMainHandleVerticalOffset(MainHandleVerticalOffset)
-    ad:SetFlippedHandleHorizontalOffset(FlippedHandleHorizontalOffset)
-    ad:SetFlippedHandleVerticalOffset(FlippedHandleVerticalOffset)
-    ad:SetFlippedSymbolChar(FlippedSymbolChar)
-    ad:SetFlippedSymbolFont(FlippedSymbolFont)
-    ad:SetInsideSlurs(InsideSlurs)
-    ad:SetOnScreenOnly(OnScreenOnly)
-    ad:SetPlayback(Playback)
-    ad:SetTopAttack(TopAttack)
-    ad:SetTopDuration(TopDuration)
-    ad:SetTopVelocity(TopVelocity)
-    ad:SetVelocityIsPercent(VelocityIsPercent)
-    local fonti = ad:CreateMainSymbolFontInfo()
-    fonti:SetAbsolute(fm_Absolute)
-    fonti:SetBold(fm_Bold)
-    fonti:SetEnigmaStyles(fm_EnigmaStyles)
-    fonti:SetHidden(fm_Hidden)
-    fonti:SetItalic(fm_Italic)
-    fonti:SetName(fm_Name)
-    fonti:SetSize(fm_Size)
-    fonti:SetSizeFloat(fm_SizeFloat)
-    fonti:SetStrikeOut(fm_StrikeOut)
-    fonti:SetUnderline(fm_Underline)
-    ad:SetMainSymbolFontInfo(fonti)
-    local fontif = ad:CreateFlippedSymbolFontInfo()
-    fontif:SetAbsolute(ff_Absolute)
-    fontif:SetBold(ff_Bold)
-    fontif:SetEnigmaStyles(ff_EnigmaStyles)
-    fontif:SetHidden(ff_Hidden)
-    fontif:SetItalic(ff_Italic)
-    fontif:SetName(ff_Name)
-    fontif:SetSize(ff_Size)
-    fontif:SetSizeFloat(ff_SizeFloat)
-    fontif:SetStrikeOut(ff_StrikeOut)
-    fontif:SetUnderline(ff_Underline)
-    ad:SetFlippedSymbolFontInfo(fontif)
-    ad:SaveNew()
-    full_art_table[table_placement] = ad:GetItemNo()
-    addArticulation(full_art_table[table_placement])
+    finenv.UI():AlertInfo("\nArticulations be broken right now, please be patient :)\n -CJ", NULL)
+    return
+    -- local ad = finale.FCArticulationDef()
+    -- ad:SetMainSymbolChar(MainSymbolChar)
+    -- ad:SetMainSymbolFont(MainSymbolFont)
+    -- ad:SetAboveSymbolChar(AboveSymbolChar)
+    -- ad:SetAboveUsesMain(AboveUsesMain)
+    -- ad:SetAlwaysPlaceOutsideStaff(AlwaysPlaceOutsideStaff)
+    -- ad:SetAttachToTopNote(AttachToTopNote)
+    -- ad:SetAttackIsPercent(AttackIsPercent)
+    -- ad:SetAutoPosSide(AutoPosSide)
+    -- ad:SetAvoidStaffLines(AvoidStaffLines)
+    -- ad:SetBelowSymbolChar(BelowSymbolChar)
+    -- ad:SetBelowUsesMain(BelowUsesMain)
+    -- ad:SetBottomAttack(BottomAttack)
+    -- ad:SetBottomDuration(BottomDuration)
+    -- ad:SetBottomVelocity(BottomVelocity)
+    -- ad:SetCenterHorizontally(CenterHorizontally)
+    -- ad:SetCopyMainSymbol(CopyMainSymbol)
+    -- ad:SetCopyMainSymbolHorizontally(CopyMainSymbolHorizontally)
+    -- ad:SetDefaultVerticalPos(DefaultVerticalPos)
+    -- ad:SetDurationIsPercent(DurationIsPercent)
+    -- ad:SetMainHandleHorizontalOffset(MainHandleHorizontalOffset)
+    -- ad:SetMainHandleVerticalOffset(MainHandleVerticalOffset)
+    -- ad:SetFlippedHandleHorizontalOffset(FlippedHandleHorizontalOffset)
+    -- ad:SetFlippedHandleVerticalOffset(FlippedHandleVerticalOffset)
+    -- ad:SetFlippedSymbolChar(FlippedSymbolChar)
+    -- ad:SetFlippedSymbolFont(FlippedSymbolFont)
+    -- ad:SetInsideSlurs(InsideSlurs)
+    -- ad:SetOnScreenOnly(OnScreenOnly)
+    -- ad:SetPlayback(Playback)
+    -- ad:SetTopAttack(TopAttack)
+    -- ad:SetTopDuration(TopDuration)
+    -- ad:SetTopVelocity(TopVelocity)
+    -- ad:SetVelocityIsPercent(VelocityIsPercent)
+    -- local fonti = ad:CreateMainSymbolFontInfo()
+    -- fonti:SetAbsolute(fm_Absolute)
+    -- fonti:SetBold(fm_Bold)
+    -- fonti:SetEnigmaStyles(fm_EnigmaStyles)
+    -- fonti:SetHidden(fm_Hidden)
+    -- fonti:SetItalic(fm_Italic)
+    -- fonti:SetName(fm_Name)
+    -- fonti:SetSize(fm_Size)
+    -- fonti:SetSizeFloat(fm_SizeFloat)
+    -- fonti:SetStrikeOut(fm_StrikeOut)
+    -- fonti:SetUnderline(fm_Underline)
+    -- ad:SetMainSymbolFontInfo(fonti)
+    -- local fontif = ad:CreateFlippedSymbolFontInfo()
+    -- fontif:SetAbsolute(ff_Absolute)
+    -- fontif:SetBold(ff_Bold)
+    -- fontif:SetEnigmaStyles(ff_EnigmaStyles)
+    -- fontif:SetHidden(ff_Hidden)
+    -- fontif:SetItalic(ff_Italic)
+    -- fontif:SetName(ff_Name)
+    -- fontif:SetSize(ff_Size)
+    -- fontif:SetSizeFloat(ff_SizeFloat)
+    -- fontif:SetStrikeOut(ff_StrikeOut)
+    -- fontif:SetUnderline(ff_Underline)
+    -- ad:SetFlippedSymbolFontInfo(fontif)
+    -- ad:SaveNew()
+    -- full_art_table[table_placement] = ad:GetItemNo()
+    -- addArticulation(full_art_table[table_placement])
 end
 
 local function findArticulation(table_placement, AboveSymbolChar)
@@ -517,7 +473,7 @@ local function findExpression(font, glyph_nums, table_name, description_text)
                     table.insert(matching_glyphs, already_exists)
                 end
             else
-                if exp:CreateTextString():GetCharacterAt(-1) == glyph_nums[1] then
+                if (exp:CreateTextString():GetCharacterAt(33) == glyph_nums[1])  or (exp:CreateTextString():GetCharacterAt(32) == glyph_nums[1]) then
                     already_exists = exp:GetItemNo()
                     table.insert(matching_glyphs, already_exists) 
                 end
@@ -930,6 +886,23 @@ local function func_0300()
     end
 end
 
+local function func_9000()
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count ~= 2) then goto continue end
+        local highestnote = entry:CalcHighestNote(nil)
+        local lowestnote = entry:CalcLowestNote(nil)
+        local mididiff = highestnote:CalcMIDIKey() - lowestnote:CalcMIDIKey()
+        if ((mididiff ~= 12 and mididiff > 7) or 3 > mididiff or mididiff == 6)then goto continue end
+        local notehead = finale.FCNoteheadMod()
+        notehead:EraseAt(lowestnote)
+        notehead:EraseAt(highestnote)
+        notehead.CustomChar = 79
+        notehead.Resize = 110
+        notehead:SaveAt(highestnote)
+        ::continue::
+     end
+end
+
 dialog:SetTypes("String")
 dialog:SetDescriptions("Function Number")
 
@@ -1085,5 +1058,8 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0300" then
         func_0300()
+    end
+    if returnvalues[1] == "9000" then
+        func_9000()
     end
 end

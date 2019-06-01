@@ -7,9 +7,11 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, firstRadio, secondMenu, sec
 			tell process appName
 				if menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1 exists then
 					click menu item firstOption of menu of menu item firstSubMenu of menu firstMenu of menu bar 1
-					click radio button firstRadio of tab group 1 of window " Align/Move 3.00rc3 "
-					key code 36
-					key code 53
+					if name of front window contains "Align/Move" then
+						click radio button firstRadio of tab group 1 of front window 
+						click button "Go" of front window
+						click button "Close" of front window
+					end if
 				else
 					click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
 					click radio button secondRadio of window "Align/Move Dynamics"
