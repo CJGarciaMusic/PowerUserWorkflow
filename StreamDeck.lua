@@ -514,6 +514,47 @@ local function findExpression(font, glyph_nums, table_name, description_text)
     end
 end
 
+local function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, breve_glyph)
+    if font_name == "" then
+        local fontinfo = finale.FCFontInfo()
+        if fontinfo:LoadFontPrefs(23) then
+            font_name = fontinfo:GetName()  
+        end
+    end
+
+    local nm = finale.FCNoteheadMod()
+    nm:SetUseCustomFont(true)
+    nm.FontName = font_name
+
+    for noteentry in eachentrysaved(finenv.Region()) do 
+        nm:SetNoteEntry(noteentry)
+        for note in each(noteentry) do
+            if noteentry.Duration < 2048 then
+                nm.CustomChar = quarter_glyph
+            end
+            if (noteentry.Duration >= 2048) and (noteentry.Duration < 4096) then
+                nm.CustomChar = half_glyph
+                if half_glyph == 124 then
+                    nm:SetUseDefaultVerticalPos(false)
+                    nm:SetVerticalPos(-24)
+                end
+            end
+            if (noteentry.Duration >= 4096) and (noteentry.Duration < 8192) then
+                nm.CustomChar = whole_glyph
+                if half_glyph == 124 then
+                    nm:SetUseDefaultVerticalPos(false)
+                    nm:SetVerticalPos(-24)
+                end
+            end
+            if (noteentry.Duration >= 8192) then
+                nm.CustomChar = breve_glyph
+            end
+            nm:SaveAt(note)
+        end
+    end
+end
+
+
 local function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion()
@@ -909,6 +950,63 @@ local function func_0124()
     end
 end
 
+local function func_0200()
+    changeNoteheads("Maestro Percussion", 120, 88, 88, 88)
+end
+
+local function func_0201()
+    changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
+end
+
+local function func_0202()
+    changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
+end
+
+local function func_0203()
+    changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
+end
+
+local function func_0204()
+    changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
+end
+
+local function func_0205()
+    changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
+end
+
+local function func_0206()
+    changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
+end
+
+local function func_0207()
+    changeNoteheads("Maestro", 243, 124, 124, 218)
+end
+
+local function func_0208()
+    changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
+end
+
+local function func_0209()
+    changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
+end
+
+local function func_0210()
+    changeNoteheads("Maestro", 32, 32, 32, 32)
+end
+
+local function func_0211()
+    local nm = finale.FCNoteheadMod()
+    nm:SetUseCustomFont(false)
+    
+    for noteentry in eachentrysaved(finenv.Region()) do 
+        nm:SetNoteEntry(noteentry)
+        for note in each(noteentry) do
+            nm:ClearChar()
+            nm:SaveAt(note)
+        end
+    end
+end
+
 local function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -1107,6 +1205,42 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0124" then
         func_0124()
+    end
+    if returnvalues[1] == "0200" then
+        func_0200()
+    end
+    if returnvalues[1] == "0201" then
+        func_0201()
+    end
+    if returnvalues[1] == "0202" then
+        func_0202()
+    end
+    if returnvalues[1] == "0203" then
+        func_0203()
+    end
+    if returnvalues[1] == "0204" then
+        func_0204()
+    end
+    if returnvalues[1] == "0205" then
+        func_0205()
+    end
+    if returnvalues[1] == "0206" then
+        func_0206()
+    end
+    if returnvalues[1] == "0207" then
+        func_0207()
+    end
+    if returnvalues[1] == "0208" then
+        func_0208()
+    end
+    if returnvalues[1] == "0209" then
+        func_0209()
+    end
+    if returnvalues[1] == "0210" then
+        func_0210()
+    end
+    if returnvalues[1] == "0211" then
+        func_0211()
     end
     if returnvalues[1] == "0300" then
         func_0300()
