@@ -10,7 +10,7 @@ end
 local dialog = finenv.UserValueInput()
 dialog.Title = "Stream Deck for Finale"
 
-local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 local function assignArticulation(art_id)
     for noteentry in eachentrysaved(finenv.Region()) do
@@ -806,42 +806,51 @@ local function func_0117()
 end
 
 local function func_0118()
-    findArticulation(19, 155)
+    findArticulation(19, 103)
     if full_art_table[19] == 0 then
-        createArticulation(19, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, 42, 20, 42, 44, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+        createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
         addArticulation(full_art_table[19])
     end
 end
 
 local function func_0119()
-    findArticulation(20, 152)
+    findArticulation(20, 155)
     if full_art_table[20] == 0 then
-        createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 39, -20, 40, 10, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+        createArticulation(20, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, 42, 20, 42, 44, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
     else
         addArticulation(full_art_table[20])
     end
 end
 
 local function func_0120()
-    findArticulation(21, 147)
+    findArticulation(21, 152)
     if full_art_table[21] == 0 then
-        createArticulation(21, 147, "Broadway Copyist", 147, true, false, false, false, 2, false, 147, false, 0, 0, 0, true, false, false, 0, false, -66, -36, -66, -12, 147, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+        createArticulation(21, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 39, -20, 40, 10, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
     else
         addArticulation(full_art_table[21])
     end
 end
 
 local function func_0121()
-    findArticulation(22, 146)
+    findArticulation(22, 147)
     if full_art_table[22] == 0 then
-        createArticulation(22, 146, "Broadway Copyist", 146, true, false, false, false, 2, false, 146, false, 0, 0, 0, true, false, false, 0, false, 66, -34, 66, -6, 146, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+        createArticulation(22, 147, "Broadway Copyist", 147, true, false, false, false, 2, false, 147, false, 0, 0, 0, true, false, false, 0, false, -66, -36, -66, -12, 147, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
     else
         addArticulation(full_art_table[22])
     end
 end
 
 local function func_0122()
+    findArticulation(23, 146)
+    if full_art_table[23] == 0 then
+        createArticulation(23, 146, "Broadway Copyist", 146, true, false, false, false, 2, false, 146, false, 0, 0, 0, true, false, false, 0, false, 66, -34, 66, -6, 146, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+    else
+        addArticulation(full_art_table[23])
+    end
+end
+
+local function func_0123()
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
     local art_table = {0, 0, 0, 0}
@@ -890,7 +899,7 @@ local function func_0122()
     end
 end
 
-local function func_0123()
+local function func_0124()
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
@@ -1095,6 +1104,9 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0123" then
         func_0123()
+    end
+    if returnvalues[1] == "0124" then
+        func_0124()
     end
     if returnvalues[1] == "0300" then
         func_0300()
