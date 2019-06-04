@@ -433,7 +433,7 @@ local function addExpression(staff_num, measure_num, measure_pos)
     add_expression:SaveNewToCell(and_cell)
 end
 
-local function getFirstNoteInRegion()
+local function getFirstNoteInRegion(note_range)
     for staff_range = finenv.Region():GetStartStaff(), finenv.Region():GetEndStaff() do
         local first_note = {}
         local music_range = finenv.Region()
@@ -441,18 +441,28 @@ local function getFirstNoteInRegion()
         music_range:SetEndStaff(staff_range)
         local measures = finale.FCMeasures()
         measures:LoadRegion(music_range)
-        
+        local count = 0
         for m in each(measures) do
             for noteentry in eachentrysaved(finenv.Region()) do
                 if noteentry:IsNote() then
                     table.insert(first_note, {noteentry:GetStaff(), noteentry:GetMeasure(), noteentry:GetMeasurePos()})
+                    count = count + 1
                 end
             end
         end
-        if first_note[1] == nil then
-            return
-        else
-            addExpression(first_note[1][1], first_note[1][2], first_note[1][3])
+        if note_range == "Start" then
+            if first_note[1] == nil then
+                return
+            else
+                addExpression(first_note[1][1], first_note[1][2], first_note[1][3])
+            end
+        end
+        if note_range == "End" then
+            if first_note[count] == nil then
+                print("no last note")
+            else
+                addExpression(first_note[count][1], first_note[count][2], first_note[count][3])
+            end
         end
     end
 end
@@ -557,107 +567,107 @@ end
 
 local function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0002()    
     findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0003()    
     findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0004()
     findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0005()    
     findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0006()    
     findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0007()    
     findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0008()
     findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0009()    
     findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0010()    
     findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0011()
     findExpression("^^fontMus", {234}, first_expression, "forte piano")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0012()
     findExpression("^^fontMus", {90}, first_expression, "forzando")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0013()
     findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0014()
     findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0015()
     findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0016()
     findExpression("^^fontMus", {83}, first_expression, "sforzando")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0017()
     findExpression("^^fontMus", {141}, first_expression, "sforzato")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0018()
     findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0019()
     findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0020()
     findExpression("^^fontMus", {167}, first_expression, "sforzato")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0021()
     findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
-    getFirstNoteInRegion()
+    getFirstNoteInRegion("Start")
 end
 
 local function func_0022()
@@ -682,6 +692,111 @@ end
 
 local function func_0027()
     deleteDynamics()
+end
+
+local function func_0028()
+    findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0029()    
+    findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0030()    
+    findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0031()
+    findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0032()    
+    findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0033()    
+    findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0034()    
+    findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0035()
+    findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0036()    
+    findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0037()    
+    findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0038()
+    findExpression("^^fontMus", {234}, first_expression, "forte piano")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0039()
+    findExpression("^^fontMus", {90}, first_expression, "forzando")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0040()
+    findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0041()
+    findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0042()
+    findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0043()
+    findExpression("^^fontMus", {83}, first_expression, "sforzando")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0044()
+    findExpression("^^fontMus", {141}, first_expression, "sforzato")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0045()
+    findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0046()
+    findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0047()
+    findExpression("^^fontMus", {167}, first_expression, "sforzato")
+    getFirstNoteInRegion("End")
+end
+
+local function func_0048()
+    findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
+    getFirstNoteInRegion("End")
 end
 
 local function func_0100()
@@ -1148,6 +1263,69 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0027" then
         func_0027()
+    end
+    if returnvalues[1] == "0028" then
+        func_0028()
+    end
+    if returnvalues[1] == "0029" then
+        func_0029()
+    end
+    if returnvalues[1] == "0030" then
+        func_0030()
+    end
+    if returnvalues[1] == "0031" then
+        func_0031()
+    end
+    if returnvalues[1] == "0032" then
+        func_0032()
+    end
+    if returnvalues[1] == "0033" then
+        func_0033()
+    end
+    if returnvalues[1] == "0034" then
+        func_0034()
+    end
+    if returnvalues[1] == "0035" then
+        func_0035()
+    end
+    if returnvalues[1] == "0036" then
+        func_0036()
+    end
+    if returnvalues[1] == "0037" then
+        func_0037()
+    end
+    if returnvalues[1] == "0038" then
+        func_0038()
+    end
+    if returnvalues[1] == "0039" then
+        func_0039()
+    end
+    if returnvalues[1] == "0040" then
+        func_0040()
+    end
+    if returnvalues[1] == "0041" then
+        func_0041()
+    end
+    if returnvalues[1] == "0042" then
+        func_0042()
+    end
+    if returnvalues[1] == "0043" then
+        func_0043()
+    end
+    if returnvalues[1] == "0044" then
+        func_0044()
+    end
+    if returnvalues[1] == "0045" then
+        func_0045()
+    end
+    if returnvalues[1] == "0046" then
+        func_0046()
+    end
+    if returnvalues[1] == "0047" then
+        func_0047()
+    end
+    if returnvalues[1] == "0048" then
+        func_0048()
     end
     if returnvalues[1] == "0100" then
         func_0100()
