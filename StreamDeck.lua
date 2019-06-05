@@ -16,16 +16,23 @@ local function assignArticulation(art_id)
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
-        local ad = finale.FCArticulationDef()        
-        if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then
-            a:SetID(art_id)
-            a:SaveNew()
-        else
-            if ad:GetAboveSymbolChar() == 85 then
+        local ad = finale.FCArticulationDef()
+        if (art_id == full_art_table[20]) or (art_id == full_art_table[21]) or (art_id == full_art_table[25]) then
+            if (noteentry:IsNote()) and (noteentry:IsTied() == false) then
+                a:SetID(art_id)
+                a:SaveNew()  
+            end
+        else      
+            if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then
                 a:SetID(art_id)
                 a:SaveNew()
-            end
-        end 
+            else
+                if ad:GetAboveSymbolChar() == 85 then
+                    a:SetID(art_id)
+                    a:SaveNew()
+                end
+            end 
+        end
     end
 end
 
