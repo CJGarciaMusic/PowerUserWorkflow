@@ -6,6 +6,8 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 		tell application "System Events"
 			tell process appName
 				click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
+                keystroke 100
+                key code 36
 			end tell
 		end tell
 		return true
@@ -17,4 +19,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "Scoring and Arranging", "Add Cue Notes…")
+subMenuItem("Utilities", "Change", "Note Size…")
