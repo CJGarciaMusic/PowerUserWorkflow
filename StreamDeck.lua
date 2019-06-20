@@ -348,6 +348,64 @@ local function deleteHairpins()
     end
 end
 
+local function increaseDynamic()
+    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+    
+    local tex_defs = finale.FCTextExpressionDefs()
+    tex_defs:LoadAll()
+    for tex in each(tex_defs) do
+        for key, value in pairs(dyn_char) do
+            if tex:CreateTextString():GetCharacterAt(33) == value then
+                dyn_table[key] = tex:GetItemNo()
+            end
+        end
+    end
+    
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(finenv.Region())
+    for exp in each(expressions) do
+        local ex_def = exp:CreateTextExpressionDef()
+        for key, value in pairs(dyn_char) do
+            if key < 10 then
+                if ex_def:CreateTextString():GetCharacterAt(33) == value then
+                    exp:SetID(dyn_table[key + 1])
+                    exp:Save()
+                end
+            end
+        end
+    end
+end
+
+local function decreaseDynamic()
+    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+    
+    local tex_defs = finale.FCTextExpressionDefs()
+    tex_defs:LoadAll()
+    for tex in each(tex_defs) do
+        for key, value in pairs(dyn_char) do
+            if tex:CreateTextString():GetCharacterAt(33) == value then
+                dyn_table[key] = tex:GetItemNo()
+            end
+        end
+    end
+    
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(finenv.Region())
+    for exp in each(expressions) do
+        local ex_def = exp:CreateTextExpressionDef()
+        for key, value in pairs(dyn_char) do
+            if key > 1 then
+                if ex_def:CreateTextString():GetCharacterAt(33) == value then
+                    exp:SetID(dyn_table[key - 1])
+                    exp:Save()
+                end
+            end
+        end
+    end
+end
+
 local function deleteDynamics()
     local expressions = finale.FCExpressions()
     expressions:LoadAllForRegion(finenv.Region())
@@ -806,6 +864,14 @@ local function func_0048()
     getFirstNoteInRegion("End")
 end
 
+local function func_0049()
+    increaseDynamic()
+end
+
+local function func_0050()
+    decreaseDynamic()
+end
+
 local function func_0100()
     findArticulation(1, 62)
     if full_art_table[1] == 0 then
@@ -1169,11 +1235,15 @@ end
 
 local function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
-        if (entry.Count ~= 2) then goto continue end
+        if (entry.Count ~= 2) then 
+            goto continue 
+        end
         local highestnote = entry:CalcHighestNote(nil)
         local lowestnote = entry:CalcLowestNote(nil)
         local mididiff = highestnote:CalcMIDIKey() - lowestnote:CalcMIDIKey()
-        if ((mididiff ~= 12 and mididiff > 7) or 3 > mididiff or mididiff == 6)then goto continue end
+        if ((mididiff ~= 12 and mididiff > 7) or (3 > mididiff) or (mididiff == 6)) then 
+            goto continue 
+        end
         local notehead = finale.FCNoteheadMod()
         notehead:EraseAt(lowestnote)
         notehead:EraseAt(highestnote)
@@ -1333,6 +1403,12 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0048" then
         func_0048()
+    end
+    if returnvalues[1] == "0049" then
+        func_0049()
+    end
+    if returnvalues[1] == "0050" then
+        func_0050()
     end
     if returnvalues[1] == "0100" then
         func_0100()
