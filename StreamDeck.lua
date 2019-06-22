@@ -629,6 +629,15 @@ local function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph
     end
 end
 
+local function alter_bass(placement)
+
+    local chords = finale.FCChords()
+    chords:LoadAllForRegion(finenv.Region())
+    for c in each(chords) do
+       c.ChordAlternateBassPlacement = placement
+        c:Save()
+    end
+end
 
 local function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
@@ -1233,6 +1242,18 @@ local function func_0300()
     end
 end
 
+local function func_0500()
+    alter_bass(0)
+end
+
+local function func_0501()
+    alter_bass(1)
+end
+
+local function func_0502()
+    alter_bass(2)
+end
+
 local function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -1529,6 +1550,15 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0300" then
         func_0300()
+    end
+    if returnvalues[1] == "0500" then
+        func_0500()
+    end
+    if returnvalues[1] == "0501" then
+        func_0501()
+    end
+    if returnvalues[1] == "0502" then
+        func_0502()
     end
     if returnvalues[1] == "9000" then
         func_9000()
