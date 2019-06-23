@@ -629,6 +629,19 @@ local function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph
     end
 end
 
+local function barline_change(style, bookend)
+    local measure = finale.FCMeasure()
+    local music_region = finenv.Region()
+    if bookend then
+        measure:Load(music_region:GetStartMeasure() - 1)
+        measure.Barline = style
+        measure:Save()
+    end
+        measure:Load(music_region:GetEndMeasure())
+        measure.Barline = style
+        measure:Save()
+end
+
 local function alter_bass(placement)
 
     local chords = finale.FCChords()
@@ -1242,6 +1255,79 @@ local function func_0300()
     end
 end
 
+local function func_0400()
+    barline_change(0, false)
+end
+
+local function func_0401()
+    barline_change(1, false)
+end
+
+local function func_0402()
+    barline_change(2, false)
+end
+
+local function func_0403()
+    barline_change(3, false)
+end
+
+local function func_0404()
+    barline_change(4, false)
+end
+
+local function func_0405()
+    barline_change(5, false)
+end
+
+local function func_0406()
+    barline_change(6, false)
+end
+
+local function func_0407()
+    barline_change(7, false)
+end
+
+local function func_0408()
+    barline_change(0, true)
+end
+
+local function func_0409()
+    barline_change(1, true)
+end
+
+local function func_0410()
+    barline_change(2, true)
+end
+
+local function func_0411()
+    barline_change(3, true)
+end
+
+local function func_0412()
+    barline_change(4, true)
+end
+
+local function func_0413()
+    barline_change(5, true)
+end
+
+local function func_0414()
+    barline_change(6, true)
+end
+
+local function func_0415()
+    barline_change(7, true)
+end
+
+local function func_0416()
+    local measures = finale.FCMeasures()
+    measures:LoadRegion(finenv.Region())
+    for measure in each(measures) do
+        measure.Barline = 1
+        measure:Save()
+    end    
+end
+
 local function func_0500()
     alter_bass(0)
 end
@@ -1550,6 +1636,57 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0300" then
         func_0300()
+    end
+    if returnvalues[1] == "0400" then
+        func_0400()
+    end
+    if returnvalues[1] == "0401" then
+        func_0401()
+    end
+    if returnvalues[1] == "0402" then
+        func_0402()
+    end
+    if returnvalues[1] == "0403" then
+        func_0403()
+    end
+    if returnvalues[1] == "0404" then
+        func_0404()
+    end
+    if returnvalues[1] == "0405" then
+        func_0405()
+    end
+    if returnvalues[1] == "0406" then
+        func_0406()
+    end
+    if returnvalues[1] == "0407" then
+        func_0407()
+    end
+    if returnvalues[1] == "0408" then
+        func_0408()
+    end
+    if returnvalues[1] == "0409" then
+        func_0409()
+    end
+    if returnvalues[1] == "0410" then
+        func_0410()
+    end
+    if returnvalues[1] == "0411" then
+        func_0411()
+    end
+    if returnvalues[1] == "0412" then
+        func_0412()
+    end
+    if returnvalues[1] == "0413" then
+        func_0413()
+    end
+    if returnvalues[1] == "0414" then
+        func_0414()
+    end
+    if returnvalues[1] == "0415" then
+        func_0415()
+    end
+    if returnvalues[1] == "0416" then
+        func_0416()
     end
     if returnvalues[1] == "0500" then
         func_0500()
