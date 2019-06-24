@@ -6,8 +6,7 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 		tell application "System Events"
 			tell process appName
 				click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-                click checkbox "Make stacking dynamic for stacked articulations" of window "Change Articulation Assignments"
-                key code 36
+				key code 36
 			end tell
 		end tell
 		return true
