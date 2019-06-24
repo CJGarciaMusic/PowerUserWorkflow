@@ -637,13 +637,90 @@ local function barline_change(style, bookend)
         measure.Barline = style
         measure:Save()
     end
-        measure:Load(music_region:GetEndMeasure())
-        measure.Barline = style
-        measure:Save()
+    measure:Load(music_region:GetEndMeasure())
+    measure.Barline = style
+    measure:Save()
+end
+
+local function add_rehearsal_marks(measure_num, reh_type)
+    local teds = finale.FCTextExpressionDefs()
+    teds:LoadAll()
+    local rehearsal_letters = {}
+    local rehearsal_numbers = {}
+    local rehearsal_measures = {}
+    for ted in each(teds) do
+        if ted:GetCategoryID() == 6 then
+            if (ted:IsAutoRehearsalMark()) and (string.find(ted:CreateDescription().LuaString, "Rehearsal Letters")) then
+                table.insert(rehearsal_letters, ted.ItemNo)
+            end
+            if (ted:IsAutoRehearsalMark()) and (string.find(ted:CreateDescription().LuaString, "Rehearsal Numbers")) then
+                table.insert(rehearsal_numbers, ted.ItemNo)
+            end
+            if (ted:IsAutoRehearsalMark()) and (string.find(ted:CreateDescription().LuaString, "Measure Number")) then
+                table.insert(rehearsal_measures, ted.ItemNo)
+            end
+        end
+    end
+
+    local function add_exp(exp_id)
+        add_expression=finale.FCExpression()
+        add_expression:SetStaff(1)
+        add_expression:SetVisible(true)
+        add_expression:SetMeasurePos(0)
+        add_expression:SetScaleWithEntry(false)
+        add_expression:SetPartAssignment(true)
+        add_expression:SetScoreAssignment(true)
+        add_expression:SetID(exp_id)
+        local and_cell = finale.FCCell(measure_num, 1)
+        add_expression:SaveNewToCell(and_cell)
+    end
+    if reh_type == "Letter" then
+        if rehearsal_letters[1] == nil then
+            finenv.UI():AlertInfo("There doesn't appear to be any Auto-Rehearsal Marks using Letters in the Rehearsal Marks Category. Please create one and try again.", NULL)
+        else
+            add_exp(rehearsal_letters[1])
+        end
+    end
+    if reh_type == "Number" then
+        if rehearsal_numbers[1] == nil then
+            finenv.UI():AlertInfo("There doesn't appear to be any Auto-Rehearsal Marks using Numbers in the Rehearsal Marks Category. Please create one and try again.", NULL)
+        else
+            add_exp(rehearsal_numbers[1])
+        end
+    end
+    if reh_type == "Measure" then
+        if rehearsal_measures[1] == nil then
+            finenv.UI():AlertInfo("There doesn't appear to be any Auto-Rehearsal Marks using Measure Numbers in the Rehearsal Marks Category. Please create one and try again.", NULL)
+        else
+            add_exp(rehearsal_measures[1])
+        end
+    end  
+end
+
+local function delete_rehearsal_marks()
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(finenv.Region())
+    for e in each(expressions) do
+        local ex_def = finale.FCTextExpressionDef()
+        ex_def:Load(e.ID)
+        if ex_def:GetCategoryID() == 6 then
+            e:DeleteData()
+        end
+    end
+end
+
+local function find_double_barlines(rehearsal_mark_type)
+    delete_rehearsal_marks()
+    local measures = finale.FCMeasures()
+    measures:LoadRegion(finenv.Region())
+    for m in each(measures) do
+        if m.Barline == 2 then
+            add_rehearsal_marks(m.ItemNo + 1, rehearsal_mark_type)
+        end
+    end
 end
 
 local function alter_bass(placement)
-
     local chords = finale.FCChords()
     chords:LoadAllForRegion(finenv.Region())
     for c in each(chords) do
@@ -1328,6 +1405,22 @@ local function func_0416()
     end    
 end
 
+local function func_0417()
+    find_double_barlines("Letter")
+end
+
+local function func_0418()
+    find_double_barlines("Number")
+end
+
+local function func_0419()
+    find_double_barlines("Measure")
+end
+
+local function func_0420()
+    delete_rehearsal_marks()
+end
+
 local function func_0500()
     alter_bass(0)
 end
@@ -1687,6 +1780,18 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0416" then
         func_0416()
+    end
+    if returnvalues[1] == "0417" then
+        func_0417()
+    end
+    if returnvalues[1] == "0418" then
+        func_0418()
+    end
+    if returnvalues[1] == "0419" then
+        func_0419()
+    end
+    if returnvalues[1] == "0420" then
+        func_0420()
     end
     if returnvalues[1] == "0500" then
         func_0500()
