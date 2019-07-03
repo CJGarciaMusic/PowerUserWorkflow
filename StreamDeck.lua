@@ -1030,6 +1030,10 @@ local function func_0106()
     if full_art_table[7] == 0 then
         createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
+        findArticulation(8, 64)
+        deleteArticulation(full_art_table[8])
+        findArticulation(9, 190)
+        deleteArticulation(full_art_table[9])
         addArticulation(full_art_table[7])
     end
 end
@@ -1039,6 +1043,10 @@ local function func_0107()
     if full_art_table[8] == 0 then
         createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
+        findArticulation(7, 33)
+        deleteArticulation(full_art_table[7])
+        findArticulation(9, 190)
+        deleteArticulation(full_art_table[9])
         addArticulation(full_art_table[8])
     end
 end
@@ -1048,6 +1056,10 @@ local function func_0108()
     if full_art_table[9] == 0 then
         createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
+        findArticulation(7, 33)
+        deleteArticulation(full_art_table[7])
+        findArticulation(8, 64)
+        deleteArticulation(full_art_table[8])
         addArticulation(full_art_table[9])
     end
 end
