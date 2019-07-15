@@ -729,6 +729,18 @@ local function alter_bass(placement)
     end
 end
 
+local function set_time(beat_num, beat_duration)
+    local measures = finale.FCMeasures()
+    measures:LoadRegion(finenv.Region())
+    for m in each(measures) do
+        local time_sig = m:GetTimeSignature()
+        time_sig:SetBeats(beat_num)
+        time_sig:SetBeatDuration(beat_duration)
+        time_sig:Save()
+        m:Save()
+    end
+end
+
 local function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("Start")
@@ -1445,6 +1457,54 @@ local function func_0502()
     alter_bass(2)
 end
 
+local  function func_0550()
+   set_time(2, 1024) 
+end
+
+local  function func_0551()
+    set_time(2, 2048) 
+end
+
+local  function func_0552()
+    set_time(3, 2048) 
+end
+
+local  function func_0553()
+    set_time(3, 1024) 
+end
+
+local  function func_0554()
+    set_time(1, 1536) 
+end
+
+local  function func_0555()
+    set_time(4, 1024) 
+end
+
+local  function func_0556()
+    set_time(5, 1024) 
+end
+
+local  function func_0557()
+    set_time(5, 512) 
+end
+
+local  function func_0558()
+    set_time(2, 1536) 
+end
+
+local  function func_0559()
+    set_time(7, 512) 
+end
+
+local  function func_0560()
+    set_time(3, 1536) 
+end
+
+local  function func_0561()
+    set_time(4, 1536) 
+end
+
 local function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -1813,6 +1873,42 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0502" then
         func_0502()
+    end
+    if returnvalues[1] == "0550" then
+        func_0550()
+    end
+    if returnvalues[1] == "0551" then
+        func_0551()
+    end
+    if returnvalues[1] == "0552" then
+        func_0552()
+    end
+    if returnvalues[1] == "0553" then
+        func_0553()
+    end
+    if returnvalues[1] == "0554" then
+        func_0554()
+    end
+    if returnvalues[1] == "0555" then
+        func_0555()
+    end
+    if returnvalues[1] == "0556" then
+        func_0556()
+    end
+    if returnvalues[1] == "0557" then
+        func_0557()
+    end
+    if returnvalues[1] == "0558" then
+        func_0558()
+    end
+    if returnvalues[1] == "0559" then
+        func_0559()
+    end
+    if returnvalues[1] == "0560" then
+        func_0560()
+    end
+    if returnvalues[1] == "0561" then
+        func_0561()
     end
     if returnvalues[1] == "9000" then
         func_9000()
