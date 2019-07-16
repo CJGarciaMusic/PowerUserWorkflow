@@ -699,7 +699,8 @@ end
 
 local function delete_rehearsal_marks()
     local expressions = finale.FCExpressions()
-    expressions:LoadAllForRegion(finenv.Region())
+    local music_reg = finenv.Region():GetEndMeasure()
+    expressions:LoadAllForItem(music_reg + 1)
     for e in each(expressions) do
         local ex_def = finale.FCTextExpressionDef()
         ex_def:Load(e.ID)
