@@ -22,4 +22,4 @@ on editFilter(theMenuName, theMenuItemName, filterItems)
 	end try
 end editFilter
 
-editFilter("Edit", "Clear Selected Items…", "Notes and Rests", "Markings", "Expressions: Tempo Marks, Tempo Alterations")
+editFilter("Edit", "Clear Selected Items…", {"Notes and Rests", "Markings", "Expressions: Tempo Marks, Tempo Alterations"})
