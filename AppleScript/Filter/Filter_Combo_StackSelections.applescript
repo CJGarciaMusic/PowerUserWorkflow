@@ -1,4 +1,4 @@
-on editFilter(theMenuName, theMenuItemName, filterItem1, filterItem2)
+on editFilter(theMenuName, theMenuItemName, filterItems)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -7,8 +7,9 @@ on editFilter(theMenuName, theMenuItemName, filterItem1, filterItem2)
 			tell process appName
 				click menu item theMenuItemName of menu theMenuName of menu bar 1
 				click button "None" of window "Edit Filter"
-				click checkbox filterItem1 of window "Edit Filter"
-				click checkbox filterItem2 of window "Edit Filter"
+				repeat with filterItem in filterItems
+					click checkbox filterItem of window "Edit Filter"
+				end repeat
 	            click button "OK" of window "Edit Filter"
 			end tell
 		end tell
@@ -21,4 +22,4 @@ on editFilter(theMenuName, theMenuItemName, filterItem1, filterItem2)
 	end try
 end editFilter
 
-editFilter("Edit", "Edit Filter‚Ä¶", "Expressions: Tempo Marks, Tempo Alterations", "Measure Settings (Stack Selection Only)")
+editFilter("Edit", "Edit Filter…", {"Expressions: Tempo Marks, Tempo Alterations", "Measure Settings (Stack Selection Only)"})

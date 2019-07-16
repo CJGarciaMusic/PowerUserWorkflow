@@ -7,8 +7,7 @@ on editFilter(theMenuName, theMenuItemName, filterItems)
 			tell process appName
 				click menu item theMenuItemName of menu theMenuName of menu bar 1
 				click button "None" of window "Edit Filter"
-				set myList to filterItems
-				repeat with filterItem in myList
+				repeat with filterItem in filterItems
 					click checkbox filterItem of window "Edit Filter"
 				end repeat
 				click button "OK" of window "Edit Filter"

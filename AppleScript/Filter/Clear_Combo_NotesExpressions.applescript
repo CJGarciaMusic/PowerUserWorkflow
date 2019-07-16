@@ -1,4 +1,4 @@
-on editFilter(theMenuName, theMenuItemName, filterItem1, filterItem2, filterItem3)
+on editFilter(theMenuName, theMenuItemName, filterItems)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -7,9 +7,9 @@ on editFilter(theMenuName, theMenuItemName, filterItem1, filterItem2, filterItem
 			tell process appName
 				click menu item theMenuItemName of menu theMenuName of menu bar 1
 				click button "None" of window "Clear Selected Items"
-				click checkbox filterItem1 of window "Clear Selected Items"
-				click checkbox filterItem2 of window "Clear Selected Items"
-				click checkbox filterItem3 of window "Clear Selected Items"
+				repeat with filterItem in filterItems
+					click checkbox filterItem of window "Edit Filter"
+				end repeat
 	            click button "OK" of window "Clear Selected Items"
 			end tell
 		end tell
