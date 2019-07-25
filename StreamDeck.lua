@@ -429,33 +429,41 @@ local function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos
     end
 end
 
-local function setAdjustHairpinRange()
+local function setHairpinRange(smart_shape)
     local music_region = finenv.Region()
-    local start_meas = music_region:GetStartMeasure()
-    local end_meas = music_region:GetEndMeasure()
+    local hair_pin_settings = {}
+    
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         music_region:SetStartStaff(addstaff)
         music_region:SetEndStaff(addstaff)
-        
-        local measure_pos_table = {}
 
+        local measure_pos_table = {}
+        local measure_table = {}
+        
         local count = 0
         
-        for noteentry in eachentry(music_region) do
+        for noteentry in eachentrysaved(music_region) do
             if noteentry:IsNote() then
                 table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                table.insert(measure_table, noteentry:GetMeasure())
                 count = count + 1
             end
         end
 
         local start_pos = measure_pos_table[1]
-        
         local end_pos = measure_pos_table[count]
-        
-        if count < 2 then
+        local start_measure = measure_table[1]
+        local end_measure = measure_table[count]
+
+        if count == 1 then
             end_pos = music_region:GetEndMeasurePos() 
         end
-        adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
+
+        hair_pin_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos, smart_shape, 0}
+    end
+
+    for key, value in pairs(hair_pin_settings) do
+        createHairpin(value[1], value[2], value[3], value[4], value[5], value[6], value[7])
     end
 end
 

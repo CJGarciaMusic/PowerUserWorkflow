@@ -14,8 +14,8 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 			set theAlertText to "A Stream Deck error has occurred."
 			set theAlertMessage to "The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease try again."
 			display alert theAlertText message theAlertMessage as critical
+			return false
 		end tell
-		return false
 	end try
 end subMenuItem
 

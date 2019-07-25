@@ -10,19 +10,23 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, subToolName)
                 if getItem then
                     click menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
                 else
-                    set theAlertText to "A Stream Deck error has occurred."
-                    set theAlertMessage to "Please click into a text frame and try again."
-                    display alert theAlertText message theAlertMessage as critical
-                    return false
+                    tell application "System Events"
+                        set theAlertText to "A Stream Deck error has occurred."
+                        set theAlertMessage to "Please click into a text frame and try again."
+                        display alert theAlertText message theAlertMessage as critical
+                        return false
+                    end tell
                 end if
                 end tell
             end tell
 		return true
 	on error
-		set theAlertText to "A Stream Deck error has occurred."
-        set theAlertMessage to theMenuItemName & " - " & theSubMenuItem & " - " & subToolName & " wasn't able to be selected.\n\nPlease try again."
-        display alert theAlertText message theAlertMessage as critical
-		return false
+        tell application "System Events"
+            set theAlertText to "A Stream Deck error has occurred."
+            set theAlertMessage to theMenuItemName & " - " & theSubMenuItem & " - " & subToolName & " wasn't able to be selected.\n\nPlease try again."
+            display alert theAlertText message theAlertMessage as critical
+            return false
+        end tell
 	end try
 end subMenuItem
 

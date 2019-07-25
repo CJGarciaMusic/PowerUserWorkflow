@@ -17,10 +17,12 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, 
 		end tell
 		return true
 	on error
-		set theAlertText to "A Stream Deck error has occurred."
-        set theAlertMessage to "The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease try again."
-        display alert theAlertText message theAlertMessage as critical
-		return false
+		tell application "System Events"
+			set theAlertText to "A Stream Deck error has occurred."
+			set theAlertMessage to "The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease try again."
+			display alert theAlertText message theAlertMessage as critical
+			return false
+		end tell
 	end try
 end subMenuItem
 

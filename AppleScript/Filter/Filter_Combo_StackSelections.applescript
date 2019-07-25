@@ -15,10 +15,12 @@ on editFilter(theMenuName, theMenuItemName, filterItems)
 		end tell
 		return true
 	on error
-		set theAlertText to "A Stream Deck error has occurred."
-        set theAlertMessage to filterItem1 & " wasn't able to be selected.\n\nPlease try again."
-        display alert theAlertText message theAlertMessage as critical
-		return false
+		tell application "System Events"
+			set theAlertText to "A Stream Deck error has occurred."
+			set theAlertMessage to (filterItems as text) & " wasn't able to be selected.\n\nPlease try again."
+			display alert theAlertText message theAlertMessage as critical
+			return false
+		end tell
 	end try
 end editFilter
 
