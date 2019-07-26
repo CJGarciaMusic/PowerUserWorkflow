@@ -351,15 +351,18 @@ local function deleteHairpins()
 end
 
 local function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
+    local music_reg = finenv.Region()
+    music_reg:SetStartStaff(addstaff)
+    music_reg:SetEndStaff(addstaff)
+    music_reg:SetStartMeasure(start_meas)
+    music_reg:SetStartMeasurePos(start_pos)
+    music_reg:SetEndMeasure(end_meas)
+    music_reg:SetEndMeasurePos(end_pos)
     local ssmm = finale.FCSmartShapeMeasureMarks()
-    ssmm:LoadAllForRegion(finenv.Region(), true)
-    for mark in each(ssmm) do 
+    ssmm:LoadAllForRegion(music_reg, true)
+    for mark in each(ssmm) do
         local smartshape = mark:CreateSmartShape()
         if smartshape:IsHairpin() then
-            local music_reg = finenv.Region()
-            music_reg:SetStartStaff(addstaff)
-            music_reg:SetEndStaff(addstaff)
-
             local has_left_dyn = 0
             local left_x_value = 0
             music_reg:SetStartMeasure(start_meas)
@@ -429,9 +432,9 @@ local function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos
     end
 end
 
-local function setHairpinRange(smart_shape)
+local function setAdjustHairpinRange()
     local music_region = finenv.Region()
-    local hair_pin_settings = {}
+    local range_settings = {}
     
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         music_region:SetStartStaff(addstaff)
@@ -458,12 +461,114 @@ local function setHairpinRange(smart_shape)
         if count == 1 then
             end_pos = music_region:GetEndMeasurePos() 
         end
-
-        hair_pin_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos, smart_shape, 0}
+    
+        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
     end
 
-    for key, value in pairs(hair_pin_settings) do
-        createHairpin(value[1], value[2], value[3], value[4], value[5], value[6], value[7])
+    for key, value in pairs(range_settings) do
+        adjustHairpins(value[1], value[2], value[3], value[4], value[5])
+    end
+end
+
+local function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightnote, shape)
+    local smartshape = finale.FCSmartShape()
+    smartshape.ShapeType = shape
+    smartshape:SetEntryAttachedFlags(true)
+    smartshape:SetSlurFlags(true)
+    smartshape.EntryBased = true
+    smartshape.PresetShape = true
+    smartshape.Visible = true
+
+    local leftseg = smartshape:GetTerminateSegmentLeft()
+    leftseg:SetMeasure(measure_start)
+    leftseg:SetStaff(staff)
+    leftseg:SetEntry(leftnote)
+
+    local rightseg = smartshape:GetTerminateSegmentRight()
+    rightseg:SetMeasure(measure_end)
+    rightseg:SetStaff(staff)
+    rightseg:SetEntry(rightnote)
+    if shape == 26 then
+        leftseg.NoteID = 1
+        rightseg.NoteID = 1
+    end
+    smartshape:SaveNewEverything(leftnote, rightnote)
+end
+
+local function setFirstLastNoteRangeEntry(smart_shape)
+    local music_region = finenv.Region()
+    local range_settings = {}
+    
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+
+        local measure_pos_table = {}
+        local measure_table = {}
+        
+        local count = 0
+        
+        for noteentry in eachentrysaved(music_region) do
+            if noteentry:IsNote() then
+                table.insert(measure_pos_table, noteentry)
+                table.insert(measure_table, noteentry:GetMeasure())
+                count = count + 1
+            end
+        end
+
+        local start_pos = measure_pos_table[1]
+        local end_pos = measure_pos_table[count]
+        local start_measure = measure_table[1]
+        local end_measure = measure_table[count]
+
+        if count == 1 then
+            end_pos = music_region:GetEndMeasurePos() 
+        end
+    
+        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+    end
+
+    for key, value in pairs(range_settings) do
+        createEntryBasedSL(value[1], value[2], value[3], value[4], value[5], smart_shape)
+    end
+end
+
+
+local function setFirstLastNoteRangeBeat(smart_shape)
+    local music_region = finenv.Region()
+    local range_settings = {}
+    
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+
+        local measure_pos_table = {}
+        local measure_table = {}
+        
+        local count = 0
+        
+        for noteentry in eachentrysaved(music_region) do
+            if noteentry:IsNote() then
+                table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                table.insert(measure_table, noteentry:GetMeasure())
+                count = count + 1
+            end
+        end
+
+        local start_pos = measure_pos_table[1]
+        local end_pos = measure_pos_table[count]
+        local start_measure = measure_table[1]
+        local end_measure = measure_table[count]
+
+        if count == 1 then
+            end_pos = music_region:GetEndMeasurePos() 
+        end
+    
+        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+    end
+
+    for key, value in pairs(range_settings) do
+        createHairpin(value[1], value[2], value[3], value[4], value[5], smart_shape, 0)
     end
 end
 
@@ -553,61 +658,6 @@ local function deleteSlur()
     end
 end
 
-local function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightnote, shape)
-    local smartshape = finale.FCSmartShape()
-    smartshape.ShapeType = shape
-    smartshape:SetEntryAttachedFlags(true)
-    smartshape:SetSlurFlags(true)
-    smartshape.EntryBased = true
-    smartshape.PresetShape = true
-    smartshape.Visible = true
-
-    local leftseg = smartshape:GetTerminateSegmentLeft()
-    leftseg:SetMeasure(measure_start)
-    leftseg:SetStaff(staff)
-    leftseg:SetEntry(leftnote)
-
-    local rightseg = smartshape:GetTerminateSegmentRight()
-    rightseg:SetMeasure(measure_end)
-    rightseg:SetStaff(staff)
-    rightseg:SetEntry(rightnote)
-    if shape == 26 then
-        leftseg.NoteID = 1
-        rightseg.NoteID = 1
-    end
-    smartshape:SaveNewEverything(leftnote, rightnote)
-end
-
-local function setEntryBasedSLRange(smart_shape)
-    local music_region = finenv.Region()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        music_region:SetStartStaff(addstaff)
-        music_region:SetEndStaff(addstaff)
-        local start_meas = music_region.StartMeasure
-        local end_meas = music_region.EndMeasure
-
-        local measure_pos_table = {}
-
-        local count = 0
-        
-        for noteentry in eachentry(music_region) do
-            if noteentry:IsNote() then
-                table.insert(measure_pos_table, noteentry)
-                count = count + 1
-            end
-        end
-
-        local start_pos = measure_pos_table[1]
-        
-        local end_pos = measure_pos_table[count]
-        if count < 2 then
-            return
-        else
-            createEntryBasedSL(addstaff, start_meas, end_meas, start_pos, end_pos, smart_shape)
-        end
-    end
-end
-
 local function setSwellRange(smart_shape1, smart_shape2)
     local music_region = finenv.Region()
     local measure_pos_table = {}
@@ -688,35 +738,44 @@ local function addExpression(staff_num, measure_num, measure_pos)
 end
 
 local function getFirstNoteInRegion(note_range)
-    for staff_range = finenv.Region():GetStartStaff(), finenv.Region():GetEndStaff() do
-        local first_note = {}
-        local music_range = finenv.Region()
-        music_range:SetStartStaff(staff_range)
-        music_range:SetEndStaff(staff_range)
-        local measures = finale.FCMeasures()
-        measures:LoadRegion(music_range)
+    local music_region = finenv.Region()
+    local range_settings = {}
+    
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+
+        local measure_pos_table = {}
+        local measure_table = {}
+        
         local count = 0
-        for m in each(measures) do
-            for noteentry in eachentrysaved(finenv.Region()) do
-                if noteentry:IsNote() then
-                    table.insert(first_note, {noteentry:GetStaff(), noteentry:GetMeasure(), noteentry:GetMeasurePos()})
-                    count = count + 1
-                end
+        
+        for noteentry in eachentrysaved(music_region) do
+            if noteentry:IsNote() then
+                table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                table.insert(measure_table, noteentry:GetMeasure())
+                count = count + 1
             end
         end
+
+        local start_pos = measure_pos_table[1]
+        local end_pos = measure_pos_table[count]
+        local start_measure = measure_table[1]
+        local end_measure = measure_table[count]
+
+        if count == 1 then
+            end_pos = music_region:GetEndMeasurePos() 
+        end
+    
+        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+    end
+
+    for key, value in pairs(range_settings) do
         if note_range == "Start" then
-            if first_note[1] == nil then
-                return
-            else
-                addExpression(first_note[1][1], first_note[1][2], first_note[1][3])
-            end
+            addExpression(value[1], value[2], value[4])
         end
         if note_range == "End" then
-            if first_note[count] == nil then
-                print("no last note")
-            else
-                addExpression(first_note[count][1], first_note[count][2], first_note[count][3])
-            end
+            addExpression(value[1], value[3], value[5])
         end
     end
 end
@@ -1038,12 +1097,12 @@ end
 
 local function func_0022()
     deleteHairpins()
-    setHairpinRange(finale.SMARTSHAPE_CRESCENDO)
+    setFirstLastNoteRangeBeat(finale.SMARTSHAPE_CRESCENDO)
 end
 
 local function func_0023()
     deleteHairpins()
-    setHairpinRange(finale.SMARTSHAPE_DIMINUENDO)
+    setFirstLastNoteRangeBeat(finale.SMARTSHAPE_DIMINUENDO)
 end
 
 local function func_0024()
@@ -1177,17 +1236,17 @@ end
 
 local  function func_0604()
     deleteSlur()
-    setEntryBasedSLRange(finale.SMARTSHAPE_TABSLIDE)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
 end
 
 local  function func_0609()
     deleteSlur()
-    setEntryBasedSLRange(finale.SMARTSHAPE_SLURAUTO)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
 end
 
 local  function func_0610()
     deleteSlur()
-    setEntryBasedSLRange(finale.SMARTSHAPE_DASHEDSLURAUTO)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
 end
 
 local function func_0100()
