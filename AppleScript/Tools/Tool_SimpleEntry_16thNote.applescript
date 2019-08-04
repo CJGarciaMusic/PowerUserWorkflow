@@ -8,7 +8,6 @@ end errorMessage
 
 on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	tell application "System Events"
-		key code 48 using {command down}
 		set appName to name of the first process whose frontmost is true
 	end tell
 	
@@ -23,13 +22,13 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 				set activeMenuItem to enabled of menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if item 1 of activeMenuItem is true then
 					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
+					return true
 				else
 					errorMessage("The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease try again.")
 					return false
 				end if
 			end tell
 		end tell
-		return true
 	on error
 		errorMessage("The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease try again.")
 		return false

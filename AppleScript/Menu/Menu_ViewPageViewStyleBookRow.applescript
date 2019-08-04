@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end subMenuItem
 
-subMenuItem("View", "Show", "Page Layout Icons")
+subMenuItem("View", "   Page View Style", "Book Style: Row")
