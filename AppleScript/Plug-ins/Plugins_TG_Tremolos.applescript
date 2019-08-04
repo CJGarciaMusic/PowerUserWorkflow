@@ -1,7 +1,21 @@
+on errorMessage(displayMessage)
+	tell application "System Events"
+		set theAlertText to "A Stream Deck error has occurred."
+		set theAlertMessage to displayMessage
+		display alert theAlertText message theAlertMessage as critical
+	end tell
+end errorMessage
+
 on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, secondOption)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
+
+	if appName does not contain "Finale" then
+		errorMessage("Finale is not in focus, please try again")
+		return false
+	end if
+
 	try
 		tell application "System Events"
 			tell process appName
@@ -18,12 +32,8 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, 
 		end tell
 		return true
 	on error
-		tell application "System Events"
-			set theAlertText to "A Stream Deck error has occurred."
-			set theAlertMessage to "The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease try again."
-			display alert theAlertText message theAlertMessage as critical
-			return false
-		end tell
+		errorMessage("The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease try again.")
+		return false
 	end try
 end subMenuItem
 
