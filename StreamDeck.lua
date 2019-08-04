@@ -341,11 +341,13 @@ end
 
 local function deleteHairpins()
     local ssmm = finale.FCSmartShapeMeasureMarks()
-    ssmm:LoadAllForRegion(finenv.Region(), true) 
+    ssmm:LoadAllForRegion(finenv.Region(), true)
     for mark in each(ssmm) do
         local sm = mark:CreateSmartShape()
-        if sm:IsHairpin() then
-            sm:DeleteData()
+        if sm ~= nil then
+            if sm:IsHairpin() then
+                sm:DeleteData()
+            end
         end
     end
 end
