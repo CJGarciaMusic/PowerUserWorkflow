@@ -31,7 +31,7 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, 
 		end tell
 		return true
 	on error
-		errorMessage("The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease be sure your document is in focus try again.")
 		return false
 	end try
 end subMenuItem

@@ -27,13 +27,12 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 					key code 36
 					return true
 				else
-					errorMessage("The " & theSubMenuItem & " plug-in wasn't able to be selected.\n\nPlease try again.")
-					return false
+					error
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theSubMenuItem & " plug-in wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The " & theSubMenuItem & " plug-in wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end subMenuItem

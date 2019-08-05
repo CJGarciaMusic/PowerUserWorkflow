@@ -15,7 +15,7 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 		errorMessage("Finale is not in focus, please try again")
 		return false
 	end if
-	
+
 	try
 		tell application "System Events"
 			tell process appName
@@ -24,7 +24,7 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 		end tell
 		return true
 	on error
-		errorMessage("The plug-in " & theSubMenuItem & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The plug-in " & secondSubMenu & " wasn't able to be selected.\n\nPlease be sure your document is in focus try again.")
 		return false
 	end try
 end subMenuItem
