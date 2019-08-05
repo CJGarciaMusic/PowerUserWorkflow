@@ -27,7 +27,7 @@ on subMenuItem(theMenuItemName, theSubMenuItem, subToolName)
 		end tell
 		return true
 	on error
-		errorMessage(theMenuItemName & " - " & theSubMenuItem & " - " & subToolName & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("Adding an ellison wasn't able to execute.\n\nPlease make sure you are typing lyrics into your score and try again.")
 		return false
 	end try
 end subMenuItem

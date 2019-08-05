@@ -27,18 +27,16 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, subToolName)
 						click menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
 						return true
 					else
-						errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease try again.")
-						return false
+						error
 					end if
 				else
-					errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease try again.")
-					return false
+					error
 				end if
 			end tell
 		end tell
 		return true
 	on error
-		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end subMenuItem
