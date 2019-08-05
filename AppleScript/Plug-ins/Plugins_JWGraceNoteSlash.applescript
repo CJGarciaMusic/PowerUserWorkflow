@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW", "JW Grace Note Slash")
+subMenuItem("Plug-ins", "JW Plug-ins", "JW Grace Note Slash")

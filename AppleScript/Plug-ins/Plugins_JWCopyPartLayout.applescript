@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW", "JW Copy Part Layout...")
+subMenuItem("Plug-ins", "JW Plug-ins", "JW Copy Part Layout...")
