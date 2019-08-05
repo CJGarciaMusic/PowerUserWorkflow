@@ -24,13 +24,12 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
 					key code 36
 				else
-					errorMessage("The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease try again.")
-					return false
+					error
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The " & theSubMenuItem & " tool wasn't able to be selected.\n\nPlease select a region and try again.")
 		return false
 	end try
 end subMenuItem

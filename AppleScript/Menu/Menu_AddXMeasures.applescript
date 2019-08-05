@@ -10,7 +10,7 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
-	
+
 	if appName does not contain "Finale" then
 		errorMessage("Finale is not in focus, please try again")
 		return false
@@ -24,13 +24,12 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
 					return true 
 				else
-					errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
-					return false 
+					error 
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end chooseMenuItem

@@ -1,3 +1,11 @@
+on errorMessage(displayMessage)
+	tell application "System Events"
+		set theAlertText to "A Stream Deck error has occurred."
+		set theAlertMessage to displayMessage
+		display alert theAlertText message theAlertMessage as critical
+	end tell
+end errorMessage
+
 on chooseMenuItem(theMenuName, theMenuItemName)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
@@ -16,13 +24,12 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
 					return true 
 				else
-					errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
-					return false 
+					error 
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease select a region and try again.")
 		return false
 	end try
 end chooseMenuItem

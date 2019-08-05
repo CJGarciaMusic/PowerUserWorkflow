@@ -23,14 +23,13 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 				if item 1 of activeMenuItem is true then
 					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
 				else
-					errorMessage(theMenuItemName & " wasn't able to be selected.\n\nPlease try again.")
-					return false
+					error
 				end if
 			end tell
 		end tell
 		return true
 	on error
-		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end subMenuItem

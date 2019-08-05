@@ -24,13 +24,12 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
 					return true 
 				else
-					errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
-					return false 
+					error 
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease select a measure try again.")
 		return false
 	end try
 end chooseMenuItem

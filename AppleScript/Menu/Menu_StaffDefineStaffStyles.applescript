@@ -27,17 +27,15 @@ on chooseMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 						click menu item theSubMenuItem of menu theMenuItemName of menu bar 1
 						return true 
 					else
-						errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
-						return false
+						error
 					end if
 				else
-					errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
-					return false 
+					error 
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease try again.")
+		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your doucment is in focus and try again.")
 		return false
 	end try
 end chooseMenuItem
