@@ -24,13 +24,12 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 					click menu item theSubMenuItem of menu theMenuItemName of menu bar 1
                     return true
                 else
-                    errorMessage("Please click into a text frame and try again.")
-                    return false
+                    error
                 end if
 			end tell
 		end tell
 	on error
-		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease click into a text box and try again.")
 		return false
 	end try
 end subMenuItem
