@@ -10,16 +10,16 @@ on editClear(theMenuName, theMenuItemName, filterItems)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
-
+	
 	if appName does not contain "Finale" then
 		errorMessage("Finale is not in focus, please try again")
 		return false
 	end if
-
+	
 	try
 		tell application "System Events"
 			tell process appName
-			set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
+				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
 					click button "None" of window "Clear Selected Items"
@@ -29,15 +29,14 @@ on editClear(theMenuName, theMenuItemName, filterItems)
 					click button "OK" of window "Clear Selected Items"
 					return true
 				else
-					errorMessage((filterItems as text) & " wasn't able to be selected.\n\nPlease try again.")
-					return false
+					error
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage((filterItems as text) & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage(theMenuItemName & " wasn't able to be selected.\n\nPlease select a region and try again.")
 		return false
 	end try
 end editClear
 
-editClear("Edit", "Edit Filter…", {"Expressions: Tempo Marks, Tempo Alterations", "Measure Settings (Stack Selection Only)"})
+editClear("Edit", "Clear Selected Items…", {"Expressions: Tempo Marks, Tempo Alterations", "Measure Settings (Stack Selection Only)"})

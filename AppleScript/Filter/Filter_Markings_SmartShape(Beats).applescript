@@ -29,13 +29,12 @@ on editFilter(theMenuName, theMenuItemName, filterItems)
 					click button "OK" of window "Edit Filter"
 					return true
 				else
-					errorMessage((filterItems as text) & " wasn't able to be selected.\n\nPlease try again.")
-					return false
+					error
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage((filterItems as text) & " wasn't able to be selected.\n\nPlease try again.")
+		errorMessage(theMenuItemName & " wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end editFilter
