@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	end try
 end subMenuItem
 
-subMenuItem("Finale", "Enharmonic Spelling", "Favor Flats")
+subMenuItem("Finale", "Enharmonic Spelling", "Use Default Spelling")
