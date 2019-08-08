@@ -476,10 +476,13 @@ local function createEntryBasedSL(staff, measure_start, measure_end, leftnote, r
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
     smartshape:SetEntryAttachedFlags(true)
-    smartshape:SetSlurFlags(true)
+    if smartshape:IsAutoSlur() then
+        smartshape:SetSlurFlags(true)
+    end
     smartshape.EntryBased = true
     smartshape.PresetShape = true
     smartshape.Visible = true
+    -- smartshape.LineID = shape
 
     local leftseg = smartshape:GetTerminateSegmentLeft()
     leftseg:SetMeasure(measure_start)
@@ -490,7 +493,7 @@ local function createEntryBasedSL(staff, measure_start, measure_end, leftnote, r
     rightseg:SetMeasure(measure_end)
     rightseg:SetStaff(staff)
     rightseg:SetEntry(rightnote)
-    if shape == 26 then
+    if (shape == 26) or (shape == 25) then
         leftseg.NoteID = 1
         rightseg.NoteID = 1
     end
@@ -574,6 +577,126 @@ local function setFirstLastNoteRangeBeat(smart_shape)
     end
 end
 
+local function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape)    
+    local smartshape = finale.FCSmartShape()
+    smartshape.ShapeType = shape
+    smartshape.EntryBased = false
+    smartshape.MakeHorizontal = true
+    smartshape.BeatAttached= true
+    smartshape.PresetShape = true
+    smartshape.Visible = true
+    smartshape.LineID = shape
+
+    if rightpos ~= nil then
+        if rightpos > 1000000 then
+            local get_time = finale.FCMeasure()
+            get_time:Load(measure_end)
+            local new_right_end = get_time:GetTimeSignature()
+            local beat = new_right_end:GetBeats()
+            local duration = new_right_end:GetBeatDuration()
+            rightpos = (beat * duration)
+        end
+    end
+
+    local staff_pos = {}
+    local count = 0
+    local music_reg = finenv.Region()
+    music_reg:SetStartStaff(staff)
+    music_reg:SetEndStaff(staff)
+
+    for noteentry in eachentrysaved(music_reg) do
+        if noteentry:IsNote() then
+            for note in each(noteentry) do
+                table.insert(staff_pos, note:CalcStaffPosition())
+                count = count + 1
+            end
+        end
+    end
+
+    local base_line_offset = 36
+    local entry_offset  = 36
+
+    table.sort(staff_pos)
+
+    if staff_pos[count] == nil then
+        y_value = base_line_offset 
+    else
+        if staff_pos[count] >= 0 then
+            y_value = (staff_pos[count] * 12) + entry_offset
+        else
+            y_value = base_line_offset 
+        end
+    end
+
+    local leftseg = smartshape:GetTerminateSegmentLeft()
+    leftseg:SetMeasure(measure_start)
+    leftseg.Staff = staff
+    leftseg:SetCustomOffset(false)
+    leftseg:SetEndpointOffsetY(y_value)
+    leftseg:SetMeasurePos(leftpos)
+
+    local rightseg = smartshape:GetTerminateSegmentRight()
+    rightseg:SetMeasure(measure_end)
+    rightseg.Staff = staff
+    rightseg:SetCustomOffset(false)
+    rightseg:SetEndpointOffsetY(y_value)
+    rightseg:SetMeasurePos(rightpos)
+    smartshape:SaveNewEverything(nil, nil)
+end
+
+local function createBeatBasedSL(smart_shape)
+    local music_region = finenv.Region()
+    local range_settings = {}
+    
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+
+        local measure_pos_table = {}
+        local measure_table = {}
+        
+        local count = 0
+        
+        for noteentry in eachentrysaved(music_region) do
+            if noteentry:IsNote() then
+                table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                table.insert(measure_table, noteentry:GetMeasure())
+                count = count + 1
+            end
+        end
+
+        local start_pos = measure_pos_table[1]
+        if start_pos == nil then
+            start_pos = music_region:GetStartMeasurePos()
+        end
+
+        local end_pos = measure_pos_table[count]
+        if end_pos == nil then
+            end_pos = music_region:GetEndMeasurePos()    
+        end
+
+        local start_measure = measure_table[1]
+        if start_measure == nil then
+            start_measure = music_region:GetStartMeasure()
+        end
+
+        local end_measure = measure_table[count]
+        if end_measure == nil then
+            end_measure = music_region:GetEndMeasure()
+        end
+
+        if count == 1 then
+            end_pos = music_region:GetEndMeasurePos() 
+        end
+    
+        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+    end
+
+    for key, value in pairs(range_settings) do
+        createBBSL(value[1], value[2], value[3], value[4], value[5], smart_shape)
+    end
+end
+
 local function increaseDynamic()
     local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
@@ -647,14 +770,41 @@ local function deleteDynamics()
     end
 end
 
-local function deleteSlur()
-    for noteentry in eachentry(finenv.Region()) do
-        local smartshapeentrymarks = finale.FCSmartShapeEntryMarks(noteentry)
-        smartshapeentrymarks:LoadAll()
-        for ssem in each(smartshapeentrymarks) do
-            if (ssem:CalcLeftMark()) or (ssem:CalcLeftMark()) then
-                local sm = ssem:CreateSmartShape()
-                sm:DeleteData()
+local function deleteBeatSmartShape(shape_num)
+    local music_region = finenv.Region()
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+        local ssmm = finale.FCSmartShapeMeasureMarks()
+        ssmm:LoadAllForRegion(music_region, true)
+        for mark in each(ssmm) do
+            local sm = mark:CreateSmartShape()
+            if sm ~= nil then
+                if sm.ShapeType == shape_num then
+                    sm:DeleteData()
+                end
+            end
+        end
+    end
+end
+
+local function deleteEntrySmartShape(shape_num)
+    local music_region = finenv.Region()
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+        for noteentry in eachentrysaved(music_region) do
+            local ssmms = finale.FCSmartShapeEntryMarks(noteentry)
+            ssmms:LoadAll(music_region)
+            for ssmm in each(ssmms) do
+                local sm = ssmm:CreateSmartShape()
+                if sm ~= nil then
+                    if ssmm:CalcLeftMark() or (ssmm:CalcRightMark()) then
+                        if sm.ShapeType == shape_num then
+                            sm:DeleteData()
+                        end
+                    end
+                end
             end
         end
     end
@@ -1236,19 +1386,69 @@ local function func_0050()
     decreaseDynamic()
 end
 
+local function func_0600()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
+    createBeatBasedSL(finale.SMARTSHAPE_TRILL)
+end
+
+local function func_0601()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
+    createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT)
+end
+
+local function func_0602()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINE)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINE)
+end
+
+local function func_0603()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINE)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE)
+end
+
 local  function func_0604()
-    deleteSlur()
+    deleteEntrySmartShape(finale.SMARTSHAPE_TABSLIDE)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
 end
 
+local function func_0605()
+    deleteEntrySmartShape(finale.SMARTSHAPE_GLISSANDO)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_GLISSANDO)
+end
+
+local function func_0606()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN)
+end
+
+local function func_0607()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN)
+end
+
+local function func_0608()
+    deleteBeatSmartShape(finale.SMARTSHAPE_CUSTOM)
+    createBeatBasedSL(finale.SMARTSHAPE_CUSTOM)
+end
+
 local  function func_0609()
-    deleteSlur()
+    deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
 end
 
 local  function func_0610()
-    deleteSlur()
+    deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
+end
+
+local function func_0611()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2)
+end
+
+local function func_0612()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
 end
 
 local function func_0100()
@@ -2178,14 +2378,44 @@ if returnvalues ~= nil then
     if returnvalues[1] == "0561" then
         func_0561()
     end
+    if returnvalues[1] == "0600" then
+        func_0600()
+    end
+    if returnvalues[1] == "0601" then
+        func_0601()
+    end
+    if returnvalues[1] == "0602" then
+        func_0602()
+    end
+    if returnvalues[1] == "0603" then
+        func_0603()
+    end
     if returnvalues[1] == "0604" then
         func_0604()
+    end
+    if returnvalues[1] == "0605" then
+        func_0605()
+    end
+    if returnvalues[1] == "0606" then
+        func_0606()
+    end
+    if returnvalues[1] == "0607" then
+        func_0607()
+    end
+    if returnvalues[1] == "0608" then
+        func_0608()
     end
     if returnvalues[1] == "0609" then
         func_0609()
     end
     if returnvalues[1] == "0610" then
         func_0610()
+    end
+    if returnvalues[1] == "0611" then
+        func_0611()
+    end
+    if returnvalues[1] == "0612" then
+        func_0612()
     end
     if returnvalues[1] == "9000" then
         func_9000()
