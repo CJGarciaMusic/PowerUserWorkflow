@@ -1386,71 +1386,6 @@ local function func_0050()
     decreaseDynamic()
 end
 
-local function func_0600()
-    deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
-    createBeatBasedSL(finale.SMARTSHAPE_TRILL)
-end
-
-local function func_0601()
-    deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
-    createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT)
-end
-
-local function func_0602()
-    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINE)
-    createBeatBasedSL(finale.SMARTSHAPE_DASHLINE)
-end
-
-local function func_0603()
-    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINE)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE)
-end
-
-local  function func_0604()
-    deleteEntrySmartShape(finale.SMARTSHAPE_TABSLIDE)
-    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
-end
-
-local function func_0605()
-    deleteEntrySmartShape(finale.SMARTSHAPE_GLISSANDO)
-    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_GLISSANDO)
-end
-
-local function func_0606()
-    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
-    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN)
-end
-
-local function func_0607()
-    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN)
-end
-
-local function func_0608()
-    deleteBeatSmartShape(finale.SMARTSHAPE_CUSTOM)
-    createBeatBasedSL(finale.SMARTSHAPE_CUSTOM)
-end
-
-local  function func_0609()
-    deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
-    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
-end
-
-local  function func_0610()
-    deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
-    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
-end
-
-local function func_0611()
-    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
-    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2)
-end
-
-local function func_0612()
-    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
-end
-
 local function func_0100()
     findArticulation(1, 62)
     if full_art_table[1] == 0 then
@@ -1973,6 +1908,96 @@ local  function func_0561()
     set_time(4, 1536) 
 end
 
+local function func_0600()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
+    createBeatBasedSL(finale.SMARTSHAPE_TRILL)
+end
+
+local function func_0601()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
+    createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT)
+end
+
+local function func_0602()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINE)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINE)
+end
+
+local function func_0603()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINE)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE)
+end
+
+local  function func_0604()
+    deleteEntrySmartShape(finale.SMARTSHAPE_TABSLIDE)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
+end
+
+local function func_0605()
+    deleteEntrySmartShape(finale.SMARTSHAPE_GLISSANDO)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_GLISSANDO)
+end
+
+local function func_0606()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN)
+end
+
+local function func_0607()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN)
+end
+
+local function func_0608()
+    deleteBeatSmartShape(finale.SMARTSHAPE_CUSTOM)
+    createBeatBasedSL(finale.SMARTSHAPE_CUSTOM)
+end
+
+local  function func_0609()
+    deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
+end
+
+local  function func_0610()
+    deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
+    setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
+end
+
+local function func_0611()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2)
+end
+
+local function func_0612()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+end
+
+local function func_0612()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+end
+
+local function func_0613()
+    deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
+    createBeatBasedSL(finale.SMARTSHAPE_OCTAVEUP)
+end
+
+local function func_0614()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
+    createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEUP)
+end
+
+local function func_0615()
+    deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN)
+end
+
+local function func_0616()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN)
+end
+
 local function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -2416,6 +2441,18 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0612" then
         func_0612()
+    end
+    if returnvalues[1] == "0613" then
+        func_0613()
+    end
+    if returnvalues[1] == "0614" then
+        func_0614()
+    end
+    if returnvalues[1] == "0615" then
+        func_0615()
+    end
+    if returnvalues[1] == "0616" then
+        func_0616()
     end
     if returnvalues[1] == "9000" then
         func_9000()
