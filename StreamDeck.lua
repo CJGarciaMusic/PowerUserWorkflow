@@ -1142,6 +1142,98 @@ local function set_time(beat_num, beat_duration)
     end
 end
 
+local function applyStaffStyle(StaffStyleType)
+    local ssds = finale.FCStaffStyleDefs()
+    ssds:LoadAll()
+    style_table = {}
+    for ssd in each(ssds) do    
+        if StaffStyleType == "Slash Notation" then
+            if ssd:GetAltNotationStyle() == 1 then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Rythmic Notation" then
+            if ssd:GetAltNotationStyle() == 2 then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Blank Notation: Layer 1" then
+            if (ssd:GetAltNotationStyle() == 6) and (ssd:GetAltNotationLayer() == 1) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Blank Notation with Rests: Layer 1" then
+            if (ssd:GetAltNotationStyle() == 5) and (ssd:GetAltNotationLayer() == 1) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Blank Notation: Layer 4" then
+            if (ssd:GetAltNotationStyle() == 6) and (ssd:GetAltNotationLayer() == 4) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Blank Notation with Rests: Layer 4" then
+            if (ssd:GetAltNotationStyle() == 5) and (ssd:GetAltNotationLayer() == 4) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Blank Notation: All Layers" then
+            if (ssd:GetAltNotationStyle() == 6) and (ssd:GetShowChords() == false) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "One Bar Repeat" then
+            if (ssd:GetAltNotationStyle() == 3) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Two Bar Repeat" then
+            if (ssd:GetAltNotationStyle() == 4) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Stemless Notes" then
+            if (ssd:GetShowStems() == false) then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Cutaway" then
+            if (ssd:GetUseHideMode() == true) and (ssd:GetHideMode() == 3)then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+        if StaffStyleType == "Collapse" then
+            if (ssd:GetUseHideMode() == true) and (ssd:GetHideMode() == 2)then
+                table.insert(style_table, ssd:GetItemNo())
+            end
+        end
+    end
+
+    local staff_style_ID = style_table[1]
+
+    if staff_style_ID == nil then
+        finenv.UI():AlertInfo("That kind of staff style couldn't be found...\n\nPlease try creating it or uploading the default staff style library and try again.", nil)
+        return
+    else
+        local music_region = finenv.Region()
+        for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+            local start_meas = music_region:GetStartMeasure()
+            local end_meas = music_region:GetEndMeasure()
+            local start_pos = music_region:GetStartMeasurePos()
+            local end_pos = music_region:GetEndMeasurePos()
+            music_region:SetStartStaff(addstaff)
+            music_region:SetEndStaff(addstaff)
+            local staff_style = finale.FCStaffStyleAssign()
+            staff_style:SetStartMeasure(start_meas)
+            staff_style:SetEndMeasure(end_meas)
+            staff_style:SetStartMeasurePos(start_pos)
+            staff_style:SetEndMeasurePos(end_pos)
+            staff_style:SetStyleID(staff_style_ID)
+            staff_style:SaveNew(addstaff)
+        end
+    end
+end
+
 local function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("Start")
@@ -1998,6 +2090,54 @@ local function func_0616()
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN)
 end
 
+local function func_0700()
+    applyStaffStyle("Slash Notation")
+end
+
+local function func_0701()
+    applyStaffStyle("Rythmic Notation")
+end
+
+local function func_0702()
+    applyStaffStyle("Blank Notation: Layer 1")
+end
+
+local function func_0703()
+    applyStaffStyle("Blank Notation with Rests: Layer 1")
+end
+
+local function func_0704()
+    applyStaffStyle("Blank Notation: Layer 4")
+end
+
+local function func_0705()
+    applyStaffStyle("Blank Notation with Rests: Layer 4")
+end
+
+local function func_0706()
+    applyStaffStyle("Blank Notation: All Layers")
+end
+
+local function func_0707()
+    applyStaffStyle("One Bar Repeat")
+end
+
+local function func_0708()
+    applyStaffStyle("Two Bar Repeat")
+end
+
+local function func_0709()
+    applyStaffStyle("Stemless Notes")
+end
+
+local function func_0710()
+    applyStaffStyle("Cutaway")
+end
+
+local function func_0711()
+    applyStaffStyle("Collapse")
+end
+
 local function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -2453,6 +2593,42 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0616" then
         func_0616()
+    end
+    if returnvalues[1] == "0700" then
+        func_0700()
+    end
+    if returnvalues[1] == "0701" then
+        func_0701()
+    end
+    if returnvalues[1] == "0702" then
+        func_0702()
+    end
+    if returnvalues[1] == "0703" then
+        func_0703()
+    end
+    if returnvalues[1] == "0704" then
+        func_0704()
+    end
+    if returnvalues[1] == "0705" then
+        func_0705()
+    end
+    if returnvalues[1] == "0706" then
+        func_0706()
+    end
+    if returnvalues[1] == "0707" then
+        func_0707()
+    end
+    if returnvalues[1] == "0708" then
+        func_0708()
+    end
+    if returnvalues[1] == "0709" then
+        func_0709()
+    end
+    if returnvalues[1] == "0710" then
+        func_0710()
+    end
+    if returnvalues[1] == "0711" then
+        func_0711()
     end
     if returnvalues[1] == "9000" then
         func_9000()
