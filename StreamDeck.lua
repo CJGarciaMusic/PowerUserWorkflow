@@ -12,7 +12,7 @@ dialog.Title = "Stream Deck for Finale"
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-local function assignArticulation(art_id)
+function assignArticulation(art_id)
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
@@ -36,7 +36,7 @@ local function assignArticulation(art_id)
     end
 end
 
-local function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
+function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
     local ad = finale.FCArticulationDef()
     ad:SetMainSymbolChar(MainSymbolChar)
     ad:SetMainSymbolFont(MainSymbolFont)
@@ -99,7 +99,7 @@ local function createArticulation(table_placement, MainSymbolChar, MainSymbolFon
     assignArticulation(full_art_table[table_placement])
 end
 
-local function deleteArticulation(id_num)
+function deleteArticulation(id_num)
     for noteentry in eachentrysaved(finenv.Region()) do
         local artics = noteentry:CreateArticulations()
         for a in eachbackwards(artics) do
@@ -111,7 +111,7 @@ local function deleteArticulation(id_num)
     end
 end
 
-local function addArticulation(art_id)
+function addArticulation(art_id)
     local artic_ids = {}
     for noteentry in eachentrysaved(finenv.Region()) do
         local artics = noteentry:CreateArticulations()
@@ -136,7 +136,7 @@ local function addArticulation(art_id)
     end
 end
 
-local function findArticulation(table_placement, AboveSymbolChar)
+function findArticulation(table_placement, AboveSymbolChar)
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
     local first_id_table = {}
@@ -150,7 +150,7 @@ local function findArticulation(table_placement, AboveSymbolChar)
     end
 end
 
-local function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, shape, gap_num)    
+function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, shape, gap_num)    
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
     smartshape.EntryBased = false
@@ -309,7 +309,7 @@ local function createHairpin(staff, measure_start, measure_end, leftpos, rightpo
     smartshape:SaveNewEverything(nil, nil)
 end
 
-local function setHairpinRange(smart_shape)
+function setHairpinRange(smart_shape)
     local music_region = finenv.Region()
     local start_meas = music_region:GetStartMeasure()
     local end_meas = music_region:GetEndMeasure()
@@ -339,7 +339,7 @@ local function setHairpinRange(smart_shape)
     end
 end
 
-local function deleteHairpins()
+function deleteHairpins()
     local ssmm = finale.FCSmartShapeMeasureMarks()
     ssmm:LoadAllForRegion(finenv.Region(), true)
     for mark in each(ssmm) do
@@ -352,7 +352,7 @@ local function deleteHairpins()
     end
 end
 
-local function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
+function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
     local music_reg = finenv.Region()
     music_reg:SetStartStaff(addstaff)
     music_reg:SetEndStaff(addstaff)
@@ -434,7 +434,7 @@ local function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos
     end
 end
 
-local function setAdjustHairpinRange()
+function setAdjustHairpinRange()
     local music_region = finenv.Region()
     local range_settings = {}
     
@@ -472,7 +472,7 @@ local function setAdjustHairpinRange()
     end
 end
 
-local function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightnote, shape)
+function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightnote, shape)
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
     smartshape:SetEntryAttachedFlags(true)
@@ -500,7 +500,7 @@ local function createEntryBasedSL(staff, measure_start, measure_end, leftnote, r
     smartshape:SaveNewEverything(leftnote, rightnote)
 end
 
-local function setFirstLastNoteRangeEntry(smart_shape)
+function setFirstLastNoteRangeEntry(smart_shape)
     local music_region = finenv.Region()
     local range_settings = {}
     
@@ -538,8 +538,7 @@ local function setFirstLastNoteRangeEntry(smart_shape)
     end
 end
 
-
-local function setFirstLastNoteRangeBeat(smart_shape)
+function setFirstLastNoteRangeBeat(smart_shape)
     local music_region = finenv.Region()
     local range_settings = {}
     
@@ -577,7 +576,7 @@ local function setFirstLastNoteRangeBeat(smart_shape)
     end
 end
 
-local function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape)    
+function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape)    
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
     smartshape.EntryBased = false
@@ -644,7 +643,7 @@ local function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, 
     smartshape:SaveNewEverything(nil, nil)
 end
 
-local function createBeatBasedSL(smart_shape)
+function createBeatBasedSL(smart_shape)
     local music_region = finenv.Region()
     local range_settings = {}
     
@@ -697,7 +696,7 @@ local function createBeatBasedSL(smart_shape)
     end
 end
 
-local function increaseDynamic()
+function increaseDynamic()
     local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
     
@@ -727,7 +726,7 @@ local function increaseDynamic()
     setAdjustHairpinRange()
 end
 
-local function decreaseDynamic()
+function decreaseDynamic()
     local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
     
@@ -757,7 +756,7 @@ local function decreaseDynamic()
     setAdjustHairpinRange()
 end
 
-local function deleteDynamics()
+function deleteDynamics()
     local expressions = finale.FCExpressions()
     expressions:LoadAllForRegion(finenv.Region())
     for exp in each(expressions) do
@@ -770,7 +769,7 @@ local function deleteDynamics()
     end
 end
 
-local function deleteBeatSmartShape(shape_num)
+function deleteBeatSmartShape(shape_num)
     local music_region = finenv.Region()
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         music_region:SetStartStaff(addstaff)
@@ -788,7 +787,7 @@ local function deleteBeatSmartShape(shape_num)
     end
 end
 
-local function deleteEntrySmartShape(shape_num)
+function deleteEntrySmartShape(shape_num)
     local music_region = finenv.Region()
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         music_region:SetStartStaff(addstaff)
@@ -810,57 +809,57 @@ local function deleteEntrySmartShape(shape_num)
     end
 end
 
-local function setSwellRange(smart_shape1, smart_shape2)
-    local music_region = finenv.Region()
-    local measure_pos_table = {}
-    local measure_table = {}
+-- function setSwellRange(smart_shape1, smart_shape2)
+--     local music_region = finenv.Region()
+--     local measure_pos_table = {}
+--     local measure_table = {}
 
-    local count = 0
+--     local count = 0
     
-    for noteentry in eachentry(music_region) do
-        if noteentry:IsNote() then
-            table.insert(measure_pos_table, noteentry:GetMeasurePos())
-            table.insert(measure_table, noteentry:GetMeasure())
-            count = count + 1
-        end
-    end
-    local start_meas = measure_table[1]
-    local end_meas = measure_table[count]
-    local start_pos = measure_pos_table[1]
-    local end_pos = measure_pos_table[count]
+--     for noteentry in eachentry(music_region) do
+--         if noteentry:IsNote() then
+--             table.insert(measure_pos_table, noteentry:GetMeasurePos())
+--             table.insert(measure_table, noteentry:GetMeasure())
+--             count = count + 1
+--         end
+--     end
+--     local start_meas = measure_table[1]
+--     local end_meas = measure_table[count]
+--     local start_pos = measure_pos_table[1]
+--     local end_pos = measure_pos_table[count]
 
-    local half_way_meas = finenv.Region()
-    half_way_meas:SetStartMeasure(start_meas)
-    half_way_meas:SetEndMeasure(end_meas)
+--     local half_way_meas = finenv.Region()
+--     half_way_meas:SetStartMeasure(start_meas)
+--     half_way_meas:SetEndMeasure(end_meas)
 
-    local half_way_region = finenv.Region()
-    half_way_region:SetStartMeasurePos(start_pos)
-    half_way_region:SetEndMeasurePos(end_pos)
+--     local half_way_region = finenv.Region()
+--     half_way_region:SetStartMeasurePos(start_pos)
+--     half_way_region:SetEndMeasurePos(end_pos)
 
-    local half_way_pos = half_way_region:CalcDuration()
+--     local half_way_pos = half_way_region:CalcDuration()
 
-    local get_time = finale.FCMeasure()
-    get_time:Load(start_meas)
-    local signature = get_time:GetTimeSignature()
-    local beat = signature:GetBeats()
-    local duration = signature:GetBeatDuration()
-    local one_measure = beat * duration
-    local half_measure = math.floor((half_way_meas:CalcMeasureSpan() / 2) + 0.5)
-    local half_point = math.floor((((half_measure * one_measure) + 0.5) - math.floor(half_way_pos:CalcDuration() / 2) - 0.5)) - duration
+--     local get_time = finale.FCMeasure()
+--     get_time:Load(start_meas)
+--     local signature = get_time:GetTimeSignature()
+--     local beat = signature:GetBeats()
+--     local duration = signature:GetBeatDuration()
+--     local one_measure = beat * duration
+--     local half_measure = math.floor((half_way_meas:CalcMeasureSpan() / 2) + 0.5)
+--     local half_point = math.floor((((half_measure * one_measure) + 0.5) - math.floor(half_way_pos:CalcDuration() / 2) - 0.5)) - duration
 
-    if count < 2 then
-        end_pos = music_region:GetEndMeasurePos() 
-    end
+--     if count < 2 then
+--         end_pos = music_region:GetEndMeasurePos() 
+--     end
 
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        createHairpin(addstaff, start_meas, half_measure, start_pos, half_point, smart_shape1, -12)
-        createHairpin(addstaff, half_measure, end_meas, half_point, end_pos, smart_shape2, 12)
-    end
-end
+--     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+--         createHairpin(addstaff, start_meas, half_measure, start_pos, half_point, smart_shape1, -12)
+--         createHairpin(addstaff, half_measure, end_meas, half_point, end_pos, smart_shape2, 12)
+--     end
+-- end
 
 local first_expression = {}
 
-local function addExpression(staff_num, measure_num, measure_pos)
+function addExpression(staff_num, measure_num, measure_pos)
     local del_region = finenv.Region()
     del_region:SetStartStaff(staff_num)
     del_region:SetEndStaff(staff_num)
@@ -889,7 +888,7 @@ local function addExpression(staff_num, measure_num, measure_pos)
     add_expression:SaveNewToCell(and_cell)
 end
 
-local function getFirstNoteInRegion(note_range)
+function getFirstNoteInRegion(note_range)
     local music_region = finenv.Region()
     local range_settings = {}
     
@@ -932,7 +931,7 @@ local function getFirstNoteInRegion(note_range)
     end
 end
 
-local function CreateExpression(glyph_list, table_name, exp_description)
+function CreateExpression(glyph_list, table_name, exp_description)
     local ex_ted = finale.FCTextExpressionDef()
     local ex_textstr = finale.FCString()
     ex_textstr.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"
@@ -953,7 +952,7 @@ local function CreateExpression(glyph_list, table_name, exp_description)
     table.insert(table_name, ex_ted:GetItemNo())  
 end
 
-local function findExpression(font, glyph_nums, table_name, description_text)
+function findExpression(font, glyph_nums, table_name, description_text)
     local matching_glyphs = {}
     local exp_defs = finale.FCTextExpressionDefs()
     local exp_def = finale.FCTextExpressionDef()
@@ -967,7 +966,7 @@ local function findExpression(font, glyph_nums, table_name, description_text)
             exp_string:AppendCharacter(value)
             glyph_length = glyph_length + 1
         end
-        if (string.find(exp:CreateTextString().LuaString, font) ~=nil) then
+        if (string.find(exp:CreateTextString().LuaString, font) ~= nil) then
             if glyph_length > 1 then
                 if ((exp:CreateTextString():GetCharacterAt(-1) == glyph_nums[2]) and (exp:CreateTextString():GetCharacterAt(33) == glyph_nums[1])) then
                     already_exists = exp:GetItemNo()
@@ -989,7 +988,7 @@ local function findExpression(font, glyph_nums, table_name, description_text)
     end
 end
 
-local function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, breve_glyph)
+function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, breve_glyph)
     if font_name == "" then
         local fontinfo = finale.FCFontInfo()
         if fontinfo:LoadFontPrefs(23) then
@@ -1029,7 +1028,162 @@ local function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph
     end
 end
 
-local function barline_change(style, bookend)
+local text_expression = {}
+
+function addTextExpression(staff_num, measure_num, measure_pos)
+    local del_region = finenv.Region()
+    del_region:SetStartStaff(staff_num)
+    del_region:SetEndStaff(staff_num)
+    del_region:SetStartMeasure(measure_num)
+    del_region:SetEndMeasure(measure_num)
+    del_region:SetStartMeasurePos(measure_pos)
+    del_region:SetEndMeasurePos(measure_pos)
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(del_region)
+    for e in each(expressions) do
+        local ex_def = finale.FCTextExpressionDef()
+        ex_def:Load(e.ID)
+        if ex_def:GetCategoryID() == 1 then
+            e:DeleteData()
+        end
+    end
+    add_expression=finale.FCExpression()
+    add_expression:SetStaff(staff_num)
+    add_expression:SetVisible(true)
+
+    add_expression:SetMeasurePos(measure_pos)
+    add_expression:SetScaleWithEntry(true)
+    add_expression:SetPartAssignment(true)
+    add_expression:SetScoreAssignment(true)
+    add_expression:SetID(text_expression[1])
+    local and_cell = finale.FCCell(measure_num, staff_num)
+    add_expression:SaveNewToCell(and_cell)
+end
+
+function getFirstNoteInRegionText(note_range)
+    local music_region = finenv.Region()
+    local range_settings = {}
+    
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        music_region:SetStartStaff(addstaff)
+        music_region:SetEndStaff(addstaff)
+
+        local measure_pos_table = {}
+        local measure_table = {}
+        
+        local count = 0
+        
+        for noteentry in eachentrysaved(music_region) do
+            if noteentry:IsNote() then
+                table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                table.insert(measure_table, noteentry:GetMeasure())
+                count = count + 1
+            end
+        end
+
+        local start_pos = measure_pos_table[1]
+        local start_measure = measure_table[1]
+        if note_range == "Region" then
+            start_pos = music_region:GetStartMeasurePos()
+            start_measure = music_region:GetStartMeasure()
+        end
+        local end_pos = measure_pos_table[count]
+        local end_measure = measure_table[count]
+
+        if count == 1 then
+            end_pos = music_region:GetEndMeasurePos() 
+        end
+    
+        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+    end
+
+    for key, value in pairs(range_settings) do
+        if (note_range == "Start") or (note_range == "Region") then
+            addTextExpression(value[1], value[2], value[4])
+        end
+        if note_range == "End" then
+            addTextExpression(value[1], value[3], value[5])
+        end
+    end
+end
+
+function CreateTextExpression(exp_string_list, table_name, exp_description, category_number, style_number)
+    local ex_ted = finale.FCTextExpressionDef()
+    local ex_textstr = finale.FCString()
+    if exp_string_list[2] ~= nil then
+        if tostring(exp_string_list[2]) ~= nil then
+            local string_1 = string.gsub(exp_string_list[1], "%%", "")
+            local exp_string_p2 = finale.FCString()
+            exp_string_p2.LuaString = " ^fontMus(Font0,0)^size(24)^nfx(0)"
+            exp_string_p2:AppendCharacter(exp_string_list[2])
+            ex_textstr.LuaString = "^fontTxt(Times New Roman,4096)^size(12)^nfx("..style_number..")"..string_1..exp_string_p2.LuaString
+        elseif tostring(exp_string_list[1]) ~= nil then
+            local string_2 = string.gsub(exp_string_list[2], "%%", "")
+            local exp_string_p1 = finale.FCString()
+            exp_string_p1.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"
+            exp_string_p1:AppendCharacter(exp_string_list[1])
+            ex_textstr.LuaString = exp_string_p1.LuaString.." ^fontTxt(Times New Roman,4096)^size(12)^nfx("..style_number..")"..string_2
+        end
+    else
+        local full_string = string.gsub(exp_string_list[1], "%%", "")
+        ex_textstr.LuaString = "^fontTxt(Times New Roman,4096)^size(12)^nfx("..style_number..")"..full_string
+    end
+    ex_ted:SaveNewTextBlock(ex_textstr)
+    
+    local and_descriptionstr = finale.FCString()
+    and_descriptionstr.LuaString=exp_description
+    ex_ted:SetDescription(and_descriptionstr)
+    local cat_def = finale.FCCategoryDef()
+    cat_def:Load(category_number)
+    ex_ted:AssignToCategory(cat_def)
+    ex_ted:SetUseCategoryPos(true)
+    ex_ted:SetUseCategoryFont(true)
+    ex_ted:SaveNew()
+    table.insert(table_name, ex_ted:GetItemNo())  
+end
+
+function findTextExpression(exp_string_list, table_name, description_text, category_num, style_num)
+    -- findTextExpression({"più", 102}, text_expression, "pianissimo", 1, 2)
+    local matching_glyphs = {}
+    local exp_defs = finale.FCTextExpressionDefs()
+    local exp_def = finale.FCTextExpressionDef()
+    exp_defs:LoadAll()
+    local already_exists = 0
+    for exp in each(exp_defs) do
+        if exp_string_list[2] ~= nil then
+            if tonumber(exp_string_list[2]) ~= nil then
+                local exp_string_p2 = finale.FCString()
+                exp_string_p2.LuaString = "%^fontMus%(Font0,0%)%^size%(24%)%^nfx%(0%)"
+                exp_string_p2:AppendCharacter(exp_string_list[2])
+                if (string.find(exp:CreateTextString().LuaString, "%^fontTxt%(".."%a*%s*%a*%s*%a*%s*%a*%s*%a*%s*"..",%d+%)%^size%(%d+%)%^nfx%(%d+%)"..exp_string_list[1].." "..exp_string_p2.LuaString) ~= nil) then
+                    already_exists = exp:GetItemNo()
+                    table.insert(matching_glyphs, already_exists)
+                end
+            elseif tonumber(exp_string_list[1]) ~= nil then
+                local exp_string_p1 = finale.FCString()
+                exp_string_p1.LuaString = "%^fontMus%(Font0,0%)%^size%(24%)%^nfx%(0%)"
+                exp_string_p1:AppendCharacter(exp_string_list[1])
+                if (string.find(exp:CreateTextString().LuaString, exp_string_p1.LuaString.." %^fontTxt%(".."%a*%s*%a*%s*%a*%s*%a*%s*%a*%s*"..",%d+%)%^size%(%d+%)%^nfx%(%d+%)"..exp_string_list[2]) ~= nil) then
+                    already_exists = exp:GetItemNo()
+                    table.insert(matching_glyphs, already_exists)
+                end
+            end
+        else
+            if (string.find(exp:CreateTextString().LuaString, "%^fontTxt%(".."%a*%s*%a*%s*%a*%s*%a*%s*%a*%s*"..",%d+%)%^size%(%d+%)%^nfx%(%d+%)"..exp_string_list[1]) ~= nil) and (string.find(exp:CreateTextString().LuaString, "%^fontTxt%(".."%a*%s*%a*%s*%a*%s*%a*%s*%a*%s*"..",%d+%)%^size%(%d+%)%^nfx%(%d+%)"..exp_string_list[1].."%s.%w.") == nil) then
+                already_exists = exp:GetItemNo()
+                table.insert(matching_glyphs, already_exists)
+            end
+        end
+    end
+    if matching_glyphs[1] == nil then
+        CreateTextExpression(exp_string_list, table_name, description_text, category_num, style_num)
+    else
+        exp_def:Load(matching_glyphs[1])
+        table.insert(table_name, exp_def:GetItemNo())  
+    end
+end
+
+function barline_change(style, bookend)
     local measure = finale.FCMeasure()
     local music_region = finenv.Region()
     if bookend then
@@ -1042,7 +1196,7 @@ local function barline_change(style, bookend)
     measure:Save()
 end
 
-local function add_rehearsal_marks(measure_num, reh_type)
+function add_rehearsal_marks(measure_num, reh_type)
     local teds = finale.FCTextExpressionDefs()
     teds:LoadAll()
     local rehearsal_letters = {}
@@ -1062,7 +1216,7 @@ local function add_rehearsal_marks(measure_num, reh_type)
         end
     end
 
-    local function add_exp(exp_id)
+    function add_exp(exp_id)
         add_expression=finale.FCExpression()
         add_expression:SetStaff(1)
         add_expression:SetVisible(true)
@@ -1097,7 +1251,7 @@ local function add_rehearsal_marks(measure_num, reh_type)
     end  
 end
 
-local function delete_rehearsal_marks()
+function delete_rehearsal_marks()
     local expressions = finale.FCExpressions()
     local music_reg = finenv.Region():GetEndMeasure()
     expressions:LoadAllForItem(music_reg + 1)
@@ -1110,7 +1264,7 @@ local function delete_rehearsal_marks()
     end
 end
 
-local function find_double_barlines(rehearsal_mark_type)
+function find_double_barlines(rehearsal_mark_type)
     delete_rehearsal_marks()
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
@@ -1121,7 +1275,7 @@ local function find_double_barlines(rehearsal_mark_type)
     end
 end
 
-local function alter_bass(placement)
+function alter_bass(placement)
     local chords = finale.FCChords()
     chords:LoadAllForRegion(finenv.Region())
     for c in each(chords) do
@@ -1130,7 +1284,7 @@ local function alter_bass(placement)
     end
 end
 
-local function set_time(beat_num, beat_duration)
+function set_time(beat_num, beat_duration)
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
     for m in each(measures) do
@@ -1142,7 +1296,7 @@ local function set_time(beat_num, beat_duration)
     end
 end
 
-local function applyStaffStyle(StaffStyleType)
+function applyStaffStyle(StaffStyleType)
     local ssds = finale.FCStaffStyleDefs()
     ssds:LoadAll()
     style_table = {}
@@ -1234,251 +1388,251 @@ local function applyStaffStyle(StaffStyleType)
     end
 end
 
-local function func_0001()
+function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0002()    
+function func_0002()    
     findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0003()    
+function func_0003()    
     findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0004()
+function func_0004()
     findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0005()    
+function func_0005()    
     findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0006()    
+function func_0006()    
     findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0007()    
+function func_0007()    
     findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0008()
+function func_0008()
     findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0009()    
+function func_0009()    
     findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0010()    
+function func_0010()    
     findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0011()
+function func_0011()
     findExpression("^^fontMus", {234}, first_expression, "forte piano")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0012()
+function func_0012()
     findExpression("^^fontMus", {90}, first_expression, "forzando")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0013()
+function func_0013()
     findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0014()
+function func_0014()
     findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0015()
+function func_0015()
     findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0016()
+function func_0016()
     findExpression("^^fontMus", {83}, first_expression, "sforzando")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0017()
+function func_0017()
     findExpression("^^fontMus", {141}, first_expression, "sforzato")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0018()
+function func_0018()
     findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0019()
+function func_0019()
     findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0020()
+function func_0020()
     findExpression("^^fontMus", {167}, first_expression, "sforzato")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0021()
+function func_0021()
     findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
     getFirstNoteInRegion("Start")
 end
 
-local function func_0022()
+function func_0022()
     deleteHairpins()
     setFirstLastNoteRangeBeat(finale.SMARTSHAPE_CRESCENDO)
 end
 
-local function func_0023()
+function func_0023()
     deleteHairpins()
     setFirstLastNoteRangeBeat(finale.SMARTSHAPE_DIMINUENDO)
 end
 
-local function func_0024()
+function func_0024()
     setSwellRange(finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
 end
 
-local function func_0025()
+function func_0025()
     setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
 end
 
-local function func_0026()
+function func_0026()
     deleteHairpins()
 end
 
-local function func_0027()
+function func_0027()
     deleteDynamics()
 end
 
-local function func_0028()
+function func_0028()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0029()    
+function func_0029()    
     findExpression("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0030()    
+function func_0030()    
     findExpression("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0031()
+function func_0031()
     findExpression("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0032()    
+function func_0032()    
     findExpression("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0033()    
+function func_0033()    
     findExpression("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0034()    
+function func_0034()    
     findExpression("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0035()
+function func_0035()
     findExpression("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0036()    
+function func_0036()    
     findExpression("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0037()    
+function func_0037()    
     findExpression("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0038()
+function func_0038()
     findExpression("^^fontMus", {234}, first_expression, "forte piano")
     getFirstNoteInRegion("End")
 end
 
-local function func_0039()
+function func_0039()
     findExpression("^^fontMus", {90}, first_expression, "forzando")
     getFirstNoteInRegion("End")
 end
 
-local function func_0040()
+function func_0040()
     findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
     getFirstNoteInRegion("End")
 end
 
-local function func_0041()
+function func_0041()
     findExpression("^^fontMus", {142, 102}, first_expression, "rinforte")
     getFirstNoteInRegion("End")
 end
 
-local function func_0042()
+function func_0042()
     findExpression("^^fontMus", {142, 90}, first_expression, "rinforzando")
     getFirstNoteInRegion("End")
 end
 
-local function func_0043()
+function func_0043()
     findExpression("^^fontMus", {83}, first_expression, "sforzando")
     getFirstNoteInRegion("End")
 end
 
-local function func_0044()
+function func_0044()
     findExpression("^^fontMus", {141}, first_expression, "sforzato")
     getFirstNoteInRegion("End")
 end
 
-local function func_0045()
+function func_0045()
     findExpression("^^fontMus", {130}, first_expression, "sforzato piano")
     getFirstNoteInRegion("End")
 end
 
-local function func_0046()
+function func_0046()
     findExpression("^^fontMus", {182}, first_expression, "sforzato pianissimo")
     getFirstNoteInRegion("End")
 end
 
-local function func_0047()
+function func_0047()
     findExpression("^^fontMus", {167}, first_expression, "sforzato")
     getFirstNoteInRegion("End")
 end
 
-local function func_0048()
+function func_0048()
     findExpression("^^fontMus", {167, 112}, first_expression, "sforzando piano")
     getFirstNoteInRegion("End")
 end
 
-local function func_0049()
+function func_0049()
     increaseDynamic()
 end
 
-local function func_0050()
+function func_0050()
     decreaseDynamic()
 end
 
-local function func_0100()
+function func_0100()
     findArticulation(1, 62)
     if full_art_table[1] == 0 then
         createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1487,7 +1641,7 @@ local function func_0100()
     end
 end
 
-local function func_0101()
+function func_0101()
     findArticulation(2, 94)
     if full_art_table[2] == 0 then
         createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1496,7 +1650,7 @@ local function func_0101()
     end
 end
 
-local function func_0102()
+function func_0102()
     findArticulation(3, 46)
     if full_art_table[3] == 0 then
         createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1505,7 +1659,7 @@ local function func_0102()
     end
 end
 
-local function func_0103()
+function func_0103()
     findArticulation(4, 45)
     if full_art_table[4] == 0 then
         createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
@@ -1514,7 +1668,7 @@ local function func_0103()
     end
 end
 
-local function func_0104()
+function func_0104()
     findArticulation(5, 171)
     if full_art_table[5] == 0 then
         createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1523,7 +1677,7 @@ local function func_0104()
     end
 end
 
-local function func_0105()
+function func_0105()
     findArticulation(6, 174)
     if full_art_table[6] == 0 then
         createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1532,7 +1686,7 @@ local function func_0105()
     end
 end
 
-local function func_0106()
+function func_0106()
     findArticulation(7, 33)
     if full_art_table[7] == 0 then
         createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1545,7 +1699,7 @@ local function func_0106()
     end
 end
 
-local function func_0107()
+function func_0107()
     findArticulation(8, 64)
     if full_art_table[8] == 0 then
         createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1558,7 +1712,7 @@ local function func_0107()
     end
 end
 
-local function func_0108()
+function func_0108()
     findArticulation(9, 190)
     if full_art_table[9] == 0 then
         createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1571,7 +1725,7 @@ local function func_0108()
     end
 end
 
-local function func_0109()
+function func_0109()
     findArticulation(10, 85)
     if full_art_table[10] == 0 then
         createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
@@ -1580,7 +1734,7 @@ local function func_0109()
     end
 end
 
-local function func_0110()
+function func_0110()
     findArticulation(11, 43)
     if full_art_table[11] == 0 then
         createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1589,7 +1743,7 @@ local function func_0110()
     end
 end
 
-local function func_0111()
+function func_0111()
     findArticulation(12, 111)
     if full_art_table[12] == 0 then
         createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1598,7 +1752,7 @@ local function func_0111()
     end
 end
 
-local function func_0112()
+function func_0112()
     findArticulation(13, 178)
     if full_art_table[13] == 0 then
         createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1607,7 +1761,7 @@ local function func_0112()
     end
 end
 
-local function func_0113()
+function func_0113()
     findArticulation(14, 179)
     if full_art_table[14] == 0 then
         createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1616,7 +1770,7 @@ local function func_0113()
     end
 end
 
-local function func_0114()
+function func_0114()
     findArticulation(15, 217)
     if full_art_table[15] == 0 then
         createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1625,7 +1779,7 @@ local function func_0114()
     end
 end
 
-local function func_0115()
+function func_0115()
     findArticulation(16, 109)
     if full_art_table[16] == 0 then
         createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1634,7 +1788,7 @@ local function func_0115()
     end
 end
 
-local function func_0116()
+function func_0116()
     findArticulation(17, 77)
     if full_art_table[17] == 0 then
         createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1643,7 +1797,7 @@ local function func_0116()
     end
 end
 
-local function func_0117()
+function func_0117()
     findArticulation(18, 84)
     if full_art_table[18] == 0 then
         createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1652,7 +1806,7 @@ local function func_0117()
     end
 end
 
-local function func_0118()
+function func_0118()
     findArticulation(19, 103)
     if full_art_table[19] == 0 then
         createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -1661,7 +1815,7 @@ local function func_0118()
     end
 end
 
-local function func_0119()
+function func_0119()
     findArticulation(20, 152)
     if full_art_table[20] == 0 then
         createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
@@ -1670,7 +1824,7 @@ local function func_0119()
     end
 end
 
-local function func_0120()
+function func_0120()
     findArticulation(21, 92)
     if full_art_table[21] == 0 then
         createArticulation(21, 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
@@ -1679,7 +1833,7 @@ local function func_0120()
     end
 end
 
-local function func_0121()
+function func_0121()
     findArticulation(22, 151)
     if full_art_table[22] == 0 then
         createArticulation(22, 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
@@ -1688,7 +1842,7 @@ local function func_0121()
     end
 end
 
-local function func_0122()
+function func_0122()
     findArticulation(23, 149)
     if full_art_table[23] == 0 then
         createArticulation(23, 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
@@ -1697,7 +1851,7 @@ local function func_0122()
     end
 end
 
-local function func_0123()
+function func_0123()
     findArticulation(24, 155)
     if full_art_table[24] == 0 then
         createArticulation(24, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
@@ -1706,7 +1860,7 @@ local function func_0123()
     end
 end
 
-local function func_0124()
+function func_0124()
     findArticulation(25, 243)
     if full_art_table[25] == 0 then
         createArticulation(25, 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
@@ -1715,7 +1869,7 @@ local function func_0124()
     end
 end
 
-local function func_0125()
+function func_0125()
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
     local art_table = {0, 0, 0, 0}
@@ -1764,7 +1918,7 @@ local function func_0125()
     end
 end
 
-local function func_0126()
+function func_0126()
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
@@ -1774,51 +1928,51 @@ local function func_0126()
     end
 end
 
-local function func_0200()
+function func_0200()
     changeNoteheads("Maestro Percussion", 120, 88, 88, 88)
 end
 
-local function func_0201()
+function func_0201()
     changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
 end
 
-local function func_0202()
+function func_0202()
     changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
 end
 
-local function func_0203()
+function func_0203()
     changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
 end
 
-local function func_0204()
+function func_0204()
     changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
 end
 
-local function func_0205()
+function func_0205()
     changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
 end
 
-local function func_0206()
+function func_0206()
     changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
 end
 
-local function func_0207()
+function func_0207()
     changeNoteheads("Maestro", 243, 124, 124, 218)
 end
 
-local function func_0208()
+function func_0208()
     changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
 end
 
-local function func_0209()
+function func_0209()
     changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
 end
 
-local function func_0210()
+function func_0210()
     changeNoteheads("Maestro", 32, 32, 32, 32)
 end
 
-local function func_0211()
+function func_0211()
     local nm = finale.FCNoteheadMod()
     nm:SetUseCustomFont(false)
     
@@ -1831,7 +1985,7 @@ local function func_0211()
     end
 end
 
-local function func_0300()
+function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
         cs:SetNoteEntry(noteentry)
@@ -1851,71 +2005,71 @@ local function func_0300()
     end
 end
 
-local function func_0400()
+function func_0400()
     barline_change(0, false)
 end
 
-local function func_0401()
+function func_0401()
     barline_change(1, false)
 end
 
-local function func_0402()
+function func_0402()
     barline_change(2, false)
 end
 
-local function func_0403()
+function func_0403()
     barline_change(3, false)
 end
 
-local function func_0404()
+function func_0404()
     barline_change(4, false)
 end
 
-local function func_0405()
+function func_0405()
     barline_change(5, false)
 end
 
-local function func_0406()
+function func_0406()
     barline_change(6, false)
 end
 
-local function func_0407()
+function func_0407()
     barline_change(7, false)
 end
 
-local function func_0408()
+function func_0408()
     barline_change(0, true)
 end
 
-local function func_0409()
+function func_0409()
     barline_change(1, true)
 end
 
-local function func_0410()
+function func_0410()
     barline_change(2, true)
 end
 
-local function func_0411()
+function func_0411()
     barline_change(3, true)
 end
 
-local function func_0412()
+function func_0412()
     barline_change(4, true)
 end
 
-local function func_0413()
+function func_0413()
     barline_change(5, true)
 end
 
-local function func_0414()
+function func_0414()
     barline_change(6, true)
 end
 
-local function func_0415()
+function func_0415()
     barline_change(7, true)
 end
 
-local function func_0416()
+function func_0416()
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
     for measure in each(measures) do
@@ -1924,31 +2078,31 @@ local function func_0416()
     end    
 end
 
-local function func_0417()
+function func_0417()
     find_double_barlines("Letter")
 end
 
-local function func_0418()
+function func_0418()
     find_double_barlines("Number")
 end
 
-local function func_0419()
+function func_0419()
     find_double_barlines("Measure")
 end
 
-local function func_0420()
+function func_0420()
     delete_rehearsal_marks()
 end
 
-local function func_0500()
+function func_0500()
     alter_bass(0)
 end
 
-local function func_0501()
+function func_0501()
     alter_bass(1)
 end
 
-local function func_0502()
+function func_0502()
     alter_bass(2)
 end
 
@@ -2000,22 +2154,22 @@ local  function func_0561()
     set_time(4, 1536) 
 end
 
-local function func_0600()
+function func_0600()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
     createBeatBasedSL(finale.SMARTSHAPE_TRILL)
 end
 
-local function func_0601()
+function func_0601()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
     createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT)
 end
 
-local function func_0602()
+function func_0602()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINE)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINE)
 end
 
-local function func_0603()
+function func_0603()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINE)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE)
 end
@@ -2025,22 +2179,22 @@ local  function func_0604()
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
 end
 
-local function func_0605()
+function func_0605()
     deleteEntrySmartShape(finale.SMARTSHAPE_GLISSANDO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_GLISSANDO)
 end
 
-local function func_0606()
+function func_0606()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN)
 end
 
-local function func_0607()
+function func_0607()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN)
 end
 
-local function func_0608()
+function func_0608()
     deleteBeatSmartShape(finale.SMARTSHAPE_CUSTOM)
     createBeatBasedSL(finale.SMARTSHAPE_CUSTOM)
 end
@@ -2055,90 +2209,275 @@ local  function func_0610()
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
 end
 
-local function func_0611()
+function func_0611()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2)
 end
 
-local function func_0612()
+function func_0612()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
 end
 
-local function func_0612()
+function func_0612()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
 end
 
-local function func_0613()
+function func_0613()
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEUP)
 end
 
-local function func_0614()
+function func_0614()
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEUP)
 end
 
-local function func_0615()
+function func_0615()
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN)
 end
 
-local function func_0616()
+function func_0616()
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN)
 end
 
-local function func_0700()
+function func_0700()
     applyStaffStyle("Slash Notation")
 end
 
-local function func_0701()
+function func_0701()
     applyStaffStyle("Rythmic Notation")
 end
 
-local function func_0702()
+function func_0702()
     applyStaffStyle("Blank Notation: Layer 1")
 end
 
-local function func_0703()
+function func_0703()
     applyStaffStyle("Blank Notation with Rests: Layer 1")
 end
 
-local function func_0704()
+function func_0704()
     applyStaffStyle("Blank Notation: Layer 4")
 end
 
-local function func_0705()
+function func_0705()
     applyStaffStyle("Blank Notation with Rests: Layer 4")
 end
 
-local function func_0706()
+function func_0706()
     applyStaffStyle("Blank Notation: All Layers")
 end
 
-local function func_0707()
+function func_0707()
     applyStaffStyle("One Bar Repeat")
 end
 
-local function func_0708()
+function func_0708()
     applyStaffStyle("Two Bar Repeat")
 end
 
-local function func_0709()
+function func_0709()
     applyStaffStyle("Stemless Notes")
 end
 
-local function func_0710()
+function func_0710()
     applyStaffStyle("Cutaway")
 end
 
-local function func_0711()
+function func_0711()
     applyStaffStyle("Collapse")
 end
 
-local function func_9000()
+function func_0800()
+    findTextExpression({"cresc%."}, text_expression, "crescendo", 4, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0801()
+    findTextExpression({"dim%."}, text_expression, "diminuendo", 4, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0802()
+    findTextExpression({"espr%."}, text_expression, "espressivo", 4, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0803()
+    findTextExpression({"poco"}, text_expression, "poco", 4, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0804()
+    findTextExpression({"poco a poco"}, text_expression, "poco a poco", 4, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0805()
+    findTextExpression({"molto"}, text_expression, "molto", 4, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0806()
+    findTextExpression({"più", 102}, text_expression, "piu forte", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0807()
+    findTextExpression({185, "sub%."}, text_expression, "pianissimo subito", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0808()
+    findTextExpression({112, "sub%."}, text_expression, "piano subito", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0809()
+    findTextExpression({80, "sub%."}, text_expression, "mezzo piano subito", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0810()
+    findTextExpression({70, "sub%."}, text_expression, "mezzo forte subito", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0811()
+    findTextExpression({102, "sub%."}, text_expression, "forte subito", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0812()
+    findTextExpression({196, "sub%."}, text_expression, "fortissimo subito", 1, 2)
+    getFirstNoteInRegionText("Start")
+end
+
+function func_0813()
+    findTextExpression({"solo"}, text_expression, "solo", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0814()
+    findTextExpression({"unis%."}, text_expression, "unis", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0815()
+    findTextExpression({"tutti"}, text_expression, "tutti", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0816()
+    findTextExpression({"loco"}, text_expression, "loco", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0820()
+    findTextExpression({"mute"}, text_expression, "mute", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0821()
+    findTextExpression({"open"}, text_expression, "open", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0822()
+    findTextExpression({"Cup Mute"}, text_expression, "Cup Mute", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0823()
+    findTextExpression({"Straight Mute"}, text_expression, "Straight Mute", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0824()
+    findTextExpression({"1°"}, text_expression, "1°", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0825()
+    findTextExpression({"2°"}, text_expression, "2°", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0826()
+    findTextExpression({"a2"}, text_expression, "a2", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0827()
+    findTextExpression({"a3"}, text_expression, "a3", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0828()
+    findTextExpression({"a4"}, text_expression, "a4", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0829()
+    findTextExpression({"arco"}, text_expression, "arco", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0830()
+    findTextExpression({"pizz%."}, text_expression, "pizz.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0831()
+    findTextExpression({"spicc%."}, text_expression, "spicc.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0832()
+    findTextExpression({"col legno"}, text_expression, "col legno", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0833()
+    findTextExpression({"ord%."}, text_expression, "ord.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0834()
+    findTextExpression({"sul pont%."}, text_expression, "sul pont.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0835()
+    findTextExpression({"sul tasto"}, text_expression, "sul tasto", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0836()
+    findTextExpression({"senza sord%."}, text_expression, "senza sord.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0837()
+    findTextExpression({"trem%."}, text_expression, "trem.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0838()
+    findTextExpression({"½ pizz%. ½ arco"}, text_expression, "half pizz. half arco", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_0839()
+    findTextExpression({"½ trem%. ½ ord%."}, text_expression, "half trem. half ord.", 5, 0)
+    getFirstNoteInRegionText("Region")
+end
+
+function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
             goto continue 
@@ -2629,6 +2968,117 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0711" then
         func_0711()
+    end
+    if returnvalues[1] == "0800" then
+        func_0800()
+    end
+    if returnvalues[1] == "0801" then
+        func_0801()
+    end
+    if returnvalues[1] == "0802" then
+        func_0802()
+    end
+    if returnvalues[1] == "0803" then
+        func_0803()
+    end
+    if returnvalues[1] == "0804" then
+        func_0804()
+    end
+    if returnvalues[1] == "0805" then
+        func_0805()
+    end
+    if returnvalues[1] == "0806" then
+        func_0806()
+    end
+    if returnvalues[1] == "0807" then
+        func_0807()
+    end
+    if returnvalues[1] == "0808" then
+        func_0808()
+    end
+    if returnvalues[1] == "0809" then
+        func_0809()
+    end
+    if returnvalues[1] == "0810" then
+        func_0810()
+    end
+    if returnvalues[1] == "0811" then
+        func_0811()
+    end
+    if returnvalues[1] == "0812" then
+        func_0812()
+    end
+    if returnvalues[1] == "0813" then
+        func_0813()
+    end
+    if returnvalues[1] == "0814" then
+        func_0814()
+    end
+    if returnvalues[1] == "0815" then
+        func_0815()
+    end
+    if returnvalues[1] == "0816" then
+        func_0816()
+    end
+    if returnvalues[1] == "0820" then
+        func_0820()
+    end
+    if returnvalues[1] == "0821" then
+        func_0821()
+    end
+    if returnvalues[1] == "0822" then
+        func_0822()
+    end
+    if returnvalues[1] == "0823" then
+        func_0823()
+    end
+    if returnvalues[1] == "0824" then
+        func_0824()
+    end
+    if returnvalues[1] == "0825" then
+        func_0825()
+    end
+    if returnvalues[1] == "0826" then
+        func_0826()
+    end
+    if returnvalues[1] == "0827" then
+        func_0827()
+    end
+    if returnvalues[1] == "0828" then
+        func_0828()
+    end
+    if returnvalues[1] == "0829" then
+        func_0829()
+    end
+    if returnvalues[1] == "0830" then
+        func_0830()
+    end
+    if returnvalues[1] == "0831" then
+        func_0831()
+    end
+    if returnvalues[1] == "0832" then
+        func_0832()
+    end
+    if returnvalues[1] == "0833" then
+        func_0833()
+    end
+    if returnvalues[1] == "0834" then
+        func_0834()
+    end
+    if returnvalues[1] == "0835" then
+        func_0835()
+    end
+    if returnvalues[1] == "0836" then
+        func_0836()
+    end
+    if returnvalues[1] == "0837" then
+        func_0837()
+    end
+    if returnvalues[1] == "0838" then
+        func_0838()
+    end
+    if returnvalues[1] == "0839" then
+        func_0839()
     end
     if returnvalues[1] == "9000" then
         func_9000()
