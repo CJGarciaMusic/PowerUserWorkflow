@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0707")
+subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0845")

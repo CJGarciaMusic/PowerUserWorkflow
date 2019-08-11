@@ -1083,12 +1083,24 @@ function getFirstNoteInRegionText(note_range)
 
         local start_pos = measure_pos_table[1]
         local start_measure = measure_table[1]
-        if note_range == "Region" then
+        if note_range == "Region Start" then
             start_pos = music_region:GetStartMeasurePos()
             start_measure = music_region:GetStartMeasure()
         end
         local end_pos = measure_pos_table[count]
         local end_measure = measure_table[count]
+        if note_range == "Region End" then
+            end_measure = music_region:GetEndMeasure()
+            end_pos = music_region:GetEndMeasurePos()
+            if end_pos > 1000000 then
+                local get_time = finale.FCMeasure()
+                get_time:Load(end_measure)
+                local new_right_end = get_time:GetTimeSignature()
+                local beat = new_right_end:GetBeats()
+                local duration = new_right_end:GetBeatDuration()
+                end_pos = beat * duration
+            end
+        end
 
         if count == 1 then
             end_pos = music_region:GetEndMeasurePos() 
@@ -1098,10 +1110,10 @@ function getFirstNoteInRegionText(note_range)
     end
 
     for key, value in pairs(range_settings) do
-        if (note_range == "Start") or (note_range == "Region") then
+        if (note_range == "Start") or (note_range == "Region Start") then
             addTextExpression(value[1], value[2], value[4])
         end
-        if note_range == "End" then
+        if (note_range == "End") or (note_range == "Region End") then
             addTextExpression(value[1], value[3], value[5])
         end
     end
@@ -1143,7 +1155,6 @@ function CreateTextExpression(exp_string_list, table_name, exp_description, cate
 end
 
 function findTextExpression(exp_string_list, table_name, description_text, category_num, style_num)
-    -- findTextExpression({"più", 102}, text_expression, "pianissimo", 1, 2)
     local matching_glyphs = {}
     local exp_defs = finale.FCTextExpressionDefs()
     local exp_def = finale.FCTextExpressionDef()
@@ -1177,6 +1188,55 @@ function findTextExpression(exp_string_list, table_name, description_text, categ
     end
     if matching_glyphs[1] == nil then
         CreateTextExpression(exp_string_list, table_name, description_text, category_num, style_num)
+    else
+        exp_def:Load(matching_glyphs[1])
+        table.insert(table_name, exp_def:GetItemNo())  
+    end
+end
+
+function CreateSpecialTextExpression(exp_string_list, font_details, table_name, exp_description, category_number)
+    local ex_ted = finale.FCTextExpressionDef()
+    local ex_textstr = finale.FCString()
+    local exp_string_p1 = finale.FCString()
+    exp_string_p1.LuaString = "^fontMus("..font_details[1]..","..font_details[2]..")^size("..font_details[3]..")^nfx("..font_details[4]..")"
+    exp_string_p1:AppendCharacter(exp_string_list[1])
+    ex_textstr.LuaString = exp_string_p1.LuaString
+    ex_ted:SaveNewTextBlock(ex_textstr)
+    
+    local and_descriptionstr = finale.FCString()
+    and_descriptionstr.LuaString = exp_description
+    ex_ted:SetDescription(and_descriptionstr)
+    local cat_def = finale.FCCategoryDef()
+    cat_def:Load(category_number)
+    ex_ted:AssignToCategory(cat_def)
+    ex_ted:SetUseCategoryPos(true)
+    -- ex_ted:SetUseCategoryFont(true)
+    ex_ted:SaveNew()
+    table.insert(table_name, ex_ted:GetItemNo())  
+end
+
+function findSpecialExpression(exp_string_list, font_details, table_name, description_text, category_num)
+    local matching_glyphs = {}
+    local exp_defs = finale.FCTextExpressionDefs()
+    local exp_def = finale.FCTextExpressionDef()
+    exp_defs:LoadAll()
+    local already_exists = 0
+    for exp in each(exp_defs) do
+        if tonumber(exp_string_list[1]) ~= nil then
+            local exp_string_p1 = finale.FCString()
+            exp_string_p1.LuaString = "%^fontMus%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
+            exp_string_p1:AppendCharacter(exp_string_list[1])
+            local exp_string_p2 = finale.FCString()
+            exp_string_p2.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
+            exp_string_p2:AppendCharacter(exp_string_list[1])
+            if ((string.find(exp:CreateTextString().LuaString, exp_string_p1.LuaString)) ~= nil) or ((string.find(exp:CreateTextString().LuaString, exp_string_p2.LuaString)) ~= nil) then
+                already_exists = exp:GetItemNo()
+                table.insert(matching_glyphs, already_exists)
+            end
+        end
+    end
+    if matching_glyphs[1] == nil then
+        CreateSpecialTextExpression(exp_string_list, font_details, table_name, description_text, category_num)
     else
         exp_def:Load(matching_glyphs[1])
         table.insert(table_name, exp_def:GetItemNo())  
@@ -2359,124 +2419,213 @@ end
 
 function func_0813()
     findTextExpression({"solo"}, text_expression, "solo", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0814()
     findTextExpression({"unis%."}, text_expression, "unis", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0815()
     findTextExpression({"tutti"}, text_expression, "tutti", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0816()
     findTextExpression({"loco"}, text_expression, "loco", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0817()
+    findSpecialExpression({44}, {"Maestro", 8191, 24, 0}, text_expression, "Breath Mark", 5)
+    getFirstNoteInRegionText("End")
+end
+
+function func_0818()
+    findSpecialExpression({34}, {"Maestro", 8191, 24, 0}, text_expression, "Caesura", 5)
+    getFirstNoteInRegionText("Region End")
+end
+
+function func_0819()
+    findSpecialExpression({59}, {"Broadway Copyist", 8191, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0820()
     findTextExpression({"mute"}, text_expression, "mute", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0821()
     findTextExpression({"open"}, text_expression, "open", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0822()
     findTextExpression({"Cup Mute"}, text_expression, "Cup Mute", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0823()
     findTextExpression({"Straight Mute"}, text_expression, "Straight Mute", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0824()
     findTextExpression({"1°"}, text_expression, "1°", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0825()
     findTextExpression({"2°"}, text_expression, "2°", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0826()
     findTextExpression({"a2"}, text_expression, "a2", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0827()
     findTextExpression({"a3"}, text_expression, "a3", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0828()
     findTextExpression({"a4"}, text_expression, "a4", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0829()
     findTextExpression({"arco"}, text_expression, "arco", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0830()
     findTextExpression({"pizz%."}, text_expression, "pizz.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0831()
     findTextExpression({"spicc%."}, text_expression, "spicc.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0832()
     findTextExpression({"col legno"}, text_expression, "col legno", 5, 0)
-    getFirstNoteInRegionText("Region")
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0833()
-    findTextExpression({"ord%."}, text_expression, "ord.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"con sord%."}, text_expression, "con sord", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0834()
-    findTextExpression({"sul pont%."}, text_expression, "sul pont.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"ord%."}, text_expression, "ord.", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0835()
-    findTextExpression({"sul tasto"}, text_expression, "sul tasto", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"sul pont%."}, text_expression, "sul pont.", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0836()
-    findTextExpression({"senza sord%."}, text_expression, "senza sord.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"sul tasto"}, text_expression, "sul tasto", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0837()
-    findTextExpression({"trem%."}, text_expression, "trem.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"senza sord%."}, text_expression, "senza sord.", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0838()
-    findTextExpression({"½ pizz%. ½ arco"}, text_expression, "half pizz. half arco", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"trem%."}, text_expression, "trem.", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
 function func_0839()
-    findTextExpression({"½ trem%. ½ ord%."}, text_expression, "half trem. half ord.", 5, 0)
-    getFirstNoteInRegionText("Region")
+    findTextExpression({"½ pizz%. ½ arco"}, text_expression, "half pizz. half arco", 5, 0)
+    getFirstNoteInRegionText("Region Start")
 end
 
+function func_0840()
+    findTextExpression({"½ trem%. ½ ord%."}, text_expression, "half trem. half ord.", 5, 0)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0841()
+    findSpecialExpression({100}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, hard", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0842()
+    findSpecialExpression({115}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, medium", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0843()
+    findSpecialExpression({97}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, soft", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0844()
+    findSpecialExpression({106}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Brass Mallet", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0845()
+    findSpecialExpression({103}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Sticks", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0846()
+    findSpecialExpression({101}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0847()
+    findSpecialExpression({119}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0848()
+    findSpecialExpression({113}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0849()
+    findSpecialExpression({114}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0850()
+    findSpecialExpression({117}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, hard", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0851()
+    findSpecialExpression({121}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, medium", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0852()
+    findSpecialExpression({116}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, soft", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0853()
+    findSpecialExpression({112}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0854()
+    findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
+    getFirstNoteInRegionText("Region Start")
+end
 function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -3020,6 +3169,15 @@ if returnvalues ~= nil then
     if returnvalues[1] == "0816" then
         func_0816()
     end
+    if returnvalues[1] == "0817" then
+        func_0817()
+    end
+    if returnvalues[1] == "0818" then
+        func_0818()
+    end
+    if returnvalues[1] == "0819" then
+        func_0819()
+    end
     if returnvalues[1] == "0820" then
         func_0820()
     end
@@ -3079,6 +3237,51 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0839" then
         func_0839()
+    end
+    if returnvalues[1] == "0840" then
+        func_0840()
+    end
+    if returnvalues[1] == "0841" then
+        func_0841()
+    end
+    if returnvalues[1] == "0842" then
+        func_0842()
+    end
+    if returnvalues[1] == "0843" then
+        func_0843()
+    end
+    if returnvalues[1] == "0844" then
+        func_0844()
+    end
+    if returnvalues[1] == "0845" then
+        func_0845()
+    end
+    if returnvalues[1] == "0846" then
+        func_0846()
+    end
+    if returnvalues[1] == "0847" then
+        func_0847()
+    end
+    if returnvalues[1] == "0848" then
+        func_0848()
+    end
+    if returnvalues[1] == "0849" then
+        func_0849()
+    end
+    if returnvalues[1] == "0850" then
+        func_0850()
+    end
+    if returnvalues[1] == "0851" then
+        func_0851()
+    end
+    if returnvalues[1] == "0852" then
+        func_0852()
+    end
+    if returnvalues[1] == "0853" then
+        func_0853()
+    end
+    if returnvalues[1] == "0854" then
+        func_0854()
     end
     if returnvalues[1] == "9000" then
         func_9000()

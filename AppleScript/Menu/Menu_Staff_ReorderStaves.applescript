@@ -6,7 +6,7 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listItem)
+on chooseMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -15,24 +15,29 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 		errorMessage("Finale is not in focus, please try again")
 		return false
 	end if
-
+	
 	try
 		tell application "System Events"
 			tell process appName
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
-					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-					keystroke listItem
-					click button "OK" of window windowName
-					return true
+					click menu item theMenuItemName of menu theMenuName of menu bar 1
+					set getItem to enabled of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+					if getItem is true then
+						click menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+						return true 
+					else
+						error
+					end if
 				else
-					error
+					error 
 				end if
 			end tell
 		end tell
 	on error
+		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your doucment is in focus and try again.")
 		return false
 	end try
-end subMenuItem
+end chooseMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0707")
+chooseMenuItem("Tools", "Staff", "Reorder Staves…")

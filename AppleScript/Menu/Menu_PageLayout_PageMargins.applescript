@@ -6,7 +6,7 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listItem)
+on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, subToolName)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -21,18 +21,24 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 			tell process appName
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
-					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-					keystroke listItem
-					click button "OK" of window windowName
-					return true
+					click menu item theMenuItemName of menu theMenuName of menu bar 1
+					set getItem to enabled of menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+					if item 1 of getItem is true then
+						click menu item subToolName of menu of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+						return true
+					else
+						error
+					end if
 				else
 					error
 				end if
 			end tell
 		end tell
+		return true
 	on error
+		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0707")
+subMenuItem("Tools", "Page Layout", "Page Margins", "Edit Page Margins…")

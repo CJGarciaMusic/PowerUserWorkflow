@@ -6,24 +6,32 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listItem)
+on chooseMenuItem(theMenuName, theMenuItemName, keyQuality)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
-
+	
 	if appName does not contain "Finale" then
 		errorMessage("Finale is not in focus, please try again")
 		return false
 	end if
-
+	
 	try
 		tell application "System Events"
 			tell process appName
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
-					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-					keystroke listItem
-					click button "OK" of window windowName
+					click menu item theMenuItemName of menu theMenuName of menu bar 1
+					key code 36
+					set wait_time to 4
+					set {i, 100} to {1, wait_time * 10}
+					repeat until (window "Key Signature" exists) is not {} or (i ≥ loop_count)
+						set i to i + 1
+						delay 0.1						
+					end repeat
+					click pop up button 1 of window "Key Signature"
+					click menu item keyQuality of menu 1 of pop up button 1 of window "Key Signature"
+					click button "OK" of window "Key Signature"
 					return true
 				else
 					error
@@ -31,8 +39,9 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 			end tell
 		end tell
 	on error
+		errorMessage("Unable to change the key signature.\n\nPlease be sure your document is in focus and you have a region selected and try again.")
 		return false
 	end try
-end subMenuItem
+end chooseMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0707")
+chooseMenuItem("Tools", "Key Signature", "Nonstandard…")
