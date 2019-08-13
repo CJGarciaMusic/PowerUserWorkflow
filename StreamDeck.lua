@@ -166,7 +166,7 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
         local new_right_end = get_time:GetTimeSignature()
         local beat = new_right_end:GetBeats()
         local duration = new_right_end:GetBeatDuration()
-        rightpos = beat * duration
+        rightpos = (beat * duration) - (duration / 2)
     end
 
     local staff_pos = {}
@@ -193,8 +193,6 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
     local left_expressions = finale.FCExpressions()
     left_expressions:LoadAllForRegion(music_reg)
 
-    local left_add_offset = 0
-
     for le in each(left_expressions) do
         local create_def = le:CreateTextExpressionDef()
         local cd = finale.FCCategoryDef()
@@ -204,12 +202,12 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
                 local text_met = finale.FCTextMetrics()
                 text_met:LoadString(create_def:CreateTextString(), create_def:CreateTextString():CreateLastFontInfo(), 100)
                 left_x_value = ((text_met:CalcWidthEVPUs() - 1027) / 2) + (le:GetHorizontalPos())
-                left_add_offset = le:GetVerticalPos()
             end
         end
     end
         
     local has_right_dyn = 0
+    local right_x_value = 0
     music_reg:SetStartMeasure(measure_end)
     music_reg:SetEndMeasure(measure_end)
     music_reg:SetStartMeasurePos(rightpos)
@@ -217,8 +215,6 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
 
     local right_expressions = finale.FCExpressions()
     right_expressions:LoadAllForRegion(music_reg)
-    
-    local right_add_offset = 0
 
     for re in each(right_expressions) do
         local create_def = re:CreateTextExpressionDef()
@@ -229,53 +225,23 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
                 local text_met = finale.FCTextMetrics()
                 text_met:LoadString(create_def:CreateTextString(), create_def:CreateTextString():CreateLastFontInfo(), 100)
                 right_x_value = (0 - (text_met:CalcWidthEVPUs() - 1000) / 2) + (re:GetHorizontalPos())
-                right_add_offset = re:GetVerticalPos()
             end
         end
     end
+
 
     local additional_offset = 0
-    local base_line_offset = 16
-    local entry_offset  = -72
-
-    local get_offsets = finale.FCExpressions()
-    get_offsets:LoadAllForRegion(music_reg)
-
-    for offset in each(get_offsets) do
-        local create_def = offset:CreateTextExpressionDef()
-        local cd = finale.FCCategoryDef()
-        if cd:Load(create_def:GetCategoryID()) then
-            if string.find(cd:CreateName().LuaString, "Dynamic") then
-                base_line_offset =  create_def:GetVerticalBaselineOffset()
-                entry_offset = create_def:GetVerticalEntryOffset()
-            end
-        end
-    end
-
-    if left_add_offset <= right_add_offset then
-        additional_offset = left_add_offset
-    else
-        additional_offset = right_add_offset
-    end
+    local base_line_offset = -153
+    local entry_offset  = -40
 
     table.sort(staff_pos)
 
-    if staff_pos[1] == nil then
-        y_value = (base_line_offset * -12) + additional_offset
+    if (staff_pos[1] <= -9) then
+        y_value = ((staff_pos[1] * 12) + entry_offset) + additional_offset
+    elseif (staff_pos[1] >= -8) and (staff_pos[1] <= -4) then
+        y_value = base_line_offset + 12
     else
-        if staff_pos[1] <= -11 then
-            y_value = ((staff_pos[1] * 12) + entry_offset) + additional_offset
-        else
-            y_value = (base_line_offset * -12) + additional_offset
-        end
-    end
-
-    if has_left_dyn == 0 then
-        if (shape == finale.SMARTSHAPE_CRESCENDO) and (gap_num == 0) then
-            left_x_value = 0
-        else
-            left_x_value = gap_num
-        end
+        y_value = base_line_offset + additional_offset
     end
 
     local leftseg = smartshape:GetTerminateSegmentLeft()
@@ -285,15 +251,6 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
     leftseg:SetEndpointOffsetY(y_value)
     leftseg:SetEndpointOffsetX(left_x_value)
     leftseg:SetMeasurePos(leftpos)
-
-
-    if has_right_dyn == 0 then
-        if (shape == finale.SMARTSHAPE_DIMINUENDO) and (gap_num == 0) then
-            right_x_value = 0
-        else
-            right_x_value = gap_num
-        end
-    end
 
     local rightseg = smartshape:GetTerminateSegmentRight()
     rightseg:SetMeasure(measure_end)
@@ -307,36 +264,6 @@ function createHairpin(staff, measure_start, measure_end, leftpos, rightpos, sha
     rightseg:SetEndpointOffsetY(y_value)
     rightseg:SetMeasurePos(rightpos)
     smartshape:SaveNewEverything(nil, nil)
-end
-
-function setHairpinRange(smart_shape)
-    local music_region = finenv.Region()
-    local start_meas = music_region:GetStartMeasure()
-    local end_meas = music_region:GetEndMeasure()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        music_region:SetStartStaff(addstaff)
-        music_region:SetEndStaff(addstaff)
-        
-        local measure_pos_table = {}
-
-        local count = 0
-        
-        for noteentry in eachentry(music_region) do
-            if noteentry:IsNote() then
-                table.insert(measure_pos_table, noteentry:GetMeasurePos())
-                count = count + 1
-            end
-        end
-
-        local start_pos = measure_pos_table[1]
-        
-        local end_pos = measure_pos_table[count]
-        
-        if count < 2 then
-            end_pos = music_region:GetEndMeasurePos() 
-        end
-        createHairpin(addstaff, start_meas, end_meas, start_pos, end_pos, smart_shape, 0)
-    end
 end
 
 function deleteHairpins()
@@ -548,6 +475,7 @@ function setFirstLastNoteRangeBeat(smart_shape)
 
         local measure_pos_table = {}
         local measure_table = {}
+        local duration_table = {}
         
         local count = 0
         
@@ -555,20 +483,64 @@ function setFirstLastNoteRangeBeat(smart_shape)
             if noteentry:IsNote() then
                 table.insert(measure_pos_table, noteentry:GetMeasurePos())
                 table.insert(measure_table, noteentry:GetMeasure())
+                table.insert(duration_table, noteentry:GetDuration())
                 count = count + 1
             end
         end
 
         local start_pos = measure_pos_table[1]
-        local end_pos = measure_pos_table[count]
-        local start_measure = measure_table[1]
-        local end_measure = measure_table[count]
+        if start_pos == nil then
+            start_pos = music_region:GetStartMeasurePos()
+        end
 
-        if count == 1 then
+        local end_pos = measure_pos_table[count]
+        if end_pos == nil then
+            end_pos = music_region:GetEndMeasurePos()    
+        end
+
+        local start_measure = measure_table[1]
+        if start_measure == nil then
+            start_measure = music_region:GetStartMeasure()
+        end
+
+        local end_measure = measure_table[count]
+        if end_measure == nil then
+            end_measure = music_region:GetEndMeasure()
+        end
+        
+        local function getRightDyn()
+            local music_reg = finenv.Region()
+            local has_right_dyn = 0
+            music_reg:SetStartMeasure(end_measure)
+            music_reg:SetEndMeasure(end_measure)
+            music_reg:SetStartMeasurePos(end_pos)
+            music_reg:SetEndMeasurePos(end_pos)
+
+            local right_expressions = finale.FCExpressions()
+            right_expressions:LoadAllForRegion(music_reg)
+            
+
+            for re in each(right_expressions) do
+                local create_def = re:CreateTextExpressionDef()
+                local cd = finale.FCCategoryDef()
+                if cd:Load(create_def:GetCategoryID()) then
+                    if string.find(cd:CreateName().LuaString, "Dynamic") then
+                        has_right_dyn = 1
+                    end
+                end
+            end
+            return has_right_dyn
+        end
+
+        if (count == 1) then
             end_pos = music_region:GetEndMeasurePos() 
         end
-    
-        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+        if (getRightDyn() == 0) and (duration_table[count] > 1536) then
+            end_pos = 1000001
+        end
+        if count > 0 then
+            range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+        end
     end
 
     for key, value in pairs(range_settings) do
@@ -697,15 +669,21 @@ function createBeatBasedSL(smart_shape)
 end
 
 function increaseDynamic()
-    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    local dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
     
-    local tex_defs = finale.FCTextExpressionDefs()
-    tex_defs:LoadAll()
-    for tex in each(tex_defs) do
-        for key, value in pairs(dyn_char) do
-            if tex:CreateTextString():GetCharacterAt(33) == value then
-                dyn_table[key] = tex:GetItemNo()
+    local expressions = finale.FCTextExpressionDefs()
+    expressions:LoadAll()
+    for exp in each(expressions) do
+        local cat_num = finale.FCCategoryDef()
+        cat_num:Load(1)
+        if exp:GetCategoryID(cat_num) then
+            for key, value in pairs(dyn_char) do
+                local exp_string = exp:CreateTextString()
+                exp_string:TrimEnigmaTags()
+                if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
+                    dyn_table[key] = exp:GetItemNo()
+                end
             end
         end
     end
@@ -714,11 +692,17 @@ function increaseDynamic()
     expressions:LoadAllForRegion(finenv.Region())
     for exp in each(expressions) do
         local ex_def = exp:CreateTextExpressionDef()
-        for key, value in pairs(dyn_char) do
-            if key < 10 then
-                if ex_def:CreateTextString():GetCharacterAt(33) == value then
-                    exp:SetID(dyn_table[key + 1])
-                    exp:Save()
+        local cat_num = finale.FCCategoryDef()
+        cat_num:Load(1)
+        if ex_def:GetCategoryID(cat_num) then
+            for key, value in pairs(dyn_char) do
+                local exp_string = ex_def:CreateTextString()
+                exp_string:TrimEnigmaTags()
+                if key < 11 then
+                    if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
+                        exp:SetID(dyn_table[key + 1])
+                        exp:Save()
+                    end
                 end
             end
         end
@@ -727,15 +711,21 @@ function increaseDynamic()
 end
 
 function decreaseDynamic()
-    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    local dyn_char = {175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    local dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
     
-    local tex_defs = finale.FCTextExpressionDefs()
-    tex_defs:LoadAll()
-    for tex in each(tex_defs) do
-        for key, value in pairs(dyn_char) do
-            if tex:CreateTextString():GetCharacterAt(33) == value then
-                dyn_table[key] = tex:GetItemNo()
+    local expressions = finale.FCTextExpressionDefs()
+    expressions:LoadAll()
+    for exp in each(expressions) do
+        local cat_num = finale.FCCategoryDef()
+        cat_num:Load(1)
+        if exp:GetCategoryID(cat_num) then
+            for key, value in pairs(dyn_char) do
+                local exp_string = exp:CreateTextString()
+                exp_string:TrimEnigmaTags()
+                if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
+                    dyn_table[key] = exp:GetItemNo()
+                end
             end
         end
     end
@@ -744,11 +734,17 @@ function decreaseDynamic()
     expressions:LoadAllForRegion(finenv.Region())
     for exp in each(expressions) do
         local ex_def = exp:CreateTextExpressionDef()
-        for key, value in pairs(dyn_char) do
-            if key > 1 then
-                if ex_def:CreateTextString():GetCharacterAt(33) == value then
-                    exp:SetID(dyn_table[key - 1])
-                    exp:Save()
+        local cat_num = finale.FCCategoryDef()
+        cat_num:Load(1)
+        if ex_def:GetCategoryID(cat_num) then
+            for key, value in pairs(dyn_char) do
+                local exp_string = ex_def:CreateTextString()
+                exp_string:TrimEnigmaTags()
+                if key > 1 then
+                    if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
+                        exp:SetID(dyn_table[key - 1])
+                        exp:Save()
+                    end
                 end
             end
         end
@@ -808,54 +804,6 @@ function deleteEntrySmartShape(shape_num)
         end
     end
 end
-
--- function setSwellRange(smart_shape1, smart_shape2)
---     local music_region = finenv.Region()
---     local measure_pos_table = {}
---     local measure_table = {}
-
---     local count = 0
-    
---     for noteentry in eachentry(music_region) do
---         if noteentry:IsNote() then
---             table.insert(measure_pos_table, noteentry:GetMeasurePos())
---             table.insert(measure_table, noteentry:GetMeasure())
---             count = count + 1
---         end
---     end
---     local start_meas = measure_table[1]
---     local end_meas = measure_table[count]
---     local start_pos = measure_pos_table[1]
---     local end_pos = measure_pos_table[count]
-
---     local half_way_meas = finenv.Region()
---     half_way_meas:SetStartMeasure(start_meas)
---     half_way_meas:SetEndMeasure(end_meas)
-
---     local half_way_region = finenv.Region()
---     half_way_region:SetStartMeasurePos(start_pos)
---     half_way_region:SetEndMeasurePos(end_pos)
-
---     local half_way_pos = half_way_region:CalcDuration()
-
---     local get_time = finale.FCMeasure()
---     get_time:Load(start_meas)
---     local signature = get_time:GetTimeSignature()
---     local beat = signature:GetBeats()
---     local duration = signature:GetBeatDuration()
---     local one_measure = beat * duration
---     local half_measure = math.floor((half_way_meas:CalcMeasureSpan() / 2) + 0.5)
---     local half_point = math.floor((((half_measure * one_measure) + 0.5) - math.floor(half_way_pos:CalcDuration() / 2) - 0.5)) - duration
-
---     if count < 2 then
---         end_pos = music_region:GetEndMeasurePos() 
---     end
-
---     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
---         createHairpin(addstaff, start_meas, half_measure, start_pos, half_point, smart_shape1, -12)
---         createHairpin(addstaff, half_measure, end_meas, half_point, end_pos, smart_shape2, 12)
---     end
--- end
 
 local first_expression = {}
 
@@ -917,7 +865,10 @@ function getFirstNoteInRegion(note_range)
         if count == 1 then
             end_pos = music_region:GetEndMeasurePos() 
         end
-    
+        if (start_pos == nil) or (end_pos == nil) or (start_measure == nil) or (end_measure == nil) then
+            finenv.UI():AlertInfo("Expression was not added\n\nThere were no notes in the selected region.", nil)
+            return
+        end
         range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
     end
 
@@ -1210,7 +1161,7 @@ function CreateSpecialTextExpression(exp_string_list, font_details, table_name, 
     cat_def:Load(category_number)
     ex_ted:AssignToCategory(cat_def)
     ex_ted:SetUseCategoryPos(true)
-    -- ex_ted:SetUseCategoryFont(true)
+    ex_ted:SetUseCategoryFont(false)
     ex_ted:SaveNew()
     table.insert(table_name, ex_ted:GetItemNo())  
 end
@@ -1229,7 +1180,9 @@ function findSpecialExpression(exp_string_list, font_details, table_name, descri
             local exp_string_p2 = finale.FCString()
             exp_string_p2.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
             exp_string_p2:AppendCharacter(exp_string_list[1])
-            if ((string.find(exp:CreateTextString().LuaString, exp_string_p1.LuaString)) ~= nil) or ((string.find(exp:CreateTextString().LuaString, exp_string_p2.LuaString)) ~= nil) then
+            local exp_string_p3 = finale.FCString()
+            exp_string_p3.LuaString = "%^fontMus%(Font0,0%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
+            if ((string.find(exp:CreateTextString().LuaString, exp_string_p1.LuaString)) ~= nil) or ((string.find(exp:CreateTextString().LuaString, exp_string_p2.LuaString)) ~= nil) or (exp:CreateTextString():GetCharacterAt(-1) == (exp_string_list[1])) then
                 already_exists = exp:GetItemNo()
                 table.insert(matching_glyphs, already_exists)
             end
@@ -1509,7 +1462,7 @@ function func_0012()
 end
 
 function func_0013()
-    findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
+    findSpecialExpression({150}, {"Maestro", 8191, 24, 0}, first_expression, "niente (velocity = 0)", 1)
     getFirstNoteInRegion("Start")
 end
 
@@ -1640,7 +1593,7 @@ function func_0039()
 end
 
 function func_0040()
-    findExpression("^^fontMus", {150}, first_expression, "niente (velocity = 0)")
+    findSpecialExpression({150}, {"Maestro", 8191, 24, 0}, first_expression, "niente (velocity = 0)", 1)
     getFirstNoteInRegion("End")
 end
 
