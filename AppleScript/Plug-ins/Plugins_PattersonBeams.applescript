@@ -6,7 +6,7 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
+on subMenuItem(theMenuName, theMenuItemName, theSubMenuName, theSubMenuItem)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -19,9 +19,9 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	try
 		tell application "System Events"
 			tell process appName
-				set activeMenuItem to enabled of menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-				if item 1 of activeMenuItem is true then
-					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
+				set activeMenuItem to enabled of menu item theSubMenuItem of menu 1 of menu item theSubMenuName of menu 1 of menu item theMenuItemName of menu 1 of menu bar item theMenuName of menu bar 1
+				if activeMenuItem is true then
+					click menu item theSubMenuItem of menu 1 of menu item theSubMenuName of menu 1 of menu item theMenuItemName of menu 1 of menu bar item theMenuName of menu bar 1
 					return true
 				else
 					error
