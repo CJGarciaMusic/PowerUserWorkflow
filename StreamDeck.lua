@@ -158,6 +158,16 @@ function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
     music_reg:SetStartMeasurePos(start_pos)
     music_reg:SetEndMeasure(end_meas)
     music_reg:SetEndMeasurePos(end_pos)
+
+    if end_pos > 1000000 then
+        local get_time = finale.FCMeasure()
+        get_time:Load(end_meas)
+        local new_right_end = get_time:GetTimeSignature()
+        local beat = new_right_end:GetBeats()
+        local duration = new_right_end:GetBeatDuration()
+        end_pos = (beat * duration) - (duration / 2)
+    end
+
     local staff_pos = {}
     local lowest_note = 0
     for noteentry in eachentrysaved(music_reg) do
@@ -293,7 +303,6 @@ function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
             end
             local distance_table = {right_y_offset, left_y_offset, lowest_note}
             table.sort(distance_table)
-            --print(right_y_offset, left_y_offset, lowest_note, distance_table[1])
 
             local rightseg = smartshape:GetTerminateSegmentRight()
             rightseg:SetMeasure(end_meas)
@@ -323,6 +332,7 @@ function setAdjustHairpinRange()
 
         local measure_pos_table = {}
         local measure_table = {}
+        local duration_table = {}
         
         local count = 0
         
@@ -330,6 +340,7 @@ function setAdjustHairpinRange()
             if noteentry:IsNote() then
                 table.insert(measure_pos_table, noteentry:GetMeasurePos())
                 table.insert(measure_table, noteentry:GetMeasure())
+                table.insert(duration_table, noteentry:GetDuration())
                 count = count + 1
             end
         end
@@ -339,7 +350,7 @@ function setAdjustHairpinRange()
         local start_measure = measure_table[1]
         local end_measure = measure_table[count]
 
-        if count == 1 then
+        if duration_table[count] > 1536 then
             end_pos = music_region:GetEndMeasurePos() 
         end
     
@@ -455,8 +466,9 @@ function setFirstLastNoteRangeEntry(smart_shape)
         local start_measure = measure_table[1]
         local end_measure = measure_table[count]
 
-        if count == 1 then
-            end_pos = music_region:GetEndMeasurePos() 
+        if count <= 1 then
+            finenv.UI():AlertInfo("Please select more than one note and try again",nil)
+            return
         end
     
         range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
@@ -509,37 +521,11 @@ function setFirstLastNoteRangeBeat(smart_shape)
         if end_measure == nil then
             end_measure = music_region:GetEndMeasure()
         end
-        
-        -- local function getRightDyn()
-        --     local music_reg = finenv.Region()
-        --     local has_right_dyn = 0
-        --     music_reg:SetStartMeasure(end_measure)
-        --     music_reg:SetEndMeasure(end_measure)
-        --     music_reg:SetStartMeasurePos(end_pos)
-        --     music_reg:SetEndMeasurePos(end_pos)
 
-        --     local right_expressions = finale.FCExpressions()
-        --     right_expressions:LoadAllForRegion(music_reg)
-            
-
-        --     for re in each(right_expressions) do
-        --         local create_def = re:CreateTextExpressionDef()
-        --         local cd = finale.FCCategoryDef()
-        --         if cd:Load(create_def:GetCategoryID()) then
-        --             if string.find(cd:CreateName().LuaString, "Dynamic") then
-        --                 has_right_dyn = 1
-        --             end
-        --         end
-        --     end
-        --     return has_right_dyn
-        -- end
-
-        if (count == 1) then
+        if (duration_table[count] > 1536) then
             end_pos = music_region:GetEndMeasurePos() 
         end
-        -- if (getRightDyn() == 0) and (duration_table[count] > 1536) then
-        --     end_pos = 1000001
-        -- end
+
         if count > 0 then
             range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
         end
