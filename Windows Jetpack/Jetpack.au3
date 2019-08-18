@@ -7,11 +7,17 @@
 #include <Array.au3>
 #include <WinAPIShPath.au3>
 
-Local $aCmdLine = _WinAPI_CommandLineToArgv($CmdLineRaw)
+Local $CmdLine = _WinAPI_CommandLineToArgv($CmdLineRaw)
 
 CheckIfActive()
 Func MsgError($text)
     MsgBox($MB_OK, "StreamDeck Error", $text)
+EndFunc
+
+Func LuaMenu($luaNum)
+   WinMenuSelectItem("[CLASS:Finale]", "", $CmdLine[2], $CmdLine[3], $CmdLine[4])
+   Send($luaNum)
+   ControlClick ("[CLASS:#32770]", "", "OK")
 EndFunc
 
 Func MenuItem()
@@ -26,10 +32,18 @@ Func SubsubmenuItem()
    WinMenuSelectItem("[CLASS:Finale]", "", $CmdLine[2], $CmdLine[3], $CmdLine[4], $CmdLine[5])
 EndFunc
 
-Func LuaMenu($luaNum)
-   WinMenuSelectItem("[CLASS:Finale]", "", $CmdLine[2], $CmdLine[3], $CmdLine[4])
-   Send($luaNum)
-   ControlClick ("[CLASS:#32770]", "OK", 1, "left", 1)
+Func FilterItems($actionType)
+   If $actionType = "Filter" Then
+	  WinMenuSelectItem("[CLASS:Finale]", "", "&Edit", "Edit Filter...")
+   ElseIf $actionType = "Clear" Then
+	  WinMenuSelectItem("[CLASS:Finale]", "", "&Edit", "Cl&ear Selected Items...")
+   EndIf
+   ControlClick("[CLASS:#32770]", "", "&None")
+   Local $myArray = StringSplit($CmdLine[2], "|")
+   For $a1 = 1 To (UBound($myArray) - 1)
+	  ControlClick("[CLASS:#32770]", "", $myArray[$a1])
+   Next
+   ControlClick("[CLASS:#32770]", "", "OK")
 EndFunc
 
 Func CheckIfActive()
@@ -44,6 +58,8 @@ Func CheckIfActive()
 		 SubmenuItem()
 	  ElseIf $CmdLine[1] = "Subsubmenu" Then
 		 SubsubmenuItem()
+	  ElseIf ($CmdLine[1] = "Filter") Or ($CmdLine[1] = "Clear") Then
+		 FilterItems($CmdLine[1])
 	  EndIf
 	Else
         MsgError("Finale does not appear to be in focus. Please try again.")
