@@ -2,8 +2,8 @@ function plugindef()
     finaleplugin.RequireSelection = true
     finaleplugin.Author = "CJ Garcia"
     finaleplugin.Copyright = "© 2019 CJ Garcia Music"
-    finaleplugin.Version = "0.3"
-    finaleplugin.Date = "5/27/2019"
+    finaleplugin.Version = "0.2"
+    finaleplugin.Date = "8/19/2019"
     return "Stream Deck", "Stream Deck", "A selectable list of all Lua functions related to Stream Deck"
 end
 
