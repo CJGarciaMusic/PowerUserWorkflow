@@ -1,6 +1,6 @@
 on errorMessage(displayMessage)
 	tell application "System Events"
-		set theAlertText to "A Stream Deck error has occurred."
+		set theAlertText to "JetStream has encountered some turbulence..."
 		set theAlertMessage to displayMessage
 		display alert theAlertText message theAlertMessage as critical
 	end tell

@@ -2,13 +2,13 @@ function plugindef()
     finaleplugin.RequireSelection = true
     finaleplugin.Author = "CJ Garcia"
     finaleplugin.Copyright = "© 2019 CJ Garcia Music"
-    finaleplugin.Version = "0.2"
-    finaleplugin.Date = "8/19/2019"
-    return "Stream Deck", "Stream Deck", "A selectable list of all Lua functions related to Stream Deck"
+    finaleplugin.Version = "0.3"
+    finaleplugin.Date = "8/26/2019"
+    return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
 local dialog = finenv.UserValueInput()
-dialog.Title = "Stream Deck for Finale"
+dialog.Title = "JetStream Finale Controller"
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -2592,7 +2592,7 @@ function func_9000()
 end
 
 dialog:SetTypes("String")
-dialog:SetDescriptions("Function Number")
+dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
 local returnvalues = dialog:Execute() 
 

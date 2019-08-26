@@ -1,12 +1,12 @@
 on errorMessage(displayMessage)
 	tell application "System Events"
-		set theAlertText to "A Stream Deck error has occurred."
+		set theAlertText to "JetStream has encountered some turbulence..."
 		set theAlertMessage to displayMessage
 		display alert theAlertText message theAlertMessage as critical
 	end tell
 end errorMessage
 
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listItem)
+on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, jetpackCode)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -22,8 +22,8 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
 					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-					keystroke listItem
-					click button "OK" of window windowName
+					keystroke jetpackCode
+					click button "OK" of window theSubMenuItem
 					return true
 				else
 					error
@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, windowName, listIte
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Stream Deck", "Stream Deck for Finale", "0705")
+subMenuItem("Plug-ins", "JW Lua", "Finale Jetpack", "0705")
