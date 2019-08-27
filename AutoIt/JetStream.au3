@@ -12,12 +12,6 @@
 
 Local $CmdLine = _WinAPI_CommandLineToArgv($CmdLineRaw)
 
-CheckIfActive()
-If @error Then
-   MsgError("Your Finale document does not appear to be in focus. Please try again.")
-EndIf
-
-
 Func MsgError($text)
     MsgBox($MB_OK, "JetStream has encountered some turbulence...", $text)
 EndFunc
@@ -26,7 +20,7 @@ EndFunc
 Func LuaMenu($luaNum)
    If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "JW Lua", "JetStream Finale Controller") Then
 	  Send($luaNum)
-	  ControlClick ("[CLASS:#32770]", "", "OK")
+	  ControlClick("[CLASS:#32770]", "", "OK")
    Else
 	  SetError(1)
    EndIf
@@ -143,46 +137,54 @@ EndFunc
 
 
 Func CheckIfActive()
-    Local $frontWin = WinGetTitle("[ACTIVE]")
-    Local $myResult = StringInStr($frontWin, "Finale")
-    If $myResult = 1 Then
-      If $CmdLine[1] = "Lua" Then
-		 LuaMenu($CmdLine[2])
-		 If @error Then
-			MsgError("The JetStream command couldn't be completed." & @CRLF & @CRLF & "Please be sure you have a region selected and try again.")
-		 EndIf
-	  ElseIf $CmdLine[1] = "Menu" Then
-		 MenuItem($CmdLine[2], $CmdLine[3])
-		 If @error Then
-			MsgError("The menu item " & $CmdLine[3] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
-		 EndIf
-	  ElseIf $CmdLine[1] = "Submenu" Then
-		 SubmenuItem($CmdLine[2], $CmdLine[3], $CmdLine[4])
-		 If @error Then
-			MsgError("The menu item " & $CmdLine[4] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
-		 EndIf
-	  ElseIf $CmdLine[1] = "Subsubmenu" Then
-		 SubsubmenuItem($CmdLine[2], $CmdLine[3], $CmdLine[4], $CmdLine[5])
-		 If @error Then
-			MsgError("The menu item " & $CmdLine[5] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
-		 EndIf
-	  ElseIf ($CmdLine[1] = "Filter") Or ($CmdLine[1] = "Clear") Then
-		 FilterItems($CmdLine[1], $CmdLine[2])
-		 If @error Then
-			MsgError("Unable to set or clear the Filter." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
-		 EndIf
-	  ElseIf $CmdLine[1] = "PDF" Then
-		 iterateThroughParts()
-		 If @error Then
-			MsgError("Unable to export parts and score to PDF." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
-		 EndIf
-	  ElseIf $CmdLine[1] = "Key" Then
-		 KeySig($CmdLine[2], $CmdLine[3])
-		 If @error Then
-			MsgError("Unable to change the Key Signature." & @CRLF & @CRLF & "Please be sure your document is in focus and you have a region selected and try again.")
-		 EndIf
+   If $CmdLine[1] = "Lua" Then
+	  LuaMenu($CmdLine[2])
+	  If @error Then
+		 MsgError("The JetStream command couldn't be completed." & @CRLF & @CRLF & "Please be sure you have a region selected and try again.")
 	  EndIf
-   Else
-	  SetError(1)
+   ElseIf $CmdLine[1] = "Menu" Then
+	  MenuItem($CmdLine[2], $CmdLine[3])
+	  If @error Then
+		 MsgError("The menu item " & $CmdLine[3] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Submenu" Then
+	  SubmenuItem($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  If @error Then
+		 MsgError("The menu item " & $CmdLine[4] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Subsubmenu" Then
+	  SubsubmenuItem($CmdLine[2], $CmdLine[3], $CmdLine[4], $CmdLine[5])
+	  If @error Then
+		 MsgError("The menu item " & $CmdLine[5] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf ($CmdLine[1] = "Filter") Or ($CmdLine[1] = "Clear") Then
+	  FilterItems($CmdLine[1], $CmdLine[2])
+	  If @error Then
+		 MsgError("Unable to set or clear the Filter." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "PDF" Then
+	  iterateThroughParts()
+	  If @error Then
+		 MsgError("Unable to export parts and score to PDF." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Key" Then
+	  KeySig($CmdLine[2], $CmdLine[3])
+	  If @error Then
+		 MsgError("Unable to change the Key Signature." & @CRLF & @CRLF & "Please be sure your document is in focus and you have a region selected and try again.")
+	  EndIf
    EndIf
 EndFunc
+
+
+Local $active = WinGetProcess("[ACTIVE]")
+Local $aProcesses = ProcessList()
+For $i = 1 To $aProcesses[0][0]
+   Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
+   If $myResult = 1 then
+	  If $active = $aProcesses[$i][1] Then
+		 CheckIfActive()
+	  Else
+		 MsgError("Finale does not appear to be in focus. Please try again.")
+	  EndIf
+   EndIf
+Next
