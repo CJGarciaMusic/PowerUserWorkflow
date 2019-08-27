@@ -35,4 +35,4 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, jetpackCode)
 	end try
 end subMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "Finale Jetpack", "0300")
+subMenuItem("Plug-ins", "JW Lua", "JetStream Finale Controller", "0300")

@@ -1390,6 +1390,20 @@ function applyStaffStyle(StaffStyleType)
     end
 end
 
+function measureWidth(direction_change)
+    local measures = finale.FCMeasures()
+    measures:LoadRegion(finenv.Region())
+
+    for m in each(measures) do
+        if direction_change == "Increase" then
+            m:SetWidth(m:GetWidth() / 0.95)
+        elseif direction_change == "Decrease" then
+            m:SetWidth(m:GetWidth() * 0.95)
+        end
+        m:Save()
+    end
+end
+
 function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("Start")
@@ -2110,51 +2124,51 @@ function func_0502()
     alter_bass(2)
 end
 
-local  function func_0550()
+function func_0550()
    set_time(2, 1024) 
 end
 
-local  function func_0551()
+function func_0551()
     set_time(2, 2048) 
 end
 
-local  function func_0552()
+function func_0552()
     set_time(3, 2048) 
 end
 
-local  function func_0553()
+function func_0553()
     set_time(3, 1024) 
 end
 
-local  function func_0554()
+function func_0554()
     set_time(1, 1536) 
 end
 
-local  function func_0555()
+function func_0555()
     set_time(4, 1024) 
 end
 
-local  function func_0556()
+function func_0556()
     set_time(5, 1024) 
 end
 
-local  function func_0557()
+function func_0557()
     set_time(5, 512) 
 end
 
-local  function func_0558()
+function func_0558()
     set_time(2, 1536) 
 end
 
-local  function func_0559()
+function func_0559()
     set_time(7, 512) 
 end
 
-local  function func_0560()
+function func_0560()
     set_time(3, 1536) 
 end
 
-local  function func_0561()
+function func_0561()
     set_time(4, 1536) 
 end
 
@@ -2178,7 +2192,7 @@ function func_0603()
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE)
 end
 
-local  function func_0604()
+function func_0604()
     deleteEntrySmartShape(finale.SMARTSHAPE_TABSLIDE)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
 end
@@ -2203,12 +2217,12 @@ function func_0608()
     createBeatBasedSL(finale.SMARTSHAPE_CUSTOM)
 end
 
-local  function func_0609()
+function func_0609()
     deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
 end
 
-local  function func_0610()
+function func_0610()
     deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
 end
@@ -2570,6 +2584,7 @@ function func_0854()
     findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
     getFirstNoteInRegionText("Region Start")
 end
+
 function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -2589,6 +2604,30 @@ function func_9000()
         notehead:SaveAt(highestnote)
         ::continue::
      end
+end
+
+function func_9001()
+    local count = 1
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local nextentry = noteentry:Next()
+        if count == 1 then 
+                noteentry:SetBeamBeat(true)
+        else 
+            noteentry:SetBeamBeat(false)
+            if  nextentry then
+                nextentry:SetBeamBeat(true)
+            end
+        end
+        count = count + 1
+    end
+end
+
+function func_9002()
+    measureWidth("Increase")
+end
+
+function func_9003()
+    measureWidth("Decrease")
 end
 
 dialog:SetTypes("String")
@@ -3229,5 +3268,14 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "9000" then
         func_9000()
+    end
+    if returnvalues[1] == "9001" then
+        func_9001()
+    end
+    if returnvalues[1] == "9002" then
+        func_9002()
+    end
+    if returnvalues[1] == "9003" then
+        func_9003()
     end
 end
