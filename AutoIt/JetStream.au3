@@ -139,11 +139,11 @@ Func ApplyMetatool($MenuName, $MenuItemName, $Metatool)
 EndFunc
 
 Func CheckForUpdate()
-   Local $currentVersion = 190827
+   Local $currentVersion = 190828
 
-   $sHtml =  _INetGetSource("http://www.musicprep.com/jetpack/")
+   $sHtml =  _INetGetSource("http://www.musicprep.com/jetstream/")
    If $sHtml Then
-	  $sStart = "MAC PROFILE VERSION "
+	  $sStart = "WINDOWS STREAM DECK PROFILE VERSION "
 	  $sEnd = "</a>"
 
 	  $Array1 = _StringBetween ($sHtml, $sStart, $sEnd)
@@ -156,7 +156,7 @@ Func CheckForUpdate()
 	  Else
 		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version " & $result & "?")
 		 If $msgBox = 6 Then
-			ShellExecute("http://www.musicprep.com/jetpack/")
+			ShellExecute("http://www.musicprep.com/jetstream/")
 		 Else
 			Return
 		 EndIf
