@@ -1,7 +1,7 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
  Author: CJ Garcia
- Version: 190827
+ Version: 190828
  Script Function: JetStream Finale Controller for Windows
 #ce -------------------------\]---------------------------------------------------
 #include <MsgBoxConstants.au3>
