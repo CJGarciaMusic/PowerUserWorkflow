@@ -2,8 +2,8 @@ function plugindef()
     finaleplugin.RequireSelection = true
     finaleplugin.Author = "CJ Garcia"
     finaleplugin.Copyright = "© 2019 CJ Garcia Music"
-    finaleplugin.Version = "0.3"
-    finaleplugin.Date = "8/26/2019"
+    finaleplugin.Version = "190828"
+    finaleplugin.Date = "8/28/2019"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
