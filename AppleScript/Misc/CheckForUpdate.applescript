@@ -34,7 +34,7 @@ set myText to removeMarkupFromText(myArray)
 
 set myLength to (count of myText)
 set firstNumber to (offset of "VERSION" in myText)
-set currentVersion to "VERSION 0.2"
+set currentVersion to "VERSION 190827"
 set scribeVersion to (characters firstNumber thru myLength of myText as text)
 
 if currentVersion is equal to scribeVersion then
@@ -44,7 +44,7 @@ if currentVersion is equal to scribeVersion then
 else
     tell application "System Events"
         set dialogText to "An update is available!"
-        set dialogMessage to "You currently have " & currentVersion & "\n\nWould you like to update to " & scribeVersion & "?"
+        set dialogMessage to "You currently have version " & currentVersion & "\n\nWould you like to update to version " & scribeVersion & "?"
         set myButton to button returned of (display dialog dialogMessage with title dialogText buttons {"No thank you", "Yes please!"} default button 2)
         if myButton is "No thank you" then
             return

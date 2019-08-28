@@ -1,14 +1,15 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
  Author: CJ Garcia
- Version: 0.3
- Date: 8/27/2019
+ Version: 190827
  Script Function: JetStream Finale Controller for Windows
 #ce -------------------------\]---------------------------------------------------
 #include <MsgBoxConstants.au3>
 #include <Array.au3>
 #include <WinAPIShPath.au3>
 #include <GuiMenu.au3>
+#include <String.au3>
+#include <INet.au3>
 
 Local $CmdLine = _WinAPI_CommandLineToArgv($CmdLineRaw)
 
@@ -16,16 +17,16 @@ Func MsgError($text)
     MsgBox($MB_OK, "JetStream has encountered some turbulence...", $text)
 EndFunc
 
-
 Func LuaMenu($luaNum)
    If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "JW Lua", "JetStream Finale Controller") Then
-	  Send($luaNum)
-	  ControlClick("[CLASS:#32770]", "", "OK")
+	  If WinGetTitle("JetStream Finale Controller") Then
+		 Send($luaNum)
+		 ControlClick("[CLASS:#32770]", "", "OK")
+	  EndIf
    Else
 	  SetError(1)
    EndIf
 EndFunc
-
 
 Func MenuItem($MenuName, $MenuItemName)
    If WinMenuSelectItem("[CLASS:Finale]", "", $MenuName, $MenuItemName) Then
@@ -34,7 +35,6 @@ Func MenuItem($MenuName, $MenuItemName)
    EndIf
 EndFunc
 
-
 Func SubmenuItem($MenuName, $MenuItemName, $SubMenuItemName)
    If WinMenuSelectItem("[CLASS:Finale]", "", $MenuName, $MenuItemName, $SubMenuItemName) Then
    Else
@@ -42,14 +42,12 @@ Func SubmenuItem($MenuName, $MenuItemName, $SubMenuItemName)
    EndIf
 EndFunc
 
-
 Func SubsubmenuItem($MenuName, $MenuItemName, $SubMenuName, $SubMenuItemName)
    If WinMenuSelectItem("[CLASS:Finale]", "", $MenuName, $MenuItemName, $SubMenuName, $SubMenuItemName) Then
    Else
 	  SetError(1)
    EndIf
 EndFunc
-
 
 Func FilterItems($actionType, $filterItems)
    If $actionType = "Filter" Then
@@ -70,7 +68,6 @@ Func FilterItems($actionType, $filterItems)
    ControlClick("[CLASS:#32770]", "", "OK")
 EndFunc
 
-
 Func exportToPDF()
    WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "Adva&nced Tools", "&Graphics")
    WinMenuSelectItem("[CLASS:Finale]", "", "&Graphics", "E&xport Pages...")
@@ -85,7 +82,6 @@ Func exportToPDF()
 	  ControlClick("[CLASS:#32770]", "", "&Yes")
    EndIf
 EndFunc
-
 
 Func iterateThroughParts()
    Local $hWnd = WinGetHandle("[CLASS:Finale]")
@@ -118,7 +114,6 @@ Func iterateThroughParts()
    WinMenuSelectItem("[CLASS:Finale]", "", "D&ocument", "Edit &Score")
 EndFunc
 
-
 Func KeySig($keySet, $maj_min)
    If ($keySet > 14) Or ($keySet < 0) Or ($maj_min <> "Major") Or ($maj_min <> "Minor") Then
 	  SetError(1)
@@ -132,6 +127,42 @@ Func KeySig($keySet, $maj_min)
 	  MouseWheel($MOUSE_WHEEL_DOWN, Number($keySet))
 	  ControlCommand("Key Signature", "", "ComboBox1","SelectString", $maj_min & " Key")
 	  ControlClick("[CLASS:#32770]", "", "OK")
+   EndIf
+EndFunc
+
+Func ApplyMetatool($MenuName, $MenuItemName, $Metatool)
+   If WinMenuSelectItem("[CLASS:Finale]", "", $MenuName, $MenuItemName) Then
+	  Send($Metatool)
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
+Func CheckForUpdate()
+   Local $currentVersion = 190827
+
+   $sHtml =  _INetGetSource("http://www.musicprep.com/jetpack/")
+   If $sHtml Then
+	  $sStart = "MAC PROFILE VERSION "
+	  $sEnd = "</a>"
+
+	  $Array1 = _StringBetween ($sHtml, $sStart, $sEnd)
+	  _ArrayToClip ($Array1)
+	  $result = (ClipGet())
+
+	  If $result = $currentVersion Then
+		 MsgBox($MB_OK, "", "You're up to date with the current version " & $result)
+		 Return
+	  Else
+		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version " & $result & "?")
+		 If $msgBox = 6 Then
+			ShellExecute("http://www.musicprep.com/jetpack/")
+		 Else
+			Return
+		 EndIf
+	  EndIf
+   Else
+	  SetError(1)
    EndIf
 EndFunc
 
@@ -172,19 +203,31 @@ Func CheckIfActive()
 	  If @error Then
 		 MsgError("Unable to change the Key Signature." & @CRLF & @CRLF & "Please be sure your document is in focus and you have a region selected and try again.")
 	  EndIf
+   ElseIf $CmdLine[1] = "Metatool" Then
+	  ApplyMetatool($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  If @error Then
+		 MsgError("The metatool " & $CmdLine[4] & "wasn't able to be applied." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
    EndIf
 EndFunc
 
-
-Local $active = WinGetProcess("[ACTIVE]")
-Local $aProcesses = ProcessList()
-For $i = 1 To $aProcesses[0][0]
-   Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
-   If $myResult = 1 then
-	  If $active = $aProcesses[$i][1] Then
-		 CheckIfActive()
-	  Else
-		 MsgError("Finale does not appear to be in focus. Please try again.")
-	  EndIf
+If $CmdLine[1] = "Update" Then
+   CheckForUpdate()
+   If @error Then
+	  MsgError("Check for update failed." & @CRLF & @CRLF & "Please be sure you connected to the internet and try again.")
    EndIf
-Next
+Else
+   Local $active = WinGetProcess("[ACTIVE]")
+   Local $aProcesses = ProcessList()
+   For $i = 1 To $aProcesses[0][0]
+	  Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
+	  If $myResult = 1 then
+		 If $active = $aProcesses[$i][1] Then
+			CheckIfActive()
+		 Else
+			MsgError("Finale does not appear to be in focus. Please try again.")
+			Return
+		 EndIf
+	  EndIf
+   Next
+EndIf
