@@ -6,24 +6,23 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, jetpackCode)
+on chooseMenuItem(theMenuName, theMenuItemName)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
-
+	
 	if appName does not contain "Finale" then
 		errorMessage("Finale is not in focus, please try again")
 		return false
 	end if
-
+	
 	try
 		tell application "System Events"
 			tell process appName
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
-					click menu item theSubMenuItem of menu of menu item theMenuItemName of menu theMenuName of menu bar 1
-					keystroke jetpackCode
-					click button "OK" of window theSubMenuItem
+					click menu item theMenuItemName of menu theMenuName of menu bar 1
+					key code 36
 					return true
 				else
 					error
@@ -31,8 +30,9 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem, jetpackCode)
 			end tell
 		end tell
 	on error
+		errorMessage("Unable to open the key signature dialog.\n\nPlease be sure your document is in focus and you have a region selected and try again.")
 		return false
 	end try
-end subMenuItem
+end chooseMenuItem
 
-subMenuItem("Plug-ins", "JW Lua", "JetStream Finale Controller", "0811")
+chooseMenuItem("Tools", "Key Signature")

@@ -1023,13 +1023,13 @@ function getFirstNoteInRegionText(note_range)
 
         local start_pos = measure_pos_table[1]
         local start_measure = measure_table[1]
-        if note_range == "Region Start" then
+        if (note_range == "Region Start") or (start_pos == nil) then
             start_pos = music_region:GetStartMeasurePos()
             start_measure = music_region:GetStartMeasure()
         end
         local end_pos = measure_pos_table[count]
         local end_measure = measure_table[count]
-        if note_range == "Region End" then
+        if (note_range == "Region End") or (end_pos == nil) then
             end_measure = music_region:GetEndMeasure()
             end_pos = music_region:GetEndMeasurePos()
             if end_pos > 1000000 then
@@ -1063,13 +1063,13 @@ function CreateTextExpression(exp_string_list, table_name, exp_description, cate
     local ex_ted = finale.FCTextExpressionDef()
     local ex_textstr = finale.FCString()
     if exp_string_list[2] ~= nil then
-        if tostring(exp_string_list[2]) ~= nil then
+        if tonumber(exp_string_list[2]) ~= nil then
             local string_1 = string.gsub(exp_string_list[1], "%%", "")
             local exp_string_p2 = finale.FCString()
             exp_string_p2.LuaString = " ^fontMus(Font0,0)^size(24)^nfx(0)"
             exp_string_p2:AppendCharacter(exp_string_list[2])
             ex_textstr.LuaString = "^fontTxt(Times New Roman,4096)^size(12)^nfx("..style_number..")"..string_1..exp_string_p2.LuaString
-        elseif tostring(exp_string_list[1]) ~= nil then
+        elseif tonumber(exp_string_list[1]) ~= nil then
             local string_2 = string.gsub(exp_string_list[2], "%%", "")
             local exp_string_p1 = finale.FCString()
             exp_string_p1.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"
