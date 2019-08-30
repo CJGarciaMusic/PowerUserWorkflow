@@ -42,9 +42,8 @@ on chooseMenuItem(theMenuName, theMenuItemName, pushButton, compositeTop, compos
 		delay 0.1
 		tell application "System Events"
 			tell process appName
-				if not (window "Composite Time Signature" exists) then
-					error
-				end if
+				repeat until (window "Composite Time Signature" exists) 
+				end repeat
 				set compositeInUse to 0
 				if value of (checkbox "Use EDUs for Beat Duration" of window "Composite Time Signature") = 1 then
 					set compositeInUse to 1
