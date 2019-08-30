@@ -1,5 +1,5 @@
 function plugindef()
-    finaleplugin.RequireSelection = true
+    finaleplugin.RequireSelection = false
     finaleplugin.Version = "190830"
     finaleplugin.Date = "8/30/2019"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
@@ -1388,6 +1388,46 @@ function applyStaffStyle(StaffStyleType)
     end
 end
 
+function playback_type(start_meas, end_meas, playback_staves)
+    local pbs = finale.FCPlaybackPrefs()
+    local mus_reg = finenv.Region()
+    pbs:Load(1)
+    if start_meas == "Region" then
+        mus_reg:SetCurrentSelection()
+        pbs:SetStartMeasure(mus_reg:GetStartMeasure())
+    elseif start_meas == "Document" then
+        mus_reg:SetFullDocument()
+        pbs:SetStartMeasure(mus_reg:GetStartMeasure())
+    end
+    if end_meas == "Region" then
+        mus_reg:SetCurrentSelection()
+        pbs:SetStopMeasure(mus_reg:GetEndMeasure())
+    elseif end_meas == "Document" then
+        mus_reg:SetFullDocument()
+        pbs:SetStopMeasure(mus_reg:GetEndMeasure())
+    end
+    pbs:Save()
+    pbs:Reload()
+    mus_reg:SetCurrentSelection()
+    local fulldocregion = finale.FCMusicRegion()
+    fulldocregion:SetFullDocument()
+    for slot = fulldocregion.StartSlot, fulldocregion.EndSlot do    
+        local staffnumber = mus_reg:CalcStaffNumber(slot)
+        local staff = finale.FCStaff()  
+        staff:Load(staffnumber)
+        local playbackdata = staff:CreateInstrumentPlaybackData()
+        for layer = 1, 4 do
+            local layerdef = playbackdata:GetNoteLayerData(layer)
+            if playback_staves == "Document" then
+                layerdef.Play = true
+            elseif playback_staves == "Region" then
+                layerdef.Play = mus_reg:IsStaffIncluded(staffnumber)
+            end
+        end
+        playbackdata:Save()
+    end
+end
+
 function measureWidth(direction_change)
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
@@ -2622,6 +2662,44 @@ function func_9000()
      end
 end
 
+function func_8000()
+    playback_type("Document", "Document", "Document") 
+end
+
+function func_8001()
+    solo_staves()
+    playback_type("Document", "Document") 
+end
+
+function func_8002()
+    unmute_staves()
+    playback_type("Document", "Region") 
+end
+
+function func_8003()
+    solo_staves()
+    playback_type("Document", "Region") 
+end
+
+function func_8004()
+    unmute_staves()
+    playback_type("Region", "Document") 
+end
+
+function func_8005()
+    solo_staves()
+    playback_type("Region", "Document") 
+end
+
+function func_8006()
+    unmute_staves()
+    playback_type("Region", "Region") 
+end
+
+function func_8007()
+    playback_type("Region", "Region", "Region") 
+end
+
 function func_9001()
     local count = 1
     for noteentry in eachentrysaved(finenv.Region()) do
@@ -2652,652 +2730,681 @@ dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 local returnvalues = dialog:Execute() 
 
 if returnvalues ~= nil then
-    if returnvalues[1] == "0001" then
-        func_0001()
-    end
-    if returnvalues[1] == "0002" then
-        func_0002()
-    end
-    if returnvalues[1] == "0003" then
-        func_0003()
-    end
-    if returnvalues[1] == "0004" then
-        func_0004()
-    end
-    if returnvalues[1] == "0005" then
-        func_0005()
-    end
-    if returnvalues[1] == "0006" then
-        func_0006()
-    end
-    if returnvalues[1] == "0007" then
-        func_0007()
-    end
-    if returnvalues[1] == "0008" then
-        func_0008()
-    end
-    if returnvalues[1] == "0009" then
-        func_0009()
-    end
-    if returnvalues[1] == "0010" then
-        func_0010()
-    end
-    if returnvalues[1] == "0011" then
-        func_0011()
-    end
-    if returnvalues[1] == "0012" then
-        func_0012()
-    end
-    if returnvalues[1] == "0013" then
-        func_0013()
-    end
-    if returnvalues[1] == "0014" then
-        func_0014()
-    end
-    if returnvalues[1] == "0015" then
-        func_0015()
-    end
-    if returnvalues[1] == "0016" then
-        func_0016()
-    end
-    if returnvalues[1] == "0017" then
-        func_0017()
-    end
-    if returnvalues[1] == "0018" then
-        func_0018()
-    end
-    if returnvalues[1] == "0019" then
-        func_0019()
-    end
-    if returnvalues[1] == "0020" then
-        func_0020()
-    end
-    if returnvalues[1] == "0021" then
-        func_0021()
-    end
-    if returnvalues[1] == "0022" then
-        func_0022()
-    end
-    if returnvalues[1] == "0023" then
-        func_0023()
-    end
-    if returnvalues[1] == "0024" then
-        func_0024()
-    end
-    if returnvalues[1] == "0025" then
-        func_0025()
-    end
-    if returnvalues[1] == "0026" then
-        func_0026()
-    end
-    if returnvalues[1] == "0027" then
-        func_0027()
-    end
-    if returnvalues[1] == "0028" then
-        func_0028()
-    end
-    if returnvalues[1] == "0029" then
-        func_0029()
-    end
-    if returnvalues[1] == "0030" then
-        func_0030()
-    end
-    if returnvalues[1] == "0031" then
-        func_0031()
-    end
-    if returnvalues[1] == "0032" then
-        func_0032()
-    end
-    if returnvalues[1] == "0033" then
-        func_0033()
-    end
-    if returnvalues[1] == "0034" then
-        func_0034()
-    end
-    if returnvalues[1] == "0035" then
-        func_0035()
-    end
-    if returnvalues[1] == "0036" then
-        func_0036()
-    end
-    if returnvalues[1] == "0037" then
-        func_0037()
-    end
-    if returnvalues[1] == "0038" then
-        func_0038()
-    end
-    if returnvalues[1] == "0039" then
-        func_0039()
-    end
-    if returnvalues[1] == "0040" then
-        func_0040()
-    end
-    if returnvalues[1] == "0041" then
-        func_0041()
-    end
-    if returnvalues[1] == "0042" then
-        func_0042()
-    end
-    if returnvalues[1] == "0043" then
-        func_0043()
-    end
-    if returnvalues[1] == "0044" then
-        func_0044()
-    end
-    if returnvalues[1] == "0045" then
-        func_0045()
-    end
-    if returnvalues[1] == "0046" then
-        func_0046()
-    end
-    if returnvalues[1] == "0047" then
-        func_0047()
-    end
-    if returnvalues[1] == "0048" then
-        func_0048()
-    end
-    if returnvalues[1] == "0049" then
-        func_0049()
-    end
-    if returnvalues[1] == "0050" then
-        func_0050()
-    end
-    if returnvalues[1] == "0100" then
-        func_0100()
-    end
-    if returnvalues[1] == "0101" then
-        func_0101()
-    end
-    if returnvalues[1] == "0102" then
-        func_0102()
-    end
-    if returnvalues[1] == "0103" then
-        func_0103()
-    end
-    if returnvalues[1] == "0104" then
-        func_0104()
-    end
-    if returnvalues[1] == "0105" then
-        func_0105()
-    end
-    if returnvalues[1] == "0106" then
-        func_0106()
-    end
-    if returnvalues[1] == "0107" then
-        func_0107()
-    end
-    if returnvalues[1] == "0108" then
-        func_0108()
-    end
-    if returnvalues[1] == "0109" then
-        func_0109()
-    end
-    if returnvalues[1] == "0110" then
-        func_0110()
-    end
-    if returnvalues[1] == "0111" then
-        func_0111()
-    end
-    if returnvalues[1] == "0112" then
-        func_0112()
-    end
-    if returnvalues[1] == "0113" then
-        func_0113()
-    end
-    if returnvalues[1] == "0114" then
-        func_0114()
-    end
-    if returnvalues[1] == "0115" then
-        func_0115()
-    end
-    if returnvalues[1] == "0116" then
-        func_0116()
-    end
-    if returnvalues[1] == "0117" then
-        func_0117()
-    end
-    if returnvalues[1] == "0118" then
-        func_0118()
-    end
-    if returnvalues[1] == "0119" then
-        func_0119()
-    end
-    if returnvalues[1] == "0120" then
-        func_0120()
-    end
-    if returnvalues[1] == "0121" then
-        func_0121()
-    end
-    if returnvalues[1] == "0122" then
-        func_0122()
-    end
-    if returnvalues[1] == "0123" then
-        func_0123()
-    end
-    if returnvalues[1] == "0124" then
-        func_0124()
-    end
-    if returnvalues[1] == "0125" then
-        func_0125()
-    end
-    if returnvalues[1] == "0126" then
-        func_0126()
-    end
-    if returnvalues[1] == "0200" then
-        func_0200()
-    end
-    if returnvalues[1] == "0201" then
-        func_0201()
-    end
-    if returnvalues[1] == "0202" then
-        func_0202()
-    end
-    if returnvalues[1] == "0203" then
-        func_0203()
-    end
-    if returnvalues[1] == "0204" then
-        func_0204()
-    end
-    if returnvalues[1] == "0205" then
-        func_0205()
-    end
-    if returnvalues[1] == "0206" then
-        func_0206()
-    end
-    if returnvalues[1] == "0207" then
-        func_0207()
-    end
-    if returnvalues[1] == "0208" then
-        func_0208()
-    end
-    if returnvalues[1] == "0209" then
-        func_0209()
-    end
-    if returnvalues[1] == "0210" then
-        func_0210()
-    end
-    if returnvalues[1] == "0211" then
-        func_0211()
-    end
-    if returnvalues[1] == "0212" then
-        func_0212()
-    end
-    if returnvalues[1] == "0300" then
-        func_0300()
-    end
-    if returnvalues[1] == "0400" then
-        func_0400()
-    end
-    if returnvalues[1] == "0401" then
-        func_0401()
-    end
-    if returnvalues[1] == "0402" then
-        func_0402()
-    end
-    if returnvalues[1] == "0403" then
-        func_0403()
-    end
-    if returnvalues[1] == "0404" then
-        func_0404()
-    end
-    if returnvalues[1] == "0405" then
-        func_0405()
-    end
-    if returnvalues[1] == "0406" then
-        func_0406()
-    end
-    if returnvalues[1] == "0407" then
-        func_0407()
-    end
-    if returnvalues[1] == "0408" then
-        func_0408()
-    end
-    if returnvalues[1] == "0409" then
-        func_0409()
-    end
-    if returnvalues[1] == "0410" then
-        func_0410()
-    end
-    if returnvalues[1] == "0411" then
-        func_0411()
-    end
-    if returnvalues[1] == "0412" then
-        func_0412()
-    end
-    if returnvalues[1] == "0413" then
-        func_0413()
-    end
-    if returnvalues[1] == "0414" then
-        func_0414()
-    end
-    if returnvalues[1] == "0415" then
-        func_0415()
-    end
-    if returnvalues[1] == "0416" then
-        func_0416()
-    end
-    if returnvalues[1] == "0417" then
-        func_0417()
-    end
-    if returnvalues[1] == "0418" then
-        func_0418()
-    end
-    if returnvalues[1] == "0419" then
-        func_0419()
-    end
-    if returnvalues[1] == "0420" then
-        func_0420()
-    end
-    if returnvalues[1] == "0500" then
-        func_0500()
-    end
-    if returnvalues[1] == "0501" then
-        func_0501()
-    end
-    if returnvalues[1] == "0502" then
-        func_0502()
-    end
-    if returnvalues[1] == "0503" then
-        func_0503()
-    end
-    if returnvalues[1] == "0550" then
-        func_0550()
-    end
-    if returnvalues[1] == "0551" then
-        func_0551()
-    end
-    if returnvalues[1] == "0552" then
-        func_0552()
-    end
-    if returnvalues[1] == "0553" then
-        func_0553()
-    end
-    if returnvalues[1] == "0554" then
-        func_0554()
-    end
-    if returnvalues[1] == "0555" then
-        func_0555()
-    end
-    if returnvalues[1] == "0556" then
-        func_0556()
-    end
-    if returnvalues[1] == "0557" then
-        func_0557()
-    end
-    if returnvalues[1] == "0558" then
-        func_0558()
-    end
-    if returnvalues[1] == "0559" then
-        func_0559()
-    end
-    if returnvalues[1] == "0560" then
-        func_0560()
-    end
-    if returnvalues[1] == "0561" then
-        func_0561()
-    end
-    if returnvalues[1] == "0600" then
-        func_0600()
-    end
-    if returnvalues[1] == "0601" then
-        func_0601()
-    end
-    if returnvalues[1] == "0602" then
-        func_0602()
-    end
-    if returnvalues[1] == "0603" then
-        func_0603()
-    end
-    if returnvalues[1] == "0604" then
-        func_0604()
-    end
-    if returnvalues[1] == "0605" then
-        func_0605()
-    end
-    if returnvalues[1] == "0606" then
-        func_0606()
-    end
-    if returnvalues[1] == "0607" then
-        func_0607()
-    end
-    if returnvalues[1] == "0608" then
-        func_0608()
-    end
-    if returnvalues[1] == "0609" then
-        func_0609()
-    end
-    if returnvalues[1] == "0610" then
-        func_0610()
-    end
-    if returnvalues[1] == "0611" then
-        func_0611()
-    end
-    if returnvalues[1] == "0612" then
-        func_0612()
-    end
-    if returnvalues[1] == "0613" then
-        func_0613()
-    end
-    if returnvalues[1] == "0614" then
-        func_0614()
-    end
-    if returnvalues[1] == "0615" then
-        func_0615()
-    end
-    if returnvalues[1] == "0616" then
-        func_0616()
-    end
-    if returnvalues[1] == "0700" then
-        func_0700()
-    end
-    if returnvalues[1] == "0701" then
-        func_0701()
-    end
-    if returnvalues[1] == "0702" then
-        func_0702()
-    end
-    if returnvalues[1] == "0703" then
-        func_0703()
-    end
-    if returnvalues[1] == "0704" then
-        func_0704()
-    end
-    if returnvalues[1] == "0705" then
-        func_0705()
-    end
-    if returnvalues[1] == "0706" then
-        func_0706()
-    end
-    if returnvalues[1] == "0707" then
-        func_0707()
-    end
-    if returnvalues[1] == "0708" then
-        func_0708()
-    end
-    if returnvalues[1] == "0709" then
-        func_0709()
-    end
-    if returnvalues[1] == "0710" then
-        func_0710()
-    end
-    if returnvalues[1] == "0711" then
-        func_0711()
-    end
-    if returnvalues[1] == "0800" then
-        func_0800()
-    end
-    if returnvalues[1] == "0801" then
-        func_0801()
-    end
-    if returnvalues[1] == "0802" then
-        func_0802()
-    end
-    if returnvalues[1] == "0803" then
-        func_0803()
-    end
-    if returnvalues[1] == "0804" then
-        func_0804()
-    end
-    if returnvalues[1] == "0805" then
-        func_0805()
-    end
-    if returnvalues[1] == "0806" then
-        func_0806()
-    end
-    if returnvalues[1] == "0807" then
-        func_0807()
-    end
-    if returnvalues[1] == "0808" then
-        func_0808()
-    end
-    if returnvalues[1] == "0809" then
-        func_0809()
-    end
-    if returnvalues[1] == "0810" then
-        func_0810()
-    end
-    if returnvalues[1] == "0811" then
-        func_0811()
-    end
-    if returnvalues[1] == "0812" then
-        func_0812()
-    end
-    if returnvalues[1] == "0813" then
-        func_0813()
-    end
-    if returnvalues[1] == "0814" then
-        func_0814()
-    end
-    if returnvalues[1] == "0815" then
-        func_0815()
-    end
-    if returnvalues[1] == "0816" then
-        func_0816()
-    end
-    if returnvalues[1] == "0817" then
-        func_0817()
-    end
-    if returnvalues[1] == "0818" then
-        func_0818()
-    end
-    if returnvalues[1] == "0819" then
-        func_0819()
-    end
-    if returnvalues[1] == "0820" then
-        func_0820()
-    end
-    if returnvalues[1] == "0821" then
-        func_0821()
-    end
-    if returnvalues[1] == "0822" then
-        func_0822()
-    end
-    if returnvalues[1] == "0823" then
-        func_0823()
-    end
-    if returnvalues[1] == "0824" then
-        func_0824()
-    end
-    if returnvalues[1] == "0825" then
-        func_0825()
-    end
-    if returnvalues[1] == "0826" then
-        func_0826()
-    end
-    if returnvalues[1] == "0827" then
-        func_0827()
-    end
-    if returnvalues[1] == "0828" then
-        func_0828()
-    end
-    if returnvalues[1] == "0829" then
-        func_0829()
-    end
-    if returnvalues[1] == "0830" then
-        func_0830()
-    end
-    if returnvalues[1] == "0831" then
-        func_0831()
-    end
-    if returnvalues[1] == "0832" then
-        func_0832()
-    end
-    if returnvalues[1] == "0833" then
-        func_0833()
-    end
-    if returnvalues[1] == "0834" then
-        func_0834()
-    end
-    if returnvalues[1] == "0835" then
-        func_0835()
-    end
-    if returnvalues[1] == "0836" then
-        func_0836()
-    end
-    if returnvalues[1] == "0837" then
-        func_0837()
-    end
-    if returnvalues[1] == "0838" then
-        func_0838()
-    end
-    if returnvalues[1] == "0839" then
-        func_0839()
-    end
-    if returnvalues[1] == "0840" then
-        func_0840()
-    end
-    if returnvalues[1] == "0841" then
-        func_0841()
-    end
-    if returnvalues[1] == "0842" then
-        func_0842()
-    end
-    if returnvalues[1] == "0843" then
-        func_0843()
-    end
-    if returnvalues[1] == "0844" then
-        func_0844()
-    end
-    if returnvalues[1] == "0845" then
-        func_0845()
-    end
-    if returnvalues[1] == "0846" then
-        func_0846()
-    end
-    if returnvalues[1] == "0847" then
-        func_0847()
-    end
-    if returnvalues[1] == "0848" then
-        func_0848()
-    end
-    if returnvalues[1] == "0849" then
-        func_0849()
-    end
-    if returnvalues[1] == "0850" then
-        func_0850()
-    end
-    if returnvalues[1] == "0851" then
-        func_0851()
-    end
-    if returnvalues[1] == "0852" then
-        func_0852()
-    end
-    if returnvalues[1] == "0853" then
-        func_0853()
-    end
-    if returnvalues[1] == "0854" then
-        func_0854()
-    end
-    if returnvalues[1] == "9000" then
-        func_9000()
-    end
-    if returnvalues[1] == "9001" then
-        func_9001()
-    end
-    if returnvalues[1] == "9002" then
-        func_9002()
-    end
-    if returnvalues[1] == "9003" then
-        func_9003()
+    if finenv.Region():GetStartMeasure() > 0 then
+        if returnvalues[1] == "0001" then
+            func_0001()
+        end
+        if returnvalues[1] == "0002" then
+            func_0002()
+        end
+        if returnvalues[1] == "0003" then
+            func_0003()
+        end
+        if returnvalues[1] == "0004" then
+            func_0004()
+        end
+        if returnvalues[1] == "0005" then
+            func_0005()
+        end
+        if returnvalues[1] == "0006" then
+            func_0006()
+        end
+        if returnvalues[1] == "0007" then
+            func_0007()
+        end
+        if returnvalues[1] == "0008" then
+            func_0008()
+        end
+        if returnvalues[1] == "0009" then
+            func_0009()
+        end
+        if returnvalues[1] == "0010" then
+            func_0010()
+        end
+        if returnvalues[1] == "0011" then
+            func_0011()
+        end
+        if returnvalues[1] == "0012" then
+            func_0012()
+        end
+        if returnvalues[1] == "0013" then
+            func_0013()
+        end
+        if returnvalues[1] == "0014" then
+            func_0014()
+        end
+        if returnvalues[1] == "0015" then
+            func_0015()
+        end
+        if returnvalues[1] == "0016" then
+            func_0016()
+        end
+        if returnvalues[1] == "0017" then
+            func_0017()
+        end
+        if returnvalues[1] == "0018" then
+            func_0018()
+        end
+        if returnvalues[1] == "0019" then
+            func_0019()
+        end
+        if returnvalues[1] == "0020" then
+            func_0020()
+        end
+        if returnvalues[1] == "0021" then
+            func_0021()
+        end
+        if returnvalues[1] == "0022" then
+            func_0022()
+        end
+        if returnvalues[1] == "0023" then
+            func_0023()
+        end
+        if returnvalues[1] == "0024" then
+            func_0024()
+        end
+        if returnvalues[1] == "0025" then
+            func_0025()
+        end
+        if returnvalues[1] == "0026" then
+            func_0026()
+        end
+        if returnvalues[1] == "0027" then
+            func_0027()
+        end
+        if returnvalues[1] == "0028" then
+            func_0028()
+        end
+        if returnvalues[1] == "0029" then
+            func_0029()
+        end
+        if returnvalues[1] == "0030" then
+            func_0030()
+        end
+        if returnvalues[1] == "0031" then
+            func_0031()
+        end
+        if returnvalues[1] == "0032" then
+            func_0032()
+        end
+        if returnvalues[1] == "0033" then
+            func_0033()
+        end
+        if returnvalues[1] == "0034" then
+            func_0034()
+        end
+        if returnvalues[1] == "0035" then
+            func_0035()
+        end
+        if returnvalues[1] == "0036" then
+            func_0036()
+        end
+        if returnvalues[1] == "0037" then
+            func_0037()
+        end
+        if returnvalues[1] == "0038" then
+            func_0038()
+        end
+        if returnvalues[1] == "0039" then
+            func_0039()
+        end
+        if returnvalues[1] == "0040" then
+            func_0040()
+        end
+        if returnvalues[1] == "0041" then
+            func_0041()
+        end
+        if returnvalues[1] == "0042" then
+            func_0042()
+        end
+        if returnvalues[1] == "0043" then
+            func_0043()
+        end
+        if returnvalues[1] == "0044" then
+            func_0044()
+        end
+        if returnvalues[1] == "0045" then
+            func_0045()
+        end
+        if returnvalues[1] == "0046" then
+            func_0046()
+        end
+        if returnvalues[1] == "0047" then
+            func_0047()
+        end
+        if returnvalues[1] == "0048" then
+            func_0048()
+        end
+        if returnvalues[1] == "0049" then
+            func_0049()
+        end
+        if returnvalues[1] == "0050" then
+            func_0050()
+        end
+        if returnvalues[1] == "0100" then
+            func_0100()
+        end
+        if returnvalues[1] == "0101" then
+            func_0101()
+        end
+        if returnvalues[1] == "0102" then
+            func_0102()
+        end
+        if returnvalues[1] == "0103" then
+            func_0103()
+        end
+        if returnvalues[1] == "0104" then
+            func_0104()
+        end
+        if returnvalues[1] == "0105" then
+            func_0105()
+        end
+        if returnvalues[1] == "0106" then
+            func_0106()
+        end
+        if returnvalues[1] == "0107" then
+            func_0107()
+        end
+        if returnvalues[1] == "0108" then
+            func_0108()
+        end
+        if returnvalues[1] == "0109" then
+            func_0109()
+        end
+        if returnvalues[1] == "0110" then
+            func_0110()
+        end
+        if returnvalues[1] == "0111" then
+            func_0111()
+        end
+        if returnvalues[1] == "0112" then
+            func_0112()
+        end
+        if returnvalues[1] == "0113" then
+            func_0113()
+        end
+        if returnvalues[1] == "0114" then
+            func_0114()
+        end
+        if returnvalues[1] == "0115" then
+            func_0115()
+        end
+        if returnvalues[1] == "0116" then
+            func_0116()
+        end
+        if returnvalues[1] == "0117" then
+            func_0117()
+        end
+        if returnvalues[1] == "0118" then
+            func_0118()
+        end
+        if returnvalues[1] == "0119" then
+            func_0119()
+        end
+        if returnvalues[1] == "0120" then
+            func_0120()
+        end
+        if returnvalues[1] == "0121" then
+            func_0121()
+        end
+        if returnvalues[1] == "0122" then
+            func_0122()
+        end
+        if returnvalues[1] == "0123" then
+            func_0123()
+        end
+        if returnvalues[1] == "0124" then
+            func_0124()
+        end
+        if returnvalues[1] == "0125" then
+            func_0125()
+        end
+        if returnvalues[1] == "0126" then
+            func_0126()
+        end
+        if returnvalues[1] == "0200" then
+            func_0200()
+        end
+        if returnvalues[1] == "0201" then
+            func_0201()
+        end
+        if returnvalues[1] == "0202" then
+            func_0202()
+        end
+        if returnvalues[1] == "0203" then
+            func_0203()
+        end
+        if returnvalues[1] == "0204" then
+            func_0204()
+        end
+        if returnvalues[1] == "0205" then
+            func_0205()
+        end
+        if returnvalues[1] == "0206" then
+            func_0206()
+        end
+        if returnvalues[1] == "0207" then
+            func_0207()
+        end
+        if returnvalues[1] == "0208" then
+            func_0208()
+        end
+        if returnvalues[1] == "0209" then
+            func_0209()
+        end
+        if returnvalues[1] == "0210" then
+            func_0210()
+        end
+        if returnvalues[1] == "0211" then
+            func_0211()
+        end
+        if returnvalues[1] == "0212" then
+            func_0212()
+        end
+        if returnvalues[1] == "0300" then
+            func_0300()
+        end
+        if returnvalues[1] == "0400" then
+            func_0400()
+        end
+        if returnvalues[1] == "0401" then
+            func_0401()
+        end
+        if returnvalues[1] == "0402" then
+            func_0402()
+        end
+        if returnvalues[1] == "0403" then
+            func_0403()
+        end
+        if returnvalues[1] == "0404" then
+            func_0404()
+        end
+        if returnvalues[1] == "0405" then
+            func_0405()
+        end
+        if returnvalues[1] == "0406" then
+            func_0406()
+        end
+        if returnvalues[1] == "0407" then
+            func_0407()
+        end
+        if returnvalues[1] == "0408" then
+            func_0408()
+        end
+        if returnvalues[1] == "0409" then
+            func_0409()
+        end
+        if returnvalues[1] == "0410" then
+            func_0410()
+        end
+        if returnvalues[1] == "0411" then
+            func_0411()
+        end
+        if returnvalues[1] == "0412" then
+            func_0412()
+        end
+        if returnvalues[1] == "0413" then
+            func_0413()
+        end
+        if returnvalues[1] == "0414" then
+            func_0414()
+        end
+        if returnvalues[1] == "0415" then
+            func_0415()
+        end
+        if returnvalues[1] == "0416" then
+            func_0416()
+        end
+        if returnvalues[1] == "0417" then
+            func_0417()
+        end
+        if returnvalues[1] == "0418" then
+            func_0418()
+        end
+        if returnvalues[1] == "0419" then
+            func_0419()
+        end
+        if returnvalues[1] == "0420" then
+            func_0420()
+        end
+        if returnvalues[1] == "0500" then
+            func_0500()
+        end
+        if returnvalues[1] == "0501" then
+            func_0501()
+        end
+        if returnvalues[1] == "0502" then
+            func_0502()
+        end
+        if returnvalues[1] == "0503" then
+            func_0503()
+        end
+        if returnvalues[1] == "0550" then
+            func_0550()
+        end
+        if returnvalues[1] == "0551" then
+            func_0551()
+        end
+        if returnvalues[1] == "0552" then
+            func_0552()
+        end
+        if returnvalues[1] == "0553" then
+            func_0553()
+        end
+        if returnvalues[1] == "0554" then
+            func_0554()
+        end
+        if returnvalues[1] == "0555" then
+            func_0555()
+        end
+        if returnvalues[1] == "0556" then
+            func_0556()
+        end
+        if returnvalues[1] == "0557" then
+            func_0557()
+        end
+        if returnvalues[1] == "0558" then
+            func_0558()
+        end
+        if returnvalues[1] == "0559" then
+            func_0559()
+        end
+        if returnvalues[1] == "0560" then
+            func_0560()
+        end
+        if returnvalues[1] == "0561" then
+            func_0561()
+        end
+        if returnvalues[1] == "0600" then
+            func_0600()
+        end
+        if returnvalues[1] == "0601" then
+            func_0601()
+        end
+        if returnvalues[1] == "0602" then
+            func_0602()
+        end
+        if returnvalues[1] == "0603" then
+            func_0603()
+        end
+        if returnvalues[1] == "0604" then
+            func_0604()
+        end
+        if returnvalues[1] == "0605" then
+            func_0605()
+        end
+        if returnvalues[1] == "0606" then
+            func_0606()
+        end
+        if returnvalues[1] == "0607" then
+            func_0607()
+        end
+        if returnvalues[1] == "0608" then
+            func_0608()
+        end
+        if returnvalues[1] == "0609" then
+            func_0609()
+        end
+        if returnvalues[1] == "0610" then
+            func_0610()
+        end
+        if returnvalues[1] == "0611" then
+            func_0611()
+        end
+        if returnvalues[1] == "0612" then
+            func_0612()
+        end
+        if returnvalues[1] == "0613" then
+            func_0613()
+        end
+        if returnvalues[1] == "0614" then
+            func_0614()
+        end
+        if returnvalues[1] == "0615" then
+            func_0615()
+        end
+        if returnvalues[1] == "0616" then
+            func_0616()
+        end
+        if returnvalues[1] == "0700" then
+            func_0700()
+        end
+        if returnvalues[1] == "0701" then
+            func_0701()
+        end
+        if returnvalues[1] == "0702" then
+            func_0702()
+        end
+        if returnvalues[1] == "0703" then
+            func_0703()
+        end
+        if returnvalues[1] == "0704" then
+            func_0704()
+        end
+        if returnvalues[1] == "0705" then
+            func_0705()
+        end
+        if returnvalues[1] == "0706" then
+            func_0706()
+        end
+        if returnvalues[1] == "0707" then
+            func_0707()
+        end
+        if returnvalues[1] == "0708" then
+            func_0708()
+        end
+        if returnvalues[1] == "0709" then
+            func_0709()
+        end
+        if returnvalues[1] == "0710" then
+            func_0710()
+        end
+        if returnvalues[1] == "0711" then
+            func_0711()
+        end
+        if returnvalues[1] == "0800" then
+            func_0800()
+        end
+        if returnvalues[1] == "0801" then
+            func_0801()
+        end
+        if returnvalues[1] == "0802" then
+            func_0802()
+        end
+        if returnvalues[1] == "0803" then
+            func_0803()
+        end
+        if returnvalues[1] == "0804" then
+            func_0804()
+        end
+        if returnvalues[1] == "0805" then
+            func_0805()
+        end
+        if returnvalues[1] == "0806" then
+            func_0806()
+        end
+        if returnvalues[1] == "0807" then
+            func_0807()
+        end
+        if returnvalues[1] == "0808" then
+            func_0808()
+        end
+        if returnvalues[1] == "0809" then
+            func_0809()
+        end
+        if returnvalues[1] == "0810" then
+            func_0810()
+        end
+        if returnvalues[1] == "0811" then
+            func_0811()
+        end
+        if returnvalues[1] == "0812" then
+            func_0812()
+        end
+        if returnvalues[1] == "0813" then
+            func_0813()
+        end
+        if returnvalues[1] == "0814" then
+            func_0814()
+        end
+        if returnvalues[1] == "0815" then
+            func_0815()
+        end
+        if returnvalues[1] == "0816" then
+            func_0816()
+        end
+        if returnvalues[1] == "0817" then
+            func_0817()
+        end
+        if returnvalues[1] == "0818" then
+            func_0818()
+        end
+        if returnvalues[1] == "0819" then
+            func_0819()
+        end
+        if returnvalues[1] == "0820" then
+            func_0820()
+        end
+        if returnvalues[1] == "0821" then
+            func_0821()
+        end
+        if returnvalues[1] == "0822" then
+            func_0822()
+        end
+        if returnvalues[1] == "0823" then
+            func_0823()
+        end
+        if returnvalues[1] == "0824" then
+            func_0824()
+        end
+        if returnvalues[1] == "0825" then
+            func_0825()
+        end
+        if returnvalues[1] == "0826" then
+            func_0826()
+        end
+        if returnvalues[1] == "0827" then
+            func_0827()
+        end
+        if returnvalues[1] == "0828" then
+            func_0828()
+        end
+        if returnvalues[1] == "0829" then
+            func_0829()
+        end
+        if returnvalues[1] == "0830" then
+            func_0830()
+        end
+        if returnvalues[1] == "0831" then
+            func_0831()
+        end
+        if returnvalues[1] == "0832" then
+            func_0832()
+        end
+        if returnvalues[1] == "0833" then
+            func_0833()
+        end
+        if returnvalues[1] == "0834" then
+            func_0834()
+        end
+        if returnvalues[1] == "0835" then
+            func_0835()
+        end
+        if returnvalues[1] == "0836" then
+            func_0836()
+        end
+        if returnvalues[1] == "0837" then
+            func_0837()
+        end
+        if returnvalues[1] == "0838" then
+            func_0838()
+        end
+        if returnvalues[1] == "0839" then
+            func_0839()
+        end
+        if returnvalues[1] == "0840" then
+            func_0840()
+        end
+        if returnvalues[1] == "0841" then
+            func_0841()
+        end
+        if returnvalues[1] == "0842" then
+            func_0842()
+        end
+        if returnvalues[1] == "0843" then
+            func_0843()
+        end
+        if returnvalues[1] == "0844" then
+            func_0844()
+        end
+        if returnvalues[1] == "0845" then
+            func_0845()
+        end
+        if returnvalues[1] == "0846" then
+            func_0846()
+        end
+        if returnvalues[1] == "0847" then
+            func_0847()
+        end
+        if returnvalues[1] == "0848" then
+            func_0848()
+        end
+        if returnvalues[1] == "0849" then
+            func_0849()
+        end
+        if returnvalues[1] == "0850" then
+            func_0850()
+        end
+        if returnvalues[1] == "0851" then
+            func_0851()
+        end
+        if returnvalues[1] == "0852" then
+            func_0852()
+        end
+        if returnvalues[1] == "0853" then
+            func_0853()
+        end
+        if returnvalues[1] == "0854" then
+            func_0854()
+        end
+        if returnvalues[1] == "9000" then
+            func_9000()
+        end
+        if returnvalues[1] == "9001" then
+            func_9001()
+        end
+        if returnvalues[1] == "9002" then
+            func_9002()
+        end
+        if returnvalues[1] == "9003" then
+            func_9003()
+        end
+        if returnvalues[1] == "8002" then
+            func_8002()
+        end
+        if returnvalues[1] == "8003" then
+            func_8003()
+        end
+        if returnvalues[1] == "8004" then
+            func_8004()
+        end
+        if returnvalues[1] == "8005" then
+            func_8005()
+        end
+        if returnvalues[1] == "8006" then
+            func_8006()
+        end
+        if returnvalues[1] == "8007" then
+            func_8007()
+        end
+    else
+        if returnvalues[1] == "8000" then
+            func_8000()
+        elseif returnvalues[1] == "8001" then
+            func_8001()
+        else
+            finenv.UI():AlertInfo("Please select a region and try agian.", nil)
+            return
+        end
     end
 end

@@ -23,11 +23,13 @@ on chooseMenuItem(theMenuName, theMenuItemName, pushButton, compositeTop, compos
 				if activeMenuItem is true then
 					click menu item theMenuItemName of menu "Tools" of menu bar 1
 					key code 36
-					repeat until (window theMenuItemName exists)
-					end repeat
+					if not (window theMenuItemName exists) then
+						error
+					end if
 				end if
 			end tell
 		end tell
+
 		tell application "System Events"
 			tell process appName
 				ignoring application responses
@@ -35,13 +37,14 @@ on chooseMenuItem(theMenuName, theMenuItemName, pushButton, compositeTop, compos
 				end ignoring
 			end tell
 		end tell
-
+		
 		do shell script "killall System\\ Events"
 		delay 0.1
 		tell application "System Events"
 			tell process appName
-				repeat until (window "Composite Time Signature" exists)
-				end repeat
+				if not (window "Composite Time Signature" exists) then
+					error
+				end if
 				set compositeInUse to 0
 				if value of (checkbox "Use EDUs for Beat Duration" of window "Composite Time Signature") = 1 then
 					set compositeInUse to 1
@@ -57,13 +60,9 @@ on chooseMenuItem(theMenuName, theMenuItemName, pushButton, compositeTop, compos
 							keystroke item comptime of compositeBottom
 							key code 48
 						end repeat
-						
 					end if
 					click button "OK" of window "Composite Time Signature"
-					repeat until not (window "Composite Time Signature" exists)
-					end repeat
 					click button "More Options" of window theMenuItemName
-					
 					click checkbox "Use a Different Time Signature for Display" of window theMenuItemName
 					key code 48
 					keystroke "7"

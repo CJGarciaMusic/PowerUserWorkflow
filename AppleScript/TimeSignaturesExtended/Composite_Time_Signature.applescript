@@ -23,8 +23,9 @@ on chooseMenuItem(theMenuName, theMenuItemName, pushButton)
 				if activeMenuItem is true then
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
 					key code 36
-					repeat until (window theMenuItemName exists)
-					end repeat
+					if not (window theMenuItemName exists) then
+						error
+					end if
 				end if
 			end tell
 		end tell
