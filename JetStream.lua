@@ -1,9 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = true
-    finaleplugin.Author = "CJ Garcia"
-    finaleplugin.Copyright = "© 2019 CJ Garcia Music"
-    finaleplugin.Version = "190828"
-    finaleplugin.Date = "8/28/2019"
+    finaleplugin.Version = "190830"
+    finaleplugin.Date = "8/30/2019"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -2003,6 +2001,14 @@ function func_0211()
     end
 end
 
+function func_0212()
+    for noteentry in eachentrysaved(finenv.Region()) do
+        if noteentry:IsRest() then
+            print(noteentry:SetFloatingRest(true))
+        end
+    end
+end
+
 function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -2122,6 +2128,16 @@ end
 
 function func_0502()
     alter_bass(2)
+end
+
+function func_0503()
+    local chords = finale.FCChords()
+    chords:LoadAllForRegion(finenv.Region())
+    for c in each(chords) do
+        c:SetChordVerticalPos(0)
+        c:SetChordHorizontalPos(0)
+        c:Save()
+    end
 end
 
 function func_0550()
@@ -2903,6 +2919,9 @@ if returnvalues ~= nil then
     if returnvalues[1] == "0211" then
         func_0211()
     end
+    if returnvalues[1] == "0212" then
+        func_0212()
+    end
     if returnvalues[1] == "0300" then
         func_0300()
     end
@@ -2977,6 +2996,9 @@ if returnvalues ~= nil then
     end
     if returnvalues[1] == "0502" then
         func_0502()
+    end
+    if returnvalues[1] == "0503" then
+        func_0503()
     end
     if returnvalues[1] == "0550" then
         func_0550()
