@@ -29,21 +29,15 @@ on chooseMenuItem(theMenuName, theMenuItemName, pushButton, compositeTop, compos
 				end if
 			end tell
 		end tell
-
-		tell application "System Events"
-			tell process appName
-				ignoring application responses
+		ignoring application responses
+			tell application "System Events"
+				tell process appName
 					click button "Composite..." of window theMenuItemName
-				end ignoring
+				end tell
 			end tell
-		end tell
-		
-		do shell script "killall System\\ Events"
-		delay 0.1
+		end ignoring
 		tell application "System Events"
 			tell process appName
-				repeat until (window "Composite Time Signature" exists) 
-				end repeat
 				set compositeInUse to 0
 				if value of (checkbox "Use EDUs for Beat Duration" of window "Composite Time Signature") = 1 then
 					set compositeInUse to 1
