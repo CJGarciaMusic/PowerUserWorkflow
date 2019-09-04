@@ -1,9 +1,8 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Author: CJ Garcia
  Version: 190828
  Script Function: JetStream Finale Controller for Windows
-#ce -------------------------\]---------------------------------------------------
+#ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
 #include <Array.au3>
 #include <WinAPIShPath.au3>
@@ -138,8 +137,57 @@ Func ApplyMetatool($MenuName, $MenuItemName, $Metatool)
    EndIf
 EndFunc
 
+Func LyricsWindow()
+	WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Lyrics")
+	If WinExists("[CLASS:#32770]", "Lyrics") Then
+		WinClose("[CLASS:#32770]", "Lyrics")
+	Else
+		WinMenuSelectItem("[CLASS:Finale]", "", "L&yrics", "Lyrics &Window...")
+	EndIf
+ EndFunc
+
+ Func ResizeNotes($noteSize)
+	If WinMenuSelectItem("[CLASS:Finale]", "", "Uti&lities", "&Change", "Note &Size...") Then
+	Send($noteSize)
+	ControlClick("Change Note Size", "", "[CLASS:Button; INSTANCE:1]")
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
+Func SinglePitch($pitch)
+	If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "Note, Beam, and Rest Editing", "Single Pitch...") Then
+	  WinWaitActive("[CLASS:#32770]", "", "Single Pitch")
+	  Send($pitch)
+	  ControlClick("Single Pitch", "", "[CLASS:Button; INSTANCE:1]")
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
+Func Transpose($direction, $chromOrDia, $interval)
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Uti&lities", "&Transpose...") Then
+	  WinWaitActive("[CLASS:#32770]", "", "Transposition")
+	  If $direction == "Up" Then
+		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:4]")
+	  ElseIf $direction == "Down" Then
+		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:5]")
+	  EndIf
+	  If $chromOrDia = "Chromatically" Then
+		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:7]")
+		 ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", $interval)
+	  ElseIf $chromOrDia = "Diatonically" Then
+		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:6]")
+		 ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", $interval)
+	  EndIf
+	  ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:1]")
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
 Func CheckForUpdate()
-   Local $currentVersion = 190828
+   Local $currentVersion = 190904
 
    $sHtml =  _INetGetSource("http://www.musicprep.com/jetstream/")
    If $sHtml Then
@@ -208,6 +256,26 @@ Func CheckIfActive()
 	  If @error Then
 		 MsgError("The metatool " & $CmdLine[4] & "wasn't able to be applied." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
+   ElseIf $CmdLine[1] = "Lyrics Window" Then
+	  LyricsWindow()
+	  If @error Then
+		 MsgError("The " & $CmdLine[1] & " toggle function failed." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Resize Notes" Then
+	  ResizeNotes($CmdLine[2])
+	  If @error Then
+		 MsgError("Unable to resize notes." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Single Pitch" Then
+	  SinglePitch($CmdLine[2])
+	  If @error Then
+		 MsgError("Unable to set notes to a single pitch." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Transpose" Then
+	  Transpose($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  If @error Then
+		 MsgError($CmdLine[1] & " wasn't able to be selected." & @CRLF & @CRLF & "Please be sure the region you selected is using a Standard Notation Style and that Finale is in focus and try again.")
+	  EndIf
    EndIf
 EndFunc
 
@@ -226,7 +294,6 @@ Else
 			CheckIfActive()
 		 Else
 			MsgError("Finale does not appear to be in focus. Please try again.")
-			Return
 		 EndIf
 	  EndIf
    Next
