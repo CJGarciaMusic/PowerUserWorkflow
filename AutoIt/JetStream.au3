@@ -114,9 +114,7 @@ Func iterateThroughParts()
 EndFunc
 
 Func KeySig($keySet, $maj_min)
-   If ($keySet > 14) Or ($keySet < 0) Or ($maj_min <> "Major") Or ($maj_min <> "Minor") Then
-	  SetError(1)
-   Else
+   If ($keySet < 14) Or ($keySet > 0) Or ($maj_min = "Major") Or ($maj_min = "Minor") Then
 	  WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Key Signature")
 	  Send("{ENTER}")
 	  WinWaitActive("[CLASS:#32770]", "", "Key Signature")
@@ -126,6 +124,8 @@ Func KeySig($keySet, $maj_min)
 	  MouseWheel($MOUSE_WHEEL_DOWN, Number($keySet))
 	  ControlCommand("Key Signature", "", "ComboBox1","SelectString", $maj_min & " Key")
 	  ControlClick("[CLASS:#32770]", "", "OK")
+   Else
+	  SetError(1)
    EndIf
 EndFunc
 
