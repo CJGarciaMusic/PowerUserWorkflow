@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "190830"
-    finaleplugin.Date = "8/30/2019"
+    finaleplugin.Version = "190904"
+    finaleplugin.Date = "9/04/2019"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -1442,6 +1442,80 @@ function measureWidth(direction_change)
     end
 end
 
+function tuplet_options(tuplet_parameter)
+    for noteentry in eachentry(finenv.Region()) do
+        local t = finale.FCTuplet()
+        t:SetNoteEntry(noteentry)
+        if t:LoadFirst() then
+            if tuplet_parameter == "Always Flat On" then
+                t:SetAlwaysFlat(true)
+            elseif tuplet_parameter == "Always Flat Off" then
+                t:SetAlwaysFlat(false)
+            elseif tuplet_parameter == "Avoid Staff On" then
+                t:SetAvoid(true)
+            elseif tuplet_parameter == "Avoid Staff Off" then
+                t:SetAvoid(false)
+            elseif tuplet_parameter == "Bracket Always" then
+                t:SetBracketMode(0)
+            elseif tuplet_parameter == "Bracket Unbeamed" then
+                t:SetBracketMode(1)
+            elseif tuplet_parameter == "Bracket Never Beamed" then
+                t:SetBracketMode(2)
+            elseif tuplet_parameter == "Placement Manual" then
+                t:SetPlacementMode(0)
+            elseif tuplet_parameter == "Placement Stem" then
+                t:SetPlacementMode(1)
+            elseif tuplet_parameter == "Placement Note" then
+                t:SetPlacementMode(2)
+            elseif tuplet_parameter == "Placement Above" then
+                t:SetPlacementMode(3)
+            elseif tuplet_parameter == "Placement Below" then
+                t:SetPlacementMode(4)
+            elseif tuplet_parameter == "Increase Space" then
+                t:SetVerticalOffset(t:GetVerticalOffset() + 9)
+            elseif tuplet_parameter == "Decrease Space" then
+                if (t:GetVerticalOffset() - 9) > 0 then
+                    t:SetVerticalOffset(t:GetVerticalOffset() - 9)
+                end
+            elseif tuplet_parameter == "Increase Bracket" then
+                if t:GetVerticalOffset() == 24 then
+                    t:SetVerticalOffset(t:GetVerticalOffset() + 18)
+                end
+                t:SetLeftHookLength(t:GetLeftHookLength() + 9)
+                t:SetRightHookLength(t:GetRightHookLength() + 9)
+                t:SetVerticalOffset(t:GetVerticalOffset() + 9)
+            elseif tuplet_parameter == "Decrease Bracket" then
+                if (t:GetVerticalOffset() - 9) > 24 then
+                    t:SetVerticalOffset(t:GetVerticalOffset() - 9)
+                end
+                if (t:GetLeftHookLength() - 9) > 12 then
+                    t:SetLeftHookLength(t:GetLeftHookLength() - 9)
+                end
+                if (t:GetRightHookLength() - 9) > 12 then
+                    t:SetRightHookLength(t:GetRightHookLength() - 9)
+                end
+            elseif tuplet_parameter == "Shape None" then
+                t:SetShapeStyle(0)
+            elseif tuplet_parameter == "Shape Bracket" then
+                t:SetShapeStyle(1) 
+            elseif tuplet_parameter == "Shape Slur" then
+                t:SetShapeStyle(2)
+            elseif tuplet_parameter == "Number None" then
+                t:SetNumberStyle(0)
+            elseif tuplet_parameter == "Number Regular" then
+                t:SetNumberStyle(1)
+            elseif tuplet_parameter == "Number Ratio" then
+                t:SetNumberStyle(2)
+            elseif tuplet_parameter == "Number Ratio Last" then
+                t:SetNumberStyle(3)
+            elseif tuplet_parameter == "Number Ration Both" then
+                t:SetNumberStyle(4)  
+            end
+            t:Save()
+        end
+    end
+end
+
 function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("Start")
@@ -2641,6 +2715,129 @@ function func_0854()
     getFirstNoteInRegionText("Region Start")
 end
 
+function func_0900()
+    tuplet_options("Placement Manual") 
+end
+
+function func_0901()
+    tuplet_options("Placement Stem")
+end
+
+function func_0902()
+    tuplet_options("Placement Note")
+end
+
+function func_0903()
+    tuplet_options("Placement Above") 
+end
+
+function func_0904()
+    tuplet_options("Placement Below") 
+end
+
+function func_0905()
+    for noteentry in eachentry(finenv.Region()) do
+        local t = finale.FCTuplet()
+        t:SetNoteEntry(noteentry)
+        if t:LoadFirst() then
+            if t:GetPlacementMode() == 1 then
+                t:SetPlacementMode(2)
+            elseif t:GetPlacementMode() == 2 then
+                t:SetPlacementMode(1)
+            elseif t:GetPlacementMode() == 3 then
+                t:SetPlacementMode(4)
+            elseif t:GetPlacementMode() == 4 then
+                t:SetPlacementMode(3)
+            elseif t:GetPlacementMode() == 0 then
+                finenv.UI():AlertInfo("There is a tuplet with the placement style of \"Manual\" in this region. This will be changed to Stem/Beam side.", nil)
+                t:SetPlacementMode(1)
+            end
+            t:Save()
+        end
+    end  
+end
+
+function func_0906()
+    tuplet_options("Always Flat On") 
+end
+
+function func_0907()
+    tuplet_options("Always Flat Off") 
+end
+
+function func_0908()
+    tuplet_options("Avoid Staff On") 
+end
+
+function func_0909()
+    tuplet_options("Avoid Staff Off") 
+end
+
+function func_0910()
+    tuplet_options("Bracket Always") 
+end
+
+function func_0911()
+    tuplet_options("Bracket Unbeamed") 
+end
+
+function func_0912()
+    tuplet_options("Bracket Never Beamed") 
+end
+
+function func_0913()
+    tuplet_options("Increase Space") 
+end
+
+function func_0914()
+    tuplet_options("Decrease Space") 
+end
+
+function func_0915()
+    tuplet_options("Increase Bracket") 
+end
+
+function func_0916()
+    tuplet_options("Decrease Bracket") 
+end
+
+function func_0917()
+    tuplet_options("Shape None") 
+end
+
+function func_0918()
+    tuplet_options("Shape Bracket") 
+end
+
+function func_0919()
+    tuplet_options("Shape Slur") 
+end
+
+function func_0920()
+    tuplet_options("Number None") 
+end
+
+function func_0921()
+    tuplet_options("Number Regular") 
+end
+
+function func_0922()
+    tuplet_options("Number Ratio") 
+end
+
+function func_0923()
+    tuplet_options("Number Ratio Last") 
+end
+
+function func_0924()
+    tuplet_options("Number Ration Both") 
+end
+
+function func_0925()
+    tuplet_options("Number None")
+    tuplet_options("Shape None") 
+end
+
 function func_9000()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
@@ -3366,6 +3563,84 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0854" then
             func_0854()
+        end
+        if returnvalues[1] == "0900" then
+            func_0900()
+        end
+        if returnvalues[1] == "0901" then
+            func_0901()
+        end
+        if returnvalues[1] == "0902" then
+            func_0902()
+        end
+        if returnvalues[1] == "0903" then
+            func_0903()
+        end
+        if returnvalues[1] == "0904" then
+            func_0904()
+        end
+        if returnvalues[1] == "0905" then
+            func_0905()
+        end
+        if returnvalues[1] == "0906" then
+            func_0906()
+        end
+        if returnvalues[1] == "0907" then
+            func_0907()
+        end
+        if returnvalues[1] == "0908" then
+            func_0908()
+        end
+        if returnvalues[1] == "0909" then
+            func_0909()
+        end
+        if returnvalues[1] == "0910" then
+            func_0910()
+        end
+        if returnvalues[1] == "0911" then
+            func_0911()
+        end
+        if returnvalues[1] == "0912" then
+            func_0912()
+        end
+        if returnvalues[1] == "0913" then
+            func_0913()
+        end
+        if returnvalues[1] == "0914" then
+            func_0914()
+        end
+        if returnvalues[1] == "0915" then
+            func_0915()
+        end
+        if returnvalues[1] == "0916" then
+            func_0916()
+        end
+        if returnvalues[1] == "0917" then
+            func_0917()
+        end
+        if returnvalues[1] == "0918" then
+            func_0918()
+        end
+        if returnvalues[1] == "0919" then
+            func_0919()
+        end
+        if returnvalues[1] == "0920" then
+            func_0920()
+        end
+        if returnvalues[1] == "0921" then
+            func_0921()
+        end
+        if returnvalues[1] == "0922" then
+            func_0922()
+        end
+        if returnvalues[1] == "0923" then
+            func_0923()
+        end
+        if returnvalues[1] == "0924" then
+            func_0924()
+        end
+        if returnvalues[1] == "0925" then
+            func_0925()
         end
         if returnvalues[1] == "9000" then
             func_9000()

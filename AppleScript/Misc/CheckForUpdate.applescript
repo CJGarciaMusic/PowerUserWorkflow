@@ -34,7 +34,7 @@ set myText to removeMarkupFromText(myArray)
 
 set myLength to (count of myText)
 set firstNumber to (offset of "version" in myText)
-set currentVersion to "190828"
+set currentVersion to "190904"
 set scribeVersion to (characters (firstNumber + 8) thru myLength of myText as text)
 
 if currentVersion is equal to scribeVersion then
