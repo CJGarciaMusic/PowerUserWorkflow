@@ -1465,9 +1465,9 @@ function tuplet_options(tuplet_parameters)
                 elseif value == "Engraver Off" then
                     t:SetEngraverTuplet(false)
                 elseif value == "Avoid Staff On" then
-                    t:SetAvoid(true)
+                    t:SetAvoidStaff(true)
                 elseif value == "Avoid Staff Off" then
-                    t:SetAvoid(false)
+                    t:SetAvoidStaff(false)
                 elseif value == "Bracket Always" then
                     t:SetBracketMode(0)
                 elseif value == "Center Duration On" then
