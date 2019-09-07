@@ -1442,76 +1442,154 @@ function measureWidth(direction_change)
     end
 end
 
-function tuplet_options(tuplet_parameter)
+function tuplet_options(tuplet_parameters)
     for noteentry in eachentry(finenv.Region()) do
         local t = finale.FCTuplet()
         t:SetNoteEntry(noteentry)
         if t:LoadFirst() then
-            if tuplet_parameter == "Always Flat On" then
-                t:SetAlwaysFlat(true)
-            elseif tuplet_parameter == "Always Flat Off" then
-                t:SetAlwaysFlat(false)
-            elseif tuplet_parameter == "Avoid Staff On" then
-                t:SetAvoid(true)
-            elseif tuplet_parameter == "Avoid Staff Off" then
-                t:SetAvoid(false)
-            elseif tuplet_parameter == "Bracket Always" then
-                t:SetBracketMode(0)
-            elseif tuplet_parameter == "Bracket Unbeamed" then
-                t:SetBracketMode(1)
-            elseif tuplet_parameter == "Bracket Never Beamed" then
-                t:SetBracketMode(2)
-            elseif tuplet_parameter == "Placement Manual" then
-                t:SetPlacementMode(0)
-            elseif tuplet_parameter == "Placement Stem" then
-                t:SetPlacementMode(1)
-            elseif tuplet_parameter == "Placement Note" then
-                t:SetPlacementMode(2)
-            elseif tuplet_parameter == "Placement Above" then
-                t:SetPlacementMode(3)
-            elseif tuplet_parameter == "Placement Below" then
-                t:SetPlacementMode(4)
-            elseif tuplet_parameter == "Increase Space" then
-                t:SetVerticalOffset(t:GetVerticalOffset() + 9)
-            elseif tuplet_parameter == "Decrease Space" then
-                if (t:GetVerticalOffset() - 9) > 0 then
-                    t:SetVerticalOffset(t:GetVerticalOffset() - 9)
+            for key, value in pairs(tuplet_parameters) do
+                if value == "Always Flat On" then
+                    t:SetAlwaysFlat(true)
+                elseif value == "Always Flat Off" then
+                    t:SetAlwaysFlat(false)
+                elseif value == "Allow Horizontal Drag On" then
+                    t:SetAllowHorizontalDrag(true)
+                elseif value == "Allow Horizontal Drag Off" then
+                    t:SetAllowHorizontalDrag(false)
+                elseif value == "Bottom Note On" then
+                    t:SetUseBottomNote(true)
+                elseif value == "Bottom Note Off" then
+                    t:SetUseBottomNote(false)
+                elseif value == "Engraver On" then
+                    t:SetEngraverTuplet(true)
+                elseif value == "Engraver Off" then
+                    t:SetEngraverTuplet(false)
+                elseif value == "Avoid Staff On" then
+                    t:SetAvoidStaff(true)
+                elseif value == "Avoid Staff Off" then
+                    t:SetAvoidStaff(false)
+                elseif value == "Bracket Always" then
+                    t:SetBracketMode(0)
+                elseif value == "Center Duration On" then
+                    t:SetCenterUsingDuration(true)
+                elseif value == "Center Duration Off" then
+                    t:SetCenterUsingDuration(false)
+                elseif value == "Ignore Horizontal On" then
+                    t:SetIgnoreNumberOffset(true)
+                elseif value == "Ignore Horizontal Off" then
+                    t:SetIgnoreNumberOffset(false)
+                elseif value == "Full Duration On" then
+                    t:SetBracketFullDuration(true)
+                elseif value == "Full Duration Off" then
+                    t:SetBracketFullDuration(false)
+                elseif value == "Match Hooks On" then
+                    t:SetMatchHookLengths(true)
+                elseif value == "Match Hooks Off" then
+                    t:SetMatchHookLengths(false)
+                elseif value == "Bracket Unbeamed" then
+                    t:SetBracketMode(1)
+                elseif value == "Bracket Never Beamed" then
+                    t:SetBracketMode(2)
+                elseif value == "Placement Manual" then
+                    t:SetPlacementMode(0)
+                elseif value == "Placement Stem" then
+                    t:SetPlacementMode(1)
+                elseif value == "Placement Note" then
+                    t:SetPlacementMode(2)
+                elseif value == "Placement Above" then
+                    t:SetPlacementMode(3)
+                elseif value == "Placement Below" then
+                    t:SetPlacementMode(4)
+                elseif value == "Increase Space" then
+                    t:SetVerticalOffset(t:GetVerticalOffset() + 9)
+                elseif value == "Decrease Space" then
+                    if (t:GetVerticalOffset() - 9) > 0 then
+                        t:SetVerticalOffset(t:GetVerticalOffset() - 9)
+                    end
+                elseif value == "Increase Bracket" then
+                    if t:GetVerticalOffset() == 24 then
+                        t:SetVerticalOffset(t:GetVerticalOffset() + 18)
+                    end
+                    t:SetLeftHookLength(t:GetLeftHookLength() + 9)
+                    t:SetRightHookLength(t:GetRightHookLength() + 9)
+                    t:SetVerticalOffset(t:GetVerticalOffset() + 9)
+                elseif value == "Decrease Bracket" then
+                    if (t:GetVerticalOffset() - 9) > 24 then
+                        t:SetVerticalOffset(t:GetVerticalOffset() - 9)
+                    end
+                    if (t:GetLeftHookLength() - 9) > 12 then
+                        t:SetLeftHookLength(t:GetLeftHookLength() - 9)
+                    end
+                    if (t:GetRightHookLength() - 9) > 12 then
+                        t:SetRightHookLength(t:GetRightHookLength() - 9)
+                    end
+                elseif value == "Shape None" then
+                    t:SetShapeStyle(0)
+                elseif value == "Shape Bracket" then
+                    t:SetShapeStyle(1) 
+                elseif value == "Shape Slur" then
+                    t:SetShapeStyle(2)
+                elseif value == "Number None" then
+                    t:SetNumberStyle(0)
+                elseif value == "Number Regular" then
+                    t:SetNumberStyle(1)
+                elseif value == "Number Ratio" then
+                    t:SetNumberStyle(2)
+                elseif value == "Number Ratio Last" then
+                    t:SetNumberStyle(3)
+                elseif value == "Number Ration Both" then
+                    t:SetNumberStyle(4)  
                 end
-            elseif tuplet_parameter == "Increase Bracket" then
-                if t:GetVerticalOffset() == 24 then
-                    t:SetVerticalOffset(t:GetVerticalOffset() + 18)
-                end
-                t:SetLeftHookLength(t:GetLeftHookLength() + 9)
-                t:SetRightHookLength(t:GetRightHookLength() + 9)
-                t:SetVerticalOffset(t:GetVerticalOffset() + 9)
-            elseif tuplet_parameter == "Decrease Bracket" then
-                if (t:GetVerticalOffset() - 9) > 24 then
-                    t:SetVerticalOffset(t:GetVerticalOffset() - 9)
-                end
-                if (t:GetLeftHookLength() - 9) > 12 then
-                    t:SetLeftHookLength(t:GetLeftHookLength() - 9)
-                end
-                if (t:GetRightHookLength() - 9) > 12 then
-                    t:SetRightHookLength(t:GetRightHookLength() - 9)
-                end
-            elseif tuplet_parameter == "Shape None" then
-                t:SetShapeStyle(0)
-            elseif tuplet_parameter == "Shape Bracket" then
-                t:SetShapeStyle(1) 
-            elseif tuplet_parameter == "Shape Slur" then
-                t:SetShapeStyle(2)
-            elseif tuplet_parameter == "Number None" then
-                t:SetNumberStyle(0)
-            elseif tuplet_parameter == "Number Regular" then
-                t:SetNumberStyle(1)
-            elseif tuplet_parameter == "Number Ratio" then
-                t:SetNumberStyle(2)
-            elseif tuplet_parameter == "Number Ratio Last" then
-                t:SetNumberStyle(3)
-            elseif tuplet_parameter == "Number Ration Both" then
-                t:SetNumberStyle(4)  
             end
             t:Save()
+        end
+    end
+end
+
+function move_markers(marker_pos)
+    local staff_sys = finale.FCStaffSystems()
+    staff_sys:LoadAll()
+
+    for sys in each(staff_sys) do
+        local exps = finale.FCExpressions()
+        local first_meas = sys:GetFirstMeasure()
+        local first_staff = sys:CalcTopStaff()
+        exps:LoadAllForItem(sys:GetFirstMeasure())
+        local distanceprefs = finale.FCDistancePrefs()
+        distanceprefs:Load(1)
+        local space_before_clef = distanceprefs:GetClefSpaceBefore()
+        for exp in each(exps) do
+            local ted = finale.FCTextExpressionDef()
+            ted:Load(exp:GetID())
+            if ted:IsAutoRehearsalMark() then
+                local first_region = finenv.Region()
+                first_region:SetStartMeasure(first_meas)
+                first_region:SetEndMeasure(first_meas)
+                first_region:SetStartStaff(first_staff)
+                first_region:SetEndStaff(first_staff)
+                for m, s in eachcell(first_region) do
+                   local cellpos = finale.FCCellPos(m, s, 0)
+                   local clef_id = cellpos:CalcClefIndex()
+                    if (clef_id == 0) or (clef_id == 5) or (clef_id == 8) or (clef_id == 13) then
+                        if marker_pos == "Clef Center" then
+                            exp:SetHorizontalPos(space_before_clef + 42)
+                        end
+                    elseif (clef_id == 3) or (clef_id == 6) or (clef_id == 7) or (clef_id == 14) then
+                        if marker_pos == "Clef Center" then
+                            exp:SetHorizontalPos(space_before_clef + 32)
+                        end
+                     elseif clef_id == 12 then
+                        if marker_pos == "Clef Center" then
+                            exp:SetHorizontalPos(space_before_clef + 16)
+                        end
+                     elseif (clef_id == 1) or (clef_id == 2) or (clef_id == 9) or (clef_id == 10) or (clef_id == 11) then
+                        if marker_pos == "Clef Center" then
+                            exp:SetHorizontalPos(space_before_clef + 31)
+                        end
+                    end
+                end
+                exp:Save()
+            end
         end
     end
 end
@@ -2716,23 +2794,23 @@ function func_0854()
 end
 
 function func_0900()
-    tuplet_options("Placement Manual") 
+    tuplet_options({"Placement Manual"})
 end
 
 function func_0901()
-    tuplet_options("Placement Stem")
+    tuplet_options({"Placement Stem"})
 end
 
 function func_0902()
-    tuplet_options("Placement Note")
+    tuplet_options({"Placement Note"})
 end
 
 function func_0903()
-    tuplet_options("Placement Above") 
+    tuplet_options({"Placement Above"}) 
 end
 
 function func_0904()
-    tuplet_options("Placement Below") 
+    tuplet_options({"Placement Below"}) 
 end
 
 function func_0905()
@@ -2758,105 +2836,87 @@ function func_0905()
 end
 
 function func_0906()
-    tuplet_options("Always Flat On") 
+    tuplet_options({"Always Flat On"})
 end
 
 function func_0907()
-    tuplet_options("Always Flat Off") 
+    tuplet_options({"Always Flat Off"}) 
 end
 
 function func_0908()
-    tuplet_options("Avoid Staff On") 
+    tuplet_options({"Avoid Staff On"})
 end
 
 function func_0909()
-    tuplet_options("Avoid Staff Off") 
+    tuplet_options({"Avoid Staff Off"}) 
 end
 
 function func_0910()
-    tuplet_options("Bracket Always") 
+    tuplet_options({"Bracket Always"})
 end
 
 function func_0911()
-    tuplet_options("Bracket Unbeamed") 
+    tuplet_options({"Bracket Unbeamed"}) 
 end
 
 function func_0912()
-    tuplet_options("Bracket Never Beamed") 
+    tuplet_options({"Bracket Never Beamed"})
 end
 
 function func_0913()
-    tuplet_options("Increase Space") 
+    tuplet_options({"Increase Space"})
 end
 
 function func_0914()
-    tuplet_options("Decrease Space") 
+    tuplet_options({"Decrease Space"})
 end
 
 function func_0915()
-    tuplet_options("Increase Bracket") 
+    tuplet_options({"Increase Bracket"})
 end
 
 function func_0916()
-    tuplet_options("Decrease Bracket") 
+    tuplet_options({"Decrease Bracket"})
 end
 
 function func_0917()
-    tuplet_options("Shape None") 
+    tuplet_options({"Shape None"})
 end
 
 function func_0918()
-    tuplet_options("Shape Bracket") 
+    tuplet_options({"Shape Bracket"})
 end
 
 function func_0919()
-    tuplet_options("Shape Slur") 
+    tuplet_options({"Shape Slur"})
 end
 
 function func_0920()
-    tuplet_options("Number None") 
+    tuplet_options({"Number None"})
 end
 
 function func_0921()
-    tuplet_options("Number Regular") 
+    tuplet_options({"Number Regular"})
 end
 
 function func_0922()
-    tuplet_options("Number Ratio") 
+    tuplet_options({"Number Ratio"})
 end
 
 function func_0923()
-    tuplet_options("Number Ratio Last") 
+    tuplet_options({"Number Ratio Last"})
 end
 
 function func_0924()
-    tuplet_options("Number Ration Both") 
+    tuplet_options({"Number Ration Both"})
 end
 
 function func_0925()
-    tuplet_options("Number None")
-    tuplet_options("Shape None") 
+    tuplet_options({"Number None", "Shape None"}) 
 end
 
-function func_9000()
-    for entry in eachentrysaved(finenv.Region()) do
-        if (entry.Count ~= 2) then 
-            goto continue 
-        end
-        local highestnote = entry:CalcHighestNote(nil)
-        local lowestnote = entry:CalcLowestNote(nil)
-        local mididiff = highestnote:CalcMIDIKey() - lowestnote:CalcMIDIKey()
-        if ((mididiff ~= 12 and mididiff > 7) or (3 > mididiff) or (mididiff == 6)) then 
-            goto continue 
-        end
-        local notehead = finale.FCNoteheadMod()
-        notehead:EraseAt(lowestnote)
-        notehead:EraseAt(highestnote)
-        notehead.CustomChar = 79
-        notehead.Resize = 110
-        notehead:SaveAt(highestnote)
-        ::continue::
-     end
+function func_0926()
+    tuplet_options({"Placement Stem", "Number Regular", "Bracket Never Beamed", "Avoid Staff Off", "Allow Horizontal Drag On"})
 end
 
 function func_8000()
@@ -2897,6 +2957,27 @@ function func_8007()
     playback_type("Region", "Region", "Region") 
 end
 
+function func_9000()
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count ~= 2) then 
+            goto continue 
+        end
+        local highestnote = entry:CalcHighestNote(nil)
+        local lowestnote = entry:CalcLowestNote(nil)
+        local mididiff = highestnote:CalcMIDIKey() - lowestnote:CalcMIDIKey()
+        if ((mididiff ~= 12 and mididiff > 7) or (3 > mididiff) or (mididiff == 6)) then 
+            goto continue 
+        end
+        local notehead = finale.FCNoteheadMod()
+        notehead:EraseAt(lowestnote)
+        notehead:EraseAt(highestnote)
+        notehead.CustomChar = 79
+        notehead.Resize = 110
+        notehead:SaveAt(highestnote)
+        ::continue::
+     end
+end
+
 function func_9001()
     local count = 1
     for noteentry in eachentrysaved(finenv.Region()) do
@@ -2919,6 +3000,10 @@ end
 
 function func_9003()
     measureWidth("Decrease")
+end
+
+function func_9004()
+    move_markers("Clef Center")
 end
 
 dialog:SetTypes("String")
@@ -3642,6 +3727,9 @@ if returnvalues ~= nil then
         if returnvalues[1] == "0925" then
             func_0925()
         end
+        if returnvalues[1] == "0926" then
+            func_0926()
+        end
         if returnvalues[1] == "9000" then
             func_9000()
         end
@@ -3677,6 +3765,8 @@ if returnvalues ~= nil then
             func_8000()
         elseif returnvalues[1] == "8001" then
             func_8001()
+        elseif returnvalues[1] == "9004" then
+            func_9004()
         else
             finenv.UI():AlertInfo("Please select a region and try agian.", nil)
             return
