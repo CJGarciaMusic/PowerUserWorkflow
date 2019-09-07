@@ -1,12 +1,13 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 190828
+ Version: 190908
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
 #include <Array.au3>
 #include <WinAPIShPath.au3>
 #include <GuiMenu.au3>
+#include <GuiListView.au3>
 #include <String.au3>
 #include <INet.au3>
 
@@ -114,16 +115,32 @@ Func iterateThroughParts()
 EndFunc
 
 Func KeySig($keySet, $maj_min)
-   If ($keySet < 14) Or ($keySet > 0) Or ($maj_min = "Major") Or ($maj_min = "Minor") Then
+   If ($maj_min = "Keyless") Or ($maj_min = "Nonstandard...") Then
+      WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Key Signature")
+      Send("{ENTER}")
+      WinWaitActive("", "Key Signature", 1)
+	  If WinExists("Key Signature") Then
+		 ControlCommand("Key Signature", "", "ComboBox1","SelectString", $maj_min)
+		 If $maj_min = "Keyless" Then
+			ControlClick("[CLASS:#32770]", "", "OK")
+		 EndIf
+	  Else
+		 SetError(1)
+	  EndIf
+   ElseIf ($keySet < 14) Or ($keySet > 0) Or ($maj_min = "Major") Or ($maj_min = "Minor") Then
 	  WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Key Signature")
 	  Send("{ENTER}")
-	  WinWaitActive("[CLASS:#32770]", "", "Key Signature")
-	  Local $WindowPos = WinGetPos("[CLASS:#32770]")
-	  MouseMove($WindowPos[0], $WindowPos[1], 0)
-	  MouseWheel($MOUSE_WHEEL_UP, 14)
-	  MouseWheel($MOUSE_WHEEL_DOWN, Number($keySet))
-	  ControlCommand("Key Signature", "", "ComboBox1","SelectString", $maj_min & " Key")
-	  ControlClick("[CLASS:#32770]", "", "OK")
+	  WinWaitActive("", "Key Signature", 1)
+	  If WinExists("Key Signature") Then
+		 Local $WindowPos = WinGetPos("[CLASS:#32770]")
+		 MouseMove($WindowPos[0], $WindowPos[1], 0)
+		 MouseWheel($MOUSE_WHEEL_UP, 14)
+		 MouseWheel($MOUSE_WHEEL_DOWN, Number($keySet))
+		 ControlCommand("Key Signature", "", "ComboBox1","SelectString", $maj_min & " Key")
+		 ControlClick("[CLASS:#32770]", "", "OK")
+	  Else
+		 SetError(1)
+	  EndIf
    Else
 	  SetError(1)
    EndIf
@@ -139,8 +156,8 @@ EndFunc
 
 Func LyricsWindow()
 	WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Lyrics")
-	If WinExists("[CLASS:#32770]", "Lyrics") Then
-		WinClose("[CLASS:#32770]", "Lyrics")
+	If WinExists("Lyrics") Then
+		WinClose("Lyrics")
 	Else
 		WinMenuSelectItem("[CLASS:Finale]", "", "L&yrics", "Lyrics &Window...")
 	EndIf
@@ -148,8 +165,8 @@ Func LyricsWindow()
 
  Func ResizeNotes($noteSize)
 	If WinMenuSelectItem("[CLASS:Finale]", "", "Uti&lities", "&Change", "Note &Size...") Then
-	Send($noteSize)
-	ControlClick("Change Note Size", "", "[CLASS:Button; INSTANCE:1]")
+	  Send($noteSize)
+	  ControlClick("Change Note Size", "", "[CLASS:Button; INSTANCE:1]")
    Else
 	  SetError(1)
    EndIf
@@ -157,9 +174,13 @@ EndFunc
 
 Func SinglePitch($pitch)
 	If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "Note, Beam, and Rest Editing", "Single Pitch...") Then
-	  WinWaitActive("[CLASS:#32770]", "", "Single Pitch")
-	  Send($pitch)
-	  ControlClick("Single Pitch", "", "[CLASS:Button; INSTANCE:1]")
+	  WinWaitActive("", "Single Pitch", 1)
+	  If WinExists("Single Pitch") Then
+		 Send($pitch)
+		 ControlClick("Single Pitch", "", "[CLASS:Button; INSTANCE:1]")
+	  Else
+		 SetError(1)
+	  EndIf
    Else
 	  SetError(1)
    EndIf
@@ -167,20 +188,153 @@ EndFunc
 
 Func Transpose($direction, $chromOrDia, $interval)
    If WinMenuSelectItem("[CLASS:Finale]", "", "Uti&lities", "&Transpose...") Then
-	  WinWaitActive("[CLASS:#32770]", "", "Transposition")
-	  If $direction == "Up" Then
-		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:4]")
-	  ElseIf $direction == "Down" Then
-		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:5]")
+	  WinWaitActive("", "Transposition", 1)
+	  If WinExists("Transposition") Then
+		 If $direction == "Up" Then
+			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:4]")
+		 ElseIf $direction == "Down" Then
+			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:5]")
+		 EndIf
+		 If $chromOrDia = "Chromatically" Then
+			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:7]")
+			ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", $interval)
+		 ElseIf $chromOrDia = "Diatonically" Then
+			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:6]")
+			ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", $interval)
+		 EndIf
+		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:1]")
+	  Else
+		 SetError(1)
 	  EndIf
-	  If $chromOrDia = "Chromatically" Then
-		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:7]")
-		 ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", $interval)
-	  ElseIf $chromOrDia = "Diatonically" Then
-		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:6]")
-		 ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", $interval)
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
+Func ResetMarks($resetParam)
+   $menuItem = 0
+   If $resetParam == "Articulations" Then
+	  $menuItem = "A&rticulations..."
+   ElseIf $resetParam == "Expressions" Then
+	  $menuItem = "&Expressions..."
+   EndIf
+   $resetParam = StringTrimRight($resetParam, 1)
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Uti&lities", "&Change", $menuItem) Then
+	  ControlClick("Change "&$resetParam&" Assignments", "", "Button4")
+	  ControlCommand("Change "&$resetParam&" Assignments", "", "ComboBox1", "SelectString", "Add to Default Position")
+	  ControlCommand("Change "&$resetParam&" Assignments", "", "Button7", "UnCheck")
+	  ControlSetText("Change "&$resetParam&" Assignments", "", "Edit3", "0")
+	  ControlSetText("Change "&$resetParam&" Assignments", "", "Edit4", "0")
+  	  ControlClick("Change "&$resetParam&" Assignments", "", "Button1")
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
+Func RedefinePages($scope)
+   If WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Page Layout") Then
+	  WinMenuSelectItem("[CLASS:Finale]", "", "&Page Layout", "&Redefine Pages", "&Selected Pages of Selected Parts/Score")
+	  WinWaitActive("Redefine Selected Pages")
+	  ControlClick("Redefine Selected Pages", "", "Button5")
+	  ControlSetText("Redefine Selected Pages", "", "Edit1", 1)
+	  ControlSetText("Redefine Selected Pages", "", "Edit2", "")
+	  If $scope == "Score" Then
+		 ControlCommand("Redefine Selected Pages", "", "ComboBox1", "SelectString", "Selected Parts/Score")
+		 ControlClick("Redefine Selected Pages", "", "Button9")
+		 WinWaitActive("Select Parts/Score")
+		 ControlClick("Select Parts/Score", "", "Button4")
+		 Local $hlistView = ControlGetHandle("Select Parts/Score", "", "SysListView321")
+		 For $a1 = 0 To 5
+			Send("{DOWN}")
+		 Next
+		 Sleep(500)
+		 Send("{SPACE}")
+		 ControlClick("Select Parts/Score", "", "Button1")
+		 WinWaitActive("Redefine Selected Pages")
+	  Else
+		 ControlCommand("Redefine Selected Pages", "", "ComboBox1", "SelectString", $scope)
 	  EndIf
-	  ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:1]")
+	  ControlClick("Redefine Selected Pages", "", "Button6")
+ 	  WinWaitActive("", "Redefine Pages", 1)
+	  If WinExists("Redefine Pages") Then
+		 ControlClick("Redefine Pages", "", "Button3")
+	  EndIf
+  Else
+	  SetError(1)
+   EndIf
+EndFunc
+
+Func ComplexMeter($compNumerator, $compDenominator, $dispTimesig)
+
+   Local $numeratorArray = StringSplit($compNumerator, "|")
+   Local $denominatorArray = StringSplit($compDenominator, "|")
+   Local $displaySig = StringSplit($dispTimesig, "|")
+
+   If WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "Time Si&gnature") Then
+	  Send("{ENTER}")
+	  WinWaitActive("", "Time Signature", 1)
+	  If WinExists("Time Signature") Then
+		 ControlClick("Time Signature", "", "Button4")
+		 WinWaitActive("Composite Time Signature")
+		 ControlCommand("Composite Time Signature", "", "Button5", "UnCheck")
+		 Local $i = 1
+		 For $a1 = 1 To $numeratorArray[0]
+			ControlSetText("Composite Time Signature", "", "Edit"&$i, $numeratorArray[$a1])
+			   $i = $i + 1
+			ControlSetText("Composite Time Signature", "", "Edit"&$i, $denominatorArray[$a1])
+			$i = $i + 1
+		 Next
+		 ControlClick("Composite Time Signature", "", "Button1")
+		 WinWaitActive("Time Signature")
+		 If $dispTimesig <> "" Then
+			ControlClick("Time Signature", "", "Button5")
+			ControlCommand("Time Signature", "", "Button12", "Check")
+			ControlClick("Time Signature", "", "Button13")
+			WinWaitActive("Composite Time Signature")
+			ControlClick("Composite Time Signature", "", "Button3")
+			ControlClick("Composite Time Signature", "", "Button1")
+			WinWaitActive("Time Signature")
+			ControlClick("Time Signature", "", "ScrollBar3")
+			For $a2 = 0 To 100
+			   Send("{LEFT}")
+			Next
+			Local $rightDisp = Int($displaySig[1])
+			For $a3 = 2 To $rightDisp
+			   Send("{RIGHT}")
+			Next
+			Sleep(1000)
+			ControlClick("Time Signature", "", "ScrollBar4")
+			For $a4 = 0 To 10
+			   Send("{LEFT}")
+			Next
+
+			If $displaySig[2] = 32 Then
+			   $clicks = 0
+			ElseIf $displaySig[2] = 64 Then
+			   $clicks = 1
+			ElseIf $displaySig[2] = 16 Then
+				   $clicks = 2
+			ElseIf $displaySig[2] = 8 Then
+			   $clicks = 4
+			ElseIf $displaySig[2] = 4 Then
+				$clicks = 6
+			ElseIf $displaySig[2] = 2 Then
+				$clicks = 8
+			ElseIf $displaySig[2] = 1 Then
+				$clicks = 10
+			Else
+				setError(1)
+			 EndIf
+
+			For $a5 = 1 To $clicks
+			   Send("{RIGHT}")
+			Next
+			Sleep(1000)
+		 EndIf
+	   ControlClick("Time Signature", "", "Button1")
+	Else
+	   SetError(1)
+	EndIf
    Else
 	  SetError(1)
    EndIf
@@ -193,11 +347,9 @@ Func CheckForUpdate()
    If $sHtml Then
 	  $sStart = "WINDOWS STREAM DECK PROFILE VERSION "
 	  $sEnd = "</a>"
-
 	  $Array1 = _StringBetween ($sHtml, $sStart, $sEnd)
 	  _ArrayToClip ($Array1)
 	  $result = (ClipGet())
-
 	  If $result = $currentVersion Then
 		 MsgBox($MB_OK, "", "You're up to date with the current version " & $result)
 		 Return
@@ -242,9 +394,14 @@ Func CheckIfActive()
 		 MsgError("Unable to set or clear the Filter." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf $CmdLine[1] = "PDF" Then
-	  iterateThroughParts()
-	  If @error Then
-		 MsgError("Unable to export parts and score to PDF." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+	  Local $msgBox = MsgBox($MB_YESNO, "Export to PDF", "Are you sure you want to continue with exporting all parts and score as a PDF?")
+	  If $msgBox = 6 Then
+		 iterateThroughParts()
+		 If @error Then
+			MsgError("Unable to export parts and score to PDF." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+		 EndIf
+	  Else
+		 Return
 	  EndIf
    ElseIf $CmdLine[1] = "Key" Then
 	  KeySig($CmdLine[2], $CmdLine[3])
@@ -275,6 +432,21 @@ Func CheckIfActive()
 	  Transpose($CmdLine[2], $CmdLine[3], $CmdLine[4])
 	  If @error Then
 		 MsgError($CmdLine[1] & " wasn't able to be selected." & @CRLF & @CRLF & "Please be sure the region you selected is using a Standard Notation Style and that Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Reset Marks" Then
+	  ResetMarks($CmdLine[2])
+	  If @error Then
+		 MsgError("Unable to reset " & $CmdLine[2] & "."& @CRLF & @CRLF & "Please be sure you have a region selected and that Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Redefine Pages" Then
+	  RedefinePages($CmdLine[2])
+	  If @error Then
+		 MsgError("Unable to " & $CmdLine[1] & "."& @CRLF & @CRLF & "Please be sure that Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Complex Meter" Then
+	  ComplexMeter($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  If @error Then
+		 MsgError("Unable to create a " & $CmdLine[1] & "."& @CRLF & @CRLF & "Please be sure you have a region selected and that Finale is in focus and try again.")
 	  EndIf
    EndIf
 EndFunc
