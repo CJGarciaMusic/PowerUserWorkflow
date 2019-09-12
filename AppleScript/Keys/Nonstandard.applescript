@@ -1,6 +1,6 @@
 on errorMessage(displayMessage)
 	tell application "System Events"
-		set theAlertText to "JetStream has encountered some turbulence..."
+		set theAlertText to "JetStream Alert"
 		set theAlertMessage to displayMessage
 		display alert theAlertText message theAlertMessage as critical
 	end tell
@@ -12,7 +12,7 @@ on chooseMenuItem(theMenuName, theMenuItemName, keyQuality)
 	end tell
 	
 	if appName does not contain "Finale" then
-		errorMessage("Finale is not in focus, please try again")
+		errorMessage("Please make sure Finale is the front application")
 		return false
 	end if
 	

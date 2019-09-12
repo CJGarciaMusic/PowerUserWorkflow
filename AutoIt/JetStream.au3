@@ -14,7 +14,7 @@
 Local $CmdLine = _WinAPI_CommandLineToArgv($CmdLineRaw)
 
 Func MsgError($text)
-    MsgBox($MB_OK, "JetStream has encountered some turbulence...", $text)
+    MsgBox($MB_OK, "JetStream Alert", $text)
 EndFunc
 
 Func LuaMenu($luaNum)
@@ -465,7 +465,7 @@ Else
 		 If $active = $aProcesses[$i][1] Then
 			CheckIfActive()
 		 Else
-			MsgError("Finale does not appear to be in focus. Please try again.")
+			MsgError("Please make sure Finale is the front application.")
 		 EndIf
 	  EndIf
    Next

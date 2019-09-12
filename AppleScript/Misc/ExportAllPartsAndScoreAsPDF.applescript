@@ -12,7 +12,7 @@ on exportGraphicPartsAndScore(file_type)
 	end tell
 	
 	if appName does not contain "Finale" then
-		errorMessage("Finale is not in focus, please try again")
+		errorMessage("Please make sure Finale is the front application")
 		return false
 	end if
 	
