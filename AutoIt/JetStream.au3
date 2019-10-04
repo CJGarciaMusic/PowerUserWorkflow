@@ -340,23 +340,44 @@ Func ComplexMeter($compNumerator, $compDenominator, $dispTimesig)
    EndIf
 EndFunc
 
-Func CheckForUpdate()
-   Local $currentVersion = 190904
+Func Colors($param)
+	If WinMenuSelectItem("[CLASS:Finale]", "", "&View", "Select &Display Colors...") Then
+	   WinWaitActive("Preferences - Display Colors")
+	   If $param == "Toggle" Then
+		  If ControlCommand("Preferences", "", "&Use score colors", "IsChecked") Then
+		  ControlCommand("Preferences", "", "&Use score colors", "UnCheck")
+		  ControlCommand("Preferences", "", "Color u&nlinked items", "UnCheck")
+		  Else
+			 ControlCommand("Preferences", "", "&Use score colors", "Check")
+			 ControlCommand("Preferences", "", "Color u&nlinked items", "Check")
+		  EndIf
+	   ElseIf $param == "Colors" Then
+		  ControlClick("Preferences", "", "&Use score colors")
+	   ElseIf $param == "Unlinked" Then
+		  ControlClick("Preferences", "", "Color u&nlinked items")
+	   EndIf
+	   ControlClick("Preferences", "", "OK")
+	Else
+	   SetError(1)
+	EndIf
+ EndFunc
 
-   $sHtml =  _INetGetSource("http://www.musicprep.com/jetstream/")
+Func CheckForUpdate($currentVersion)
+	$sWebSite = "http://jetstreamfinale.com/download/"
+   $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
-	  $sStart = "WINDOWS STREAM DECK PROFILE VERSION "
-	  $sEnd = "</a>"
-	  $Array1 = _StringBetween ($sHtml, $sStart, $sEnd)
-	  _ArrayToClip ($Array1)
-	  $result = (ClipGet())
+	  $sStart = "WINDOWS JETSTREAM PROFILE "
+	  $sEnd = "</p>"
+	   $Array1 = _StringBetween($sHtml, $sStart, $sEnd)
+	  _ArrayToClip($Array1)
+	  $result = ClipGet()
 	  If $result = $currentVersion Then
-		 MsgBox($MB_OK, "", "You're up to date with the current version " & $result)
+		 MsgBox($MB_OK, "", "You're up to date with the current version: " & $result)
 		 Return
 	  Else
-		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version " & $result & "?")
+		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $result & "?")
 		 If $msgBox = 6 Then
-			ShellExecute("http://www.musicprep.com/jetstream/")
+			ShellExecute($sWebSite)
 		 Else
 			Return
 		 EndIf
@@ -365,7 +386,6 @@ Func CheckForUpdate()
 	  SetError(1)
    EndIf
 EndFunc
-
 
 Func CheckIfActive()
    If $CmdLine[1] = "Lua" Then
@@ -448,11 +468,16 @@ Func CheckIfActive()
 	  If @error Then
 		 MsgError("Unable to create a " & $CmdLine[1] & "."& @CRLF & @CRLF & "Please be sure you have a region selected and that Finale is in focus and try again.")
 	  EndIf
+	ElseIf $CmdLine[1] = "Colors" Then
+		Colors($CmdLine[2])
+		If @error Then
+			MsgError("Unable to change display colors."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+		EndIf
    EndIf
 EndFunc
 
 If $CmdLine[1] = "Update" Then
-   CheckForUpdate()
+	CheckForUpdate(190928)
    If @error Then
 	  MsgError("Check for update failed." & @CRLF & @CRLF & "Please be sure you connected to the internet and try again.")
    EndIf
