@@ -4,7 +4,7 @@ on theSplit(theString, theDelimiter)
 	set theArray to every text item of theString
 	set AppleScript's text item delimiters to oldDelimiters
 	repeat with theItem in theArray
-		if theItem contains "MAC STREAM DECK PROFILE VERSION " then
+		if theItem contains "MAC JETSTREAM PROFILE " then
 			set myNum to theItem
 		end if
 	end repeat
@@ -27,29 +27,32 @@ on removeMarkupFromText(theText)
 	return theCleanText
 end removeMarkupFromText
 
-set theURL to "http://www.musicprep.com/jetstream/"
-set theCurl to (do shell script "curl " & quoted form of theURL)
-set myArray to theSplit(theCurl, "<")
-set myText to removeMarkupFromText(myArray)
+on getUpdate(updateNumber)
+	set theURL to "http://jetstreamfinale.com/download/"
+	set theCurl to (do shell script "curl " & quoted form of theURL)
+	set myArray to theSplit(theCurl, "<")
+	set myText to removeMarkupFromText(myArray)
 
-set myLength to (count of myText)
-set firstNumber to (offset of "version" in myText)
-set currentVersion to "190904"
-set scribeVersion to (characters (firstNumber + 8) thru myLength of myText as text)
+	set myLength to (count of myText)
+	set firstNumber to (offset of "PROFILE" in myText)
+	set scribeVersion to (characters (firstNumber + 8) thru myLength of myText as text)
 
-if currentVersion is equal to scribeVersion then
-    tell application "System Events"
-    	display dialog "You're up to date with the current " & currentVersion
-    end tell
-else
-    tell application "System Events"
-        set dialogText to "An update is available!"
-        set dialogMessage to "You currently have " & currentVersion & "\n\nWould you like to update to version " & scribeVersion & "?"
-        set myButton to button returned of (display dialog dialogMessage with title dialogText buttons {"No thank you", "Yes please!"} default button 2)
-        if myButton is "No thank you" then
-            return
-        else
-            do shell script "open " & theURL
-        end if
-    end tell
-end if
+	if updateNumber is equal to scribeVersion then
+		tell application "System Events"
+			display dialog "You're up to date with the current " & updateNumber
+		end tell
+	else
+		tell application "System Events"
+			set dialogText to "An update is available!"
+			set dialogMessage to "You currently have " & updateNumber & "\n\nWould you like to update to version " & scribeVersion & "?"
+			set myButton to button returned of (display dialog dialogMessage with title dialogText buttons {"No thank you", "Yes please!"} default button 2)
+			if myButton is "No thank you" then
+				return
+			else
+				do shell script "open " & theURL
+			end if
+		end tell
+	end if
+end getUpdate
+
+getUpdate("190904")
