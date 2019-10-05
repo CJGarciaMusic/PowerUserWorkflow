@@ -364,6 +364,7 @@ Func Colors($param)
 
 Func CheckForUpdate($currentVersion)
 	$sWebSite = "http://jetstreamfinale.com/download/"
+	$stheDownload = "https://www.dropbox.com/s/x28505ixwl8poyl/JetStream%20Profile%20Set%20Win%20190920.zip?dl=1"
    $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
 	  $sStart = "WINDOWS JETSTREAM PROFILE "
@@ -377,7 +378,7 @@ Func CheckForUpdate($currentVersion)
 	  Else
 		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $result & "?")
 		 If $msgBox = 6 Then
-			ShellExecute($sWebSite)
+			ShellExecute($stheDownload)
 		 Else
 			Return
 		 EndIf
