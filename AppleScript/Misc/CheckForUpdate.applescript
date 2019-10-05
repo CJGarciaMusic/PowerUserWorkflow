@@ -29,6 +29,7 @@ end removeMarkupFromText
 
 on getUpdate(updateNumber)
 	set theURL to "http://jetstreamfinale.com/download/"
+	set theDownload to "https://www.dropbox.com/s/r9lybpjn3ormz1v/JetStream%20Profile%20Set%20Mac%20191004.zip?dl=1"
 	set theCurl to (do shell script "curl " & quoted form of theURL)
 	set myArray to theSplit(theCurl, "<")
 	set myText to removeMarkupFromText(myArray)
@@ -39,7 +40,7 @@ on getUpdate(updateNumber)
 
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"
-			display dialog "You're up to date with the current " & updateNumber
+			display dialog "You're up to date with the current version: " & updateNumber
 		end tell
 	else
 		tell application "System Events"
@@ -49,10 +50,10 @@ on getUpdate(updateNumber)
 			if myButton is "No thank you" then
 				return
 			else
-				do shell script "open " & theURL
+				do shell script "open " & theDownload
 			end if
 		end tell
 	end if
 end getUpdate
 
-getUpdate("190904")
+getUpdate("191004")
