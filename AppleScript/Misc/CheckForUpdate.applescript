@@ -4,7 +4,7 @@ on theSplit(theString, theDelimiter)
 	set theArray to every text item of theString
 	set AppleScript's text item delimiters to oldDelimiters
 	repeat with theItem in theArray
-		if theItem contains "MAC JETSTREAM PROFILE " then
+		if theItem contains "JetStream%20Profile%20Set%20Mac%20" then
 			set myNum to theItem
 		end if
 	end repeat
@@ -29,15 +29,15 @@ end removeMarkupFromText
 
 on getUpdate(updateNumber)
 	set theURL to "http://jetstreamfinale.com/download/"
-	set theDownload to "https://www.dropbox.com/s/r9lybpjn3ormz1v/JetStream%20Profile%20Set%20Mac%20191004.zip?dl=1"
 	set theCurl to (do shell script "curl " & quoted form of theURL)
 	set myArray to theSplit(theCurl, "<")
 	set myText to removeMarkupFromText(myArray)
-
 	set myLength to (count of myText)
-	set firstNumber to (offset of "PROFILE" in myText)
-	set scribeVersion to (characters (firstNumber + 8) thru myLength of myText as text)
-
+	set firstNumber to (offset of "JetStream%20Profile%20Set%20Mac%20" in myText)
+	set secondNumber to (characters (firstNumber + 34) thru myLength of myText as text)
+	set scribeVersion to text 1 thru -26 of secondNumber
+	set theDownload to text 39 thru -17 of myText
+	
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"
 			display dialog "You're up to date with the current version: " & updateNumber
@@ -56,4 +56,4 @@ on getUpdate(updateNumber)
 	end if
 end getUpdate
 
-getUpdate("191004")
+getUpdate("191005")
