@@ -1,6 +1,6 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 190908
+ Version: 191007
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
@@ -10,6 +10,7 @@
 #include <GuiListView.au3>
 #include <String.au3>
 #include <INet.au3>
+#include <StringConstants.au3>
 
 Local $CmdLine = _WinAPI_CommandLineToArgv($CmdLineRaw)
 
@@ -364,28 +365,26 @@ Func Colors($param)
 
 Func CheckForUpdate($currentVersion)
 	$sWebSite = "http://jetstreamfinale.com/download/"
-	$stheDownload = "https://www.dropbox.com/s/x28505ixwl8poyl/JetStream%20Profile%20Set%20Win%20190920.zip?dl=1"
    $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
-	  $sStart = "WINDOWS JETSTREAM PROFILE "
-	  $sEnd = "</p>"
-	   $Array1 = _StringBetween($sHtml, $sStart, $sEnd)
-	  _ArrayToClip($Array1)
-	  $result = ClipGet()
-	  If $result = $currentVersion Then
-		 MsgBox($MB_OK, "", "You're up to date with the current version: " & $result)
-		 Return
-	  Else
-		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $result & "?")
-		 If $msgBox = 6 Then
-			ShellExecute($stheDownload)
-		 Else
+		$aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
+		$sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
+	  	If $sNewVersionNumber = $currentVersion Then
+			 MsgBox($MB_OK, "", "You're up to date with the current version: " & $sNewVersionNumber)
 			Return
-		 EndIf
-	  EndIf
-   Else
-	  SetError(1)
-   EndIf
+	  	Else
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+			$sDownloadLink = $aLinkArray[0]
+		 	Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $sNewVersionNumber & "?")
+		 	If $msgBox = 6 Then
+				ShellExecute($sDownloadLink)
+		 	Else
+				Return
+		 	EndIf
+	  	EndIf
+   	Else
+		SetError(1)
+   	EndIf
 EndFunc
 
 Func CheckIfActive()
@@ -478,7 +477,7 @@ Func CheckIfActive()
 EndFunc
 
 If $CmdLine[1] = "Update" Then
-	CheckForUpdate(190928)
+	CheckForUpdate($CmdLine[2])
    If @error Then
 	  MsgError("Check for update failed." & @CRLF & @CRLF & "Please be sure you connected to the internet and try again.")
    EndIf
