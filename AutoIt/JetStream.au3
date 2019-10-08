@@ -364,7 +364,7 @@ Func Colors($param)
  EndFunc
 
 Func CheckForUpdate($currentVersion)
-	$sWebSite = "http://jetstreamfinale.com/download/"
+	$sWebSite = "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
    $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
 		$aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
