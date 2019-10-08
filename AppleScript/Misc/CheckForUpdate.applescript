@@ -28,19 +28,19 @@ on removeMarkupFromText(theText)
 end removeMarkupFromText
 
 on getUpdate(updateNumber)
-	set theURL to "http://jetstreamfinale.com/download/"
+	set theURL to "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
 	set theCurl to (do shell script "curl " & quoted form of theURL)
 	set myArray to theSplit(theCurl, "<")
 	set myText to removeMarkupFromText(myArray)
 	set myLength to (count of myText)
 	set firstNumber to (offset of "JetStream%20Profile%20Set%20Mac%20" in myText)
 	set secondNumber to (characters (firstNumber + 34) thru myLength of myText as text)
-	set scribeVersion to text 1 thru -26 of secondNumber
-	set theDownload to text 39 thru -17 of myText
+	set scribeVersion to text 1 thru -14 of secondNumber
+	set theDownload to text 9 thru -5 of myText
 	
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"
-			display dialog "You're up to date with the current version: " & updateNumber
+			display dialog "You're up to date with the current version: " & updateNumber buttons {"OK"}
 		end tell
 	else
 		tell application "System Events"
