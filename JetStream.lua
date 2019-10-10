@@ -2380,6 +2380,10 @@ function func_0561()
     set_time(4, 1536) 
 end
 
+function func_0562()
+    set_time(6, 1536) 
+end
+
 function func_0600()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
     createBeatBasedSL(finale.SMARTSHAPE_TRILL)
@@ -3396,6 +3400,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0561" then
             func_0561()
+        end
+        if returnvalues[1] == "0562" then
+            func_0562()
         end
         if returnvalues[1] == "0600" then
             func_0600()
