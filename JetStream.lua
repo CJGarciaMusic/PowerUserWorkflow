@@ -2381,7 +2381,7 @@ function func_0561()
 end
 
 function func_0562()
-    set_time(6, 1536) 
+    set_time(6, 1024) 
 end
 
 function func_0600()
