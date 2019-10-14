@@ -20,6 +20,7 @@ EndFunc
 
 Func LuaMenu($luaNum)
    If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "JW Lua", "JetStream Finale Controller") Then
+	  WinWaitActive("JetStream")
 	  If WinGetTitle("JetStream Finale Controller") Then
 		 Send($luaNum)
 		 ControlClick("[CLASS:#32770]", "", "OK")
