@@ -8,7 +8,7 @@ end
 local dialog = finenv.UserValueInput()
 dialog.Title = "JetStream Finale Controller"
 
-local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 function assignArticulation(art_id)
     for noteentry in eachentrysaved(finenv.Region()) do
@@ -32,6 +32,13 @@ function assignArticulation(art_id)
             end 
         end
     end
+end
+
+function assignNewArticulation(noteentry, art_id)
+    local a = finale.FCArticulation()
+    a:SetNoteEntry(noteentry)
+    a:SetID(art_id)
+    a:SaveNew()
 end
 
 function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
@@ -97,6 +104,68 @@ function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, Abo
     assignArticulation(full_art_table[table_placement])
 end
 
+function createNewArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
+    local ad = finale.FCArticulationDef()
+    ad:SetMainSymbolChar(MainSymbolChar)
+    ad:SetMainSymbolFont(MainSymbolFont)
+    ad:SetAboveSymbolChar(AboveSymbolChar)
+    ad:SetAboveUsesMain(AboveUsesMain)
+    ad:SetAlwaysPlaceOutsideStaff(AlwaysPlaceOutsideStaff)
+    ad:SetAttachToTopNote(AttachToTopNote)
+    ad:SetAttackIsPercent(AttackIsPercent)
+    ad:SetAutoPosSide(AutoPosSide)
+    ad:SetAvoidStaffLines(AvoidStaffLines)
+    -- ad:SetBelowSymbolChar(BelowSymbolChar)
+    ad:SetBelowUsesMain(BelowUsesMain)
+    ad:SetBottomAttack(BottomAttack)
+    ad:SetBottomDuration(BottomDuration)
+    ad:SetBottomVelocity(BottomVelocity)
+    ad:SetCenterHorizontally(CenterHorizontally)
+    ad:SetCopyMainSymbol(CopyMainSymbol)
+    ad:SetCopyMainSymbolHorizontally(CopyMainSymbolHorizontally)
+    ad:SetDefaultVerticalPos(DefaultVerticalPos)
+    ad:SetDurationIsPercent(DurationIsPercent)
+    ad:SetMainHandleHorizontalOffset(MainHandleHorizontalOffset)
+    ad:SetMainHandleVerticalOffset(MainHandleVerticalOffset)
+    ad:SetFlippedHandleHorizontalOffset(FlippedHandleHorizontalOffset)
+    ad:SetFlippedHandleVerticalOffset(FlippedHandleVerticalOffset)
+    ad:SetFlippedSymbolChar(FlippedSymbolChar)
+    ad:SetFlippedSymbolFont(FlippedSymbolFont)
+    ad:SetInsideSlurs(InsideSlurs)
+    ad:SetOnScreenOnly(OnScreenOnly)
+    ad:SetPlayback(Playback)
+    ad:SetTopAttack(TopAttack)
+    ad:SetTopDuration(TopDuration)
+    ad:SetTopVelocity(TopVelocity)
+    ad:SetVelocityIsPercent(VelocityIsPercent)
+    local fonti = ad:CreateMainSymbolFontInfo()
+    fonti:SetAbsolute(fm_Absolute)
+    fonti:SetBold(fm_Bold)
+    fonti:SetEnigmaStyles(fm_EnigmaStyles)
+    fonti:SetHidden(fm_Hidden)
+    fonti:SetItalic(fm_Italic)
+    fonti:SetName(fm_Name)
+    fonti:SetSize(fm_Size)
+    fonti:SetSizeFloat(fm_SizeFloat)
+    fonti:SetStrikeOut(fm_StrikeOut)
+    fonti:SetUnderline(fm_Underline)
+    ad:SetMainSymbolFontInfo(fonti)
+    local fontif = ad:CreateFlippedSymbolFontInfo()
+    fontif:SetAbsolute(ff_Absolute)
+    fontif:SetBold(ff_Bold)
+    fontif:SetEnigmaStyles(ff_EnigmaStyles)
+    fontif:SetHidden(ff_Hidden)
+    fontif:SetItalic(ff_Italic)
+    fontif:SetName(ff_Name)
+    fontif:SetSize(ff_Size)
+    fontif:SetSizeFloat(ff_SizeFloat)
+    fontif:SetStrikeOut(ff_StrikeOut)
+    fontif:SetUnderline(ff_Underline)
+    ad:SetFlippedSymbolFontInfo(fontif)
+    ad:SaveNew()
+    full_art_table[table_placement] = ad:GetItemNo()
+end
+
 function deleteArticulation(id_num)
     for noteentry in eachentrysaved(finenv.Region()) do
         local artics = noteentry:CreateArticulations()
@@ -105,6 +174,16 @@ function deleteArticulation(id_num)
             if defs:GetItemNo() == id_num then
                 a:DeleteData()
             end
+        end
+    end
+end
+
+function deleteNewArticulation(noteentry, id_num)
+    local artics = noteentry:CreateArticulations()
+    for a in eachbackwards(artics) do
+        local defs = a:CreateArticulationDef()
+        if defs:GetItemNo() == id_num then
+            a:DeleteData()
         end
     end
 end
@@ -134,13 +213,42 @@ function addArticulation(art_id)
     end
 end
 
-function findArticulation(table_placement, AboveSymbolChar)
+function addNewArticulation(note_entry, art_id)
+    local artic_ids = {}
+    local artics = note_entry:CreateArticulations()
+    for a in each(artics) do
+        local defs = a:CreateArticulationDef()
+        table.insert(artic_ids, defs:GetItemNo())
+    end
+
+    local found_artic = 0
+
+    for key, value in pairs(artic_ids) do
+        if value == art_id then
+            found_artic = 1
+        end
+    end
+
+    if found_artic ~= 0 then
+        deleteNewArticulation(note_entry, art_id)
+    else
+        assignNewArticulation(note_entry, art_id)
+    end
+end
+
+function findArticulation(table_placement, AboveSymbolChar, font_name)
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
     local first_id_table = {}
     for ad in each(articulationdefs) do
-        if (ad:GetAboveSymbolChar() == AboveSymbolChar) then
-            table.insert(first_id_table, ad.ItemNo)
+        if font_name == "" then
+            if (ad:GetAboveSymbolChar() == AboveSymbolChar) then
+                table.insert(first_id_table, ad.ItemNo)
+            end
+        else
+            if (ad:GetAboveSymbolChar() == AboveSymbolChar) and (ad:GetMainSymbolFont() == font_name) then
+                table.insert(first_id_table, ad.ItemNo)
+            end
         end
     end
     if first_id_table[1] ~= nil then
@@ -1841,7 +1949,7 @@ function func_0050()
 end
 
 function func_0100()
-    findArticulation(1, 62)
+    findArticulation(1, 62, "")
     if full_art_table[1] == 0 then
         createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1850,7 +1958,7 @@ function func_0100()
 end
 
 function func_0101()
-    findArticulation(2, 94)
+    findArticulation(2, 94, "")
     if full_art_table[2] == 0 then
         createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1859,7 +1967,7 @@ function func_0101()
 end
 
 function func_0102()
-    findArticulation(3, 46)
+    findArticulation(3, 46, "")
     if full_art_table[3] == 0 then
         createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1868,7 +1976,7 @@ function func_0102()
 end
 
 function func_0103()
-    findArticulation(4, 45)
+    findArticulation(4, 45, "")
     if full_art_table[4] == 0 then
         createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
     else
@@ -1877,7 +1985,7 @@ function func_0103()
 end
 
 function func_0104()
-    findArticulation(5, 171)
+    findArticulation(5, 171, "")
     if full_art_table[5] == 0 then
         createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1886,7 +1994,7 @@ function func_0104()
 end
 
 function func_0105()
-    findArticulation(6, 174)
+    findArticulation(6, 174, "")
     if full_art_table[6] == 0 then
         createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1895,46 +2003,46 @@ function func_0105()
 end
 
 function func_0106()
-    findArticulation(7, 33)
+    findArticulation(7, 33, "")
     if full_art_table[7] == 0 then
         createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
-        findArticulation(8, 64)
+        findArticulation(8, 64, "")
         deleteArticulation(full_art_table[8])
-        findArticulation(9, 190)
+        findArticulation(9, 190, "")
         deleteArticulation(full_art_table[9])
         addArticulation(full_art_table[7])
     end
 end
 
 function func_0107()
-    findArticulation(8, 64)
+    findArticulation(8, 64, "")
     if full_art_table[8] == 0 then
         createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
-        findArticulation(7, 33)
+        findArticulation(7, 33, "")
         deleteArticulation(full_art_table[7])
-        findArticulation(9, 190)
+        findArticulation(9, 190, "")
         deleteArticulation(full_art_table[9])
         addArticulation(full_art_table[8])
     end
 end
 
 function func_0108()
-    findArticulation(9, 190)
+    findArticulation(9, 190, "")
     if full_art_table[9] == 0 then
         createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
-        findArticulation(7, 33)
+        findArticulation(7, 33, "")
         deleteArticulation(full_art_table[7])
-        findArticulation(8, 64)
+        findArticulation(8, 64, "")
         deleteArticulation(full_art_table[8])
         addArticulation(full_art_table[9])
     end
 end
 
 function func_0109()
-    findArticulation(10, 85)
+    findArticulation(10, 85, "")
     if full_art_table[10] == 0 then
         createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
     else
@@ -1943,7 +2051,7 @@ function func_0109()
 end
 
 function func_0110()
-    findArticulation(11, 43)
+    findArticulation(11, 43, "")
     if full_art_table[11] == 0 then
         createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1952,7 +2060,7 @@ function func_0110()
 end
 
 function func_0111()
-    findArticulation(12, 111)
+    findArticulation(12, 111, "")
     if full_art_table[12] == 0 then
         createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1961,7 +2069,7 @@ function func_0111()
 end
 
 function func_0112()
-    findArticulation(13, 178)
+    findArticulation(13, 178, "")
     if full_art_table[13] == 0 then
         createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1970,7 +2078,7 @@ function func_0112()
 end
 
 function func_0113()
-    findArticulation(14, 179)
+    findArticulation(14, 179, "")
     if full_art_table[14] == 0 then
         createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1979,7 +2087,7 @@ function func_0113()
 end
 
 function func_0114()
-    findArticulation(15, 217)
+    findArticulation(15, 217, "")
     if full_art_table[15] == 0 then
         createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1988,7 +2096,7 @@ function func_0114()
 end
 
 function func_0115()
-    findArticulation(16, 109)
+    findArticulation(16, 109, "")
     if full_art_table[16] == 0 then
         createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -1997,7 +2105,7 @@ function func_0115()
 end
 
 function func_0116()
-    findArticulation(17, 77)
+    findArticulation(17, 77, "")
     if full_art_table[17] == 0 then
         createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -2006,7 +2114,7 @@ function func_0116()
 end
 
 function func_0117()
-    findArticulation(18, 84)
+    findArticulation(18, 84, "")
     if full_art_table[18] == 0 then
         createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -2015,7 +2123,7 @@ function func_0117()
 end
 
 function func_0118()
-    findArticulation(19, 103)
+    findArticulation(19, 103, "")
     if full_art_table[19] == 0 then
         createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
@@ -2024,7 +2132,7 @@ function func_0118()
 end
 
 function func_0119()
-    findArticulation(20, 152)
+    findArticulation(20, 152, "Broadway Copyist")
     if full_art_table[20] == 0 then
         createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
     else
@@ -2033,7 +2141,7 @@ function func_0119()
 end
 
 function func_0120()
-    findArticulation(21, 92)
+    findArticulation(21, 92, "Broadway Copyist")
     if full_art_table[21] == 0 then
         createArticulation(21, 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
     else
@@ -2042,7 +2150,7 @@ function func_0120()
 end
 
 function func_0121()
-    findArticulation(22, 151)
+    findArticulation(22, 151, "Broadway Copyist")
     if full_art_table[22] == 0 then
         createArticulation(22, 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
     else
@@ -2051,7 +2159,7 @@ function func_0121()
 end
 
 function func_0122()
-    findArticulation(23, 149)
+    findArticulation(23, 149, "Broadway Copyist")
     if full_art_table[23] == 0 then
         createArticulation(23, 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
     else
@@ -2060,7 +2168,7 @@ function func_0122()
 end
 
 function func_0123()
-    findArticulation(24, 155)
+    findArticulation(24, 155, "Broadway Copyist")
     if full_art_table[24] == 0 then
         createArticulation(24, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
     else
@@ -2069,7 +2177,7 @@ function func_0123()
 end
 
 function func_0124()
-    findArticulation(25, 243)
+    findArticulation(25, 243, "Broadway Copyist")
     if full_art_table[25] == 0 then
         createArticulation(25, 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
     else
@@ -2132,6 +2240,131 @@ function func_0126()
         a:SetNoteEntry(noteentry)
         while a:LoadFirst() do
             a:DeleteData()
+        end
+    end
+end
+
+function func_0127()
+    findArticulation(26, 105, "Engraver Font Set")
+    if full_art_table[26] == 0 then
+        createArticulation(26, 105, "Engraver Font Set", 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 28, 28, false, false, false, false, 0, false, false, "Engraver Font Set", 28, 28, false, false)
+    else
+        addArticulation(full_art_table[26])
+    end
+end
+
+function func_0128(noteentry)
+    findArticulation(27, 193, "Engraver Font Set")
+    if full_art_table[27] == 0 then
+        createNewArticulation(27, 193, "Engraver Font Set", 193, true, false, false, false, 2, false, 193, false, 0, 0, 0, true, false, false, 0, false, -38, -20, -38, 32, 193, "Engraver Font Set", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[27])
+    else
+        addNewArticulation(noteentry, full_art_table[27])
+    end
+end
+            
+function func_0129(noteentry)
+    findArticulation(28, 170, "Engraver Font Set")
+    if full_art_table[28] == 0 then
+        createNewArticulation(28, 170, "Engraver Font Set", 170, true, false, false, false, 2, false, 170, false, 0, 0, 0, true, false, false, 0, false, -38, -20, -38, 56, 170, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[28])
+    else
+        addNewArticulation(noteentry, full_art_table[28])
+    end
+end
+
+function func_0130(noteentry)
+    findArticulation(29, 163, "Engraver Font Set")
+    if full_art_table[29] == 0 then
+        createNewArticulation(29, 163, "Engraver Font Set", 163, true, false, false, false, 2, false, 163, false, 0, 0, 0, true, false, false, 0, false, -38, -18, -38, 80, 163, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[29])
+    else
+        addNewArticulation(noteentry, full_art_table[29])
+    end
+end
+
+function func_0131(noteentry)
+    findArticulation(30, 162, "Engraver Font Set")
+    if full_art_table[30] == 0 then
+        createNewArticulation(30, 162, "Engraver Font Set", 162, true, false, false, false, 2, false, 162, false, 0, 0, 0, true, false, false, 0, false, -38, -18, -38, 104, 162, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[30])
+    else
+        addNewArticulation(noteentry, full_art_table[30])
+    end
+end
+
+function func_0132()
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local note_range = noteentry:CalcDisplacementRange()
+        if (note_range == 1) then
+            func_0128(noteentry)
+        end
+        if (note_range == 2) or (note_range == 3) then
+            func_0129(noteentry)
+        end
+        if (note_range == 4) or (note_range == 5) then
+            func_0130(noteentry)
+        end
+        if (note_range == 6) or (note_range == 7) then
+            func_0131(noteentry) 
+        end
+    end
+end
+
+function func_0133(noteentry)
+    findArticulation(31, 176, "Engraver Font Set")
+    if full_art_table[31] == 0 then
+        createNewArticulation(31, 176, "Engraver Font Set", 176, true, false, false, false, 2, false, 176, false, 0, 0, 0, true, false, false, 0, false, 38, -16, 38, 32, 176, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[31])
+    else
+        addNewArticulation(noteentry, full_art_table[31])
+    end
+end
+            
+function func_0134(noteentry)
+    findArticulation(32, 164, "Engraver Font Set")
+    if full_art_table[32] == 0 then
+        createNewArticulation(32, 164, "Engraver Font Set", 164, true, false, false, false, 2, false, 164, false, 0, 0, 0, true, false, false, 0, false, 38, -16, 38, 54, 164, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[32])
+    else
+        addNewArticulation(noteentry, full_art_table[32])
+    end
+end
+
+function func_0135(noteentry)
+    findArticulation(33, 166, "Engraver Font Set")
+    if full_art_table[33] == 0 then
+        createNewArticulation(33, 166, "Engraver Font Set", 166, true, false, false, false, 2, false, 166, false, 0, 0, 0, true, false, false, 0, false, 38, -18, 38, 78, 166, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[33])
+    else
+        addNewArticulation(noteentry, full_art_table[33])
+    end
+end
+
+function func_0136(noteentry)
+    findArticulation(34, 165, "Engraver Font Set")
+    if full_art_table[34] == 0 then
+        createNewArticulation(34, 165, "Engraver Font Set", 165, true, false, false, false, 2, false, 165, false, 0, 0, 0, true, false, false, 0, false, 38, -16, 38, 104, 165, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[34])
+    else
+        addNewArticulation(noteentry, full_art_table[34])
+    end
+end
+
+function func_0137()
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local note_range = noteentry:CalcDisplacementRange()
+        if (note_range == 1) then
+            func_0133(noteentry)
+        end
+        if (note_range == 2) or (note_range == 3) then
+            func_0134(noteentry)
+        end
+        if (note_range == 4) or (note_range == 5) then
+            func_0135(noteentry)
+        end
+        if (note_range == 6) or (note_range == 7) then
+            func_0136(noteentry) 
         end
     end
 end
@@ -3247,6 +3480,15 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0126" then
             func_0126()
+        end
+        if returnvalues[1] == "0127" then
+            func_0127()
+        end
+        if returnvalues[1] == "0132" then
+            func_0132()
+        end
+        if returnvalues[1] == "0137" then
+            func_0137()
         end
         if returnvalues[1] == "0200" then
             func_0200()
