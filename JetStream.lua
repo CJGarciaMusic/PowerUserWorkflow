@@ -256,6 +256,16 @@ function findArticulation(table_placement, AboveSymbolChar, font_name)
     end
 end
 
+function getUsedFontName(standard_name)
+    local font_name = standard_name
+    if string.find(os.tmpname(), "/") then
+        font_name = standard_name
+    elseif string.find(os.tmpname(), "\\") then
+        font_name = string.gsub(standard_name, "%s", "")
+    end
+    return font_name
+end
+
 function adjustHairpins(addstaff, start_meas, end_meas, start_pos, end_pos)
     local music_reg = finenv.Region()
     music_reg:SetStartStaff(addstaff)
@@ -2245,18 +2255,20 @@ function func_0126()
 end
 
 function func_0127()
-    findArticulation(26, 105, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(26, 105, font_name)
     if full_art_table[26] == 0 then
-        createArticulation(26, 105, "Engraver Font Set", 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 28, 28, false, false, false, false, 0, false, false, "Engraver Font Set", 28, 28, false, false)
+        createArticulation(26, 105, font_name, 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 28, 28, false, false, false, false, 0, false, false, font_name, 28, 28, false, false)
     else
         addArticulation(full_art_table[26])
     end
 end
 
 function func_0128(noteentry)
-    findArticulation(27, 193, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(27, 193, font_name)
     if full_art_table[27] == 0 then
-        createNewArticulation(27, 193, "Engraver Font Set", 193, true, false, false, false, 2, false, 193, false, 0, 0, 0, true, false, false, 0, false, -38, -20, -38, 32, 193, "Engraver Font Set", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(27, 193, font_name, 193, true, false, false, false, 2, false, 193, false, 0, 0, 0, true, false, false, 0, false, -66, -12, -36, 24, 193, font_name, true, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[27])
     else
         addNewArticulation(noteentry, full_art_table[27])
@@ -2264,9 +2276,10 @@ function func_0128(noteentry)
 end
             
 function func_0129(noteentry)
-    findArticulation(28, 170, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(28, 170, font_name)
     if full_art_table[28] == 0 then
-        createNewArticulation(28, 170, "Engraver Font Set", 170, true, false, false, false, 2, false, 170, false, 0, 0, 0, true, false, false, 0, false, -38, -20, -38, 56, 170, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(28, 170, font_name, 170, true, false, false, false, 2, false, 170, false, 0, 0, 0, true, false, false, 0, false, -36, -12, -36, 42, 170, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[28])
     else
         addNewArticulation(noteentry, full_art_table[28])
@@ -2274,9 +2287,10 @@ function func_0129(noteentry)
 end
 
 function func_0130(noteentry)
-    findArticulation(29, 163, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(29, 163, font_name)
     if full_art_table[29] == 0 then
-        createNewArticulation(29, 163, "Engraver Font Set", 163, true, false, false, false, 2, false, 163, false, 0, 0, 0, true, false, false, 0, false, -38, -18, -38, 80, 163, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(29, 163, font_name, 163, true, false, false, false, 2, false, 163, false, 0, 0, 0, true, false, false, 0, false, -36, -18, -36, 66, 163, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[29])
     else
         addNewArticulation(noteentry, full_art_table[29])
@@ -2284,9 +2298,10 @@ function func_0130(noteentry)
 end
 
 function func_0131(noteentry)
-    findArticulation(30, 162, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(30, 162, font_name)
     if full_art_table[30] == 0 then
-        createNewArticulation(30, 162, "Engraver Font Set", 162, true, false, false, false, 2, false, 162, false, 0, 0, 0, true, false, false, 0, false, -38, -18, -38, 104, 162, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(30, 162, font_name, 162, true, false, false, false, 2, false, 162, false, 0, 0, 0, true, false, false, 0, false, -36, -18, -36, 90, 162, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[30])
     else
         addNewArticulation(noteentry, full_art_table[30])
@@ -2312,9 +2327,10 @@ function func_0132()
 end
 
 function func_0133(noteentry)
-    findArticulation(31, 176, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(31, 176, font_name)
     if full_art_table[31] == 0 then
-        createNewArticulation(31, 176, "Engraver Font Set", 176, true, false, false, false, 2, false, 176, false, 0, 0, 0, true, false, false, 0, false, 38, -16, 38, 32, 176, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(31, 176, font_name, 176, true, false, false, false, 2, false, 176, false, 0, 0, 0, true, false, false, 0, false, 36, -12, 66, 24, 176, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[31])
     else
         addNewArticulation(noteentry, full_art_table[31])
@@ -2322,9 +2338,10 @@ function func_0133(noteentry)
 end
             
 function func_0134(noteentry)
-    findArticulation(32, 164, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(32, 164, font_name)
     if full_art_table[32] == 0 then
-        createNewArticulation(32, 164, "Engraver Font Set", 164, true, false, false, false, 2, false, 164, false, 0, 0, 0, true, false, false, 0, false, 38, -16, 38, 54, 164, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(32, 164, font_name, 164, true, false, false, false, 2, false, 164, false, 0, 0, 0, true, false, false, 0, false, 36, -12, 36, 42, 164, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[32])
     else
         addNewArticulation(noteentry, full_art_table[32])
@@ -2332,9 +2349,10 @@ function func_0134(noteentry)
 end
 
 function func_0135(noteentry)
-    findArticulation(33, 166, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(33, 166, font_name)
     if full_art_table[33] == 0 then
-        createNewArticulation(33, 166, "Engraver Font Set", 166, true, false, false, false, 2, false, 166, false, 0, 0, 0, true, false, false, 0, false, 38, -18, 38, 78, 166, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(33, 166, font_name, 166, true, false, false, false, 2, false, 166, false, 0, 0, 0, true, false, false, 0, false, 36, -18, 36, 66, 166, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[33])
     else
         addNewArticulation(noteentry, full_art_table[33])
@@ -2342,9 +2360,10 @@ function func_0135(noteentry)
 end
 
 function func_0136(noteentry)
-    findArticulation(34, 165, "Engraver Font Set")
+    local font_name = getUsedFontName("Engraver Font Set")
+    findArticulation(34, 165, font_name)
     if full_art_table[34] == 0 then
-        createNewArticulation(34, 165, "Engraver Font Set", 165, true, false, false, false, 2, false, 165, false, 0, 0, 0, true, false, false, 0, false, 38, -16, 38, 104, 165, "Engraver Font Set", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false, false, false, 0, false, false, "Engraver Font Set", 24, 24, false, false)
+        createNewArticulation(34, 165, font_name, 165, true, false, false, false, 2, false, 165, false, 0, 0, 0, true, false, false, 0, false, 36, -18, 36, 90, 165, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
         assignNewArticulation(noteentry, full_art_table[34])
     else
         addNewArticulation(noteentry, full_art_table[34])

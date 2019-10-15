@@ -158,8 +158,8 @@ EndFunc
 
 Func LyricsWindow()
 	WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "&Lyrics")
-	If WinExists("Lyrics") Then
-		WinClose("Lyrics")
+	If WinExists("[CLASS:#32770]", "Lyrics") Then
+		WinClose("[CLASS:#32770]", "Lyrics")
 	Else
 		WinMenuSelectItem("[CLASS:Finale]", "", "L&yrics", "Lyrics &Window...")
 	EndIf
