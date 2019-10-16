@@ -1092,6 +1092,39 @@ function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, brev
     end
 end
 
+function change_notehead_size(layer, size, resize_top_bottom)
+    for noteentry in eachentrysaved(finenv.Region()) do
+        if noteentry.LayerNumber == layer then
+            local nm = finale.FCNoteheadMod()
+            nm:SetNoteEntry(noteentry)
+            if resize_top_bottom ~= nil then
+                for note in each(noteentry) do
+                    local top_note = noteentry:CalcHighestNote(nil)
+                    local bottom_note = noteentry:CalcLowestNote(nil)
+                    local note_exception = bottom_note
+                    if resize_top_bottom == true then
+                       note_exception = top_note
+                    end
+                    if note:CalcMIDIKey() ~= note_exception:CalcMIDIKey() then
+                        nm:LoadAt(note)
+                        nm:SetResize(size)
+                        nm:SaveAt(note)
+                    else
+                        nm:LoadAt(note)
+                        nm:SetResize(100)
+                        nm:SaveAt(note)
+                    end
+                end
+            else
+                for note in each(noteentry) do
+                    nm:SetResize(size)
+                    nm:SaveAt(note)
+                end
+            end
+        end
+    end
+end
+
 local text_expression = {}
 
 function addTextExpression(staff_num, measure_num, measure_pos)
@@ -2558,6 +2591,68 @@ function func_0212()
     end
 end
 
+function func_0213()
+    change_notehead_size(1, 75, nil)
+end
+
+function func_0214()
+    change_notehead_size(2, 75, nil)
+end
+
+function func_0215()
+    change_notehead_size(3, 75, nil)
+end
+
+function func_0216()
+    change_notehead_size(4, 75, nil)
+end
+
+function func_0217()
+    change_notehead_size(1, 75, true)
+end
+
+function func_0218()
+    change_notehead_size(2, 75, true)
+end
+
+function func_0219()
+    change_notehead_size(3, 75, true)
+end
+
+function func_0220()
+    change_notehead_size(4, 75, true)
+end
+
+function func_0221()
+    change_notehead_size(1, 75, false)
+end
+
+function func_0222()
+    change_notehead_size(2, 75, false)
+end
+
+function func_0223()
+    change_notehead_size(3, 75, false)
+end
+
+function func_0224()
+    change_notehead_size(4, 75, false)
+end
+
+function func_0225()
+    change_notehead_size(1, 100, nil)
+    change_notehead_size(2, 100, nil)
+    change_notehead_size(3, 100, nil)
+    change_notehead_size(4, 100, nil)
+end
+
+function func_0226()
+    change_notehead_size(1, 75, nil)
+    change_notehead_size(2, 75, nil)
+    change_notehead_size(3, 75, nil)
+    change_notehead_size(4, 75, nil)
+end
+
 function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -3758,6 +3853,48 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0212" then
             func_0212()
+        end
+        if returnvalues[1] == "0213" then
+            func_0213()
+        end
+        if returnvalues[1] == "0214" then
+            func_0214()
+        end
+        if returnvalues[1] == "0215" then
+            func_0215()
+        end
+        if returnvalues[1] == "0216" then
+            func_0216()
+        end
+        if returnvalues[1] == "0217" then
+            func_0217()
+        end
+        if returnvalues[1] == "0218" then
+            func_0218()
+        end
+        if returnvalues[1] == "0219" then
+            func_0219()
+        end
+        if returnvalues[1] == "0220" then
+            func_0220()
+        end
+        if returnvalues[1] == "0221" then
+            func_0221()
+        end
+        if returnvalues[1] == "0222" then
+            func_0222()
+        end
+        if returnvalues[1] == "0223" then
+            func_0223()
+        end
+        if returnvalues[1] == "0224" then
+            func_0224()
+        end
+        if returnvalues[1] == "0225" then
+            func_0225()
+        end
+        if returnvalues[1] == "0226" then
+            func_0226()
         end
         if returnvalues[1] == "0300" then
             func_0300()
