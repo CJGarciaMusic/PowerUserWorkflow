@@ -478,11 +478,13 @@ function setAdjustHairpinRange()
         local start_measure = measure_table[1]
         local end_measure = measure_table[count]
 
-        if duration_table[count] > 1536 then
-            end_pos = music_region:GetEndMeasurePos() 
+        if count ~= 0 then
+            if duration_table[count] > 1536 then
+                end_pos = music_region:GetEndMeasurePos() 
+            end
+        
+            range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
         end
-    
-        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
     end
 
     for key, value in pairs(range_settings) do
@@ -594,12 +596,9 @@ function setFirstLastNoteRangeEntry(smart_shape)
         local start_measure = measure_table[1]
         local end_measure = measure_table[count]
 
-        if count <= 1 then
-            finenv.UI():AlertInfo("Please select more than one note and try again",nil)
-            return
+        if count ~= 0 then
+            range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
         end
-    
-        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
     end
 
     for key, value in pairs(range_settings) do
@@ -650,11 +649,10 @@ function setFirstLastNoteRangeBeat(smart_shape)
             end_measure = music_region:GetEndMeasure()
         end
 
-        if (duration_table[count] > 1536) then
-            end_pos = music_region:GetEndMeasurePos() 
-        end
-
         if count > 0 then
+            if (duration_table[count] > 1536) then
+                end_pos = music_region:GetEndMeasurePos() 
+            end
             range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
         end
     end
@@ -982,11 +980,9 @@ function getFirstNoteInRegion(note_range)
         if count == 1 then
             end_pos = music_region:GetEndMeasurePos() 
         end
-        if (start_pos == nil) or (end_pos == nil) or (start_measure == nil) or (end_measure == nil) then
-            finenv.UI():AlertInfo("Expression was not added\n\nThere were no notes in the selected region.", nil)
-            return
+        if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
+            range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
         end
-        range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
     end
 
     for key, value in pairs(range_settings) do
