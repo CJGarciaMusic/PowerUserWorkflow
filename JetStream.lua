@@ -15,7 +15,7 @@ function assignArticulation(art_id)
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
         local ad = finale.FCArticulationDef()
-        if (art_id == full_art_table[20]) or (art_id == full_art_table[21]) or (art_id == full_art_table[25]) then
+        if (art_id == full_art_table[20]) or (art_id == full_art_table[21]) or (art_id == full_art_table[25]) or (art_id == full_art_table[26]) then
             if (noteentry:IsNote()) and (noteentry:IsTied() == false) then
                 a:SetID(art_id)
                 a:SaveNew()  
@@ -37,8 +37,20 @@ end
 function assignNewArticulation(noteentry, art_id)
     local a = finale.FCArticulation()
     a:SetNoteEntry(noteentry)
-    a:SetID(art_id)
-    a:SaveNew()
+    if (art_id == full_art_table[27]) or (art_id == full_art_table[28]) or (art_id == full_art_table[29]) or (art_id == full_art_table[30]) then
+        if noteentry:IsTiedBackwards() == false then
+            a:SetID(art_id)
+            a:SaveNew()
+        end
+    elseif (art_id == full_art_table[31]) or (art_id == full_art_table[32]) or (art_id == full_art_table[33]) or (art_id == full_art_table[34]) then
+        if noteentry:IsTied() == false then
+            a:SetID(art_id)
+            a:SaveNew()
+        end
+    elseif noteentry:IsTiedBackwards() == false then
+        a:SetID(art_id)
+        a:SaveNew()
+    end
 end
 
 function createArticulation(table_placement, MainSymbolChar, MainSymbolFont, AboveSymbolChar, AboveUsesMain, AlwaysPlaceOutsideStaff, AttachToTopNote, AttackIsPercent, AutoPosSide, AvoidStaffLines, BelowSymbolChar, BelowUsesMain, BottomAttack, BottomDuration, BottomVelocity, CenterHorizontally, CopyMainSymbol, CopyMainSymbolHorizontally, DefaultVerticalPos, DurationIsPercent, MainHandleHorizontalOffset, MainHandleVerticalOffset, FlippedHandleHorizontalOffset, FlippedHandleVerticalOffset, FlippedSymbolChar, FlippedSymbolFont, InsideSlurs, OnScreenOnly, Playback, TopAttack, TopDuration, TopVelocity, VelocityIsPercent, fm_Absolute, fm_Bold, fm_EnigmaStyles, fm_Hidden, fm_Italic, fm_Name, fm_Size, fm_SizeFloat, fm_StrikeOut, fm_Underline, ff_Absolute, ff_Bold, ff_EnigmaStyles, ff_Hidden, ff_Italic, ff_Name, ff_Size, ff_SizeFloat, ff_StrikeOut, ff_Underline)
@@ -1712,6 +1724,103 @@ function move_markers(marker_pos)
     end
 end
 
+function staff_spacing_adjust(moveBy)
+    local music_region = finenv.Region()
+    local regionCount = 1
+    local staffCount = 1
+    local moveCount = 1
+    local totalMove = 0
+    local sysstaves = finale.FCSystemStaves()
+    sysstaves:LoadAllForRegion(music_region)
+    local allstaves = finale.FCSystemStaves()
+    local regionStaves = {}
+
+    local start_measure = music_region:GetStartMeasure()
+    local end_measure = music_region:GetEndMeasure()
+    local systems = finale.FCStaffSystems()
+    systems:LoadAll()
+    local system = systems:FindMeasureNumber(start_measure)
+    local lastSys = systems:FindMeasureNumber(end_measure)
+    local system_number = system:GetItemNo()
+    local lastSys_number = lastSys:GetItemNo()
+
+    for sys in each(sysstaves) do
+        local staffNum = sys.Staff
+        table.insert(regionStaves, staffNum)
+        regionCount = regionCount + 1
+    end
+
+    for i = system_number, lastSys_number do
+        allstaves:LoadAllForItem(i)
+        staffCount = 1
+        moveCount = 1
+        totalMove = 0
+        for sys in each(allstaves) do
+            local staffNum = sys.Staff
+                for j = 1, regionCount, 1 do
+                    if staffNum == regionStaves[j] then
+                        staffCount = j
+                    end
+                end
+            if staffNum == regionStaves[staffCount] then
+                local ss = finale.FCStaffSystem()
+                ss:Load(sys:GetItemCmper())
+                if sys:GetStaff() ~= ss:CalcTopStaff() then
+                    sys:SetDistance(sys:GetDistance() + (moveBy * moveCount))
+                    sys:Save()
+                    totalMove = totalMove + moveBy
+                    moveCount = moveCount + 1
+                end
+                staffCount = staffCount + 1
+            elseif regionStaves[staffCount] == nil then
+                local moveTo = sys:GetDistance() + totalMove
+                sys.Distance = moveTo
+                sys:Save()
+            else
+            end
+        end
+    end
+end
+
+function swap_layers(swapA, swapB)
+    local region = finenv.Region()
+    local start=region.StartMeasure
+    local stop=region.EndMeasure
+    local sysstaves = finale.FCSystemStaves()
+    sysstaves:LoadAllForRegion(region)
+
+    swapA = swapA - 1
+    swapB = swapB - 1
+    
+    for sysstaff in each(sysstaves) do
+        staffNum = sysstaff.Staff
+        local noteentrylayer = finale.FCNoteEntryLayer(swapA,staffNum,start,stop)
+        noteentrylayer:Load()
+        noteentrylayer.LayerIndex=swapB
+
+        local noteentrylayer2 = finale.FCNoteEntryLayer(swapB,staffNum,start,stop)
+        noteentrylayer2:Load()
+        noteentrylayer2.LayerIndex=swapA
+        noteentrylayer:Save()
+        noteentrylayer2:Save()
+    end
+end
+
+function clear_Layer(lyr)
+    lyr = lyr - 1 -- Turn 1 based layer to 0 based layer
+    local region = finenv.Region()
+    local start=region.StartMeasure
+    local stop=region.EndMeasure
+    local sysstaves = finale.FCSystemStaves()
+    sysstaves:LoadAllForRegion(region)
+    for sysstaff in each(sysstaves) do
+        staffNum = sysstaff.Staff
+        local noteentrylayer = finale.FCNoteEntryLayer(lyr,staffNum,start,stop)
+        noteentrylayer:Load()
+        noteentrylayer:ClearAllEntries()
+    end
+end
+
 function func_0001()
     findExpression("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
     getFirstNoteInRegion("Start")
@@ -3262,6 +3371,112 @@ function func_9004()
     move_markers("Clef Center")
 end
 
+function func_9005()
+    staff_spacing_adjust(24)
+end
+
+function func_9006()
+    staff_spacing_adjust(-24)
+end
+
+function func_9007()
+    swap_layers(1, 2)
+end
+
+function func_9008()
+    swap_layers(1, 3)
+end
+
+function func_9009()
+    swap_layers(1, 4)
+end
+
+function func_9010()
+    swap_layers(2, 3)
+end
+
+function func_9011()
+    swap_layers(2, 4)
+end
+
+function func_9012()
+    swap_layers(3, 4)
+end
+
+function func_9013()
+    swap_layers(1, 3)
+    swap_layers(2, 4)
+end
+
+function func_9014()
+    swap_layers(1, 2)
+    swap_layers(3, 4)
+end
+
+function func_9015()
+    clear_Layer(1)
+end
+
+function func_9016()
+    clear_Layer(2)
+end
+
+function func_9017()
+    clear_Layer(3)
+end
+
+function func_9018()
+    clear_Layer(4)
+end
+
+function func_9019()
+    clear_Layer(1)
+    clear_Layer(2)
+end
+
+function func_9020()
+    clear_Layer(1)
+    clear_Layer(3)
+end
+
+function func_9021()
+    clear_Layer(1)
+    clear_Layer(4)
+end
+
+function func_9022()
+    clear_Layer(1)
+    clear_Layer(2)
+    clear_Layer(3)
+end
+
+function func_9023()
+    clear_Layer(1)
+    clear_Layer(3)
+    clear_Layer(4)
+end
+
+function func_9024()
+    clear_Layer(2)
+    clear_Layer(3)
+end
+
+function func_9025()
+    clear_Layer(2)
+    clear_Layer(4)
+end
+
+function func_9026()
+    clear_Layer(2)
+    clear_Layer(3)
+    clear_Layer(4)
+end
+
+function func_9027()
+    clear_Layer(3)
+    clear_Layer(4)
+end
+
 dialog:SetTypes("String")
 dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
@@ -4027,6 +4242,75 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "8007" then
             func_8007()
+        end
+        if returnvalues[1] == "9005" then
+            func_9005()
+        end
+        if returnvalues[1] == "9006" then
+            func_9006()
+        end
+        if returnvalues[1] == "9007" then
+            func_9007()
+        end
+        if returnvalues[1] == "9008" then
+            func_9008()
+        end
+        if returnvalues[1] == "9009" then
+            func_9009()
+        end
+        if returnvalues[1] == "9010" then
+            func_9010()
+        end
+        if returnvalues[1] == "9011" then
+            func_9011()
+        end
+        if returnvalues[1] == "9012" then
+            func_9012()
+        end
+        if returnvalues[1] == "9013" then
+            func_9013()
+        end
+        if returnvalues[1] == "9014" then
+            func_9014()
+        end
+        if returnvalues[1] == "9015" then
+            func_9015()
+        end
+        if returnvalues[1] == "9016" then
+            func_9016()
+        end
+        if returnvalues[1] == "9017" then
+            func_9017()
+        end
+        if returnvalues[1] == "9018" then
+            func_9018()
+        end
+        if returnvalues[1] == "9019" then
+            func_9019()
+        end
+        if returnvalues[1] == "9020" then
+            func_9020()
+        end
+        if returnvalues[1] == "9021" then
+            func_9021()
+        end
+        if returnvalues[1] == "9022" then
+            func_9022()
+        end
+        if returnvalues[1] == "9023" then
+            func_9023()
+        end
+        if returnvalues[1] == "9024" then
+            func_9024()
+        end
+        if returnvalues[1] == "9025" then
+            func_9025()
+        end
+        if returnvalues[1] == "9026" then
+            func_9026()
+        end
+        if returnvalues[1] == "9027" then
+            func_9027()
         end
     else
         if returnvalues[1] == "8000" then
