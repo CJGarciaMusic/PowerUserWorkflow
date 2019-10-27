@@ -8,7 +8,7 @@ end
 local dialog = finenv.UserValueInput()
 dialog.Title = "JetStream Finale Controller"
 
-local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 function assignArticulation(art_id)
     for noteentry in eachentrysaved(finenv.Region()) do
@@ -1016,7 +1016,7 @@ function create_dynamic(glyph_list, table_name, exp_description)
     table.insert(table_name, ex_ted:GetItemNo())  
 end
 
-function find_dynamic(font, glyph_nums, table_name, description_text)
+function find_dynamic(glyph_nums, table_name, description_text)
     local matching_glyphs = {}
     local exp_defs = finale.FCTextExpressionDefs()
     local exp_def = finale.FCTextExpressionDef()
@@ -2230,63 +2230,88 @@ function user_expression_input(the_expression)
     user_input(the_expression)
 end
 
+function baseline_reset(baseline_type)
+    local region = finenv.Region()
+    local systems = finale.FCStaffSystems()
+    systems:LoadAll()
+
+    local start_measure = region:GetStartMeasure()
+    local end_measure = region:GetEndMeasure()
+    local system = systems:FindMeasureNumber(start_measure)
+    local lastSys = systems:FindMeasureNumber(end_measure)
+    local system_number = system:GetItemNo()
+    local lastSys_number = lastSys:GetItemNo()
+    local start_staff = region:GetStartStaff()
+    local end_staff = region:GetEndStaff()
+
+    for i = system_number, lastSys_number, 1 do
+        local baselines = finale.FCBaselines()
+        baselines:LoadAllForSystem(baseline_type, i)
+        for j = start_staff, end_staff, 1 do
+            bl = baselines:AssureSavedStaff(baseline_type, i, j)
+            bl.VerticalOffset = 0
+            bl:Save()
+        end
+    end
+end
+
 function func_0001()
-    find_dynamic("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
+    find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("Start")
 end
 
 function func_0002()    
-    find_dynamic("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
+    find_dynamic({236}, first_expression, "fortississimo (velocity = 114)")
     dynamic_region("Start")
 end
 
 function func_0003()    
-    find_dynamic("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
+    find_dynamic({196}, first_expression, "fortissimo (velocity = 101)")
     dynamic_region("Start")
 end
 
 function func_0004()
-    find_dynamic("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
+    find_dynamic({102}, first_expression, "forte (velocity = 88)")
     dynamic_region("Start")
 end
 
 function func_0005()    
-    find_dynamic("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
+    find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)")
     dynamic_region("Start")
 end
 
 function func_0006()    
-    find_dynamic("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
+    find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)")
     dynamic_region("Start")
 end
 
 function func_0007()    
-    find_dynamic("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
+    find_dynamic({112}, first_expression, "piano (velocity = 49)")
     dynamic_region("Start")
 end
 
 function func_0008()
-    find_dynamic("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
+    find_dynamic({185}, first_expression, "pianissimo (velocity = 36)")
     dynamic_region("Start")
 end
 
 function func_0009()    
-    find_dynamic("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
+    find_dynamic({184}, first_expression, "pianississimo (velocity = 23)")
     dynamic_region("Start")
 end
 
 function func_0010()    
-    find_dynamic("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
+    find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)")
     dynamic_region("Start")
 end
 
 function func_0011()
-    find_dynamic("^^fontMus", {234}, first_expression, "forte piano")
+    find_dynamic({234}, first_expression, "forte piano")
     dynamic_region("Start")
 end
 
 function func_0012()
-    find_dynamic("^^fontMus", {90}, first_expression, "forzando")
+    find_dynamic({90}, first_expression, "forzando")
     dynamic_region("Start")
 end
 
@@ -2296,42 +2321,42 @@ function func_0013()
 end
 
 function func_0014()
-    find_dynamic("^^fontMus", {142, 102}, first_expression, "rinforte")
+    find_dynamic({142, 102}, first_expression, "rinforte")
     dynamic_region("Start")
 end
 
 function func_0015()
-    find_dynamic("^^fontMus", {142, 90}, first_expression, "rinforzando")
+    find_dynamic({142, 90}, first_expression, "rinforzando")
     dynamic_region("Start")
 end
 
 function func_0016()
-    find_dynamic("^^fontMus", {83}, first_expression, "sforzando")
+    find_dynamic({83}, first_expression, "sforzando")
     dynamic_region("Start")
 end
 
 function func_0017()
-    find_dynamic("^^fontMus", {141}, first_expression, "sforzato")
+    find_dynamic({141}, first_expression, "sforzato")
     dynamic_region("Start")
 end
 
 function func_0018()
-    find_dynamic("^^fontMus", {130}, first_expression, "sforzato piano")
+    find_dynamic({130}, first_expression, "sforzato piano")
     dynamic_region("Start")
 end
 
 function func_0019()
-    find_dynamic("^^fontMus", {182}, first_expression, "sforzato pianissimo")
+    find_dynamic({182}, first_expression, "sforzato pianissimo")
     dynamic_region("Start")
 end
 
 function func_0020()
-    find_dynamic("^^fontMus", {167}, first_expression, "sforzato")
+    find_dynamic({167}, first_expression, "sforzato")
     dynamic_region("Start")
 end
 
 function func_0021()
-    find_dynamic("^^fontMus", {167, 112}, first_expression, "sforzando piano")
+    find_dynamic({167, 112}, first_expression, "sforzando piano")
     dynamic_region("Start")
 end
 
@@ -2364,62 +2389,62 @@ function func_0027()
 end
 
 function func_0028()
-    find_dynamic("^^fontMus", {235}, first_expression, "fortissississimo (velocity = 127)")
+    find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("End")
 end
 
 function func_0029()    
-    find_dynamic("^^fontMus", {236}, first_expression, "fortississimo (velocity = 114)")
+    find_dynamic({236}, first_expression, "fortississimo (velocity = 114)")
     dynamic_region("End")
 end
 
 function func_0030()    
-    find_dynamic("^^fontMus", {196}, first_expression, "fortissimo (velocity = 101)")
+    find_dynamic({196}, first_expression, "fortissimo (velocity = 101)")
     dynamic_region("End")
 end
 
 function func_0031()
-    find_dynamic("^^fontMus", {102}, first_expression, "forte (velocity = 88)")
+    find_dynamic({102}, first_expression, "forte (velocity = 88)")
     dynamic_region("End")
 end
 
 function func_0032()    
-    find_dynamic("^^fontMus", {70}, first_expression, "mezzo forte (velocity = 75)")
+    find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)")
     dynamic_region("End")
 end
 
 function func_0033()    
-    find_dynamic("^^fontMus", {80}, first_expression, "mezzo piano (velocity = 62)")
+    find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)")
     dynamic_region("End")
 end
 
 function func_0034()    
-    find_dynamic("^^fontMus", {112}, first_expression, "piano (velocity = 49)")
+    find_dynamic({112}, first_expression, "piano (velocity = 49)")
     dynamic_region("End")
 end
 
 function func_0035()
-    find_dynamic("^^fontMus", {185}, first_expression, "pianissimo (velocity = 36)")
+    find_dynamic({185}, first_expression, "pianissimo (velocity = 36)")
     dynamic_region("End")
 end
 
 function func_0036()    
-    find_dynamic("^^fontMus", {184}, first_expression, "pianississimo (velocity = 23)")
+    find_dynamic({184}, first_expression, "pianississimo (velocity = 23)")
     dynamic_region("End")
 end
 
 function func_0037()    
-    find_dynamic("^^fontMus", {175}, first_expression, "pianissississimo (velocity = 10)")
+    find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)")
     dynamic_region("End")
 end
 
 function func_0038()
-    find_dynamic("^^fontMus", {234}, first_expression, "forte piano")
+    find_dynamic({234}, first_expression, "forte piano")
     dynamic_region("End")
 end
 
 function func_0039()
-    find_dynamic("^^fontMus", {90}, first_expression, "forzando")
+    find_dynamic({90}, first_expression, "forzando")
     dynamic_region("End")
 end
 
@@ -2429,42 +2454,42 @@ function func_0040()
 end
 
 function func_0041()
-    find_dynamic("^^fontMus", {142, 102}, first_expression, "rinforte")
+    find_dynamic({142, 102}, first_expression, "rinforte")
     dynamic_region("End")
 end
 
 function func_0042()
-    find_dynamic("^^fontMus", {142, 90}, first_expression, "rinforzando")
+    find_dynamic({142, 90}, first_expression, "rinforzando")
     dynamic_region("End")
 end
 
 function func_0043()
-    find_dynamic("^^fontMus", {83}, first_expression, "sforzando")
+    find_dynamic({83}, first_expression, "sforzando")
     dynamic_region("End")
 end
 
 function func_0044()
-    find_dynamic("^^fontMus", {141}, first_expression, "sforzato")
+    find_dynamic({141}, first_expression, "sforzato")
     dynamic_region("End")
 end
 
 function func_0045()
-    find_dynamic("^^fontMus", {130}, first_expression, "sforzato piano")
+    find_dynamic({130}, first_expression, "sforzato piano")
     dynamic_region("End")
 end
 
 function func_0046()
-    find_dynamic("^^fontMus", {182}, first_expression, "sforzato pianissimo")
+    find_dynamic({182}, first_expression, "sforzato pianissimo")
     dynamic_region("End")
 end
 
 function func_0047()
-    find_dynamic("^^fontMus", {167}, first_expression, "sforzato")
+    find_dynamic({167}, first_expression, "sforzato")
     dynamic_region("End")
 end
 
 function func_0048()
-    find_dynamic("^^fontMus", {167, 112}, first_expression, "sforzando piano")
+    find_dynamic({167, 112}, first_expression, "sforzando piano")
     dynamic_region("End")
 end
 
@@ -2903,6 +2928,60 @@ function func_0137()
         if (note_range == 6) or (note_range == 7) then
             func_0136(noteentry) 
         end
+    end
+end
+
+function func_0138(noteentry)
+    findArticulation(35, 248, "")
+    if full_art_table[35] == 0 then
+        createNewArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[35])
+    else
+        addNewArticulation(noteentry, full_art_table[35])
+    end
+end
+
+function func_0139(noteentry)
+    findArticulation(36, 249, "")
+    if full_art_table[36] == 0 then
+        createNewArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[36])
+    else
+        addNewArticulation(noteentry, full_art_table[36])
+    end
+end
+
+function func_0140(noteentry)
+    findArticulation(37, 138, "")
+    if full_art_table[37] == 0 then
+        local font_name = getUsedFontName("Engraver Font Set")
+        findArticulation(37, 251, font_name)
+        if full_art_table[37] == 0 then
+            createNewArticulation(37, 138, "Maestro", 138, true, true, false, false, 1, false, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, -30, 137, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+            assignNewArticulation(noteentry, full_art_table[37])
+        end
+    else
+        addNewArticulation(noteentry, full_art_table[37])
+    end
+end
+
+function func_0141(noteentry)
+    findArticulation(38, 172, "")
+    if full_art_table[38] == 0 then
+        createNewArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table[38])
+    else
+        addNewArticulation(noteentry, full_art_table[38])
+    end
+end
+
+function func_0142(noteentry)
+    findArticulation(39, 172, "")
+    if full_art_table[39] == 0 then
+        createNewArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
+        assignNewArticulation(noteentry, full_art_table[39])
+    else
+        addNewArticulation(noteentry, full_art_table[39])
     end
 end
 
@@ -4024,6 +4103,32 @@ function func_9030()
     user_expression_input("Tempo")
 end
 
+function func_9031()
+    baseline_reset(finale.BASELINEMODE_EXPRESSIONBELOW)
+end
+
+function func_9032()
+    baseline_reset(finale.BASELINEMODE_EXPRESSIONABOVE)
+end
+
+function func_9033()
+    baseline_reset(finale.BASELINEMODE_EXPRESSIONBELOW)
+    baseline_reset(finale.BASELINEMODE_EXPRESSIONABOVE)
+end
+
+function func_9034()
+    baseline_reset(finale.BASELINEMODE_CHORD)
+end
+
+function func_9035()
+    baseline_reset(finale.BASELINEMODE_FRETBOARD)
+end
+
+function func_9036()
+    baseline_reset(finale.BASELINEMODE_CHORD)
+    baseline_reset(finale.BASELINEMODE_FRETBOARD)
+end
+
 dialog:SetTypes("String")
 dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
@@ -4270,6 +4375,21 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0137" then
             func_0137()
+        end
+        if returnvalues[1] == "0138" then
+            func_0138()
+        end
+        if returnvalues[1] == "0139" then
+            func_0139()
+        end
+        if returnvalues[1] == "0140" then
+            func_0140()
+        end
+        if returnvalues[1] == "0141" then
+            func_0141()
+        end
+        if returnvalues[1] == "0142" then
+            func_0142()
         end
         if returnvalues[1] == "0200" then
             func_0200()
@@ -4927,6 +5047,24 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "9030" then
             func_9030()
+        end
+        if returnvalues[1] == "9031" then
+            func_9031()
+        end
+        if returnvalues[1] == "9032" then
+            func_9032()
+        end
+        if returnvalues[1] == "9033" then
+            func_9033()
+        end
+        if returnvalues[1] == "9034" then
+            func_9034()
+        end
+        if returnvalues[1] == "9035" then
+            func_9035()
+        end
+        if returnvalues[1] == "9036" then
+            func_9036()
         end
     else
         if returnvalues[1] == "8000" then
