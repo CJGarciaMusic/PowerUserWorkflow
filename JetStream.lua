@@ -3053,6 +3053,45 @@ function func_0300()
     end
 end
 
+function func_0301()
+    local region = finenv.Region()
+    local systems = finale.FCStaffSystems()
+    systems:LoadAll()
+
+    local start_measure = region:GetStartMeasure()
+    local end_measure = region:GetEndMeasure()
+    local system = systems:FindMeasureNumber(start_measure)
+    local lastSys = systems:FindMeasureNumber(end_measure)
+    local system_number = system:GetItemNo()
+    local lastSys_number = lastSys:GetItemNo()
+    local start_staff = region:GetStartStaff()
+    local end_staff = region:GetEndStaff()
+
+
+    for i = system_number, lastSys_number, 1 do
+        local baselines_verse = finale.FCBaselines()
+        local baselines_chorus = finale.FCBaselines()
+        local baselines_section = finale.FCBaselines()
+        local lyric_number = 1
+        baselines_verse:LoadAllForSystem(finale.BASELINEMODE_LYRICSVERSE, i)
+        baselines_chorus:LoadAllForSystem(finale.BASELINEMODE_LYRICSCHORUS, i)
+        baselines_section:LoadAllForSystem(finale.BASELINEMODE_LYRICSSECTION, i)
+        for j = start_staff, end_staff, 1 do
+            for k = lyric_number, 100, 1 do
+                bl_v = baselines_verse:AssureSavedLyricNumber(finale.BASELINEMODE_LYRICSVERSE, i, j, k)
+                bl_v.VerticalOffset = 0
+                bl_v:Save()
+                bl_c = baselines_chorus:AssureSavedLyricNumber(finale.BASELINEMODE_LYRICSCHORUS, i, j, k)
+                bl_c.VerticalOffset = 0
+                bl_c:Save()
+                bl_s = baselines_section:AssureSavedLyricNumber(finale.BASELINEMODE_LYRICSSECTION, i, j, k)
+                bl_s.VerticalOffset = 0
+                bl_s:Save()
+            end
+        end
+    end
+end
+
 function func_0400()
     barline_change(0, false)
 end
@@ -4315,6 +4354,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0300" then
             func_0300()
+        end
+        if returnvalues[1] == "0301" then
+            func_0301()
         end
         if returnvalues[1] == "0400" then
             func_0400()
