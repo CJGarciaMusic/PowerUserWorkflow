@@ -3355,87 +3355,87 @@ function func_0711()
 end
 
 function func_0800()
-    findTextExpression({"cresc."}, text_expression, "crescendo", 4, 2)
+    findTextExpression({"cresc."}, text_expression, "crescendo", 4)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0801()
-    findTextExpression({"dim."}, text_expression, "diminuendo", 4, 2)
+    findTextExpression({"dim."}, text_expression, "diminuendo", 4)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0802()
-    findTextExpression({"espr."}, text_expression, "espressivo", 4, 2)
+    findTextExpression({"espr."}, text_expression, "espressivo", 4)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0803()
-    findTextExpression({"poco"}, text_expression, "poco", 4, 2)
+    findTextExpression({"poco"}, text_expression, "poco", 4)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0804()
-    findTextExpression({"poco a poco"}, text_expression, "poco a poco", 4, 2)
+    findTextExpression({"poco a poco"}, text_expression, "poco a poco", 4)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0805()
-    findTextExpression({"molto"}, text_expression, "molto", 4, 2)
+    findTextExpression({"molto"}, text_expression, "molto", 4)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0806()
-    findTextExpression({"più", 102}, text_expression, "piu forte", 1, 2)
+    findTextExpression({"più", 102}, text_expression, "piu forte", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0807()
-    findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1, 2)
+    findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0808()
-    findTextExpression({112, "sub."}, text_expression, "piano subito", 1, 2)
+    findTextExpression({112, "sub."}, text_expression, "piano subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0809()
-    findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1, 2)
+    findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0810()
-    findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1, 2)
+    findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0811()
-    findTextExpression({102, "sub."}, text_expression, "forte subito", 1, 2)
+    findTextExpression({102, "sub."}, text_expression, "forte subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0812()
-    findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1, 2)
+    findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
 function func_0813()
-    findTextExpression({"solo"}, text_expression, "solo", 5, 0)
+    findTextExpression({"solo"}, text_expression, "solo", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0814()
-    findTextExpression({"unis."}, text_expression, "unis", 5, 0)
+    findTextExpression({"unis."}, text_expression, "unis", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0815()
-    findTextExpression({"tutti"}, text_expression, "tutti", 5, 0)
+    findTextExpression({"tutti"}, text_expression, "tutti", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0816()
-    findTextExpression({"loco"}, text_expression, "loco", 5, 0)
+    findTextExpression({"loco"}, text_expression, "loco", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
@@ -3455,107 +3455,107 @@ function func_0819()
 end
 
 function func_0820()
-    findTextExpression({"mute"}, text_expression, "mute", 5, 0)
+    findTextExpression({"mute"}, text_expression, "mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0821()
-    findTextExpression({"open"}, text_expression, "open", 5, 0)
+    findTextExpression({"open"}, text_expression, "open", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0822()
-    findTextExpression({"Cup Mute"}, text_expression, "Cup Mute", 5, 0)
+    findTextExpression({"Cup Mute"}, text_expression, "Cup Mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0823()
-    findTextExpression({"Straight Mute"}, text_expression, "Straight Mute", 5, 0)
+    findTextExpression({"Straight Mute"}, text_expression, "Straight Mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0824()
-    findTextExpression({"1°"}, text_expression, "1°", 5, 0)
+    findTextExpression({"1°"}, text_expression, "1°", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0825()
-    findTextExpression({"2°"}, text_expression, "2°", 5, 0)
+    findTextExpression({"2°"}, text_expression, "2°", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0826()
-    findTextExpression({"a2"}, text_expression, "a2", 5, 0)
+    findTextExpression({"a2"}, text_expression, "a2", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0827()
-    findTextExpression({"a3"}, text_expression, "a3", 5, 0)
+    findTextExpression({"a3"}, text_expression, "a3", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0828()
-    findTextExpression({"a4"}, text_expression, "a4", 5, 0)
+    findTextExpression({"a4"}, text_expression, "a4", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0829()
-    findTextExpression({"arco"}, text_expression, "arco", 5, 0)
+    findTextExpression({"arco"}, text_expression, "arco", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0830()
-    findTextExpression({"pizz%."}, text_expression, "pizz.", 5, 0)
+    findTextExpression({"pizz."}, text_expression, "pizz.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0831()
-    findTextExpression({"spicc%."}, text_expression, "spicc.", 5, 0)
+    findTextExpression({"spicc."}, text_expression, "spicc.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0832()
-    findTextExpression({"col legno"}, text_expression, "col legno", 5, 0)
+    findTextExpression({"col legno"}, text_expression, "col legno", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0833()
-    findTextExpression({"con sord%."}, text_expression, "con sord", 5, 0)
+    findTextExpression({"con sord."}, text_expression, "con sord", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0834()
-    findTextExpression({"ord%."}, text_expression, "ord.", 5, 0)
+    findTextExpression({"ord."}, text_expression, "ord.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0835()
-    findTextExpression({"sul pont%."}, text_expression, "sul pont.", 5, 0)
+    findTextExpression({"sul pont."}, text_expression, "sul pont.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0836()
-    findTextExpression({"sul tasto"}, text_expression, "sul tasto", 5, 0)
+    findTextExpression({"sul tasto"}, text_expression, "sul tasto", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0837()
-    findTextExpression({"senza sord%."}, text_expression, "senza sord.", 5, 0)
+    findTextExpression({"senza sord."}, text_expression, "senza sord.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0838()
-    findTextExpression({"trem%."}, text_expression, "trem.", 5, 0)
+    findTextExpression({"trem."}, text_expression, "trem.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0839()
-    findTextExpression({"½ pizz%. ½ arco"}, text_expression, "half pizz. half arco", 5, 0)
+    findTextExpression({"½ pizz. ½ arco"}, text_expression, "half pizz. half arco", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
 function func_0840()
-    findTextExpression({"½ trem%. ½ ord%."}, text_expression, "half trem. half ord.", 5, 0)
+    findTextExpression({"½ trem. ½ ord."}, text_expression, "half trem. half ord.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
@@ -3626,6 +3626,31 @@ end
 
 function func_0854()
     findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0855()
+    findTextExpression({"div."}, text_expression, "div.", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0856()
+    findTextExpression({"3°"}, text_expression, "3°", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0857()
+    findTextExpression({"4°"}, text_expression, "4°", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0858()
+    findTextExpression({"marc."}, text_expression, "marcato", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
+function func_0859()
+    findTextExpression({"stacc."}, text_expression, "staccato", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
@@ -4656,6 +4681,21 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0854" then
             func_0854()
+        end
+        if returnvalues[1] == "0855" then
+            func_0855()
+        end
+        if returnvalues[1] == "0856" then
+            func_0856()
+        end
+        if returnvalues[1] == "0857" then
+            func_0857()
+        end
+        if returnvalues[1] == "0858" then
+            func_0858()
+        end
+        if returnvalues[1] == "0859" then
+            func_0859()
         end
         if returnvalues[1] == "0900" then
             func_0900()
