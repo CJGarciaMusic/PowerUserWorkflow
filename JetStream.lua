@@ -2214,8 +2214,9 @@ function user_expression_input(the_expression)
 
     function user_input(display_type)
         local input_dialog = finenv.UserValueInput()
+        input_dialog.Title = "JetStream Expression Input"
         input_dialog:SetTypes("String")
-        input_dialog:SetDescriptions("Pleaes Enter Your "..display_type.." Text")
+        input_dialog:SetDescriptions("Please Enter Your "..display_type.." Text")
         local returnvalues = input_dialog:Execute()
 
         if returnvalues ~= nil then
