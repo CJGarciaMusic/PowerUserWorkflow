@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "190904"
-    finaleplugin.Date = "9/04/2019"
+    finaleplugin.Version = "191027"
+    finaleplugin.Date = "10/27/2019"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -2065,6 +2065,8 @@ function user_expression_input(the_expression)
 
         if user_text ~= "" then
             user_text = text_font..user_text
+        else
+            user_text = text_font
         end
         
         if user_duration ~= "" then
@@ -2072,7 +2074,11 @@ function user_expression_input(the_expression)
         end
         
         if user_number ~= "" then
-            user_number = number_font.." = "..user_number
+            if string.find(user_number, "%s?[qQhHwWeEsSxX][.]?%s?%)?") then
+                user_number = number_font.." = "..music_font..user_number
+            else
+                user_number = number_font.." = "..user_number
+            end
         end
 
         if user_parentheses == false then
@@ -2163,8 +2169,8 @@ function user_expression_input(the_expression)
         local beat_duration = ""
         local beat_number = ""
         local parenthetical_bool = false
-        if (string.match(the_string, "%(?[qQhHwWeEsSxX][.]?%s?=%s?%d+%s?[%-–—]?%s?%d+%)?")) then
-            local new_string = string.find(the_string, "%(?[qQhHwWeEsSxX][.]?%s?=%s?%d+%)?")
+        if (string.match(the_string, "%(?%s?[qQhHwWeEsSxX][.]?%s?=%s?%d+%s?[%-%–%—]?%s?%d+%s?%)?")) then
+            local new_string = string.find(the_string, "%(?%s?[qQhHwWeEsSxX][.]?%s?=%s?%d+%s?[%-%–%—]?%s?%d+%s?%)?")
             if (new_string) > 1 then
                 tempo_text = the_string:sub(1, (new_string - 1))
             else
@@ -2177,19 +2183,22 @@ function user_expression_input(the_expression)
             if string.find(metronome_text, "[qQhHwWeEsSxX][.]?") then
                 beat_duration = metronome_text:sub(string.find(metronome_text, "[qQhHwWeEsSxX][.]?"))
             end
-            if string.find(metronome_text, "%d+%s?[%-–—]?%s?%d+") then
-                beat_number = metronome_text:sub(string.find(metronome_text, "%d+%s?[%-–—]?%s?%d+"))
+            if string.find(metronome_text, "%d+%s?[%-%–%—]?%s?%d+") then
+                beat_number = metronome_text:sub(string.find(metronome_text, "%d+%s?[%-%–%—]?%s?%d+"))
             end
-        elseif (string.match(the_string, "%(?[qQhHwWeEsSxX][.]?%s?=%s?[qQhHwWeEsSxX][.]?%s?%)?")) then
-            local new_string = string.find(the_string, "%(?[qQhHwWeEsSxX][.]?%s?=%s?%d+%)?")
-            if (new_string) > 1 then
-                tempo_text = the_string:sub(1, (new_string - 1))
-            else
-                tempo_text = ""
-            end
-            local metronome_text = the_string:sub(new_string)
-            if string.find(metronome_text, "%(") then
+        elseif (string.match(the_string, "%(?%s?[qQhHwWeEsSxX][.]?%s?=%s?[qQhHwWeEsSxX][.]?%s?%)?")) then
+            if string.find(the_string, "%(") then
                 parenthetical_bool = true
+            end
+            if string.find(the_string, "%(?%s?[qQhHwWeEsSxX][.]?%s?=") then
+                beat_duration = the_string:sub(string.find(the_string, "%(?%s?[qQhHwWeEsSxX][.]?%s?="))
+                beat_duration = string.gsub(beat_duration, "[%s?=%s?]", "")
+                beat_duration = string.gsub(beat_duration, "%(?", "")
+            end
+            if string.find(the_string, "=%s?[qQhHwWeEsSxX][.]?%s?%)?") then
+                beat_number = the_string:sub(string.find(the_string, "=%s?[qQhHwWeEsSxX][.]?%s?%)?"))
+                beat_number = string.gsub(beat_number, "[%s?=%s?]", "")
+                beat_number = string.gsub(beat_number, "%)?", "")
             end
         else
             if string.match(the_string, "%a*") then
