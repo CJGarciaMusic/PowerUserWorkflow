@@ -1368,49 +1368,88 @@ function add_rehearsal_marks(measure_num, reh_type)
     local rehearsal_measures = {}
     for ted in each(teds) do
         if ted:GetCategoryID() == 6 then
-            if (ted:IsAutoRehearsalMark()) and (string.find(ted:CreateDescription().LuaString, "Rehearsal Letters")) then
+            if (ted:IsAutoRehearsalMark()) and (ted:GetRehearsalMarkStyle() == 1) then
                 table.insert(rehearsal_letters, ted.ItemNo)
             end
-            if (ted:IsAutoRehearsalMark()) and (string.find(ted:CreateDescription().LuaString, "Rehearsal Numbers")) then
+            if (ted:IsAutoRehearsalMark()) and (ted:GetRehearsalMarkStyle() == 5) then
                 table.insert(rehearsal_numbers, ted.ItemNo)
             end
-            if (ted:IsAutoRehearsalMark()) and (string.find(ted:CreateDescription().LuaString, "Measure Number")) then
+            if (ted:IsAutoRehearsalMark()) and (ted:GetRehearsalMarkStyle() == 6) then
                 table.insert(rehearsal_measures, ted.ItemNo)
             end
         end
     end
 
-    function add_exp(exp_id)
-        add_expression=finale.FCExpression()
-        add_expression:SetStaff(1)
-        add_expression:SetVisible(true)
-        add_expression:SetMeasurePos(0)
-        add_expression:SetScaleWithEntry(false)
+    local rehearsal_staff = {}
+
+    function get_rehearsal_staves()
+        local item_num = 0
+        local sll = finale.FCStaffListLookup()
+        if (sll:LoadCategoryList(6)) then 
+            local sl = finale.FCStaffList()
+            sl:SetMode(finale.SLMODE_CATEGORY_SCORE)
+            if sl:LoadFirst() then
+                item_num = sl:GetItemNo()
+                if (sl:IncludesTopStaff()) then
+                    table.insert(rehearsal_staff, 1)
+                end
+                local staves = finale.FCStaves()
+                staves:LoadAll()
+                for staff in each(staves) do
+                    if sl:IncludesStaff(staff:GetItemNo()) then
+                        table.insert(rehearsal_staff, staff:GetItemNo())
+                    end
+                end
+            end
+        end
+    end
+
+    function add_marks(exp_id)
+        local add_expression = finale.FCExpression()
+        for key, value in pairs(rehearsal_staff) do
+            add_expression:SetPartAssignment(false)
+            add_expression:SetScoreAssignment(true)
+            add_expression:SetStaff(value)
+            add_expression:SetStaffGroupID(1)
+            add_expression:SetStaffListID(1)
+            add_expression:SetVisible(true)
+            add_expression:SetID(exp_id)
+            local and_cell = finale.FCCell(measure_num, value)
+            add_expression:SaveNewToCell(and_cell)
+        end
         add_expression:SetPartAssignment(true)
-        add_expression:SetScoreAssignment(true)
+        add_expression:SetScoreAssignment(false)
+        add_expression:SetStaff(-1)
+        add_expression:SetStaffGroupID(1)
+        add_expression:SetStaffListID(1)
+        add_expression:SetVisible(true)
         add_expression:SetID(exp_id)
-        local and_cell = finale.FCCell(measure_num, 1)
+        local and_cell = finale.FCCell(measure_num, -1)
         add_expression:SaveNewToCell(and_cell)
     end
+
     if reh_type == "Letter" then
         if rehearsal_letters[1] == nil then
             finenv.UI():AlertInfo("There doesn't appear to be any Auto-Rehearsal Marks using Letters in the Rehearsal Marks Category. Please create one and try again.", NULL)
         else
-            add_exp(rehearsal_letters[1])
+            get_rehearsal_staves()
+            add_marks(rehearsal_letters[1])
         end
     end
     if reh_type == "Number" then
         if rehearsal_numbers[1] == nil then
             finenv.UI():AlertInfo("There doesn't appear to be any Auto-Rehearsal Marks using Numbers in the Rehearsal Marks Category. Please create one and try again.", NULL)
         else
-            add_exp(rehearsal_numbers[1])
+            get_rehearsal_staves()
+            add_marks(rehearsal_numbers[1])
         end
     end
     if reh_type == "Measure" then
         if rehearsal_measures[1] == nil then
             finenv.UI():AlertInfo("There doesn't appear to be any Auto-Rehearsal Marks using Measure Numbers in the Rehearsal Marks Category. Please create one and try again.", NULL)
         else
-            add_exp(rehearsal_measures[1])
+            get_rehearsal_staves()
+            add_marks(rehearsal_measures[1])
         end
     end  
 end
@@ -1423,7 +1462,11 @@ function delete_rehearsal_marks()
         local ex_def = finale.FCTextExpressionDef()
         ex_def:Load(e.ID)
         if ex_def:GetCategoryID() == 6 then
-            e:DeleteData()
+            local the_staves = finenv.Region()
+            the_staves:SetFullDocument()
+            for addstaff = the_staves.StartStaff, the_staves.EndStaff do
+                e:DeleteData()
+            end
         end
     end
 end
@@ -1431,7 +1474,9 @@ end
 function find_double_barlines(rehearsal_mark_type)
     delete_rehearsal_marks()
     local measures = finale.FCMeasures()
-    measures:LoadRegion(finenv.Region())
+    local the_region = finenv.Region()
+    the_region:SetCurrentSelection()
+    measures:LoadRegion(the_region)
     for m in each(measures) do
         if m.Barline == 2 then
             add_rehearsal_marks(m.ItemNo + 1, rehearsal_mark_type)
@@ -2065,8 +2110,6 @@ function user_expression_input(the_expression)
 
         if user_text ~= "" then
             user_text = text_font..user_text
-        else
-            user_text = text_font
         end
         
         if user_duration ~= "" then
@@ -2083,7 +2126,7 @@ function user_expression_input(the_expression)
 
         if user_parentheses == false then
             if beat_duration ~= "" then
-                if user_text:sub(-1) == " " then
+                if (user_text:sub(-1) == " ") or (user_text == "") then
                     start_parentheses = ""
                 else
                     start_parentheses = " "
@@ -2093,11 +2136,15 @@ function user_expression_input(the_expression)
             end
             end_parentheses = ""
         else
-            if user_text:sub(-1) ~= " " then
-                start_parentheses = " ("
+            local unbold_text = string.gsub(text_font, "nfx%(%d+%)", "nfx(0)")
+            if user_text:sub(-1) == " " then
+                start_parentheses = unbold_text.."("
+            elseif user_text == "" then
+                start_parentheses = unbold_text.."("
             else
-                start_parentheses = "("
+                start_parentheses = unbold_text.." ("
             end
+            end_parentheses = unbold_text..")"
         end
         
         local full_string = user_text..start_parentheses..user_duration..user_number..end_parentheses
@@ -2120,7 +2167,7 @@ function user_expression_input(the_expression)
 
         if user_parentheses == false then
             if beat_duration ~= "" then
-                if user_text:sub(-1) == " " then
+                if (user_text:sub(-1) == " ") or (user_text == "") then
                     start_parentheses = ""
                 else
                     start_parentheses = " "
@@ -2130,10 +2177,12 @@ function user_expression_input(the_expression)
             end
             end_parentheses = ""
         else
-            if user_text:sub(-1) ~= " " then
-                start_parentheses = " ("
-            else
+            if user_text:sub(-1) == " " then
                 start_parentheses = "("
+            elseif user_text == "" then
+                start_parentheses = "("
+            else
+                start_parentheses = " ("
             end
             end_parentheses = ")"
         end
@@ -2941,57 +2990,52 @@ function func_0137()
     end
 end
 
-function func_0138(noteentry)
+function func_0138()
     findArticulation(35, 248, "")
     if full_art_table[35] == 0 then
-        createNewArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[35])
+        createArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
-        addNewArticulation(noteentry, full_art_table[35])
+        addArticulation(full_art_table[35])
     end
 end
 
-function func_0139(noteentry)
+function func_0139()
     findArticulation(36, 249, "")
     if full_art_table[36] == 0 then
-        createNewArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[36])
+        createArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
-        addNewArticulation(noteentry, full_art_table[36])
+        addArticulation(full_art_table[36])
     end
 end
 
-function func_0140(noteentry)
+function func_0140()
     findArticulation(37, 138, "")
     if full_art_table[37] == 0 then
         local font_name = getUsedFontName("Engraver Font Set")
         findArticulation(37, 251, font_name)
         if full_art_table[37] == 0 then
-            createNewArticulation(37, 138, "Maestro", 138, true, true, false, false, 1, false, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, -30, 137, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-            assignNewArticulation(noteentry, full_art_table[37])
+            createArticulation(37, 138, "Maestro", 138, true, true, false, false, 1, false, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, -30, 137, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         end
     else
-        addNewArticulation(noteentry, full_art_table[37])
+        addArticulation(full_art_table[37])
     end
 end
 
-function func_0141(noteentry)
+function func_0141()
     findArticulation(38, 172, "")
     if full_art_table[38] == 0 then
-        createNewArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[38])
+        createArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
     else
-        addNewArticulation(noteentry, full_art_table[38])
+        addArticulation(full_art_table[38])
     end
 end
 
-function func_0142(noteentry)
-    findArticulation(39, 172, "")
+function func_0142()
+    findArticulation(39, 122, "")
     if full_art_table[39] == 0 then
-        createNewArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
-        assignNewArticulation(noteentry, full_art_table[39])
+        createArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
     else
-        addNewArticulation(noteentry, full_art_table[39])
+        addArticulation(full_art_table[39])
     end
 end
 
