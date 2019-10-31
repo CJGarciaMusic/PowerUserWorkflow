@@ -268,6 +268,84 @@ function findArticulation(table_placement, AboveSymbolChar, font_name)
     end
 end
 
+function delete_duplicate_articulations()
+    for noteentry in eachentry(finenv.Region()) do
+        local art_list = {}
+        local actual_count = 0
+        local arts = noteentry:CreateArticulations()
+        for a in each(arts) do
+            table.insert(art_list, a:GetID())
+            actual_count = actual_count + 1
+        end 
+        for i = 1, actual_count do
+            local art = finale.FCArticulation()
+            art:SetNoteEntry(noteentry)
+            local ad = finale.FCArticulationDef()
+            if ad:Load(art_list[i]) then
+                if ad:GetItemNo() == art_list[i + 1] then
+                    art:DeleteData()
+                end
+            end
+        end
+    end
+end
+
+function split_articulations()
+    local articulationdefs = finale.FCArticulationDefs()
+    articulationdefs:LoadAll()
+    local art_table = {0, 0, 0, 0}
+
+    for k, v in pairs({46, 62, 45, 94}) do
+        local first_id_table = {}
+        for ad in each(articulationdefs) do
+            if (ad:GetAboveSymbolChar() == v) and (ad:GetFlippedSymbolChar() > 0) then
+                table.insert(first_id_table, ad.ItemNo)
+            end
+        end
+        if first_id_table[1] ~= nil then
+            art_table[k] = first_id_table[1]
+        end
+    end
+
+    for noteentry in eachentry(finenv.Region()) do
+        local arts = noteentry:CreateArticulations()
+        for a in each(arts) do
+            a:SetNoteEntry(noteentry)
+            local ad = finale.FCArticulationDef()
+            if ad:Load(a:GetID()) then
+                if ad:GetAboveSymbolChar() == 249 then
+                    a:DeleteData()
+                    a:SetID(art_table[2])
+                    a:SaveNew()
+                    a:SetID(art_table[1])
+                    a:SaveNew()
+                end
+                if (ad:GetAboveSymbolChar() == 138) or (ad:GetAboveSymbolChar() == 251) then
+                    a:DeleteData()
+                    a:SetID(art_table[2])
+                    a:SaveNew()
+                    a:SetID(art_table[3])
+                    a:SaveNew()
+                end
+                if ad:GetAboveSymbolChar() == 248 then
+                    a:DeleteData()
+                    a:SetID(art_table[3])
+                    a:SaveNew()
+                    a:SetID(art_table[1])
+                    a:SaveNew()
+                end
+                if ad:GetAboveSymbolChar() == 172 then
+                    a:DeleteData()
+                    a:SetID(art_table[4])
+                    a:SaveNew()
+                    a:SetID(art_table[1])
+                    a:SaveNew()
+                end
+            end
+        end 
+    end
+end
+
 function getUsedFontName(standard_name)
     local font_name = standard_name
     if string.find(os.tmpname(), "/") then
@@ -2798,52 +2876,8 @@ function func_0124()
 end
 
 function func_0125()
-    local articulationdefs = finale.FCArticulationDefs()
-    articulationdefs:LoadAll()
-    local art_table = {0, 0, 0, 0}
-
-    for k, v in pairs({46, 62, 45, 94}) do
-        local first_id_table = {}
-        for ad in each(articulationdefs) do
-            if (ad:GetAboveSymbolChar() == v) and (ad:GetFlippedSymbolChar() > 0) then
-                table.insert(first_id_table, ad.ItemNo)
-            end
-        end
-        if first_id_table[1] ~= nil then
-            art_table[k] = first_id_table[1]
-        end
-    end
-
-    for noteentry in eachentry(finenv.Region()) do
-        local a = finale.FCArticulation()
-        a:SetNoteEntry(noteentry)
-        if a:LoadFirst() then
-            local ad = finale.FCArticulationDef()
-            if ad:Load(a:GetID()) then
-                if ad:GetAboveSymbolChar() == 249 then
-                    a:SetID(art_table[2])
-                    a:Save()
-                    a:SetID(art_table[1])
-                    a:SaveNew()
-                elseif (ad:GetAboveSymbolChar() == 138) or (ad:GetAboveSymbolChar() == 251) then
-                    a:SetID(art_table[2])
-                    a:Save()
-                    a:SetID(art_table[3])
-                    a:SaveNew()
-                elseif ad:GetAboveSymbolChar() == 248 then
-                    a:SetID(art_table[3])
-                    a:Save()
-                    a:SetID(art_table[1])
-                    a:SaveNew()
-                elseif ad:GetAboveSymbolChar() == 172 then
-                    a:SetID(art_table[4])
-                    a:Save()
-                    a:SetID(art_table[1])
-                    a:SaveNew()
-                end
-            end
-        end 
-    end
+    split_articulations()
+    -- delete_duplicate_articulations()
 end
 
 function func_0126()
@@ -3037,6 +3071,10 @@ function func_0142()
     else
         addArticulation(full_art_table[39])
     end
+end
+
+function func_0143()
+    delete_duplicate_articulations()
 end
 
 function func_0200()
@@ -4444,6 +4482,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0142" then
             func_0142()
+        end
+        if returnvalues[1] == "0143" then
+            func_0143()
         end
         if returnvalues[1] == "0200" then
             func_0200()
