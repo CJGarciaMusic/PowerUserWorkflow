@@ -268,33 +268,31 @@ function findArticulation(table_placement, AboveSymbolChar, font_name)
     end
 end
 
-function delete_duplicate_articulations()
-    for noteentry in eachentry(finenv.Region()) do
-        local art_list = {}
-        local arts = noteentry:CreateArticulations()
-        for a in each(arts) do
-            table.insert(art_list, a:GetID())
-        end 
+function delete_duplicate_articulations(note_entry)
+    local art_list = {}
+    local arts = note_entry:CreateArticulations()
+    for a in each(arts) do
+        table.insert(art_list, a:GetID())
+    end 
 
-        local sort_list = {}
-        local unique_list = {}
-        for k,v in ipairs(art_list) do
-           if (not sort_list[v]) then
-               unique_list[#unique_list + 1] = v
-               sort_list[v] = true
-           end
+    local sort_list = {}
+    local unique_list = {}
+    for k,v in ipairs(art_list) do
+        if (not sort_list[v]) then
+            unique_list[#unique_list + 1] = v
+            sort_list[v] = true
         end
-        for key, value in pairs(art_list) do
-            for a in each(arts) do
-                a:DeleteData()
-            end
+    end
+    for key, value in pairs(art_list) do
+        for a in each(arts) do
+            a:DeleteData()
         end
-        for key, value in pairs(unique_list) do
-            local art = finale.FCArticulation()
-            art:SetNoteEntry(noteentry)
-            art:SetID(value)
-            art:SaveNew()
-        end
+    end
+    for key, value in pairs(unique_list) do
+        local art = finale.FCArticulation()
+        art:SetNoteEntry(note_entry)
+        art:SetID(value)
+        art:SaveNew()
     end
 end
 
@@ -319,7 +317,6 @@ function split_articulations()
         local remove_duplicates = 0
         local arts = noteentry:CreateArticulations()
         for a in each(arts) do
-            a:SetNoteEntry(noteentry)
             local ad = finale.FCArticulationDef()
             if ad:Load(a:GetID()) then
                 if ad:GetAboveSymbolChar() == 249 then
@@ -352,8 +349,9 @@ function split_articulations()
                 end
             end
         end
-        if remove_duplicates > 1 then
-            delete_duplicate_articulations()
+        print(remove_duplicates)
+        if remove_duplicates > 0 then
+            delete_duplicate_articulations(noteentry)
         end
     end
 end
@@ -3085,7 +3083,9 @@ function func_0142()
 end
 
 function func_0143()
-    delete_duplicate_articulations()
+    for noteentry in eachentrysaved(finenv.Region()) do
+        delete_duplicate_articulations(noteentry)
+    end
 end
 
 function func_0200()
