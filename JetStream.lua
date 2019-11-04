@@ -271,21 +271,29 @@ end
 function delete_duplicate_articulations()
     for noteentry in eachentry(finenv.Region()) do
         local art_list = {}
-        local actual_count = 0
         local arts = noteentry:CreateArticulations()
         for a in each(arts) do
             table.insert(art_list, a:GetID())
-            actual_count = actual_count + 1
         end 
-        for i = 1, actual_count do
+
+        local sort_list = {}
+        local unique_list = {}
+        for k,v in ipairs(art_list) do
+           if (not sort_list[v]) then
+               unique_list[#unique_list + 1] = v
+               sort_list[v] = true
+           end
+        end
+        for key, value in pairs(art_list) do
+            for a in each(arts) do
+                a:DeleteData()
+            end
+        end
+        for key, value in pairs(unique_list) do
             local art = finale.FCArticulation()
             art:SetNoteEntry(noteentry)
-            local ad = finale.FCArticulationDef()
-            if ad:Load(art_list[i]) then
-                if ad:GetItemNo() == art_list[i + 1] then
-                    art:DeleteData()
-                end
-            end
+            art:SetID(value)
+            art:SaveNew()
         end
     end
 end
@@ -314,30 +322,26 @@ function split_articulations()
             local ad = finale.FCArticulationDef()
             if ad:Load(a:GetID()) then
                 if ad:GetAboveSymbolChar() == 249 then
-                    a:DeleteData()
                     a:SetID(art_table[2])
-                    a:SaveNew()
+                    a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
                 end
                 if (ad:GetAboveSymbolChar() == 138) or (ad:GetAboveSymbolChar() == 251) then
-                    a:DeleteData()
                     a:SetID(art_table[2])
-                    a:SaveNew()
+                    a:Save()
                     a:SetID(art_table[3])
                     a:SaveNew()
                 end
                 if ad:GetAboveSymbolChar() == 248 then
-                    a:DeleteData()
                     a:SetID(art_table[3])
-                    a:SaveNew()
+                    a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
                 end
                 if ad:GetAboveSymbolChar() == 172 then
-                    a:DeleteData()
                     a:SetID(art_table[4])
-                    a:SaveNew()
+                    a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
                 end
@@ -1964,7 +1968,7 @@ function swap_layers(swapA, swapB)
 end
 
 function clear_Layer(lyr)
-    lyr = lyr - 1 -- Turn 1 based layer to 0 based layer
+    lyr = lyr - 1
     local region = finenv.Region()
     local start=region.StartMeasure
     local stop=region.EndMeasure
@@ -2877,7 +2881,7 @@ end
 
 function func_0125()
     split_articulations()
-    -- delete_duplicate_articulations()
+    delete_duplicate_articulations()
 end
 
 function func_0126()
