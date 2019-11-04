@@ -316,6 +316,7 @@ function split_articulations()
     end
 
     for noteentry in eachentry(finenv.Region()) do
+        local remove_duplicates = 0
         local arts = noteentry:CreateArticulations()
         for a in each(arts) do
             a:SetNoteEntry(noteentry)
@@ -326,27 +327,34 @@ function split_articulations()
                     a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
+                    remove_duplicates = remove_duplicates + 1
                 end
                 if (ad:GetAboveSymbolChar() == 138) or (ad:GetAboveSymbolChar() == 251) then
                     a:SetID(art_table[2])
                     a:Save()
                     a:SetID(art_table[3])
                     a:SaveNew()
+                    remove_duplicates = remove_duplicates + 1
                 end
                 if ad:GetAboveSymbolChar() == 248 then
                     a:SetID(art_table[3])
                     a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
+                    remove_duplicates = remove_duplicates + 1
                 end
                 if ad:GetAboveSymbolChar() == 172 then
                     a:SetID(art_table[4])
                     a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
+                    remove_duplicates = remove_duplicates + 1
                 end
             end
-        end 
+        end
+        if remove_duplicates > 1 then
+            delete_duplicate_articulations()
+        end
     end
 end
 
@@ -2881,7 +2889,6 @@ end
 
 function func_0125()
     split_articulations()
-    delete_duplicate_articulations()
 end
 
 function func_0126()
@@ -5173,7 +5180,7 @@ if returnvalues ~= nil then
         elseif returnvalues[1] == "9004" then
             func_9004()
         else
-            finenv.UI():AlertInfo("Please select a region and try agian.", nil)
+            finenv.UI():AlertInfo("Please select a region and try again.", nil)
             return
         end
     end
