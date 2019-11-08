@@ -364,25 +364,99 @@ Func Colors($param)
 	EndIf
  EndFunc
 
-Func CheckForUpdate($currentVersion)
+Func TGTools($command)
+   Local $hWnd = WinGetHandle("[CLASS:Finale]")
+   Local $hMain = _GUICtrlMenu_GetMenu($hWnd)
+   Local $menuCount = _GUICtrlMenu_GetItemCount($hMain)
+   Local $TGFull = False
+
+   For $a1 = 0 To  $menuCount
+	  If _GUICtrlMenu_GetItemText($hMain, $a1) = "T&GTools" Then
+		 $TGFull = True
+	  EndIf
+   Next
+
+   If $TGFull = True Then
+	  If $command = "Near" Then
+		 Send("!{NUMPADADD}")
+	  ElseIf $command = "Far" Then
+		 Send("!{NUMPADSUB}")
+	  ElseIf $command = "Align" Then
+		 Send("!{NUMPADMULT}")
+	  ElseIf $command == "Trem" Then
+ 		 WinMenuSelectItem("[CLASS:Finale]", "", "T&GTools", "M&usic", "&Tremolos...")
+		 ControlClick("", "", "[CLASS:TLMDButton; INSTANCE: 6]")
+		 ControlClick("", "", "[CLASS:TLMDButton; INSTANCE: 5]")
+	  ElseIf $command == "Parts" Then
+		 WinMenuSelectItem("[CLASS:Finale]", "", "T&GTools", "&Parts", "&Process extracted parts..")
+		 ControlClick("", "", "[CLASS:TLMDButton; INSTANCE: 6]")
+		 ControlClick("", "", "[CLASS:TLMDButton; INSTANCE: 5]")
+	  EndIf
+   Else
+	  If ($command = "Near") Or ($command = "Far") Or ($command = "Align") Then
+		 WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "TG Tools", "Align/Move Dynamics")
+		 WinWaitActive("", "[CLASS:TDActOpt]", 1)
+
+		 If $command = "Near" Then
+			ControlClick("", "", "[CLASS:TGroupButton; INSTANCE: 4]")
+		 ElseIf $command = "Far" Then
+			ControlClick("", "", "[CLASS:TGroupButton; INSTANCE: 3]")
+		 ElseIf $command = "Align" Then
+			ControlClick("", "", "[CLASS:TGroupButton; INSTANCE: 2]")
+		 EndIf
+	  ElseIf $command = "Trem" Then
+		 WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "TG Tools", "Easy Tremolos")
+	  ElseIf $command = "Parts" Then
+		 WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "TG Tools", "Process Extracted Parts")
+	  EndIf
+	  ControlClick("", "", "[CLASS:TLMDButton; INSTANCE: 4]")
+	  ControlClick("", "", "[CLASS:TLMDButton; INSTANCE: 3]")
+   EndIf
+EndFunc
+
+Func Quantize($resolution, $params)
+   If WinMenuSelectItem("[CLASS:Finale]", "", "MI&DI/Audio", "&Quantization Settings...") Then
+	  WinWaitActive("Quantization Settings")
+	  ControlSetText("Quantization Settings", "", "Edit1", $resolution)
+	  ControlCommand("Quantization Settings", "", "&"&$params, "Check")
+	  ControlClick("Quantization Settings", "", "OK")
+	  ;WinWait("Finale")
+	  ;If Not WinActive("Finale") Then WinActivate("Finale")
+	  WinWaitActive("Finale")
+	  WinMenuSelectItem("[CLASS:Finale]", "", "MI&DI/Audio", "R&etranscribe")
+   Else
+		SetError(1)
+   EndIf
+EndFunc
+
+Func CheckForUpdate($SDsize, $currentVersion)
 	$sWebSite = "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
    $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
-		$aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
-		$sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
-	  	If $sNewVersionNumber = $currentVersion Then
-			 MsgBox($MB_OK, "", "You're up to date with the current version: " & $sNewVersionNumber)
-			Return
-	  	Else
-			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
-			$sDownloadLink = $aLinkArray[0]
-		 	Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $sNewVersionNumber & "?")
-		 	If $msgBox = 6 Then
-				ShellExecute($sDownloadLink)
-		 	Else
-				Return
-		 	EndIf
-	  	EndIf
+	  If $SDsize = "Standard" Then
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profiles%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
+	  ElseIf $SDsize = "XL" Then
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20XL%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
+	  EndIf
+	  If $sNewVersionNumber = $currentVersion Then
+		 MsgBox($MB_OK, "", "You're up to date with the current version: " & $sNewVersionNumber)
+		 Return
+	  Else
+		 If $SDsize = "Standard" Then
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profiles%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+		 ElseIf $SDsize = "XL" Then
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20XL%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+		 EndIf
+		 $sDownloadLink = $aLinkArray[0]
+		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $sNewVersionNumber & "?")
+		 If $msgBox = 6 Then
+			 ShellExecute($sDownloadLink)
+		 Else
+			 Return
+		 EndIf
+	 EndIf
    	Else
 		SetError(1)
    	EndIf
@@ -397,17 +471,17 @@ Func CheckIfActive()
    ElseIf $CmdLine[1] = "Menu" Then
 	  MenuItem($CmdLine[2], $CmdLine[3])
 	  If @error Then
-		 MsgError("The menu item " & $CmdLine[3] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+		 MsgError("The menu item " & $CmdLine[3] & " wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf $CmdLine[1] = "Submenu" Then
 	  SubmenuItem($CmdLine[2], $CmdLine[3], $CmdLine[4])
 	  If @error Then
-		 MsgError("The menu item " & $CmdLine[4] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+		 MsgError("The menu item " & $CmdLine[4] & " wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf $CmdLine[1] = "Subsubmenu" Then
 	  SubsubmenuItem($CmdLine[2], $CmdLine[3], $CmdLine[4], $CmdLine[5])
 	  If @error Then
-		 MsgError("The menu item " & $CmdLine[5] & "wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
+		 MsgError("The menu item " & $CmdLine[5] & " wasn't able to be selected." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf ($CmdLine[1] = "Filter") Or ($CmdLine[1] = "Clear") Then
 	  FilterItems($CmdLine[1], $CmdLine[2])
@@ -469,16 +543,26 @@ Func CheckIfActive()
 	  If @error Then
 		 MsgError("Unable to create a " & $CmdLine[1] & "."& @CRLF & @CRLF & "Please be sure you have a region selected and that Finale is in focus and try again.")
 	  EndIf
-	ElseIf $CmdLine[1] = "Colors" Then
+   ElseIf $CmdLine[1] = "Colors" Then
 		Colors($CmdLine[2])
 		If @error Then
 			MsgError("Unable to change display colors."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
-		EndIf
+		 EndIf
+   ElseIf $CmdLine[1] = "TGTools" Then
+	  TGTools($CmdLine[2])
+	  If @error Then
+		 MsgError("Unable to align dynamics."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Quantize" Then
+	  Quantize($CmdLine[2], $CmdLine[3])
+	  If @error Then
+		 MsgError("Unable to align dynamics."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+	  EndIf
    EndIf
 EndFunc
 
 If $CmdLine[1] = "Update" Then
-	CheckForUpdate($CmdLine[2])
+	CheckForUpdate($CmdLine[2], $CmdLine[3])
    If @error Then
 	  MsgError("Check for update failed." & @CRLF & @CRLF & "Please be sure you connected to the internet and try again.")
    EndIf
