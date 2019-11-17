@@ -1180,9 +1180,9 @@ end
 function change_notehead_size(layer, size, resize_top_bottom)
     for noteentry in eachentrysaved(finenv.Region()) do
         if noteentry.LayerNumber == layer then
-            local nm = finale.FCNoteheadMod()
-            nm:SetNoteEntry(noteentry)
             if resize_top_bottom ~= nil then
+                local nm = finale.FCNoteheadMod()
+                nm:SetNoteEntry(noteentry)
                 for note in each(noteentry) do
                     local top_note = noteentry:CalcHighestNote(nil)
                     local bottom_note = noteentry:CalcLowestNote(nil)
@@ -1201,10 +1201,11 @@ function change_notehead_size(layer, size, resize_top_bottom)
                     end
                 end
             else
-                for note in each(noteentry) do
-                    nm:SetResize(size)
-                    nm:SaveAt(note)
-                end
+                noteentry:SetNoteDetailFlag(true)
+                local entry_mod = finale.FCEntryAlterMod()
+                entry_mod:SetNoteEntry(noteentry)
+                entry_mod:SetResize(size)
+                entry_mod:Save()
             end
         end
     end
