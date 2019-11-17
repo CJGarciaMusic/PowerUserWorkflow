@@ -750,7 +750,7 @@ function setFirstLastNoteRangeBeat(smart_shape)
     end
 end
 
-function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape)    
+function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape, above_staff)    
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
     smartshape.EntryBased = false
@@ -791,13 +791,27 @@ function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape)
 
     table.sort(staff_pos)
 
-    if staff_pos[count] == nil then
-        y_value = base_line_offset 
-    else
-        if staff_pos[count] >= 0 then
-            y_value = (staff_pos[count] * 12) + entry_offset
-        else
+    if above_staff == true then
+        if staff_pos[count] == nil then
             y_value = base_line_offset 
+        else
+            if staff_pos[count] >= 0 then
+                y_value = (staff_pos[count] * 12) + entry_offset
+            else
+                y_value = base_line_offset 
+            end
+        end
+    else
+        base_line_offset = 54
+        entry_offset = 54
+        if staff_pos[1] == nil then
+            y_value = 0 - (108 + base_line_offset) 
+        else
+            if staff_pos[1] <= -9 then
+                y_value = ((staff_pos[1] * 12) - entry_offset)
+            else
+                y_value = 0 - (108 + base_line_offset) 
+            end
         end
     end
 
@@ -817,7 +831,7 @@ function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape)
     smartshape:SaveNewEverything(nil, nil)
 end
 
-function createBeatBasedSL(smart_shape)
+function createBeatBasedSL(smart_shape, place_above)
     local music_region = finenv.Region()
     local range_settings = {}
     
@@ -866,7 +880,7 @@ function createBeatBasedSL(smart_shape)
     end
 
     for key, value in pairs(range_settings) do
-        createBBSL(value[1], value[2], value[3], value[4], value[5], smart_shape)
+        createBBSL(value[1], value[2], value[3], value[4], value[5], smart_shape, place_above)
     end
 end
 
@@ -3440,22 +3454,22 @@ end
 
 function func_0600()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
-    createBeatBasedSL(finale.SMARTSHAPE_TRILL)
+    createBeatBasedSL(finale.SMARTSHAPE_TRILL, true)
 end
 
 function func_0601()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
-    createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT)
+    createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT, true)
 end
 
 function func_0602()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINE)
-    createBeatBasedSL(finale.SMARTSHAPE_DASHLINE)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINE, true)
 end
 
 function func_0603()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINE)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE, true)
 end
 
 function func_0604()
@@ -3470,17 +3484,17 @@ end
 
 function func_0606()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
-    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN, true)
 end
 
 function func_0607()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN, true)
 end
 
 function func_0608()
     deleteBeatSmartShape(finale.SMARTSHAPE_CUSTOM)
-    createBeatBasedSL(finale.SMARTSHAPE_CUSTOM)
+    createBeatBasedSL(finale.SMARTSHAPE_CUSTOM, true)
 end
 
 function func_0609()
@@ -3495,37 +3509,37 @@ end
 
 function func_0611()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
-    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2, true)
 end
 
 function func_0612()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2, true)
 end
 
 function func_0612()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2)
+    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2, true)
 end
 
 function func_0613()
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
-    createBeatBasedSL(finale.SMARTSHAPE_OCTAVEUP)
+    createBeatBasedSL(finale.SMARTSHAPE_OCTAVEUP, true)
 end
 
 function func_0614()
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
-    createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEUP)
+    createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEUP, true)
 end
 
 function func_0615()
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
-    createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN, false)
 end
 
 function func_0616()
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
-    createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN)
+    createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN, false)
 end
 
 function func_0700()
