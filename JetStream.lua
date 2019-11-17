@@ -3453,11 +3453,13 @@ function func_0562()
 end
 
 function func_0600()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
     createBeatBasedSL(finale.SMARTSHAPE_TRILL, true)
 end
 
 function func_0601()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
     createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT, true)
 end
@@ -3483,11 +3485,13 @@ function func_0605()
 end
 
 function func_0606()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN, true)
 end
 
 function func_0607()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN, true)
 end
@@ -3498,46 +3502,49 @@ function func_0608()
 end
 
 function func_0609()
+    deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
     deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
 end
 
 function func_0610()
+    deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
     deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
 end
 
 function func_0611()
+    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2, true)
 end
 
 function func_0612()
-    deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
-    createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2, true)
-end
-
-function func_0612()
+    deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2, true)
 end
 
 function func_0613()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEUP, true)
 end
 
 function func_0614()
+    deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEUP, true)
 end
 
 function func_0615()
+    deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN, false)
 end
 
 function func_0616()
+    deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN, false)
 end
