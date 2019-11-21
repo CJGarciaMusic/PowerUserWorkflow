@@ -2417,6 +2417,41 @@ function baseline_reset(baseline_type)
     end
 end
 
+function staff_groups(bracket_style, barline_mode)
+    local music_region = finenv.Region()
+    if (music_region:IsEmpty()) ~= true then
+
+        local top_staff = music_region:GetStartStaff()
+        local bottom_staff = music_region:GetEndStaff()
+        local sg_cmper = {}
+        local staff_groups = finale.FCGroups()
+        staff_groups:LoadAll()
+        for sg in each(staff_groups) do
+            table.insert(sg_cmper, sg:GetItemID())
+            for addstaff = top_staff, bottom_staff do
+                if sg:ContainsStaff(addstaff) then
+                    sg:DeleteData()
+                end
+            end
+        end
+
+        table.sort(sg_cmper)
+
+        local sg = finale.FCGroup()
+        sg:SetStartStaff(top_staff)
+        sg:SetEndStaff(bottom_staff)
+        sg:SetStartMeasure(1)
+        sg:SetEndMeasure(32767)
+        sg:SetBracketStyle(bracket_style)
+        if top_staff == bottom_staff then
+            sg:SetBracketSingleStaff(true)
+        end
+        sg:SetDrawBarlineMode(barline_mode)
+        sg:SetBracketHorizontalPos(-12)
+        sg:SaveNew(sg_cmper[1] + 1)
+    end
+end
+
 function func_0001()
     find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("Start")
@@ -4023,6 +4058,126 @@ function func_0926()
     tuplet_options({"Placement Stem", "Number Regular", "Bracket Never Beamed", "Avoid Staff Off", "Allow Horizontal Drag On"})
 end
 
+function func_1000()
+    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1001()
+    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1002()
+    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1003()
+    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1004()
+    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1005()
+    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1006()
+    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1007()
+    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1008()
+    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1009()
+    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1010()
+    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1011()
+    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1012()
+    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1013()
+    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1014()
+    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1015()
+    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1016()
+    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1017()
+    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1018()
+    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1019()
+    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1020()
+    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1021()
+    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1022()
+    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1023()
+    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1024()
+    staff_groups(finale.GRBRAC_DESK, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1025()
+    staff_groups(finale.GRBRAC_DESK, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1026()
+    staff_groups(finale.GRBRAC_DESK, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
+function func_1027()
+    staff_groups(finale.GRBRAC_REVERSEDESK, finale.GROUPBARLINESTYLE_ONLYON)
+end
+
+function func_1028()
+    staff_groups(finale.GRBRAC_REVERSEDESK, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+end
+
+function func_1029()
+    staff_groups(finale.GRBRAC_REVERSEDESK, finale.GROUPBARLINESTYLE_THROUGH)
+end
+
 function func_8000()
     playback_type("Document", "Document", "Document") 
 end
@@ -4260,7 +4415,7 @@ dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 local returnvalues = dialog:Execute() 
 
 if returnvalues ~= nil then
-    if finenv.Region():GetStartMeasure() > 0 then
+    if finenv.Region():IsEmpty() ~= true then
         if returnvalues[1] == "0001" then
             func_0001()
         end
@@ -5067,6 +5222,96 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0926" then
             func_0926()
+        end
+        if returnvalues[1] == "1000" then
+            func_1000()
+        end
+        if returnvalues[1] == "1001" then
+            func_1001()
+        end
+        if returnvalues[1] == "1002" then
+            func_1002()
+        end
+        if returnvalues[1] == "1003" then
+            func_1003()
+        end
+        if returnvalues[1] == "1004" then
+            func_1004()
+        end
+        if returnvalues[1] == "1005" then
+            func_1005()
+        end
+        if returnvalues[1] == "1006" then
+            func_1006()
+        end
+        if returnvalues[1] == "1007" then
+            func_1007()
+        end
+        if returnvalues[1] == "1008" then
+            func_1008()
+        end
+        if returnvalues[1] == "1009" then
+            func_1009()
+        end
+        if returnvalues[1] == "1010" then
+            func_1010()
+        end
+        if returnvalues[1] == "1011" then
+            func_1011()
+        end
+        if returnvalues[1] == "1012" then
+            func_1012()
+        end
+        if returnvalues[1] == "1013" then
+            func_1013()
+        end
+        if returnvalues[1] == "1014" then
+            func_1014()
+        end
+        if returnvalues[1] == "1015" then
+            func_1015()
+        end
+        if returnvalues[1] == "1016" then
+            func_1016()
+        end
+        if returnvalues[1] == "1017" then
+            func_1017()
+        end
+        if returnvalues[1] == "1018" then
+            func_1018()
+        end
+        if returnvalues[1] == "1019" then
+            func_1019()
+        end
+        if returnvalues[1] == "1020" then
+            func_1020()
+        end
+        if returnvalues[1] == "1021" then
+            func_1021()
+        end
+        if returnvalues[1] == "1022" then
+            func_1022()
+        end
+        if returnvalues[1] == "1023" then
+            func_1023()
+        end
+        if returnvalues[1] == "1024" then
+            func_1024()
+        end
+        if returnvalues[1] == "1025" then
+            func_1025()
+        end
+        if returnvalues[1] == "1026" then
+            func_1026()
+        end
+        if returnvalues[1] == "1027" then
+            func_1027()
+        end
+        if returnvalues[1] == "1028" then
+            func_1028()
+        end
+        if returnvalues[1] == "1029" then
+            func_1029()
         end
         if returnvalues[1] == "9000" then
             func_9000()
