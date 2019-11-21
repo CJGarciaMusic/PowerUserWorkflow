@@ -2448,7 +2448,12 @@ function staff_groups(bracket_style, barline_mode)
         end
         sg:SetDrawBarlineMode(barline_mode)
         sg:SetBracketHorizontalPos(-12)
-        sg:SaveNew(sg_cmper[1] + 1)
+        local save_num = sg_cmper[1] + 1
+        if sg_cmper[1] == nil then
+            sg:SaveNew(1)
+        else
+            sg:SaveNew(save_num)
+        end
     end
 end
 
