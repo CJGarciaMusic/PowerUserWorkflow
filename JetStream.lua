@@ -2420,39 +2420,87 @@ end
 function staff_groups(bracket_style, barline_mode)
     local music_region = finenv.Region()
     if (music_region:IsEmpty()) ~= true then
-
         local top_staff = music_region:GetStartStaff()
         local bottom_staff = music_region:GetEndStaff()
         local sg_cmper = {}
-        local staff_groups = finale.FCGroups()
-        staff_groups:LoadAll()
-        for sg in each(staff_groups) do
-            table.insert(sg_cmper, sg:GetItemID())
-            for addstaff = top_staff, bottom_staff do
-                if sg:ContainsStaff(addstaff) then
-                    sg:DeleteData()
+        local sg = finale.FCGroup()
+        if bracket_style ~= finale.GRBRAC_DESK then
+            local staff_groups = finale.FCGroups()
+            staff_groups:LoadAll()
+            for sg in each(staff_groups) do
+                table.insert(sg_cmper, sg:GetItemID())
+                for addstaff = top_staff, bottom_staff do
+                    if sg:ContainsStaff(addstaff) then
+                        sg:DeleteData()
+                    end
                 end
             end
-        end
-
-        table.sort(sg_cmper)
-
-        local sg = finale.FCGroup()
-        sg:SetStartStaff(top_staff)
-        sg:SetEndStaff(bottom_staff)
-        sg:SetStartMeasure(1)
-        sg:SetEndMeasure(32767)
-        sg:SetBracketStyle(bracket_style)
-        if top_staff == bottom_staff then
-            sg:SetBracketSingleStaff(true)
-        end
-        sg:SetDrawBarlineMode(barline_mode)
-        sg:SetBracketHorizontalPos(-12)
-        local save_num = sg_cmper[1] + 1
-        if sg_cmper[1] == nil then
-            sg:SaveNew(1)
+            table.sort(sg_cmper)
+            sg:SetStartStaff(top_staff)
+            sg:SetEndStaff(bottom_staff)
+            sg:SetStartMeasure(1)
+            sg:SetEndMeasure(32767)
+            sg:SetBracketStyle(bracket_style)
+            if top_staff == bottom_staff then
+                sg:SetBracketSingleStaff(true)
+            end
+            sg:SetDrawBarlineMode(barline_mode)
+            sg:SetBracketHorizontalPos(-12)
+            if sg_cmper[1] == nil then
+                sg:SaveNew(1)
+            else
+                local save_num = sg_cmper[1] + 1
+                sg:SaveNew(save_num)
+            end
         else
-            sg:SaveNew(save_num)
+            local sub_list = {}
+            local staff_groups = finale.FCGroups()
+            staff_groups:LoadAll()
+            for sg in each(staff_groups) do
+                table.insert(sg_cmper, sg:GetItemID())
+                for addstaff = top_staff, bottom_staff do
+                    if sg:ContainsStaff(addstaff) then
+                        if sg:GetBracketStyle() == 8 then
+                            table.insert(sub_list, sg:GetItemID())
+                            sg:DeleteData()
+                        end
+                    end
+                end
+            end
+            if sub_list[1] == nil then
+                sg:SetStartStaff(top_staff)
+                sg:SetEndStaff(bottom_staff)
+                sg:SetStartMeasure(1)
+                sg:SetEndMeasure(32767)
+                sg:SetBracketStyle(bracket_style)
+                if top_staff == bottom_staff then
+                    sg:SetBracketSingleStaff(true)
+                end
+                sg:SetBracketHorizontalPos(-30)
+                table.sort(sg_cmper)
+                if sg_cmper[2] ~= nil or sg_cmper[1] ~= nil then
+                    local save_num = sg_cmper[1] + 1 
+                    sg:SaveNew(save_num)
+                else
+                    sg:SaveNew(1)
+                end
+            else
+                sg:Load(sub_list[1], sub_list[2])
+                sg:SetStartStaff(top_staff)
+                sg:SetEndStaff(bottom_staff)
+                sg:SetStartMeasure(1)
+                sg:SetEndMeasure(32767)
+                sg:SetBracketStyle(bracket_style)
+                if top_staff == bottom_staff then
+                    sg:SetBracketSingleStaff(true)
+                end
+                if sg_cmper[2] ~= nil or sg_cmper[1] ~= nil then
+                    local save_num = sg_cmper[1] + 1 
+                    sg:SaveNew(save_num)
+                else
+                    sg:SaveNew(1)
+                end
+            end
         end
     end
 end
@@ -4064,11 +4112,11 @@ function func_0926()
 end
 
 function func_1000()
-    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1001()
-    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1002()
@@ -4076,11 +4124,11 @@ function func_1002()
 end
 
 function func_1003()
-    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1004()
-    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1005()
@@ -4088,11 +4136,11 @@ function func_1005()
 end
 
 function func_1006()
-    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1007()
-    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1008()
@@ -4100,11 +4148,11 @@ function func_1008()
 end
 
 function func_1009()
-    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1010()
-    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1011()
@@ -4112,11 +4160,11 @@ function func_1011()
 end
 
 function func_1012()
-    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1013()
-    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1014()
@@ -4124,11 +4172,11 @@ function func_1014()
 end
 
 function func_1015()
-    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1016()
-    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1017()
@@ -4136,11 +4184,11 @@ function func_1017()
 end
 
 function func_1018()
-    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1019()
-    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1020()
@@ -4148,11 +4196,11 @@ function func_1020()
 end
 
 function func_1021()
-    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
 function func_1022()
-    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
+    staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
 function func_1023()
@@ -4160,27 +4208,11 @@ function func_1023()
 end
 
 function func_1024()
-    staff_groups(finale.GRBRAC_DESK, finale.GROUPBARLINESTYLE_ONLYON)
+    staff_groups(finale.GRBRAC_DESK, nil)
 end
 
 function func_1025()
-    staff_groups(finale.GRBRAC_DESK, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
-end
-
-function func_1026()
-    staff_groups(finale.GRBRAC_DESK, finale.GROUPBARLINESTYLE_THROUGH)
-end
-
-function func_1027()
-    staff_groups(finale.GRBRAC_REVERSEDESK, finale.GROUPBARLINESTYLE_ONLYON)
-end
-
-function func_1028()
-    staff_groups(finale.GRBRAC_REVERSEDESK, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
-end
-
-function func_1029()
-    staff_groups(finale.GRBRAC_REVERSEDESK, finale.GROUPBARLINESTYLE_THROUGH)
+    staff_groups(finale.GRBRAC_REVERSEDESK, nil)
 end
 
 function func_8000()
@@ -5305,18 +5337,6 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "1025" then
             func_1025()
-        end
-        if returnvalues[1] == "1026" then
-            func_1026()
-        end
-        if returnvalues[1] == "1027" then
-            func_1027()
-        end
-        if returnvalues[1] == "1028" then
-            func_1028()
-        end
-        if returnvalues[1] == "1029" then
-            func_1029()
         end
         if returnvalues[1] == "9000" then
             func_9000()
