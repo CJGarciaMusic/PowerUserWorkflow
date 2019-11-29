@@ -4,7 +4,7 @@ on theSplit(theString, theDelimiter)
 	set theArray to every text item of theString
 	set AppleScript's text item delimiters to oldDelimiters
 	repeat with theItem in theArray
-		if theItem contains "JetStream%20XL%20Profile%20Set%20Mac%20" then
+		if theItem contains "JetStream%20proXL%20Profile%20Set%20Mac%20" then
 			set myNum to theItem
 		end if
 	end repeat
@@ -33,11 +33,11 @@ on getUpdate(updateNumber)
 	set myArray to theSplit(theCurl, "<")
 	set myText to removeMarkupFromText(myArray)
 	set myLength to (count of myText)
-	set firstNumber to (offset of "JetStream%20XL%20Profile%20Set%20Mac%20" in myText)
-	set secondNumber to (characters (firstNumber + 39) thru myLength of myText as text)
+	set firstNumber to (offset of "JetStream%20proXL%20Profile%20Set%20Mac%20" in myText)
+	set secondNumber to (characters (firstNumber + 42) thru myLength of myText as text)
 	set scribeVersion to text 1 thru -23 of secondNumber
 	set theDownload to "http://jetstreamfinale.com/home/jetstream-finale-controller-installation-for-os-x/?download=xl"
-	
+
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"
 			display dialog "You're up to date with the current version: " & updateNumber buttons {"OK"}
@@ -56,4 +56,4 @@ on getUpdate(updateNumber)
 	end if
 end getUpdate
 
-getUpdate("191005")
+getUpdate("191127")
