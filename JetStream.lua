@@ -2505,6 +2505,33 @@ function staff_groups(bracket_style, barline_mode)
     end
 end
 
+function change_key_signature(major_minor, alteration_num)
+    local measures = finale.FCMeasures()
+    measures:LoadRegion(finenv.Region())
+
+    for m in each(measures) do
+        local key_sig = m:GetKeySignature()
+        if major_minor == "Major" then
+            m:SetKeyless(false)
+            m:SetHideKeySigShowAccis(false)
+            key_sig:SetMajorKey(alteration_num)
+            key_sig:Save()
+        elseif major_minor == "Minor" then
+            m:SetKeyless(false)
+            m:SetHideKeySigShowAccis(false)
+            key_sig:SetMinorKey(alteration_num)
+            key_sig:Save()
+        elseif major_minor == "Keyless" then
+            m:SetHideKeySigShowAccis(false)
+            m:SetKeyless(true)
+        elseif major_minor == "HideShow" then
+            m:SetKeyless(false)
+            m:SetHideKeySigShowAccis(true)
+        end
+        m:Save()
+    end
+end
+
 function func_0001()
     find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("Start")
@@ -4215,6 +4242,134 @@ function func_1025()
     staff_groups(finale.GRBRAC_REVERSEDESK, nil)
 end
 
+function func_1100()
+    change_key_signature("Major", -4)
+end
+
+function func_1101()
+    change_key_signature("Minor", -7)
+end
+
+function func_1102()
+    change_key_signature("Major", 3)
+end
+
+function func_1103()
+    change_key_signature("Minor", 0)
+end
+
+function func_1104()
+    change_key_signature("Minor", 7)
+end
+
+function func_1105()
+    change_key_signature("Major", -2)
+end
+
+function func_1106()
+    change_key_signature("Minor", -5)
+end
+
+function func_1107()
+    change_key_signature("Major", 5)
+end
+
+function func_1108()
+    change_key_signature("Minor", 2)
+end
+
+function func_1109()
+    change_key_signature("Major", -7)
+end
+
+function func_1110()
+    change_key_signature("Major", 0)
+end
+
+function func_1111()
+    change_key_signature("Minor", -3)
+end
+
+function func_1112()
+    change_key_signature("Major", 7)
+end
+
+function func_1113()
+    change_key_signature("Minor", 4)
+end
+
+function func_1114()
+    change_key_signature("Major", -5)
+end
+
+function func_1115()
+    change_key_signature("Major", 2)
+end
+
+function func_1116()
+    change_key_signature("Minor", -1)
+end
+
+function func_1117()
+    change_key_signature("Minor", 6)
+end
+
+function func_1118()
+    change_key_signature("Major", -3)
+end
+
+function func_1119()
+    change_key_signature("Minor", -6)
+end
+
+function func_1120()
+    change_key_signature("Major", 4)
+end
+
+function func_1121()
+    change_key_signature("Minor", 1)
+end
+
+function func_1122()
+    change_key_signature("Major", -1)
+end
+
+function func_1123()
+    change_key_signature("Minor", -4)
+end
+
+function func_1124()
+    change_key_signature("Major", 6)
+end
+
+function func_1125()
+    change_key_signature("Minor", 3)
+end
+
+function func_1126()
+    change_key_signature("Major", -6)
+end
+
+function func_1127()
+    change_key_signature("Major", 1)
+end
+
+function func_1128()
+    change_key_signature("Minor", -2)
+end
+
+function func_1129()
+    change_key_signature("Minor", 5)
+end
+
+function func_1130()
+    change_key_signature("HideShow", nil)
+end
+
+function func_1131()
+    change_key_signature("Keyless", nil)
+end
+
 function func_8000()
     playback_type("Document", "Document", "Document") 
 end
@@ -5337,6 +5492,102 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "1025" then
             func_1025()
+        end
+        if returnvalues[1] == "1100" then
+            func_1100()
+        end
+        if returnvalues[1] == "1101" then
+            func_1101()
+        end
+        if returnvalues[1] == "1102" then
+            func_1102()
+        end
+        if returnvalues[1] == "1103" then
+            func_1103()
+        end
+        if returnvalues[1] == "1104" then
+            func_1104()
+        end
+        if returnvalues[1] == "1105" then
+            func_1105()
+        end
+        if returnvalues[1] == "1106" then
+            func_1106()
+        end
+        if returnvalues[1] == "1107" then
+            func_1107()
+        end
+        if returnvalues[1] == "1108" then
+            func_1108()
+        end
+        if returnvalues[1] == "1109" then
+            func_1109()
+        end
+        if returnvalues[1] == "1110" then
+            func_1110()
+        end
+        if returnvalues[1] == "1111" then
+            func_1111()
+        end
+        if returnvalues[1] == "1112" then
+            func_1112()
+        end
+        if returnvalues[1] == "1113" then
+            func_1113()
+        end
+        if returnvalues[1] == "1114" then
+            func_1114()
+        end
+        if returnvalues[1] == "1115" then
+            func_1115()
+        end
+        if returnvalues[1] == "1116" then
+            func_1116()
+        end
+        if returnvalues[1] == "1117" then
+            func_1117()
+        end
+        if returnvalues[1] == "1118" then
+            func_1118()
+        end
+        if returnvalues[1] == "1119" then
+            func_1119()
+        end
+        if returnvalues[1] == "1120" then
+            func_1120()
+        end
+        if returnvalues[1] == "1121" then
+            func_1121()
+        end
+        if returnvalues[1] == "1122" then
+            func_1122()
+        end
+        if returnvalues[1] == "1123" then
+            func_1123()
+        end
+        if returnvalues[1] == "1124" then
+            func_1124()
+        end
+        if returnvalues[1] == "1125" then
+            func_1125()
+        end
+        if returnvalues[1] == "1126" then
+            func_1126()
+        end
+        if returnvalues[1] == "1127" then
+            func_1127()
+        end
+        if returnvalues[1] == "1128" then
+            func_1128()
+        end
+        if returnvalues[1] == "1129" then
+            func_1129()
+        end
+        if returnvalues[1] == "1130" then
+            func_1130()
+        end
+        if returnvalues[1] == "1131" then
+            func_1131()
         end
         if returnvalues[1] == "9000" then
             func_9000()
