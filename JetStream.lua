@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "191027"
-    finaleplugin.Date = "10/27/2019"
+    finaleplugin.Version = "191219"
+    finaleplugin.Date = "12/19/2019"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 

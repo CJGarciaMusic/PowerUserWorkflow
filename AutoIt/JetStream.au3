@@ -1,6 +1,6 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 191015
+ Version: 191129
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
@@ -437,7 +437,7 @@ Func CheckForUpdate($SDsize, $currentVersion)
 		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
 		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
 	  ElseIf $SDsize = "XL" Then
-		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20XL%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20proXL%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
 		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
 	  EndIf
 	  If $sNewVersionNumber = $currentVersion Then
@@ -447,7 +447,7 @@ Func CheckForUpdate($SDsize, $currentVersion)
 		 If $SDsize = "Standard" Then
 			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
 		 ElseIf $SDsize = "XL" Then
-			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20XL%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20proXL%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
 		 EndIf
 		 $sDownloadLink = $aLinkArray[0]
 		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $sNewVersionNumber & "?")
