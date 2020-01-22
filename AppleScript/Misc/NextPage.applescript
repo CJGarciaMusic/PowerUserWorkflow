@@ -8,7 +8,6 @@ end errorMessage
 
 on pagePush(uiButton)
 	tell application "System Events"
-		key code 48 using command down
 		set appName to name of the first process whose frontmost is true
 	end tell
 	
