@@ -4138,6 +4138,38 @@ function func_0926()
     tuplet_options({"Placement Stem", "Number Regular", "Bracket Never Beamed", "Avoid Staff Off", "Allow Horizontal Drag On"})
 end
 
+function func_0927()
+    tuplet_options({"Shape Bracket", "Bracket Always", "Placement Stem"}) 
+end
+
+function func_0928()
+    tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat On", "Placement Below", "Avoid Staff On"}) 
+end
+
+function func_0929()
+    tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat On"}) 
+end
+
+function func_0930()
+    tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat On", "Placement Above", "Avoid Staff On"}) 
+end
+
+function func_0931()
+    tuplet_options({"Shape None", "Number Regular", "Placement Stem", "Avoid Staff On"}) 
+end
+
+function func_0932()
+    tuplet_options({"Shape None", "Number Regular", "Placement Note", "Avoid Staff On"}) 
+end
+
+function func_0933()
+    tuplet_options({"Shape None", "Number Regular", "Placement Stem", "Avoid Staff Off"}) 
+end
+
+function func_0934()
+    tuplet_options({"Shape None", "Number Regular", "Placement Note", "Avoid Staff Off"}) 
+end
+
 function func_1000()
     staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
@@ -5414,6 +5446,30 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0926" then
             func_0926()
+        end
+        if returnvalues[1] == "0927" then
+            func_0927()
+        end
+        if returnvalues[1] == "0928" then
+            func_0928()
+        end
+        if returnvalues[1] == "0929" then
+            func_0929()
+        end
+        if returnvalues[1] == "0930" then
+            func_0930()
+        end
+        if returnvalues[1] == "0931" then
+            func_0931()
+        end
+        if returnvalues[1] == "0932" then
+            func_0932()
+        end
+        if returnvalues[1] == "0933" then
+            func_0933()
+        end
+        if returnvalues[1] == "0934" then
+            func_0934()
         end
         if returnvalues[1] == "1000" then
             func_1000()
