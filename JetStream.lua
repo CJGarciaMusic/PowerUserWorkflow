@@ -4139,7 +4139,7 @@ function func_0926()
 end
 
 function func_0927()
-    tuplet_options({"Shape Bracket", "Bracket Always", "Placement Stem"}) 
+    tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat Off", "Placement Stem"}) 
 end
 
 function func_0928()
