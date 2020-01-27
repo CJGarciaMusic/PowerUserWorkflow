@@ -3345,6 +3345,21 @@ function func_0226()
     change_notehead_size(4, 75, nil)
 end
 
+function func_0227()
+    changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
+    for noteentry in eachentrysaved(finenv.Region()) do
+        if noteentry.Duration > 1536 then
+            local nm = finale.FCNoteheadMod()
+            nm:SetNoteEntry(noteentry)
+            for note in each(noteentry) do
+                nm:LoadAt(note)
+                nm:SetResize(130)
+                nm:SaveAt(note)
+            end
+        end
+    end
+end
+
 function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -4978,6 +4993,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0226" then
             func_0226()
+        end
+        if returnvalues[1] == "0227" then
+            func_0227()
         end
         if returnvalues[1] == "0300" then
             func_0300()
