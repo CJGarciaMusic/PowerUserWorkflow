@@ -22,7 +22,6 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
 				if activeMenuItem is true then
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
-                	key code 36
 					return true 
 				else
 					error 
