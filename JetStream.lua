@@ -3347,13 +3347,19 @@ end
 
 function func_0227()
     changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
+    local nm = finale.FCNoteheadMod()
     for noteentry in eachentrysaved(finenv.Region()) do
+        nm:SetNoteEntry(noteentry)
         if noteentry.Duration > 1536 then
-            local nm = finale.FCNoteheadMod()
-            nm:SetNoteEntry(noteentry)
             for note in each(noteentry) do
                 nm:LoadAt(note)
                 nm:SetResize(130)
+                nm:SaveAt(note)
+            end
+        else
+            for note in each(noteentry) do
+                nm:LoadAt(note)
+                nm:SetResize(100)
                 nm:SaveAt(note)
             end
         end
@@ -3371,6 +3377,7 @@ function func_0228()
             if note:CalcStaffPosition() >= -1 then
                 if noteentry.Duration < 2048 then
                     nm.CustomChar = 120
+                    nm:SetResize(100)
                 end
                 if (noteentry.Duration > 1536) then
                     nm.CustomChar = 84
