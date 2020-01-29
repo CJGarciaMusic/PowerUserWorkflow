@@ -3360,6 +3360,28 @@ function func_0227()
     end
 end
 
+function func_0228()
+    local nm = finale.FCNoteheadMod()
+    nm:SetUseCustomFont(true)
+    nm.FontName = "Maestro Percussion"
+
+    for noteentry in eachentrysaved(finenv.Region()) do 
+        nm:SetNoteEntry(noteentry)
+        for note in each(noteentry) do
+            if note:CalcStaffPosition() >= -1 then
+                if noteentry.Duration < 2048 then
+                    nm.CustomChar = 120
+                end
+                if (noteentry.Duration > 1536) then
+                    nm.CustomChar = 84
+                    nm:SetResize(130)
+                end
+                nm:SaveAt(note)
+            end
+        end
+    end
+end
+
 function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -5004,6 +5026,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0227" then
             func_0227()
+        end
+        if returnvalues[1] == "0228" then
+            func_0228()
         end
         if returnvalues[1] == "0300" then
             func_0300()
