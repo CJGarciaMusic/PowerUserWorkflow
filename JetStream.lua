@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "220120"
-    finaleplugin.Date = "1/22/2020"
+    finaleplugin.Version = "290120"
+    finaleplugin.Date = "1/29/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -1849,7 +1849,7 @@ function tuplet_options(tuplet_parameters)
                     t:SetNumberStyle(2)
                 elseif value == "Number Ratio Last" then
                     t:SetNumberStyle(3)
-                elseif value == "Number Ration Both" then
+                elseif value == "Number Ratio Both" then
                     t:SetNumberStyle(4)  
                 end
             end
@@ -4185,6 +4185,14 @@ function func_0934()
     tuplet_options({"Shape None", "Number Regular", "Placement Note", "Avoid Staff Off"}) 
 end
 
+function func_0935()
+    tuplet_options({"Allow Horizontal Drag On"}) 
+end
+
+function func_0936()
+    tuplet_options({"Allow Horizontal Drag Off"}) 
+end
+
 function func_1000()
     staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
@@ -5488,6 +5496,12 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0934" then
             func_0934()
+        end
+        if returnvalues[1] == "0935" then
+            func_0935()
+        end
+        if returnvalues[1] == "0936" then
+            func_0936()
         end
         if returnvalues[1] == "1000" then
             func_1000()
