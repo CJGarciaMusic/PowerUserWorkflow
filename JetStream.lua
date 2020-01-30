@@ -640,7 +640,6 @@ function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightno
     smartshape.EntryBased = true
     smartshape.PresetShape = true
     smartshape.Visible = true
-    -- smartshape.LineID = shape
 
     local leftseg = smartshape:GetTerminateSegmentLeft()
     leftseg:SetMeasure(measure_start)
@@ -652,6 +651,9 @@ function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightno
     rightseg:SetStaff(staff)
     rightseg:SetEntry(rightnote)
     if (shape == 26) or (shape == 25) then
+        if (shape == 25) then
+            smartshape.LineID = 1
+        end
         leftseg.NoteID = 1
         rightseg.NoteID = 1
     end
