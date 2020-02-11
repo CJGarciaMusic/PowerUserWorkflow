@@ -663,7 +663,7 @@ end
 function setFirstLastNoteRangeEntry(smart_shape)
     local music_region = finenv.Region()
     local range_settings = {}
-    
+    music_region:SetCurrentSelection()
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         music_region:SetStartStaff(addstaff)
         music_region:SetEndStaff(addstaff)
