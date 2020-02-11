@@ -349,7 +349,6 @@ function split_articulations()
                 end
             end
         end
-        print(remove_duplicates)
         if remove_duplicates > 0 then
             delete_duplicate_articulations(noteentry)
         end
@@ -837,7 +836,6 @@ function createBeatBasedSL(smart_shape, place_above)
     local music_region = finenv.Region()
     local range_settings = {}
     music_region:SetCurrentSelection()
-    print(music_region:GetStartStaff(), music_region:GetEndStaff())
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         music_region:SetStartStaff(addstaff)
         music_region:SetEndStaff(addstaff)
@@ -3281,7 +3279,7 @@ end
 function func_0212()
     for noteentry in eachentrysaved(finenv.Region()) do
         if noteentry:IsRest() then
-            print(noteentry:SetFloatingRest(true))
+            noteentry:SetFloatingRest(true)
         end
     end
 end
