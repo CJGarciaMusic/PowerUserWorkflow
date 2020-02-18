@@ -3449,6 +3449,24 @@ function func_0301()
     end
 end
 
+function  func_0302()
+    local verse_lyrics = finale.FCVerseLyricsText()
+    local chorus_lyrics = finale.FCChorusLyricsText()
+    local section_lyrics = finale.FCSectionLyricsText()
+
+    for i = 0, 999 do
+        if verse_lyrics:Load(i) then
+            verse_lyrics:DeleteData()
+        end
+        if chorus_lyrics:Load(i) then
+            chorus_lyrics:DeleteData()
+        end
+        if section_lyrics:Load(i) then
+            section_lyrics:DeleteData()
+        end
+    end
+end
+
 function func_0400()
     barline_change(0, false)
 end
@@ -5043,6 +5061,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0301" then
             func_0301()
+        end
+        if returnvalues[1] == "0302" then
+            func_0302()
         end
         if returnvalues[1] == "0400" then
             func_0400()
