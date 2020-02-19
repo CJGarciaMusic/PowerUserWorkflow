@@ -4480,6 +4480,24 @@ function func_1131()
     change_key_signature("Keyless", nil)
 end
 
+function func_1200()
+    local music_region = finenv.Region()
+    local m = finale.FCMeasure()
+    if m:Load(music_region:GetStartMeasure()) then
+        m.PageBreak = true
+        m:Save()
+    end
+end
+
+function func_1201()
+    local music_region = finenv.Region()
+    local m = finale.FCMeasure()
+    if m:Load(music_region:GetStartMeasure()) then
+        m.PageBreak = false
+        m:Save()
+    end
+end
+
 function func_8000()
     playback_type("Document", "Document", "Document") 
 end
@@ -5737,6 +5755,12 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "1131" then
             func_1131()
+        end
+        if returnvalues[1] == "1200" then
+            func_1200()
+        end
+        if returnvalues[1] == "1201" then
+            func_1201()
         end
         if returnvalues[1] == "9000" then
             func_9000()
