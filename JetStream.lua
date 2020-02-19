@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "110220"
-    finaleplugin.Date = "2/11/2020"
+    finaleplugin.Version = "190220"
+    finaleplugin.Date = "2/19/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -1436,7 +1436,6 @@ function findSpecialExpression(exp_string_list, font_details, table_name, descri
             local exp_string_p2 = finale.FCString()
             exp_string_p2.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
             exp_string_p2:AppendCharacter(exp_string_list[1])
-
             if (exp:CreateTextString().LuaString == string.gsub(exp_string_p1.LuaString, "%%", "")) or (exp:CreateTextString().LuaString == string.gsub(exp_string_p2.LuaString, "%%", "")) then
                 already_exists = exp:GetItemNo()
                 table.insert(matching_glyphs, already_exists)
@@ -2594,7 +2593,7 @@ function func_0012()
 end
 
 function func_0013()
-    findSpecialExpression({150}, {"Maestro", 8191, 24, 0}, first_expression, "niente (velocity = 0)", 1)
+    findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
     dynamic_region("Start")
 end
 
@@ -2727,7 +2726,7 @@ function func_0039()
 end
 
 function func_0040()
-    findSpecialExpression({150}, {"Maestro", 8191, 24, 0}, first_expression, "niente (velocity = 0)", 1)
+    findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
     dynamic_region("End")
 end
 
@@ -3869,12 +3868,12 @@ function func_0816()
 end
 
 function func_0817()
-    findSpecialExpression({44}, {"Maestro", 8191, 24, 0}, text_expression, "Breath Mark", 5)
+    findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
     getFirstNoteInRegionText("End")
 end
 
 function func_0818()
-    findSpecialExpression({34}, {"Maestro", 8191, 24, 0}, text_expression, "Caesura", 5)
+    findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
     getFirstNoteInRegionText("Region End")
 end
 
