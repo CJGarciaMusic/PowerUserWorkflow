@@ -3465,6 +3465,14 @@ function  func_0302()
             section_lyrics:DeleteData()
         end
     end
+
+    local fullregion = finale.FCMusicRegion()
+
+    fullregion:SetFullDocument()
+
+    for e in eachentrysaved(fullregion) do
+        e.LyricFlag = false
+    end
 end
 
 function func_0400()
