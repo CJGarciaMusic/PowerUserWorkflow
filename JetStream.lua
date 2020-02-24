@@ -2417,6 +2417,32 @@ function baseline_reset(baseline_type)
     end
 end
 
+function remove_lyrics_from_document()
+    local verse_lyrics = finale.FCVerseLyricsText()
+    local chorus_lyrics = finale.FCChorusLyricsText()
+    local section_lyrics = finale.FCSectionLyricsText()
+
+    for i = 0, 999 do
+        if verse_lyrics:Load(i) then
+            verse_lyrics:DeleteData()
+        end
+        if chorus_lyrics:Load(i) then
+            chorus_lyrics:DeleteData()
+        end
+        if section_lyrics:Load(i) then
+            section_lyrics:DeleteData()
+        end
+    end
+
+    local fullregion = finale.FCMusicRegion()
+
+    fullregion:SetFullDocument()
+
+    for e in eachentrysaved(fullregion) do
+        e.LyricFlag = false
+    end
+end
+
 function staff_groups(bracket_style, barline_mode)
     local music_region = finenv.Region()
     if (music_region:IsEmpty()) ~= true then
@@ -3449,28 +3475,12 @@ function func_0301()
 end
 
 function  func_0302()
-    local verse_lyrics = finale.FCVerseLyricsText()
-    local chorus_lyrics = finale.FCChorusLyricsText()
-    local section_lyrics = finale.FCSectionLyricsText()
+    local confirm_delete = finenv.UI():AlertYesNo("Are you sure you want to completely remove all of the lyrics from the current doucment (including from the Lyrics Window)?", "Wait!")
 
-    for i = 0, 999 do
-        if verse_lyrics:Load(i) then
-            verse_lyrics:DeleteData()
-        end
-        if chorus_lyrics:Load(i) then
-            chorus_lyrics:DeleteData()
-        end
-        if section_lyrics:Load(i) then
-            section_lyrics:DeleteData()
-        end
-    end
-
-    local fullregion = finale.FCMusicRegion()
-
-    fullregion:SetFullDocument()
-
-    for e in eachentrysaved(fullregion) do
-        e.LyricFlag = false
+    if confirm_delete == 2 then
+        remove_lyrics_from_document()
+    else
+        return
     end
 end
 
