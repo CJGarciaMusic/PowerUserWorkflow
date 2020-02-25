@@ -2558,17 +2558,16 @@ function change_key_signature(major_minor, alteration_num)
     end
 end
 
-function breath_mark_swap()
+function simple_art_to_exp_swap(art_to_find, description, char_num)
     local breath_mark_id = {}
 
     local function swap_artic_for_exp()
         local music_region = finenv.Region()
-        music_region:SetFullDocument()
         for noteentry in eachentrysaved(music_region) do 
             local artics = noteentry:CreateArticulations()
             for a in each(artics) do
                 local def = a:CreateArticulationDef()
-                if def:GetAboveSymbolChar() == 44 then
+                if def:GetAboveSymbolChar() == char_num then
                     a:DeleteData()
                     local and_expression=finale.FCExpression()
                     and_expression:SetStaff(noteentry.Staff)
@@ -2590,10 +2589,10 @@ function breath_mark_swap()
     local function createBreathMark()
         local exp_def = finale.FCTextExpressionDef()
         local textstr = finale.FCString()
-        textstr.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0),"
+        textstr.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"..art_to_find
         exp_def:SaveNewTextBlock(textstr)
         local descriptionstr = finale.FCString()
-        descriptionstr.LuaString="Breath Mark"
+        descriptionstr.LuaString = description
         exp_def:SetDescription(descriptionstr)
         local cat_def = finale.FCCategoryDef()
         cat_def:Load(7)
@@ -2614,8 +2613,10 @@ function breath_mark_swap()
         local exp_defs = finale.FCTextExpressionDefs()
         exp_defs:LoadAll()
         for ted in each(exp_defs) do
-            if string.find(ted:CreateTextString().LuaString, "^fontMus(Font0,0)^size(24)^nfx(0),") then
-                   table.insert(breath_mark_id, ted:GetItemNo())
+            local current_exp = ted:CreateTextString()
+            current_exp:TrimEnigmaTags()
+            if current_exp.LuaString == art_to_find then
+                table.insert(breath_mark_id, ted:GetItemNo())
             end
         end
         if breath_mark_id[1] == nil then
@@ -4810,7 +4811,11 @@ function func_9036()
 end
 
 function func_9037()
-    breath_mark_swap()
+    simple_art_to_exp_swap(",", "Breath Mark", 44)
+end
+
+function func_9038()
+    simple_art_to_exp_swap("\"", "Caesura", 34)
 end
 
 dialog:SetTypes("String")
@@ -5974,6 +5979,9 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "9037" then
             func_9037()
+        end
+        if returnvalues[1] == "9038" then
+            func_9038()
         end
     else
         if returnvalues[1] == "8000" then
