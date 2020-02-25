@@ -3475,7 +3475,7 @@ function func_0301()
 end
 
 function  func_0302()
-    local confirm_delete = finenv.UI():AlertYesNo("Are you sure? This will completely remove all Verse, Chorus and Section Lyrics from the current document. To erase lyrics from the score without removing them from the file, use Clear Lyrics", "WARNING!")
+    local confirm_delete = finenv.UI():AlertYesNo("This will completely remove all Verse, Chorus and Section Lyrics from the current document. (To erase lyrics from the score without removing them from the file, use Clear Lyrics.) Are you sure you want to proceed?", "WARNING!")
 
     if confirm_delete == 2 then
         remove_lyrics_from_document()
