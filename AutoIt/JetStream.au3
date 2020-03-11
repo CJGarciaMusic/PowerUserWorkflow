@@ -205,7 +205,7 @@ Func Transpose($direction, $chromOrDia, $interval, $preserveCheck)
 			ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", $interval)
 		 EndIf
 		 If $preserveCheck == False Then
-			ControlCommand("Transposition", "", "Preserve &original notes", "Uncheck")
+			ControlCommand("Transposition", "", "Preserve &original notes", "UnCheck")
 		 ElseIf $preserveCheck == True Then
 			ControlCommand("Transposition", "", "Preserve &original notes", "Check")
 		 EndIf
@@ -446,6 +446,31 @@ Func Quantize($resolution, $params)
    EndIf
 EndFunc
 
+Func ProcessExtracted($topBottom, $singleNotes, $lineNumber)
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "TG Tools", "Process Extracted Parts...") Then
+	  If $topBottom == "Top" Then
+		 ControlClick("", "", "[CLASS:TGroupButton; INSTANCE:2]")
+	  ElseIf $topBottom == "Bottom" Then
+		 ControlClick("", "", "[CLASS:TGroupButton; INSTANCE:1]")
+	  EndIf
+	  If $singleNotes == True Then
+		 ControlCommand("", "", 1706120, "Check")
+	  ElseIf $singleNotes == False Then
+		 Send("{TAB} ")
+		 ;ControlCommand("", "", "[CLASS:TLMDCheckBox; INSTANCE:1]", "UnCheck")
+	  EndIf
+	  ControlSetText("", "", "[CLASS:TMyEdit; INSTANCE:1]", $lineNumber)
+	  ControlClick("", "", "[CLASS:TLMDButton; INSTANCE:4]")
+	  WinWaitActive("Finale", "", 1)
+	  If WinExists("Finale") Then
+		 ControlClick("", "&Yes", "[CLASS:Button; INSTANCE:1]")
+	  EndIf
+	  ControlClick("", "", "[CLASS:TLMDButton; INSTANCE:3]")
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
 Func CheckForUpdate($SDsize, $currentVersion)
 	$sWebSite = "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
    $sHtml =  _INetGetSource($sWebSite)
@@ -580,6 +605,11 @@ Func CheckIfActive()
 	  CustomLineSelect()
 	  If @error Then
 		 MsgError("Unable to select the custom line dialog."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Process Extracted" Then
+	  ProcessExtracted($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  If @error Then
+		 MsgError("Unable to completed Process Extracted Parts."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
 	  EndIf
    EndIf
 EndFunc
