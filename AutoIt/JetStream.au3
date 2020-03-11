@@ -369,6 +369,18 @@ Func Colors($param)
 	EndIf
  EndFunc
 
+ Func CustomLineSelect()
+   If WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "Smart S&hape", "C&ustom Line Tool") Then
+	  If WinMenuSelectItem("[CLASS:Finale]", "", "&SmartShape", "Smart Shape &Options...") Then
+		 WinWaitActive("Smart Shape Options")
+		 ControlCommand("Smart Shape Options", "", "ComboBox2", "SelectString", "Custom Line")
+		 ControlClick("Smart Shape Options", "", "[CLASS:Button; INSTANCE:7]")
+	  EndIf
+   Else
+	  SetError(1)
+   EndIf
+ EndFunc
+
 Func TGTools($command)
    Local $hWnd = WinGetHandle("[CLASS:Finale]")
    Local $hMain = _GUICtrlMenu_GetMenu($hWnd)
@@ -563,6 +575,11 @@ Func CheckIfActive()
 	  Quantize($CmdLine[2], $CmdLine[3])
 	  If @error Then
 		 MsgError("Unable to align dynamics."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Custom Line" Then
+	  CustomLineSelect()
+	  If @error Then
+		 MsgError("Unable to select the custom line dialog."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
 	  EndIf
    EndIf
 EndFunc
