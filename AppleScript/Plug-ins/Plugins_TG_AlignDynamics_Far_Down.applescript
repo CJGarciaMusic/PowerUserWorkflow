@@ -23,9 +23,10 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, 
 					key code 78 using {command down, option down}
 				else
 					click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
-					click radio button secondRadio of window "Align/Move Dynamics"
-					click button "Go" of window "Align/Move Dynamics"
-					click button "Close" of window "Align/Move Dynamics"
+					set myWindow to first window whose title contains "Align/Move Dynamics"
+					click radio button secondRadio of myWindow
+					click button "Go" of myWindow
+					click button "Close" of myWindow
 				end if
 			end tell
 		end tell

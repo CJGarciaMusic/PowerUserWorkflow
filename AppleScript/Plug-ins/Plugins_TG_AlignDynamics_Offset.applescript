@@ -10,12 +10,12 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, 
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
-
+	
 	if appName does not contain "Finale" then
 		errorMessage("Please make sure Finale is the front application")
 		return false
 	end if
-
+	
 	try
 		tell application "System Events"
 			tell process appName
@@ -23,9 +23,10 @@ on subMenuItem(firstMenu, firstSubMenu, firstOption, secondMenu, secondSubMenu, 
 					key code 67 using {command down, option down}
 				else
 					click menu item secondOption of menu of menu item secondSubMenu of menu secondMenu of menu bar 1
-					click radio button secondRadio of window "Align/Move Dynamics"
-					click button "Go" of window "Align/Move Dynamics"
-					click button "Close" of window "Align/Move Dynamics"
+					set myWindow to first window whose title contains "Align/Move Dynamics"
+					click radio button secondRadio of myWindow
+					click button "Go" of myWindow
+					click button "Close" of myWindow
 				end if
 			end tell
 		end tell
