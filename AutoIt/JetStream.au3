@@ -1,6 +1,6 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 191129
+ Version: 200322
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
@@ -188,7 +188,7 @@ Func SinglePitch($pitch)
    EndIf
 EndFunc
 
-Func Transpose($direction, $chromOrDia, $interval)
+Func Transpose($direction, $chromOrDia, $interval, $preserveCheck)
    If WinMenuSelectItem("[CLASS:Finale]", "", "Uti&lities", "&Transpose...") Then
 	  WinWaitActive("", "Transposition", 1)
 	  If WinExists("Transposition") Then
@@ -197,12 +197,17 @@ Func Transpose($direction, $chromOrDia, $interval)
 		 ElseIf $direction == "Down" Then
 			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:5]")
 		 EndIf
-		 If $chromOrDia = "Chromatically" Then
+		 If $chromOrDia == "Chromatically" Then
 			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:7]")
 			ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:2]", "SelectString", $interval)
-		 ElseIf $chromOrDia = "Diatonically" Then
+		 ElseIf $chromOrDia == "Diatonically" Then
 			ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:6]")
 			ControlCommand("Transposition", "", "[CLASS:ComboBox; INSTANCE:1]", "SelectString", $interval)
+		 EndIf
+		 If $preserveCheck == False Then
+			ControlCommand("Transposition", "", "Preserve &original notes", "UnCheck")
+		 ElseIf $preserveCheck == True Then
+			ControlCommand("Transposition", "", "Preserve &original notes", "Check")
 		 EndIf
 		 ControlClick("Transposition", "", "[CLASS:Button; INSTANCE:1]")
 	  Else
@@ -315,15 +320,15 @@ Func ComplexMeter($compNumerator, $compDenominator, $dispTimesig)
 			ElseIf $displaySig[2] = 64 Then
 			   $clicks = 1
 			ElseIf $displaySig[2] = 16 Then
-				   $clicks = 2
+			   $clicks = 2
 			ElseIf $displaySig[2] = 8 Then
 			   $clicks = 4
 			ElseIf $displaySig[2] = 4 Then
-				$clicks = 6
+			   $clicks = 6
 			ElseIf $displaySig[2] = 2 Then
-				$clicks = 8
+			   $clicks = 8
 			ElseIf $displaySig[2] = 1 Then
-				$clicks = 10
+			   $clicks = 10
 			Else
 				setError(1)
 			 EndIf
@@ -362,6 +367,18 @@ Func Colors($param)
 	Else
 	   SetError(1)
 	EndIf
+ EndFunc
+
+ Func CustomLineSelect()
+   If WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "Smart S&hape", "C&ustom Line Tool") Then
+	  If WinMenuSelectItem("[CLASS:Finale]", "", "&SmartShape", "Smart Shape &Options...") Then
+		 WinWaitActive("Smart Shape Options")
+		 ControlCommand("Smart Shape Options", "", "ComboBox2", "SelectString", "Custom Line")
+		 ControlClick("Smart Shape Options", "", "[CLASS:Button; INSTANCE:7]")
+	  EndIf
+   Else
+	  SetError(1)
+   EndIf
  EndFunc
 
 Func TGTools($command)
@@ -429,6 +446,31 @@ Func Quantize($resolution, $params)
    EndIf
 EndFunc
 
+Func ProcessExtracted($topBottom, $singleNotes, $lineNumber)
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "TG Tools", "Process Extracted Parts...") Then
+	  If $topBottom == "Top" Then
+		 ControlClick("", "", "[CLASS:TGroupButton; INSTANCE:2]")
+	  ElseIf $topBottom == "Bottom" Then
+		 ControlClick("", "", "[CLASS:TGroupButton; INSTANCE:1]")
+	  EndIf
+	  If $singleNotes == True Then
+		 ControlCommand("", "", 1706120, "Check")
+	  ElseIf $singleNotes == False Then
+		 Send("{TAB} ")
+		 ;ControlCommand("", "", "[CLASS:TLMDCheckBox; INSTANCE:1]", "UnCheck")
+	  EndIf
+	  ControlSetText("", "", "[CLASS:TMyEdit; INSTANCE:1]", $lineNumber)
+	  ControlClick("", "", "[CLASS:TLMDButton; INSTANCE:4]")
+	  WinWaitActive("Finale", "", 1)
+	  If WinExists("Finale") Then
+		 ControlClick("", "&Yes", "[CLASS:Button; INSTANCE:1]")
+	  EndIf
+	  ControlClick("", "", "[CLASS:TLMDButton; INSTANCE:3]")
+   Else
+	  SetError(1)
+   EndIf
+EndFunc
+
 Func CheckForUpdate($SDsize, $currentVersion)
 	$sWebSite = "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
    $sHtml =  _INetGetSource($sWebSite)
@@ -440,6 +482,7 @@ Func CheckForUpdate($SDsize, $currentVersion)
 		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20proXL%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
 		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
 	  EndIf
+
 	  If $sNewVersionNumber = $currentVersion Then
 		 MsgBox($MB_OK, "", "You're up to date with the current version: " & $sNewVersionNumber)
 		 Return
@@ -524,7 +567,7 @@ Func CheckIfActive()
 		 MsgError("Unable to set notes to a single pitch." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf $CmdLine[1] = "Transpose" Then
-	  Transpose($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  Transpose($CmdLine[2], $CmdLine[3], $CmdLine[4], $CmdLine[5])
 	  If @error Then
 		 MsgError($CmdLine[1] & " wasn't able to be selected." & @CRLF & @CRLF & "Please be sure the region you selected is using a Standard Notation Style and that Finale is in focus and try again.")
 	  EndIf
@@ -557,6 +600,16 @@ Func CheckIfActive()
 	  Quantize($CmdLine[2], $CmdLine[3])
 	  If @error Then
 		 MsgError("Unable to align dynamics."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Custom Line" Then
+	  CustomLineSelect()
+	  If @error Then
+		 MsgError("Unable to select the custom line dialog."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
+	  EndIf
+   ElseIf $CmdLine[1] = "Process Extracted" Then
+	  ProcessExtracted($CmdLine[2], $CmdLine[3], $CmdLine[4])
+	  If @error Then
+		 MsgError("Unable to completed Process Extracted Parts."& @CRLF & @CRLF & "Please be sure you have Finale is in focus and try again.")
 	  EndIf
    EndIf
 EndFunc
