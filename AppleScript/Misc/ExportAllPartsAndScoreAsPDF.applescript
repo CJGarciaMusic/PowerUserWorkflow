@@ -27,9 +27,15 @@ on exportDocument(myApp, file_type, file_name)
 	end tell
 end exportDocument
 
+<<<<<<< HEAD
 on exportGraphicPartsAndScore(file_type, finaleApp)
 
 	tell application finaleApp
+=======
+on exportGraphicPartsAndScore(file_type, theApp)
+
+	tell application theApp
+>>>>>>> 31d2b7e7e7b8b84ad6eff3c4b4361e150748282d
 		activate
 	end tell
 
@@ -70,7 +76,11 @@ on exportGraphicPartsAndScore(file_type, finaleApp)
 end exportGraphicPartsAndScore
 
 tell application "System Events"
+<<<<<<< HEAD
 	set myFinale to name of the first process whose frontmost is true
+=======
+	set myFinale to name of the first process whose frontmost is true 
+>>>>>>> 31d2b7e7e7b8b84ad6eff3c4b4361e150748282d
 	set theAsk to display dialog "Are you sure you want to continue with exporting all parts and score as a PDF?" buttons {"No", "Yes"} default button "Yes" with icon note
 	set buttonReturned to button returned of theAsk
 	if buttonReturned is "Yes" then
