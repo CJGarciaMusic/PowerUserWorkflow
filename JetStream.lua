@@ -4163,6 +4163,11 @@ function func_0859()
     getFirstNoteInRegionText("Region Start")
 end
 
+function func_0860()
+    findSpecialExpression({"[S\\T\\R\\A\\I\\G\\\\HT]"}, {"Finale Copyist Text", 4096, 14, 0}, text_expression, "Straight mute", 5)
+    getFirstNoteInRegionText("Region Start")
+end
+
 function func_0900()
     tuplet_options({"Placement Manual"})
 end
@@ -4816,6 +4821,67 @@ end
 
 function func_9038()
     simple_art_to_exp_swap("\"", "Caesura", 34)
+end
+
+function func_9039()
+    for e in eachentrysaved(finenv.Region()) do
+    if e:IsRest() then
+            if e:GetArticulationFlag() then
+                e:SetArticulationFlag(false)
+            end
+        end
+    end
+end
+
+function func_9040()
+    function changeoctave(pitchstring, n)
+        pitchstring.LuaString = pitchstring.LuaString:sub(1, -2) .. (tonumber(string.sub(pitchstring.LuaString, -1)) + n)
+        return pitchstring
+    end
+
+    function updiatonicfourth(pitchstring)
+        local letters = "ABCDEFGABCDEFG"
+        local notenamepos = letters:find(pitchstring.LuaString:sub(1,1))
+        local newnote = letters:sub(notenamepos + 3, notenamepos + 3)
+        pitchstring.LuaString = newnote .. pitchstring.LuaString:sub(2)
+
+        if(notenamepos >= 7) or notenamepos <= 2 then
+            pitchstring = changeoctave(pitchstring, 1)
+        end
+        return pitchstring
+    end
+
+    function main() 
+        for entry in eachentrysaved(finenv.Region()) do
+            if (entry.Count == 1) then 
+                local note = entry:CalcLowestNote(nil)
+                local pitchstring = finale.FCString()
+                local measure = entry:GetMeasure()
+                measureobject = finale.FCMeasure()
+                measureobject:Load(measure)
+                local keysig = measureobject:GetKeySignature()
+                note:GetString(pitchstring, keysig, false, false)
+                pitchstring = changeoctave(pitchstring, -2)
+                note:SetString(pitchstring, keysig, false)
+                local newnote = entry:AddNewNote()
+            
+                newnote:SetString(updiatonicfourth(pitchstring), keysig, false)
+            
+                if(newnote:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
+                    local error = newnote:CalcMIDIKey() - note:CalcMIDIKey() - 5
+                    newnote.RaiseLower = newnote.RaiseLower - error
+                end
+            
+                local notehead = finale.FCNoteheadMod()
+                notehead:EraseAt(newnote)
+                notehead.CustomChar = 79
+                notehead.Resize = 110
+                notehead:SaveAt(newnote)
+            end
+        end
+    end
+
+    main()
 end
 
 dialog:SetTypes("String")
@@ -5560,6 +5626,9 @@ if returnvalues ~= nil then
         if returnvalues[1] == "0859" then
             func_0859()
         end
+        if returnvalues[1] == "0860" then
+            func_0860()
+        end
         if returnvalues[1] == "0900" then
             func_0900()
         end
@@ -5982,6 +6051,12 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "9038" then
             func_9038()
+        end
+        if returnvalues[1] == "9039" then
+            func_9039()
+        end
+        if returnvalues[1] == "9040" then
+            func_9040()
         end
     else
         if returnvalues[1] == "8000" then
