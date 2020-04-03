@@ -2629,6 +2629,399 @@ function simple_art_to_exp_swap(art_to_find, description, char_num)
     getBreathID()
 end
 
+function change_octave(pitch_string, n)
+    pitch_string.LuaString = pitch_string.LuaString:sub(1, -2)..(tonumber(string.sub(pitch_string.LuaString, -1)) + n)
+    return pitch_string
+end
+
+function down_diatonic_fifth(pitch_string)
+    local letters = "ABCDEFGABCDEFG"
+    local note_name_pos = letters:find(pitch_string.LuaString:sub(1,1))
+    local new_note = letters:sub(note_name_pos + 3, note_name_pos + 3)
+    pitch_string.LuaString = new_note .. pitch_string.LuaString:sub(2)
+
+    if (note_name_pos < 7) and (note_name_pos > 2) then
+        pitch_string = change_octave(pitch_string, -1)
+    end
+    return pitch_string
+end
+
+function delete_circle_articulation(entry)
+    local artics = entry:CreateArticulations()
+    for a in eachbackwards(artics) do
+        local defs = a:CreateArticulationDef()
+        if defs:GetAboveSymbolChar() == 111 then
+            a:DeleteData()
+        end
+    end
+end
+
+function down_diatonic_third(pitch_string)
+    local letters = "ABCDEFGABCDEFG"
+    local note_name_pos = letters:find(pitch_string.LuaString:sub(1,1))
+    local new_note = letters:sub(note_name_pos + 5, note_name_pos + 5)
+    pitch_string.LuaString = new_note .. pitch_string.LuaString:sub(2)
+
+    if (note_name_pos < 5) and (note_name_pos > 2) then
+        pitch_string = change_octave(pitch_string, -1)
+    end
+    return pitch_string
+end
+
+function up_diatonic_third(pitch_string)
+    local letters = "ABCDEFGABCDEFG"
+    local note_name_pos = letters:find(pitch_string.LuaString:sub(1,1))
+    local new_note = letters:sub(note_name_pos + 2, note_name_pos + 2)
+    pitch_string.LuaString = new_note .. pitch_string.LuaString:sub(2)
+
+    if (note_name_pos >= 8) or (note_name_pos <= 2) then
+        pitch_string = change_octave(pitch_string, 1)
+    end
+    return pitch_string
+end
+
+function up_diatonic_fourth(pitch_string)
+    local letters = "ABCDEFGABCDEFG"
+    local note_name_pos = letters:find(pitch_string.LuaString:sub(1,1))
+    local new_note = letters:sub(note_name_pos + 3, note_name_pos + 3)
+    pitch_string.LuaString = new_note .. pitch_string.LuaString:sub(2)
+
+    if (note_name_pos >= 7) or (note_name_pos <= 2) then
+        pitch_string = change_octave(pitch_string, 1)
+    end
+    return pitch_string
+end
+
+function chord_line_delete_bottom()
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count >= 2) then
+            local bottom_note = entry:CalcLowestNote(nil)
+            entry:DeleteNote(bottom_note)
+        end
+    end
+end
+
+function chord_line_delete_top() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count >= 2) then
+            local top_note = entry:CalcHighestNote(nil)
+            entry:DeleteNote(top_note)
+        end
+    end
+end
+
+function chord_line_keep_top() 
+    for entry in eachentrysaved(finenv.Region()) do
+        while (entry.Count >= 2) do
+            local bottom_note = entry:CalcLowestNote(nil)
+            entry:DeleteNote(bottom_note)
+        end
+    end
+end
+
+function chord_line_keep_bottom() 
+    for entry in eachentrysaved(finenv.Region()) do
+        while (entry.Count >= 2) do
+            local top_note = entry:CalcHighestNote(nil)
+            entry:DeleteNote(top_note)
+        end
+    end
+end
+
+function double_octave_higher() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = change_octave(pitch_string, 1)
+            local new_note = entry:AddNewNote()
+            new_note:SetString(pitch_string, key_sig, false)
+        end
+    end
+end
+
+function double_octave_lower() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = change_octave(pitch_string, -1)
+            local new_note = entry:AddNewNote()
+            new_note:SetString(pitch_string, key_sig, false)
+        end
+    end
+end
+
+function double_third_higher() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = up_diatonic_third(pitch_string)
+            local new_note = entry:AddNewNote()
+            new_note:SetString(pitch_string, key_sig, false)
+            new_note.RaiseLower = note.RaiseLower
+        end
+    end
+end
+
+function double_third_lower() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = down_diatonic_third(pitch_string)
+            local new_note = entry:AddNewNote()
+            new_note:SetString(pitch_string, key_sig, false)
+            new_note.RaiseLower = note.RaiseLower
+        end
+    end
+end
+
+function rotate_chord_up() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count >= 2) then
+            local note = entry:CalcLowestNote(nil)
+            local top_note = entry:CalcHighestNote(nil)
+
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+
+            while note:CalcMIDIKey() < top_note:CalcMIDIKey() do
+                pitch_string = change_octave(pitch_string, 1)
+                note:SetString(pitch_string, key_sig, false)
+            end
+        end
+    end
+end
+
+function rotate_chord_down() 
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count >= 2) then
+            local note = entry:CalcHighestNote(nil)
+            local bottom_note = entry:CalcLowestNote(nil)
+
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+
+            while note:CalcMIDIKey() > bottom_note:CalcMIDIKey() do
+                pitch_string = change_octave(pitch_string, -1)
+                note:SetString(pitch_string, key_sig, false)
+            end
+        end
+    end
+end
+
+function string_harmonics_touch_3() 
+    local ran = false
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            ran = true
+
+            delete_circle_articulation(entry)
+
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = change_octave(pitch_string, -2)
+
+            local new_note = entry:AddNewNote()
+            new_note:SetString(pitch_string, key_sig, false)
+        
+            note:SetString(down_diatonic_third(pitch_string), key_sig, false)
+        
+            if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 4) then
+                local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 4
+                note.RaiseLower = note.RaiseLower + error
+            end
+        
+            local notehead = finale.FCNoteheadMod()
+            notehead:EraseAt(new_note)
+            notehead.CustomChar = 79
+            notehead.Resize = 110
+            notehead:SaveAt(new_note)
+        end
+    end
+    if not ran then
+        local dialog = finale.FCCustomWindow()
+        local str = finale.FCString()
+        str.LuaString = "String Harmonics 5th - Sounding Pitch"
+        dialog:SetTitle(str)
+        local static = dialog:CreateStatic(0, 0)
+        str.LuaString = "No eligible notes to create a harmonic"
+        static:SetText(str)
+        dialog:CreateHorizontalLine(0, 16, 390)
+        dialog:CreateOkButton()
+        dialog:ExecuteModal(nil)
+    end
+end
+
+function string_harmonics_touch_4() 
+    local ran = false
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            ran = true
+
+            delete_circle_articulation(entry)
+            
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = change_octave(pitch_string, -2)
+            note:SetString(pitch_string, key_sig, false)
+            local new_note = entry:AddNewNote()
+        
+            new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
+        
+            if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
+                local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
+                new_note.RaiseLower = new_note.RaiseLower - error
+            end
+        
+            local notehead = finale.FCNoteheadMod()
+            notehead:EraseAt(new_note)
+            notehead.CustomChar = 79
+            notehead.Resize = 110
+            notehead:SaveAt(new_note)
+        end
+    end
+    if not ran then
+        local dialog = finale.FCCustomWindow()
+        local str = finale.FCString()
+        str.LuaString = "String Harmonics 5th - Sounding Pitch"
+        dialog:SetTitle(str)
+        local static = dialog:CreateStatic(0, 0)
+        str.LuaString = "No eligable notes to create a harmonic"
+        static:SetText(str)
+        dialog:CreateHorizontalLine(0, 16, 390)
+        dialog:CreateOkButton()
+        dialog:ExecuteModal(nil)
+    end
+end
+
+function string_harmonics_touch_5() 
+    local ran = false
+    for entry in eachentrysaved(finenv.Region()) do
+        if (entry.Count == 1) then 
+            ran = true
+
+            delete_circle_articulation(entry)
+            
+            local note = entry:CalcLowestNote(nil)
+            local pitch_string = finale.FCString()
+            local measure = entry:GetMeasure()
+            measure_object = finale.FCMeasure()
+            measure_object:Load(measure)
+            local key_sig = measure_object:GetKeySignature()
+            note:GetString(pitch_string, key_sig, false, false)
+            pitch_string = change_octave(pitch_string, -1)
+
+            local new_note = entry:AddNewNote()
+            new_note:SetString(pitch_string, key_sig, false)
+        
+            note:SetString(down_diatonic_fifth(pitch_string), key_sig, false)
+        
+            if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 7) then
+                local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 7
+                note.RaiseLower = note.RaiseLower + error
+            end
+        
+            local notehead = finale.FCNoteheadMod()
+            notehead:EraseAt(new_note)
+            notehead.CustomChar = 79
+            notehead.Resize = 110
+            notehead:SaveAt(new_note)
+        end
+    end
+    if not ran then
+        local dialog = finale.FCCustomWindow()
+        local str = finale.FCString()
+        str.LuaString = "String Harmonics 5th - Sounding Pitch"
+        dialog:SetTitle(str)
+        local static = dialog:CreateStatic(0, 0)
+        str.LuaString = "No eligable notes to create a harmonic"
+        static:SetText(str)
+        dialog:CreateHorizontalLine(0, 16, 390)
+        dialog:CreateOkButton()
+        dialog:ExecuteModal(nil)
+    end
+end
+
+function func_0000()
+    package.path = "/Users/cgarcia/CJGit/JetStream/JetStreamConfig.lua"
+    local config = require "JetStreamConfig"
+    local dialog = finenv.UserValueInput()
+    dialog:SetTypes(
+        --hairpins
+        "Number", "NumberedList", 
+        --fonts
+        "NumberedList", "NumberedList", 
+        --Save?
+        "Boolean")
+    dialog:SetDescriptions(
+        --hairpins
+        "Cushion", "Apply To:", 
+        --fonts
+        "Notehead Font", "Page Text Font", 
+        --Save?
+        "Save Settings?")
+    dialog:SetLists(
+    nil, config.hairpin.region_or_notes,
+    config.fonts.notehead_font, config.fonts.page_text_font,
+    nil)
+    dialog:SetInitValues(
+        config.hairpin.cushion, config.hairpin.region_or_notes[1], 
+        config.fonts.notehead_font[1], config.fonts.page_text_font[1], 
+        true)
+
+    local return_values = dialog:Execute() 
+
+    if return_values ~= nil then
+        if return_values[#return_values] == true then
+            config.hairpin.cushion = return_values[1]
+            config.hairpin.region_or_notes = return_values[2]
+            config.fonts.notehead_font = return_values[3]
+            config.fonts.page_text_font = return_values[4]
+        end
+    end
+end
+
 function func_0001()
     find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("Start")
@@ -3486,6 +3879,18 @@ function func_0228()
     end
 end
 
+function func_0280()
+    string_harmonics_touch_3()
+end
+
+function func_0281()
+    string_harmonics_touch_4()
+end
+
+function func_0282()
+    string_harmonics_touch_5()
+end
+
 function func_0300()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
@@ -3664,6 +4069,46 @@ function func_0503()
         c:SetChordHorizontalPos(0)
         c:Save()
     end
+end
+
+function func_0530()
+    double_octave_higher()
+end
+
+function func_0531()
+    double_octave_lower()
+end
+
+function func_0532()
+    double_third_higher()
+end
+
+function func_0533()
+    double_third_lower()
+end
+
+function func_0534()
+    rotate_chord_up()
+end
+
+function func_0535()
+    rotate_chord_down()
+end
+
+function func_0536()
+    chord_line_delete_top()
+end
+
+function func_0537()
+    chord_line_delete_bottom()
+end
+
+function func_0538()
+    chord_line_keep_top()
+end
+
+function func_0539()
+    chord_line_keep_bottom()
 end
 
 function func_0550()
@@ -4834,49 +5279,49 @@ function func_9039()
 end
 
 function func_9040()
-    function changeoctave(pitchstring, n)
-        pitchstring.LuaString = pitchstring.LuaString:sub(1, -2) .. (tonumber(string.sub(pitchstring.LuaString, -1)) + n)
-        return pitchstring
+    function change_octave(pitch_string, n)
+        pitch_string.LuaString = pitch_string.LuaString:sub(1, -2) .. (tonumber(string.sub(pitch_string.LuaString, -1)) + n)
+        return pitch_string
     end
 
-    function updiatonicfourth(pitchstring)
+    function up_diatonic_fourth(pitch_string)
         local letters = "ABCDEFGABCDEFG"
-        local notenamepos = letters:find(pitchstring.LuaString:sub(1,1))
-        local newnote = letters:sub(notenamepos + 3, notenamepos + 3)
-        pitchstring.LuaString = newnote .. pitchstring.LuaString:sub(2)
+        local note_name_pos = letters:find(pitch_string.LuaString:sub(1,1))
+        local new_note = letters:sub(note_name_pos + 3, note_name_pos + 3)
+        pitch_string.LuaString = new_note .. pitch_string.LuaString:sub(2)
 
-        if(notenamepos >= 7) or notenamepos <= 2 then
-            pitchstring = changeoctave(pitchstring, 1)
+        if (note_name_pos >= 7) or (note_name_pos <= 2) then
+            pitch_string = change_octave(pitch_string, 1)
         end
-        return pitchstring
+        return pitch_string
     end
 
     function main() 
         for entry in eachentrysaved(finenv.Region()) do
             if (entry.Count == 1) then 
                 local note = entry:CalcLowestNote(nil)
-                local pitchstring = finale.FCString()
+                local pitch_string = finale.FCString()
                 local measure = entry:GetMeasure()
-                measureobject = finale.FCMeasure()
-                measureobject:Load(measure)
-                local keysig = measureobject:GetKeySignature()
-                note:GetString(pitchstring, keysig, false, false)
-                pitchstring = changeoctave(pitchstring, -2)
-                note:SetString(pitchstring, keysig, false)
-                local newnote = entry:AddNewNote()
+                measure_object = finale.FCMeasure()
+                measure_object:Load(measure)
+                local key_sig = measure_object:GetKeySignature()
+                note:GetString(pitch_string, key_sig, false, false)
+                pitch_string = change_octave(pitch_string, -2)
+                note:SetString(pitch_string, key_sig, false)
+                local new_note = entry:AddNewNote()
             
-                newnote:SetString(updiatonicfourth(pitchstring), keysig, false)
+                new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
             
-                if(newnote:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
-                    local error = newnote:CalcMIDIKey() - note:CalcMIDIKey() - 5
-                    newnote.RaiseLower = newnote.RaiseLower - error
+                if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
+                    local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
+                    new_note.RaiseLower = new_note.RaiseLower - error
                 end
             
                 local notehead = finale.FCNoteheadMod()
-                notehead:EraseAt(newnote)
+                notehead:EraseAt(new_note)
                 notehead.CustomChar = 79
                 notehead.Resize = 110
-                notehead:SaveAt(newnote)
+                notehead:SaveAt(new_note)
             end
         end
     end
@@ -5236,6 +5681,15 @@ if returnvalues ~= nil then
         if returnvalues[1] == "0228" then
             func_0228()
         end
+        if returnvalues[1] == "0280" then
+            func_0280()
+        end
+        if returnvalues[1] == "0281" then
+            func_0281()
+        end
+        if returnvalues[1] == "0282" then
+            func_0282()
+        end
         if returnvalues[1] == "0300" then
             func_0300()
         end
@@ -5319,6 +5773,36 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "0503" then
             func_0503()
+        end
+        if returnvalues[1] == "0530" then
+            func_0530()
+        end
+        if returnvalues[1] == "0531" then
+            func_0531()
+        end
+        if returnvalues[1] == "0532" then
+            func_0532()
+        end
+        if returnvalues[1] == "0533" then
+            func_0533()
+        end
+        if returnvalues[1] == "0534" then
+            func_0534()
+        end
+        if returnvalues[1] == "0535" then
+            func_0535()
+        end
+        if returnvalues[1] == "0536" then
+            func_0536()
+        end
+        if returnvalues[1] == "0537" then
+            func_0537()
+        end
+        if returnvalues[1] == "0538" then
+            func_0538()
+        end
+        if returnvalues[1] == "0539" then
+            func_0539()
         end
         if returnvalues[1] == "0550" then
             func_0550()
@@ -6059,7 +6543,9 @@ if returnvalues ~= nil then
             func_9040()
         end
     else
-        if returnvalues[1] == "8000" then
+        if returnvalues[1] == "0000" then
+            func_0000()
+        elseif returnvalues[1] == "8000" then
             func_8000()
         elseif returnvalues[1] == "8001" then
             func_8001()
