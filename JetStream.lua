@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "110420"
-    finaleplugin.Date = "4/11/2020"
+    finaleplugin.Version = "120420"
+    finaleplugin.Date = "4/12/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -2899,7 +2899,7 @@ function rotate_chord_down()
     end
 end
 
-function string_harmonics_touch_3() 
+function string_harmonics_touch(interval_num) 
     local ran = false
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count == 1) then 
@@ -2914,22 +2914,49 @@ function string_harmonics_touch_3()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
             note:GetString(pitch_string, key_sig, false, false)
-            pitch_string = change_octave(pitch_string, -2)
+            if (interval_num == 3) or (interval_num == 4) then
+                pitch_string = change_octave(pitch_string, -2)
+            elseif interval_num == 5 then
+                pitch_string = change_octave(pitch_string, -1)
+            end
 
             local new_note = entry:AddNewNote()
-            new_note:SetString(pitch_string, key_sig, false)
-        
-            note:SetString(down_diatonic_third(pitch_string), key_sig, false)
-        
-            if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 4) then
-                local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 4
-                note.RaiseLower = note.RaiseLower + error
+
+            if interval_num == 4 then
+                note:SetString(pitch_string, keysig, false)
+            else
+                new_note:SetString(pitch_string, key_sig, false)
+            end
+
+            new_note.Tie = note.Tie
+
+            if interval_num == 3 then
+                note:SetString(down_diatonic_third(pitch_string), key_sig, false)
+                if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 4) then
+                    local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 4
+                    note.RaiseLower = note.RaiseLower + error
+                end
+            elseif interval_num == 4 then
+                new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
+                if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
+                    local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
+                    new_note.RaiseLower = new_note.RaiseLower - error
+                end
+            elseif interval_num == 5 then
+                note:SetString(down_diatonic_fifth(pitch_string), key_sig, false)
+                if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 7) then
+                    local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 7
+                    note.RaiseLower = note.RaiseLower + error
+                end
             end
         
             local notehead = finale.FCNoteheadMod()
             notehead:EraseAt(new_note)
             notehead.CustomChar = 79
             notehead.Resize = 110
+            if(entry:GetDuration() == 4096) then
+                notehead.HorizontalPos = -4
+            end
             notehead:SaveAt(new_note)
         end
     end
@@ -2940,101 +2967,6 @@ function string_harmonics_touch_3()
         dialog:SetTitle(str)
         local static = dialog:CreateStatic(0, 0)
         str.LuaString = "No eligible notes to create a harmonic"
-        static:SetText(str)
-        dialog:CreateHorizontalLine(0, 16, 390)
-        dialog:CreateOkButton()
-        dialog:ExecuteModal(nil)
-    end
-end
-
-function string_harmonics_touch_4() 
-    local ran = false
-    for entry in eachentrysaved(finenv.Region()) do
-        if (entry.Count == 1) then 
-            ran = true
-
-            delete_circle_articulation(entry)
-            
-            local note = entry:CalcLowestNote(nil)
-            local pitch_string = finale.FCString()
-            local measure = entry:GetMeasure()
-            measure_object = finale.FCMeasure()
-            measure_object:Load(measure)
-            local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
-            pitch_string = change_octave(pitch_string, -2)
-            note:SetString(pitch_string, key_sig, false)
-            local new_note = entry:AddNewNote()
-        
-            new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
-        
-            if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
-                local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
-                new_note.RaiseLower = new_note.RaiseLower - error
-            end
-        
-            local notehead = finale.FCNoteheadMod()
-            notehead:EraseAt(new_note)
-            notehead.CustomChar = 79
-            notehead.Resize = 110
-            notehead:SaveAt(new_note)
-        end
-    end
-    if not ran then
-        local dialog = finale.FCCustomWindow()
-        local str = finale.FCString()
-        str.LuaString = "String Harmonics 5th - Sounding Pitch"
-        dialog:SetTitle(str)
-        local static = dialog:CreateStatic(0, 0)
-        str.LuaString = "No eligable notes to create a harmonic"
-        static:SetText(str)
-        dialog:CreateHorizontalLine(0, 16, 390)
-        dialog:CreateOkButton()
-        dialog:ExecuteModal(nil)
-    end
-end
-
-function string_harmonics_touch_5() 
-    local ran = false
-    for entry in eachentrysaved(finenv.Region()) do
-        if (entry.Count == 1) then 
-            ran = true
-
-            delete_circle_articulation(entry)
-            
-            local note = entry:CalcLowestNote(nil)
-            local pitch_string = finale.FCString()
-            local measure = entry:GetMeasure()
-            measure_object = finale.FCMeasure()
-            measure_object:Load(measure)
-            local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
-            pitch_string = change_octave(pitch_string, -1)
-
-            local new_note = entry:AddNewNote()
-            new_note:SetString(pitch_string, key_sig, false)
-        
-            note:SetString(down_diatonic_fifth(pitch_string), key_sig, false)
-        
-            if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 7) then
-                local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 7
-                note.RaiseLower = note.RaiseLower + error
-            end
-        
-            local notehead = finale.FCNoteheadMod()
-            notehead:EraseAt(new_note)
-            notehead.CustomChar = 79
-            notehead.Resize = 110
-            notehead:SaveAt(new_note)
-        end
-    end
-    if not ran then
-        local dialog = finale.FCCustomWindow()
-        local str = finale.FCString()
-        str.LuaString = "String Harmonics 5th - Sounding Pitch"
-        dialog:SetTitle(str)
-        local static = dialog:CreateStatic(0, 0)
-        str.LuaString = "No eligable notes to create a harmonic"
         static:SetText(str)
         dialog:CreateHorizontalLine(0, 16, 390)
         dialog:CreateOkButton()
@@ -3949,15 +3881,15 @@ function func_0228()
 end
 
 function func_0280()
-    string_harmonics_touch_3()
+    string_harmonics_touch(3)
 end
 
 function func_0281()
-    string_harmonics_touch_4()
+    string_harmonics_touch(4)
 end
 
 function func_0282()
-    string_harmonics_touch_5()
+    string_harmonics_touch(5)
 end
 
 function func_0300()
