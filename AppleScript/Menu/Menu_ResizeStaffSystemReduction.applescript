@@ -6,7 +6,7 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on chooseMenuItem(theMenuName, theMenuItemName)
+on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -20,18 +20,27 @@ on chooseMenuItem(theMenuName, theMenuItemName)
 		tell application "System Events"
 			tell process appName
 				set activeMenuItem to enabled of menu item theMenuItemName of menu theMenuName of menu bar 1
-				if activeMenuItem is true then
+				if activeMenuItem then
 					click menu item theMenuItemName of menu theMenuName of menu bar 1
-					return true
+					set getItem to enabled of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+					if getItem then
+						click menu item theSubMenuItem of menu theMenuItemName of menu bar 1
+						return true
+					else
+						error
+					end if
 				else
 					error
 				end if
 			end tell
 		end tell
+		return true
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
+		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.
+
+Please select a region and try again.")
 		return false
 	end try
-end chooseMenuItem
+end subMenuItem
 
-chooseMenuItem("Page Layout", "Resize Staff System (system reduction)É")
+subMenuItem("Tools", "Page Layout", "Resize Staff System (system reduction)É")
