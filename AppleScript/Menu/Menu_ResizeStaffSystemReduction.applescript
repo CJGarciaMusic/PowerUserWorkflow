@@ -36,9 +36,7 @@ on subMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 		end tell
 		return true
 	on error
-		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.
-
-Please select a region and try again.")
+		errorMessage(theMenuItemName & " - " & theSubMenuItem & " wasn't able to be selected.\n\nPlease select a region and try again.")
 		return false
 	end try
 end subMenuItem
