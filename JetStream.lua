@@ -2954,8 +2954,12 @@ function string_harmonics_touch(interval_num)
             notehead:EraseAt(new_note)
             notehead.CustomChar = 79
             notehead.Resize = 110
-            if(entry:GetDuration() == 4096) then
-                notehead.HorizontalPos = -4
+            if (entry:GetDuration() == 4096) then
+                if note:CalcStemUp() == true then
+                    notehead.horizontalpos = 5
+                else
+                    notehead.horizontalpos = -5
+                end
             end
             notehead:SaveAt(new_note)
         end
@@ -5073,20 +5077,27 @@ function func_9000()
         if (entry.Count ~= 2) then 
             goto continue 
         end
-        local highestnote = entry:CalcHighestNote(nil)
-        local lowestnote = entry:CalcLowestNote(nil)
-        local mididiff = highestnote:CalcMIDIKey() - lowestnote:CalcMIDIKey()
-        if ((mididiff ~= 12 and mididiff > 7) or (3 > mididiff) or (mididiff == 6)) then 
+        local highest_note = entry:CalcHighestNote(nil)
+        local lowest_note = entry:CalcLowestNote(nil)
+        local midi_diff = highest_note:CalcMIDIKey() - lowest_note:CalcMIDIKey()
+        if (midi_diff ~= 12 and midi_diff > 7) or (3 > midi_diff or midi_diff == 6) then 
             goto continue 
         end
         local notehead = finale.FCNoteheadMod()
-        notehead:EraseAt(lowestnote)
-        notehead:EraseAt(highestnote)
+        notehead:EraseAt(lowest_note)
+        notehead:EraseAt(highest_note)
         notehead.CustomChar = 79
         notehead.Resize = 110
-        notehead:SaveAt(highestnote)
+        if entry:GetDuration() == 4096 then
+            if note:CalcStemUp() == true then
+                notehead.horizontalpos = 5
+            else
+                notehead.horizontalpos = -5
+            end
+        end
+        notehead:SaveAt(highest_note)
         ::continue::
-     end
+    end
 end
 
 function func_9001()
