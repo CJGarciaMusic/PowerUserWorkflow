@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "120420"
-    finaleplugin.Date = "4/12/2020"
+    finaleplugin.Version = "190420"
+    finaleplugin.Date = "4/19/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -3270,7 +3270,7 @@ function dynamics_decrease_dynamic()
     decreaseDynamic()
 end
 
-function func_0100()
+function articulations_accent()
     findArticulation(1, 62, "")
     if full_art_table[1] == 0 then
         createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3279,7 +3279,7 @@ function func_0100()
     end
 end
 
-function func_0101()
+function articulations_marcato()
     findArticulation(2, 94, "")
     if full_art_table[2] == 0 then
         createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3288,7 +3288,7 @@ function func_0101()
     end
 end
 
-function func_0102()
+function articulations_staccato()
     findArticulation(3, 46, "")
     if full_art_table[3] == 0 then
         createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3297,7 +3297,7 @@ function func_0102()
     end
 end
 
-function func_0103()
+function articulations_tenuto()
     findArticulation(4, 45, "")
     if full_art_table[4] == 0 then
         createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
@@ -3306,7 +3306,7 @@ function func_0103()
     end
 end
 
-function func_0104()
+function articulations_staccatissimo()
     findArticulation(5, 171, "")
     if full_art_table[5] == 0 then
         createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3315,7 +3315,7 @@ function func_0104()
     end
 end
 
-function func_0105()
+function articulations_wedge()
     findArticulation(6, 174, "")
     if full_art_table[6] == 0 then
         createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3324,7 +3324,7 @@ function func_0105()
     end
 end
 
-function func_0106()
+function articulations_tremolo_single()
     findArticulation(7, 33, "")
     if full_art_table[7] == 0 then
         createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3337,7 +3337,7 @@ function func_0106()
     end
 end
 
-function func_0107()
+function articulations_tremolo_double()
     findArticulation(8, 64, "")
     if full_art_table[8] == 0 then
         createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3350,7 +3350,7 @@ function func_0107()
     end
 end
 
-function func_0108()
+function articulations_tremolo_triple()
     findArticulation(9, 190, "")
     if full_art_table[9] == 0 then
         createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3363,7 +3363,7 @@ function func_0108()
     end
 end
 
-function func_0109()
+function articulations_fermata()
     findArticulation(10, 85, "")
     if full_art_table[10] == 0 then
         createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
@@ -3372,7 +3372,7 @@ function func_0109()
     end
 end
 
-function func_0110()
+function articulations_closed()
     findArticulation(11, 43, "")
     if full_art_table[11] == 0 then
         createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3381,7 +3381,7 @@ function func_0110()
     end
 end
 
-function func_0111()
+function articulations_open()
     findArticulation(12, 111, "")
     if full_art_table[12] == 0 then
         createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3390,7 +3390,7 @@ function func_0111()
     end
 end
 
-function func_0112()
+function articulations_upbow()
     findArticulation(13, 178, "")
     if full_art_table[13] == 0 then
         createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3399,7 +3399,7 @@ function func_0112()
     end
 end
 
-function func_0113()
+function articulations_downbow()
     findArticulation(14, 179, "")
     if full_art_table[14] == 0 then
         createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3408,7 +3408,7 @@ function func_0113()
     end
 end
 
-function func_0114()
+function articulations_trill()
     findArticulation(15, 217, "")
     if full_art_table[15] == 0 then
         createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3417,7 +3417,7 @@ function func_0114()
     end
 end
 
-function func_0115()
+function articulations_mordent_up()
     findArticulation(16, 109, "")
     if full_art_table[16] == 0 then
         createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3426,7 +3426,7 @@ function func_0115()
     end
 end
 
-function func_0116()
+function articulations_mordent_down()
     findArticulation(17, 77, "")
     if full_art_table[17] == 0 then
         createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3435,7 +3435,7 @@ function func_0116()
     end
 end
 
-function func_0117()
+function articulations_turn()
     findArticulation(18, 84, "")
     if full_art_table[18] == 0 then
         createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3444,7 +3444,7 @@ function func_0117()
     end
 end
 
-function func_0118()
+function articulations_roll()
     findArticulation(19, 103, "")
     if full_art_table[19] == 0 then
         createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3453,7 +3453,7 @@ function func_0118()
     end
 end
 
-function func_0119()
+function articulations_fall_short()
     findArticulation(20, 152, "Broadway Copyist")
     if full_art_table[20] == 0 then
         createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
@@ -3462,7 +3462,7 @@ function func_0119()
     end
 end
 
-function func_0120()
+function articulations_fall_long()
     findArticulation(21, 92, "Broadway Copyist")
     if full_art_table[21] == 0 then
         createArticulation(21, 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
@@ -3471,7 +3471,7 @@ function func_0120()
     end
 end
 
-function func_0121()
+function articulations_rip_straight()
     findArticulation(22, 151, "Broadway Copyist")
     if full_art_table[22] == 0 then
         createArticulation(22, 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
@@ -3480,7 +3480,7 @@ function func_0121()
     end
 end
 
-function func_0122()
+function articulations_rip_long()
     findArticulation(23, 149, "Broadway Copyist")
     if full_art_table[23] == 0 then
         createArticulation(23, 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
@@ -3489,7 +3489,7 @@ function func_0122()
     end
 end
 
-function func_0123()
+function articulations_scoop_short()
     findArticulation(24, 155, "Broadway Copyist")
     if full_art_table[24] == 0 then
         createArticulation(24, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
@@ -3498,7 +3498,7 @@ function func_0123()
     end
 end
 
-function func_0124()
+function articulations_doit()
     findArticulation(25, 243, "Broadway Copyist")
     if full_art_table[25] == 0 then
         createArticulation(25, 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
@@ -3507,11 +3507,11 @@ function func_0124()
     end
 end
 
-function func_0125()
+function articulations_split_articulations()
     split_articulations()
 end
 
-function func_0126()
+function articulations_delete_articulations()
     for noteentry in eachentrysaved(finenv.Region()) do
         local a = finale.FCArticulation()
         a:SetNoteEntry(noteentry)
@@ -3521,7 +3521,7 @@ function func_0126()
     end
 end
 
-function func_0127()
+function articulations_lv()
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(26, 105, font_name)
     if full_art_table[26] == 0 then
@@ -3531,7 +3531,7 @@ function func_0127()
     end
 end
 
-function func_0128(noteentry)
+function articulations_left_bracket_1(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(27, 193, font_name)
     if full_art_table[27] == 0 then
@@ -3542,7 +3542,7 @@ function func_0128(noteentry)
     end
 end
             
-function func_0129(noteentry)
+function articulations_left_bracket_2(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(28, 170, font_name)
     if full_art_table[28] == 0 then
@@ -3553,7 +3553,7 @@ function func_0129(noteentry)
     end
 end
 
-function func_0130(noteentry)
+function articulations_left_bracket_3(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(29, 163, font_name)
     if full_art_table[29] == 0 then
@@ -3564,7 +3564,7 @@ function func_0130(noteentry)
     end
 end
 
-function func_0131(noteentry)
+function articulations_left_bracket_4(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(30, 162, font_name)
     if full_art_table[30] == 0 then
@@ -3575,25 +3575,25 @@ function func_0131(noteentry)
     end
 end
 
-function func_0132()
+function articulations_left_brackets()
     for noteentry in eachentrysaved(finenv.Region()) do
         local note_range = noteentry:CalcDisplacementRange()
         if (note_range == 1) then
-            func_0128(noteentry)
+            articulations_left_bracket_1(noteentry)
         end
         if (note_range == 2) or (note_range == 3) then
-            func_0129(noteentry)
+            articulations_left_bracket_2(noteentry)
         end
         if (note_range == 4) or (note_range == 5) then
-            func_0130(noteentry)
+            articulations_left_bracket_3(noteentry)
         end
         if (note_range == 6) or (note_range == 7) then
-            func_0131(noteentry) 
+            articulations_left_bracket_4(noteentry) 
         end
     end
 end
 
-function func_0133(noteentry)
+function articulations_right_bracket_1(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(31, 176, font_name)
     if full_art_table[31] == 0 then
@@ -3604,7 +3604,7 @@ function func_0133(noteentry)
     end
 end
             
-function func_0134(noteentry)
+function articulations_right_bracket_2(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(32, 164, font_name)
     if full_art_table[32] == 0 then
@@ -3615,7 +3615,7 @@ function func_0134(noteentry)
     end
 end
 
-function func_0135(noteentry)
+function articulations_right_bracket_3(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(33, 166, font_name)
     if full_art_table[33] == 0 then
@@ -3626,7 +3626,7 @@ function func_0135(noteentry)
     end
 end
 
-function func_0136(noteentry)
+function articulations_right_bracket_4(noteentry)
     local font_name = getUsedFontName("Engraver Font Set")
     findArticulation(34, 165, font_name)
     if full_art_table[34] == 0 then
@@ -3637,25 +3637,25 @@ function func_0136(noteentry)
     end
 end
 
-function func_0137()
+function articulations_right_brackets()
     for noteentry in eachentrysaved(finenv.Region()) do
         local note_range = noteentry:CalcDisplacementRange()
         if (note_range == 1) then
-            func_0133(noteentry)
+            articulations_right_bracket_1(noteentry)
         end
         if (note_range == 2) or (note_range == 3) then
-            func_0134(noteentry)
+            articulations_right_bracket_2(noteentry)
         end
         if (note_range == 4) or (note_range == 5) then
-            func_0135(noteentry)
+            articulations_right_bracket_3(noteentry)
         end
         if (note_range == 6) or (note_range == 7) then
-            func_0136(noteentry) 
+            articulations_right_bracket_4(noteentry) 
         end
     end
 end
 
-function func_0138()
+function articulations_combo_tenuto_staccato()
     findArticulation(35, 248, "")
     if full_art_table[35] == 0 then
         createArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3664,7 +3664,7 @@ function func_0138()
     end
 end
 
-function func_0139()
+function articulations_combo_accent_staccato()
     findArticulation(36, 249, "")
     if full_art_table[36] == 0 then
         createArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3673,7 +3673,7 @@ function func_0139()
     end
 end
 
-function func_0140()
+function articulations_combo_accent_tenuto()
     findArticulation(37, 138, "")
     if full_art_table[37] == 0 then
         local font_name = getUsedFontName("Engraver Font Set")
@@ -3686,7 +3686,7 @@ function func_0140()
     end
 end
 
-function func_0141()
+function articulations_combo_marcato_staccato()
     findArticulation(38, 172, "")
     if full_art_table[38] == 0 then
         createArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
@@ -3695,7 +3695,7 @@ function func_0141()
     end
 end
 
-function func_0142()
+function articulations_tremolo_z()
     findArticulation(39, 122, "")
     if full_art_table[39] == 0 then
         createArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
@@ -3704,7 +3704,7 @@ function func_0142()
     end
 end
 
-function func_0143()
+function articulations_delete_duplicate_articulations()
     for noteentry in eachentrysaved(finenv.Region()) do
         delete_duplicate_articulations(noteentry)
     end
@@ -5277,7 +5277,7 @@ function func_9038()
     simple_art_to_exp_swap("\"", "Caesura", 34)
 end
 
-function func_9039()
+function articulations_delete_articulations_from_rests()
     for e in eachentrysaved(finenv.Region()) do
     if e:IsRest() then
             if e:GetArticulationFlag() then
@@ -5503,112 +5503,112 @@ if returnvalues ~= nil then
             dynamics_decrease_dynamic()
         end
         if returnvalues[1] == "0100" then
-            func_0100()
+            articulations_accent()
         end
         if returnvalues[1] == "0101" then
-            func_0101()
+            articulations_marcato()
         end
         if returnvalues[1] == "0102" then
-            func_0102()
+            articulations_staccato()
         end
         if returnvalues[1] == "0103" then
-            func_0103()
+            articulations_tenuto()
         end
         if returnvalues[1] == "0104" then
-            func_0104()
+            articulations_staccatissimo()
         end
         if returnvalues[1] == "0105" then
-            func_0105()
+            articulations_wedge()
         end
         if returnvalues[1] == "0106" then
-            func_0106()
+            articulations_tremolo_single()
         end
         if returnvalues[1] == "0107" then
-            func_0107()
+            articulations_tremolo_double()
         end
         if returnvalues[1] == "0108" then
-            func_0108()
+            articulations_tremolo_triple()
         end
         if returnvalues[1] == "0109" then
-            func_0109()
+            articulations_fermata()
         end
         if returnvalues[1] == "0110" then
-            func_0110()
+            articulations_closed()
         end
         if returnvalues[1] == "0111" then
-            func_0111()
+            articulations_open()
         end
         if returnvalues[1] == "0112" then
-            func_0112()
+            articulations_upbow()
         end
         if returnvalues[1] == "0113" then
-            func_0113()
+            articulations_downbow()
         end
         if returnvalues[1] == "0114" then
-            func_0114()
+            articulations_trill()
         end
         if returnvalues[1] == "0115" then
-            func_0115()
+            articulations_mordent_up()
         end
         if returnvalues[1] == "0116" then
-            func_0116()
+            articulations_mordent_down()
         end
         if returnvalues[1] == "0117" then
-            func_0117()
+            articulations_turn()
         end
         if returnvalues[1] == "0118" then
-            func_0118()
+            articulations_roll()
         end
         if returnvalues[1] == "0119" then
-            func_0119()
+            articulations_fall_short()
         end
         if returnvalues[1] == "0120" then
-            func_0120()
+            articulations_fall_long()
         end
         if returnvalues[1] == "0121" then
-            func_0121()
+            articulations_rip_straight()
         end
         if returnvalues[1] == "0122" then
-            func_0122()
+            articulations_rip_long()
         end
         if returnvalues[1] == "0123" then
-            func_0123()
+            articulations_scoop_short()
         end
         if returnvalues[1] == "0124" then
-            func_0124()
+            articulations_doit()
         end
         if returnvalues[1] == "0125" then
-            func_0125()
+            articulations_split_articulations()
         end
         if returnvalues[1] == "0126" then
-            func_0126()
+            articulations_delete_articulations()
         end
         if returnvalues[1] == "0127" then
-            func_0127()
+            articulations_lv()
         end
         if returnvalues[1] == "0132" then
-            func_0132()
+            articulations_left_brackets()
         end
         if returnvalues[1] == "0137" then
-            func_0137()
+            articulations_right_brackets()
         end
         if returnvalues[1] == "0138" then
-            func_0138()
+            articulations_combo_tenuto_staccato()
         end
         if returnvalues[1] == "0139" then
-            func_0139()
+            articulations_combo_accent_staccato()
         end
         if returnvalues[1] == "0140" then
-            func_0140()
+            articulations_combo_accent_tenuto()
         end
         if returnvalues[1] == "0141" then
-            func_0141()
+            articulations_combo_marcato_staccato()
         end
         if returnvalues[1] == "0142" then
-            func_0142()
+            articulations_tremolo_z()
         end
         if returnvalues[1] == "0143" then
-            func_0143()
+            articulations_delete_duplicate_articulations()
         end
         if returnvalues[1] == "0200" then
             func_0200()
@@ -6553,7 +6553,7 @@ if returnvalues ~= nil then
             func_9038()
         end
         if returnvalues[1] == "9039" then
-            func_9039()
+            articulations_delete_articulations_from_rests()
         end
         if returnvalues[1] == "9040" then
             func_9040()
