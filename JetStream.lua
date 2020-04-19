@@ -2922,11 +2922,7 @@ function string_harmonics_touch(interval_num)
 
             local new_note = entry:AddNewNote()
 
-            if interval_num == 4 then
-                note:SetString(pitch_string, keysig, false)
-            else
-                new_note:SetString(pitch_string, key_sig, false)
-            end
+            new_note:SetString(pitch_string, key_sig, false)
 
             new_note.Tie = note.Tie
 
@@ -2937,10 +2933,10 @@ function string_harmonics_touch(interval_num)
                     note.RaiseLower = note.RaiseLower + error
                 end
             elseif interval_num == 4 then
-                new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
+                note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
                 if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
                     local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
-                    new_note.RaiseLower = new_note.RaiseLower - error
+                    note.RaiseLower = note.RaiseLower + error
                 end
             elseif interval_num == 5 then
                 note:SetString(down_diatonic_fifth(pitch_string), key_sig, false)
@@ -2954,11 +2950,12 @@ function string_harmonics_touch(interval_num)
             notehead:EraseAt(new_note)
             notehead.CustomChar = 79
             notehead.Resize = 110
-            if (entry:GetDuration() == 4096) then
-                if note:CalcStemUp() == true then
-                    notehead.horizontalpos = 5
+            if entry:GetDuration() == 4096 then
+                finenv.UI():AlertInfo(tostring(entry:CalcStemUp()), "Stem up?")
+                if entry:CalcStemUp() == false then
+                    notehead.HorizontalPos = 5
                 else
-                    notehead.horizontalpos = -5
+                    notehead.HorizontalPos = -5
                 end
             end
             notehead:SaveAt(new_note)
@@ -5089,10 +5086,10 @@ function func_9000()
         notehead.CustomChar = 79
         notehead.Resize = 110
         if entry:GetDuration() == 4096 then
-            if note:CalcStemUp() == true then
-                notehead.horizontalpos = 5
+            if entry:CalcStemUp() == false then
+                notehead.HorizontalPos = 5
             else
-                notehead.horizontalpos = -5
+                notehead.HorizontalPos = -5
             end
         end
         notehead:SaveAt(highest_note)
@@ -5328,11 +5325,18 @@ function func_9040()
                     local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
                     new_note.RaiseLower = new_note.RaiseLower - error
                 end
-            
+                
                 local notehead = finale.FCNoteheadMod()
                 notehead:EraseAt(new_note)
                 notehead.CustomChar = 79
                 notehead.Resize = 110
+                if entry:GetDuration() >= 4096 then
+                    if entry:CalcStemUp() == true then
+                        notehead.HorizontalPos = 5
+                    else
+                        notehead.HorizontalPos = -5
+                    end
+                end
                 notehead:SaveAt(new_note)
             end
         end
