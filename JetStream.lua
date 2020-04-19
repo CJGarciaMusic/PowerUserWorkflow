@@ -3710,51 +3710,51 @@ function articulations_delete_duplicate_articulations()
     end
 end
 
-function func_0200()
+function noteheads_x_circle()
     changeNoteheads("Maestro Percussion", 120, 88, 88, 88)
 end
 
-function func_0201()
+function noteheads_cross_circle()
     changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
 end
 
-function func_0202()
+function noteheads_triangle_up()
     changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
 end
 
-function func_0203()
+function noteheads_triangle_down()
     changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
 end
 
-function func_0204()
+function noteheads_diamond()
     changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
 end
 
-function func_0205()
+function noteheads_ghost()
     changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
 end
 
-function func_0206()
+function noteheads_cross_stick()
     changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
 end
 
-function func_0207()
+function noteheads_small_slash()
     changeNoteheads("Maestro", 243, 124, 124, 218)
 end
 
-function func_0208()
+function noteheads_square()
     changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
 end
 
-function func_0209()
+function noteheads_rim()
     changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
 end
 
-function func_0210()
+function noteheads_no_notehead()
     changeNoteheads("Maestro", 32, 32, 32, 32)
 end
 
-function func_0211()
+function noteheads_default()
     local nm = finale.FCNoteheadMod()
     nm:SetUseCustomFont(false)
     
@@ -3837,7 +3837,7 @@ function func_0226()
     change_notehead_size(4, 75, nil)
 end
 
-function func_0227()
+function noteheads_x_diamond()
     changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
     local nm = finale.FCNoteheadMod()
     for noteentry in eachentrysaved(finenv.Region()) do
@@ -3893,7 +3893,7 @@ function func_0282()
     string_harmonics_touch(5)
 end
 
-function func_0300()
+function lyrics_clear_lyrics()
     for noteentry in eachentry(finenv.Region()) do
         local cs = finale.FCChorusSyllable()
         cs:SetNoteEntry(noteentry)
@@ -3952,7 +3952,7 @@ function func_0301()
     end
 end
 
-function  func_0302()
+function  lyrics_delete_lyrics()
     local confirm_delete = finenv.UI():AlertYesNo("This will completely remove all Verse, Chorus and Section Lyrics from the current document. (To erase lyrics from the score without removing them from the file, use Clear Lyrics.) Are you sure you want to proceed?", "WARNING!")
 
     if confirm_delete == 2 then
@@ -5069,7 +5069,7 @@ function func_8007()
     playback_type("Region", "Region", "Region") 
 end
 
-function func_9000()
+function noteheads_harmonics()
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count ~= 2) then 
             goto continue 
@@ -5611,40 +5611,40 @@ if returnvalues ~= nil then
             articulations_delete_duplicate_articulations()
         end
         if returnvalues[1] == "0200" then
-            func_0200()
+            noteheads_x_circle()
         end
         if returnvalues[1] == "0201" then
-            func_0201()
+            noteheads_cross_circle()
         end
         if returnvalues[1] == "0202" then
-            func_0202()
+            noteheads_triangle_up()
         end
         if returnvalues[1] == "0203" then
-            func_0203()
+            noteheads_triangle_down()
         end
         if returnvalues[1] == "0204" then
-            func_0204()
+            noteheads_diamond()
         end
         if returnvalues[1] == "0205" then
-            func_0205()
+            noteheads_ghost()
         end
         if returnvalues[1] == "0206" then
-            func_0206()
+            noteheads_cross_stick()
         end
         if returnvalues[1] == "0207" then
-            func_0207()
+            noteheads_small_slash()
         end
         if returnvalues[1] == "0208" then
-            func_0208()
+            noteheads_square()
         end
         if returnvalues[1] == "0209" then
-            func_0209()
+            noteheads_rim()
         end
         if returnvalues[1] == "0210" then
-            func_0210()
+            noteheads_no_notehead()
         end
         if returnvalues[1] == "0211" then
-            func_0211()
+            noteheads_default()
         end
         if returnvalues[1] == "0212" then
             func_0212()
@@ -5692,7 +5692,7 @@ if returnvalues ~= nil then
             func_0226()
         end
         if returnvalues[1] == "0227" then
-            func_0227()
+            noteheads_x_diamond()
         end
         if returnvalues[1] == "0228" then
             func_0228()
@@ -5707,13 +5707,13 @@ if returnvalues ~= nil then
             func_0282()
         end
         if returnvalues[1] == "0300" then
-            func_0300()
+            lyrics_clear_lyrics()
         end
         if returnvalues[1] == "0301" then
             func_0301()
         end
         if returnvalues[1] == "0302" then
-            func_0302()
+            lyrics_delete_lyrics()
         end
         if returnvalues[1] == "0400" then
             func_0400()
@@ -6421,7 +6421,7 @@ if returnvalues ~= nil then
             func_1201()
         end
         if returnvalues[1] == "9000" then
-            func_9000()
+            noteheads_harmonics()
         end
         if returnvalues[1] == "9001" then
             func_9001()
