@@ -3014,112 +3014,112 @@ function func_0000()
     end
 end
 
-function func_0001()
+function dynamics_ffff_start()
     find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("Start")
 end
 
-function func_0002()    
+function dynamics_fff_start()    
     find_dynamic({236}, first_expression, "fortississimo (velocity = 114)")
     dynamic_region("Start")
 end
 
-function func_0003()    
+function dynamics_ff_start()    
     find_dynamic({196}, first_expression, "fortissimo (velocity = 101)")
     dynamic_region("Start")
 end
 
-function func_0004()
+function dynamics_f_start()
     find_dynamic({102}, first_expression, "forte (velocity = 88)")
     dynamic_region("Start")
 end
 
-function func_0005()    
+function dynamics_mf_start()    
     find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)")
     dynamic_region("Start")
 end
 
-function func_0006()    
+function dynamics_mp_start()    
     find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)")
     dynamic_region("Start")
 end
 
-function func_0007()    
+function dynamics_p_start()    
     find_dynamic({112}, first_expression, "piano (velocity = 49)")
     dynamic_region("Start")
 end
 
-function func_0008()
+function dynamics_pp_start()
     find_dynamic({185}, first_expression, "pianissimo (velocity = 36)")
     dynamic_region("Start")
 end
 
-function func_0009()    
+function dynamics_ppp_start()    
     find_dynamic({184}, first_expression, "pianississimo (velocity = 23)")
     dynamic_region("Start")
 end
 
-function func_0010()    
+function dynamics_pppp_start()    
     find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)")
     dynamic_region("Start")
 end
 
-function func_0011()
+function dynamics_fp_start()
     find_dynamic({234}, first_expression, "forte piano")
     dynamic_region("Start")
 end
 
-function func_0012()
+function dynamics_fz_start()
     find_dynamic({90}, first_expression, "forzando")
     dynamic_region("Start")
 end
 
-function func_0013()
+function dynamics_n_start()
     findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
     dynamic_region("Start")
 end
 
-function func_0014()
+function dynamics_rf_start()
     find_dynamic({142, 102}, first_expression, "rinforte")
     dynamic_region("Start")
 end
 
-function func_0015()
+function dynamics_rfz_start()
     find_dynamic({142, 90}, first_expression, "rinforzando")
     dynamic_region("Start")
 end
 
-function func_0016()
+function dynamics_sf_start()
     find_dynamic({83}, first_expression, "sforzando")
     dynamic_region("Start")
 end
 
-function func_0017()
+function dynamics_sffz_start()
     find_dynamic({141}, first_expression, "sforzato")
     dynamic_region("Start")
 end
 
-function func_0018()
+function dynamics_sfp_start()
     find_dynamic({130}, first_expression, "sforzato piano")
     dynamic_region("Start")
 end
 
-function func_0019()
+function dynamics_sfpp_start()
     find_dynamic({182}, first_expression, "sforzato pianissimo")
     dynamic_region("Start")
 end
 
-function func_0020()
+function dynamics_sfz_start()
     find_dynamic({167}, first_expression, "sforzato")
     dynamic_region("Start")
 end
 
-function func_0021()
+function dynamics_sfzp_start()
     find_dynamic({167, 112}, first_expression, "sforzando piano")
     dynamic_region("Start")
 end
 
-function func_0022()
+function dynamics_crescendo()
     deleteHairpins()
     local music_region = finenv.Region()
     local range_settings = {}
@@ -3130,7 +3130,7 @@ function func_0022()
     end
 end
 
-function func_0023()
+function dynamics_decrescendo()
     deleteHairpins()
     local music_region = finenv.Region()
     local range_settings = {}
@@ -3141,132 +3141,132 @@ function func_0023()
     end
 end
 
-function func_0024()
+function dynamics_mess_di_voce_up()
     setSwellRange(finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
 end
 
-function func_0025()
+function dynamics_mess_di_voce_down()
     setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
 end
 
-function func_0026()
+function dynamics_delete_hairpins()
     deleteHairpins()
 end
 
-function func_0027()
+function dynamics_delete_dynamics()
     deleteDynamics()
 end
 
-function func_0028()
+function dynamics_ffff_end()
     find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("End")
 end
 
-function func_0029()    
+function dynamics_fff_end()    
     find_dynamic({236}, first_expression, "fortississimo (velocity = 114)")
     dynamic_region("End")
 end
 
-function func_0030()    
+function dynamics_ff_end()    
     find_dynamic({196}, first_expression, "fortissimo (velocity = 101)")
     dynamic_region("End")
 end
 
-function func_0031()
+function dynamics_f_end()
     find_dynamic({102}, first_expression, "forte (velocity = 88)")
     dynamic_region("End")
 end
 
-function func_0032()    
+function dynamics_mf_end()    
     find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)")
     dynamic_region("End")
 end
 
-function func_0033()    
+function dynamics_mp_end()    
     find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)")
     dynamic_region("End")
 end
 
-function func_0034()    
+function dynamics_p_end()    
     find_dynamic({112}, first_expression, "piano (velocity = 49)")
     dynamic_region("End")
 end
 
-function func_0035()
+function dynamics_pp_end()
     find_dynamic({185}, first_expression, "pianissimo (velocity = 36)")
     dynamic_region("End")
 end
 
-function func_0036()    
+function dynamics_ppp_end()    
     find_dynamic({184}, first_expression, "pianississimo (velocity = 23)")
     dynamic_region("End")
 end
 
-function func_0037()    
+function dynamics_pppp_end()    
     find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)")
     dynamic_region("End")
 end
 
-function func_0038()
+function dynamics_fp_end()
     find_dynamic({234}, first_expression, "forte piano")
     dynamic_region("End")
 end
 
-function func_0039()
+function dynamics_fz_end()
     find_dynamic({90}, first_expression, "forzando")
     dynamic_region("End")
 end
 
-function func_0040()
+function dynamics_n_end()
     findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
     dynamic_region("End")
 end
 
-function func_0041()
+function dynamics_rf_end()
     find_dynamic({142, 102}, first_expression, "rinforte")
     dynamic_region("End")
 end
 
-function func_0042()
+function dynamics_rfz_end()
     find_dynamic({142, 90}, first_expression, "rinforzando")
     dynamic_region("End")
 end
 
-function func_0043()
+function dynamics_sf_end()
     find_dynamic({83}, first_expression, "sforzando")
     dynamic_region("End")
 end
 
-function func_0044()
+function dynamics_sffz_end()
     find_dynamic({141}, first_expression, "sforzato")
     dynamic_region("End")
 end
 
-function func_0045()
+function dynamics_sfp_end()
     find_dynamic({130}, first_expression, "sforzato piano")
     dynamic_region("End")
 end
 
-function func_0046()
+function dynamics_sfpp_end()
     find_dynamic({182}, first_expression, "sforzato pianissimo")
     dynamic_region("End")
 end
 
-function func_0047()
+function dynamics_sfz_end()
     find_dynamic({167}, first_expression, "sforzato")
     dynamic_region("End")
 end
 
-function func_0048()
+function dynamics_sfzp_end()
     find_dynamic({167, 112}, first_expression, "sforzando piano")
     dynamic_region("End")
 end
 
-function func_0049()
+function dynamics_increase_dynamic()
     increaseDynamic()
 end
 
-function func_0050()
+function dynamics_decrease_dynamic()
     decreaseDynamic()
 end
 
@@ -4310,12 +4310,12 @@ function func_0711()
     applyStaffStyle("Collapse")
 end
 
-function func_0800()
+function dynamics_cresc()
     findTextExpression({"cresc."}, text_expression, "crescendo", 4)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0801()
+function dynamics_dim()
     findTextExpression({"dim."}, text_expression, "diminuendo", 4)
     getFirstNoteInRegionText("Start")
 end
@@ -4340,37 +4340,37 @@ function func_0805()
     getFirstNoteInRegionText("Start")
 end
 
-function func_0806()
+function dynamics_piu_f()
     findTextExpression({"più", 102}, text_expression, "piu forte", 1)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0807()
+function dynamics_pp_sub()
     findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0808()
+function dynamics_p_sub()
     findTextExpression({112, "sub."}, text_expression, "piano subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0809()
+function dynamics_mp_sub()
     findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0810()
+function dynamics_mf_sub()
     findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0811()
+function dynamics_f_sub()
     findTextExpression({102, "sub."}, text_expression, "forte subito", 1)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0812()
+function dynamics_ff_sub()
     findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1)
     getFirstNoteInRegionText("Start")
 end
@@ -5353,154 +5353,154 @@ local returnvalues = dialog:Execute()
 if returnvalues ~= nil then
     if finenv.Region():IsEmpty() ~= true then
         if returnvalues[1] == "0001" then
-            func_0001()
+            dynamics_ffff_start()
         end
         if returnvalues[1] == "0002" then
-            func_0002()
+            dynamics_fff_start()
         end
         if returnvalues[1] == "0003" then
-            func_0003()
+            dynamics_ff_start()
         end
         if returnvalues[1] == "0004" then
-            func_0004()
+            dynamics_f_start()
         end
         if returnvalues[1] == "0005" then
-            func_0005()
+            dynamics_mf_start()
         end
         if returnvalues[1] == "0006" then
-            func_0006()
+            dynamics_mp_start()
         end
         if returnvalues[1] == "0007" then
-            func_0007()
+            dynamics_p_start()
         end
         if returnvalues[1] == "0008" then
-            func_0008()
+            dynamics_pp_start()
         end
         if returnvalues[1] == "0009" then
-            func_0009()
+            dynamics_ppp_start()
         end
         if returnvalues[1] == "0010" then
-            func_0010()
+            dynamics_pppp_start()
         end
         if returnvalues[1] == "0011" then
-            func_0011()
+            dynamics_fp_start()
         end
         if returnvalues[1] == "0012" then
-            func_0012()
+            dynamics_fz_start()
         end
         if returnvalues[1] == "0013" then
-            func_0013()
+            dynamics_n_start()
         end
         if returnvalues[1] == "0014" then
-            func_0014()
+            dynamics_rf_start()
         end
         if returnvalues[1] == "0015" then
-            func_0015()
+            dynamics_rfz_start()
         end
         if returnvalues[1] == "0016" then
-            func_0016()
+            dynamics_sf_start()
         end
         if returnvalues[1] == "0017" then
-            func_0017()
+            dynamics_sffz_start()
         end
         if returnvalues[1] == "0018" then
-            func_0018()
+            dynamics_sfp_start()
         end
         if returnvalues[1] == "0019" then
-            func_0019()
+            dynamics_sfpp_start()
         end
         if returnvalues[1] == "0020" then
-            func_0020()
+            dynamics_sfz_start()
         end
         if returnvalues[1] == "0021" then
-            func_0021()
+            dynamics_sfzp_start()
         end
         if returnvalues[1] == "0022" then
-            func_0022()
+            dynamics_crescendo()
         end
         if returnvalues[1] == "0023" then
-            func_0023()
+            dynamics_decrescendo()
         end
         if returnvalues[1] == "0024" then
-            func_0024()
+            dynamics_mess_di_voce_up()
         end
         if returnvalues[1] == "0025" then
-            func_0025()
+            dynamics_mess_di_voce_down()
         end
         if returnvalues[1] == "0026" then
-            func_0026()
+            dynamics_delete_hairpins()
         end
         if returnvalues[1] == "0027" then
-            func_0027()
+            dynamics_delete_dynamics()
         end
         if returnvalues[1] == "0028" then
-            func_0028()
+            dynamics_ffff_end()
         end
         if returnvalues[1] == "0029" then
-            func_0029()
+            dynamics_fff_end()
         end
         if returnvalues[1] == "0030" then
-            func_0030()
+            dynamics_ff_end()
         end
         if returnvalues[1] == "0031" then
-            func_0031()
+            dynamics_f_end()
         end
         if returnvalues[1] == "0032" then
-            func_0032()
+            dynamics_mf_end()
         end
         if returnvalues[1] == "0033" then
-            func_0033()
+            dynamics_mp_end()
         end
         if returnvalues[1] == "0034" then
-            func_0034()
+            dynamics_p_end()
         end
         if returnvalues[1] == "0035" then
-            func_0035()
+            dynamics_pp_end()
         end
         if returnvalues[1] == "0036" then
-            func_0036()
+            dynamics_ppp_end()
         end
         if returnvalues[1] == "0037" then
-            func_0037()
+            dynamics_pppp_end()
         end
         if returnvalues[1] == "0038" then
-            func_0038()
+            dynamics_fp_end()
         end
         if returnvalues[1] == "0039" then
-            func_0039()
+            dynamics_fz_end()
         end
         if returnvalues[1] == "0040" then
-            func_0040()
+            dynamics_n_end()
         end
         if returnvalues[1] == "0041" then
-            func_0041()
+            dynamics_rf_end()
         end
         if returnvalues[1] == "0042" then
-            func_0042()
+            dynamics_rfz_end()
         end
         if returnvalues[1] == "0043" then
-            func_0043()
+            dynamics_sf_end()
         end
         if returnvalues[1] == "0044" then
-            func_0044()
+            dynamics_sffz_end()
         end
         if returnvalues[1] == "0045" then
-            func_0045()
+            dynamics_sfp_end()
         end
         if returnvalues[1] == "0046" then
-            func_0046()
+            dynamics_sfpp_end()
         end
         if returnvalues[1] == "0047" then
-            func_0047()
+            dynamics_sfz_end()
         end
         if returnvalues[1] == "0048" then
-            func_0048()
+            dynamics_sfzp_end()
         end
         if returnvalues[1] == "0049" then
-            func_0049()
+            dynamics_increase_dynamic()
         end
         if returnvalues[1] == "0050" then
-            func_0050()
+            dynamics_decrease_dynamic()
         end
         if returnvalues[1] == "0100" then
             func_0100()
@@ -5947,10 +5947,10 @@ if returnvalues ~= nil then
             func_0711()
         end
         if returnvalues[1] == "0800" then
-            func_0800()
+            dynamics_cresc()
         end
         if returnvalues[1] == "0801" then
-            func_0801()
+            dynamics_dim()
         end
         if returnvalues[1] == "0802" then
             func_0802()
@@ -5965,25 +5965,25 @@ if returnvalues ~= nil then
             func_0805()
         end
         if returnvalues[1] == "0806" then
-            func_0806()
+            dynamics_piu_f()
         end
         if returnvalues[1] == "0807" then
-            func_0807()
+            dynamics_pp_sub()
         end
         if returnvalues[1] == "0808" then
-            func_0808()
+            dynamics_p_sub()
         end
         if returnvalues[1] == "0809" then
-            func_0809()
+            dynamics_mp_sub()
         end
         if returnvalues[1] == "0810" then
-            func_0810()
+            dynamics_mf_sub()
         end
         if returnvalues[1] == "0811" then
-            func_0811()
+            dynamics_f_sub()
         end
         if returnvalues[1] == "0812" then
-            func_0812()
+            dynamics_ff_sub()
         end
         if returnvalues[1] == "0813" then
             func_0813()
