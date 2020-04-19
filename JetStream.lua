@@ -4113,55 +4113,55 @@ function func_0539()
     chord_line_keep_bottom()
 end
 
-function func_0550()
+function meter_2_4()
    set_time(2, 1024) 
 end
 
-function func_0551()
+function meter_2_2()
     set_time(2, 2048) 
 end
 
-function func_0552()
+function meter_3_2()
     set_time(3, 2048) 
 end
 
-function func_0553()
+function meter_3_4()
     set_time(3, 1024) 
 end
 
-function func_0554()
+function meter_3_8()
     set_time(1, 1536) 
 end
 
-function func_0555()
+function meter_4_4()
     set_time(4, 1024) 
 end
 
-function func_0556()
+function meter_5_4()
     set_time(5, 1024) 
 end
 
-function func_0557()
+function meter_5_8()
     set_time(5, 512) 
 end
 
-function func_0558()
+function meter_6_8()
     set_time(2, 1536) 
 end
 
-function func_0559()
+function meter_7_8()
     set_time(7, 512) 
 end
 
-function func_0560()
+function meter_9_8()
     set_time(3, 1536) 
 end
 
-function func_0561()
+function meter_12_8()
     set_time(4, 1536) 
 end
 
-function func_0562()
+function meter_6_4()
     set_time(6, 1024) 
 end
 
@@ -5097,7 +5097,7 @@ function noteheads_harmonics()
     end
 end
 
-function func_9001()
+function meter_beam_together()
     local count = 1
     for noteentry in eachentrysaved(finenv.Region()) do
         local nextentry = noteentry:Next()
@@ -5821,43 +5821,43 @@ if returnvalues ~= nil then
             func_0539()
         end
         if returnvalues[1] == "0550" then
-            func_0550()
+            meter_2_4()
         end
         if returnvalues[1] == "0551" then
-            func_0551()
+            meter_2_2()
         end
         if returnvalues[1] == "0552" then
-            func_0552()
+            meter_3_2()
         end
         if returnvalues[1] == "0553" then
-            func_0553()
+            meter_3_4()
         end
         if returnvalues[1] == "0554" then
-            func_0554()
+            meter_3_8()
         end
         if returnvalues[1] == "0555" then
-            func_0555()
+            meter_4_4()
         end
         if returnvalues[1] == "0556" then
-            func_0556()
+            meter_5_4()
         end
         if returnvalues[1] == "0557" then
-            func_0557()
+            meter_5_8()
         end
         if returnvalues[1] == "0558" then
-            func_0558()
+            meter_6_8()
         end
         if returnvalues[1] == "0559" then
-            func_0559()
+            meter_7_8()
         end
         if returnvalues[1] == "0560" then
-            func_0560()
+            meter_9_8()
         end
         if returnvalues[1] == "0561" then
-            func_0561()
+            meter_12_8()
         end
         if returnvalues[1] == "0562" then
-            func_0562()
+            meter_6_4()
         end
         if returnvalues[1] == "0600" then
             func_0600()
@@ -6424,7 +6424,7 @@ if returnvalues ~= nil then
             noteheads_harmonics()
         end
         if returnvalues[1] == "9001" then
-            func_9001()
+            meter_beam_together()
         end
         if returnvalues[1] == "9002" then
             func_9002()
