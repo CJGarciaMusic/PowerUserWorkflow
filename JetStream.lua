@@ -3962,67 +3962,67 @@ function  lyrics_delete_lyrics()
     end
 end
 
-function func_0400()
+function barline_right_invisible()
     barline_change(0, false)
 end
 
-function func_0401()
+function barline_right_single()
     barline_change(1, false)
 end
 
-function func_0402()
+function barline_right_double()
     barline_change(2, false)
 end
 
-function func_0403()
+function barline_right_dashed()
     barline_change(3, false)
 end
 
-function func_0404()
+function barline_right_thick()
     barline_change(4, false)
 end
 
-function func_0405()
+function barline_right_final()
     barline_change(5, false)
 end
 
-function func_0406()
+function barline_right_tick()
     barline_change(6, false)
 end
 
-function func_0407()
+function barline_right_custom()
     barline_change(7, false)
 end
 
-function func_0408()
+function barline_bookend_invisible()
     barline_change(0, true)
 end
 
-function func_0409()
+function barline_bookend_single()
     barline_change(1, true)
 end
 
-function func_0410()
+function barline_bookend_double()
     barline_change(2, true)
 end
 
-function func_0411()
+function barline_bookend_dashed()
     barline_change(3, true)
 end
 
-function func_0412()
+function barline_bookend_thick()
     barline_change(4, true)
 end
 
-function func_0413()
+function barline_bookend_final()
     barline_change(5, true)
 end
 
-function func_0414()
+function barline_bookend_tick()
     barline_change(6, true)
 end
 
-function func_0415()
+function barline_bookend_custom()
     barline_change(7, true)
 end
 
@@ -4035,19 +4035,19 @@ function func_0416()
     end    
 end
 
-function func_0417()
+function barline_add_at_double_rehearsal_letter()
     find_double_barlines("Letter")
 end
 
-function func_0418()
+function barline_add_at_double_rehearsal_number()
     find_double_barlines("Number")
 end
 
-function func_0419()
+function barline_add_at_double_rehearsal_measure()
     find_double_barlines("Measure")
 end
 
-function func_0420()
+function barline_clear_rehearsal()
     delete_rehearsal_marks()
 end
 
@@ -5716,67 +5716,67 @@ if returnvalues ~= nil then
             lyrics_delete_lyrics()
         end
         if returnvalues[1] == "0400" then
-            func_0400()
+            barline_right_invisible()
         end
         if returnvalues[1] == "0401" then
-            func_0401()
+            barline_right_single()
         end
         if returnvalues[1] == "0402" then
-            func_0402()
+            barline_right_double()
         end
         if returnvalues[1] == "0403" then
-            func_0403()
+            barline_right_dashed()
         end
         if returnvalues[1] == "0404" then
-            func_0404()
+            barline_right_thick()
         end
         if returnvalues[1] == "0405" then
-            func_0405()
+            barline_right_final()
         end
         if returnvalues[1] == "0406" then
-            func_0406()
+            barline_right_tick()
         end
         if returnvalues[1] == "0407" then
-            func_0407()
+            barline_right_custom()
         end
         if returnvalues[1] == "0408" then
-            func_0408()
+            barline_bookend_invisible()
         end
         if returnvalues[1] == "0409" then
-            func_0409()
+            barline_bookend_single()
         end
         if returnvalues[1] == "0410" then
-            func_0410()
+            barline_bookend_double()
         end
         if returnvalues[1] == "0411" then
-            func_0411()
+            barline_bookend_dashed()
         end
         if returnvalues[1] == "0412" then
-            func_0412()
+            barline_bookend_thick()
         end
         if returnvalues[1] == "0413" then
-            func_0413()
+            barline_bookend_final()
         end
         if returnvalues[1] == "0414" then
-            func_0414()
+            barline_bookend_tick()
         end
         if returnvalues[1] == "0415" then
-            func_0415()
+            barline_bookend_custom()
         end
         if returnvalues[1] == "0416" then
             func_0416()
         end
         if returnvalues[1] == "0417" then
-            func_0417()
+            barline_add_at_double_rehearsal_letter()
         end
         if returnvalues[1] == "0418" then
-            func_0418()
+            barline_add_at_double_rehearsal_number()
         end
         if returnvalues[1] == "0419" then
-            func_0419()
+            barline_add_at_double_rehearsal_measure()
         end
         if returnvalues[1] == "0420" then
-            func_0420()
+            barline_clear_rehearsal()
         end
         if returnvalues[1] == "0500" then
             func_0500()
