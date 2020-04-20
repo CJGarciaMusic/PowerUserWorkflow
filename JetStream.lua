@@ -4165,39 +4165,39 @@ function meter_6_4()
     set_time(6, 1024) 
 end
 
-function func_0600()
+function smartshape_trill()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
     createBeatBasedSL(finale.SMARTSHAPE_TRILL, true)
 end
 
-function func_0601()
+function smartshape_trill_extension()
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILL)
     deleteBeatSmartShape(finale.SMARTSHAPE_TRILLEXT)
     createBeatBasedSL(finale.SMARTSHAPE_TRILLEXT, true)
 end
 
-function func_0602()
+function smartshape_dashed_line()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINE)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINE, true)
 end
 
-function func_0603()
+function smartshape_solid_line()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINE)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINE, true)
 end
 
-function func_0604()
+function smartshape_tab_slide()
     deleteEntrySmartShape(finale.SMARTSHAPE_TABSLIDE)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_TABSLIDE)
 end
 
-function func_0605()
+function smartshape_glissando()
     deleteEntrySmartShape(finale.SMARTSHAPE_GLISSANDO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_GLISSANDO)
 end
 
-function func_0606()
+function smartshape_dashed_bracket()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN, true)
@@ -4209,48 +4209,48 @@ function func_0607()
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN, true)
 end
 
-function func_0608()
+function smartshape_custom()
     deleteBeatSmartShape(finale.SMARTSHAPE_CUSTOM)
     createBeatBasedSL(finale.SMARTSHAPE_CUSTOM, true)
 end
 
-function func_0609()
+function smartshape_slur_solid()
     deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
     deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_SLURAUTO)
 end
 
-function func_0610()
+function smartshape_slur_dashed()
     deleteEntrySmartShape(finale.SMARTSHAPE_SLURAUTO)
     deleteEntrySmartShape(finale.SMARTSHAPE_DASHEDSLURAUTO)
     setFirstLastNoteRangeEntry(finale.SMARTSHAPE_DASHEDSLURAUTO)
 end
 
-function func_0611()
+function smartshape_dashed_double_bracket()
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN2, true)
 end
 
-function func_0612()
+function smartshape_solid_double_bracket()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN2)
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN2)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN2, true)
 end
 
-function func_0613()
+function smartshape_8va()
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEUP, true)
 end
 
-function func_0614()
+function smartshape_15ma()
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEUP)
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEUP)
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEUP, true)
 end
 
-function func_0615()
+function smartshape_8vb()
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN, false)
@@ -5287,64 +5287,6 @@ function articulations_delete_articulations_from_rests()
     end
 end
 
-function func_9040()
-    function change_octave(pitch_string, n)
-        pitch_string.LuaString = pitch_string.LuaString:sub(1, -2) .. (tonumber(string.sub(pitch_string.LuaString, -1)) + n)
-        return pitch_string
-    end
-
-    function up_diatonic_fourth(pitch_string)
-        local letters = "ABCDEFGABCDEFG"
-        local note_name_pos = letters:find(pitch_string.LuaString:sub(1,1))
-        local new_note = letters:sub(note_name_pos + 3, note_name_pos + 3)
-        pitch_string.LuaString = new_note .. pitch_string.LuaString:sub(2)
-
-        if (note_name_pos >= 7) or (note_name_pos <= 2) then
-            pitch_string = change_octave(pitch_string, 1)
-        end
-        return pitch_string
-    end
-
-    function main() 
-        for entry in eachentrysaved(finenv.Region()) do
-            if (entry.Count == 1) then 
-                local note = entry:CalcLowestNote(nil)
-                local pitch_string = finale.FCString()
-                local measure = entry:GetMeasure()
-                measure_object = finale.FCMeasure()
-                measure_object:Load(measure)
-                local key_sig = measure_object:GetKeySignature()
-                note:GetString(pitch_string, key_sig, false, false)
-                pitch_string = change_octave(pitch_string, -2)
-                note:SetString(pitch_string, key_sig, false)
-                local new_note = entry:AddNewNote()
-            
-                new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
-            
-                if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
-                    local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
-                    new_note.RaiseLower = new_note.RaiseLower - error
-                end
-                
-                local notehead = finale.FCNoteheadMod()
-                notehead:EraseAt(new_note)
-                notehead.CustomChar = 79
-                notehead.Resize = 110
-                if entry:GetDuration() >= 4096 then
-                    if entry:CalcStemUp() == true then
-                        notehead.HorizontalPos = 5
-                    else
-                        notehead.HorizontalPos = -5
-                    end
-                end
-                notehead:SaveAt(new_note)
-            end
-        end
-    end
-
-    main()
-end
-
 dialog:SetTypes("String")
 dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
@@ -5860,52 +5802,52 @@ if returnvalues ~= nil then
             meter_6_4()
         end
         if returnvalues[1] == "0600" then
-            func_0600()
+            smartshape_trill()
         end
         if returnvalues[1] == "0601" then
-            func_0601()
+            smartshape_trill_extension()
         end
         if returnvalues[1] == "0602" then
-            func_0602()
+            smartshape_dashed_line()
         end
         if returnvalues[1] == "0603" then
-            func_0603()
+            smartshape_solid_line()
         end
         if returnvalues[1] == "0604" then
-            func_0604()
+            smartshape_tab_slide()
         end
         if returnvalues[1] == "0605" then
-            func_0605()
+            smartshape_glissando()
         end
         if returnvalues[1] == "0606" then
-            func_0606()
+            smartshape_dashed_bracket()
         end
         if returnvalues[1] == "0607" then
             func_0607()
         end
         if returnvalues[1] == "0608" then
-            func_0608()
+            smartshape_custom()
         end
         if returnvalues[1] == "0609" then
-            func_0609()
+            smartshape_slur_solid()
         end
         if returnvalues[1] == "0610" then
-            func_0610()
+            smartshape_slur_dashed()
         end
         if returnvalues[1] == "0611" then
-            func_0611()
+            smartshape_dashed_double_bracket()
         end
         if returnvalues[1] == "0612" then
-            func_0612()
+            smartshape_solid_double_bracket()
         end
         if returnvalues[1] == "0613" then
-            func_0613()
+            smartshape_8va()
         end
         if returnvalues[1] == "0614" then
-            func_0614()
+            smartshape_15ma()
         end
         if returnvalues[1] == "0615" then
-            func_0615()
+            smartshape_8vb()
         end
         if returnvalues[1] == "0616" then
             func_0616()
@@ -6554,9 +6496,6 @@ if returnvalues ~= nil then
         end
         if returnvalues[1] == "9039" then
             articulations_delete_articulations_from_rests()
-        end
-        if returnvalues[1] == "9040" then
-            func_9040()
         end
     else
         if returnvalues[1] == "0000" then
