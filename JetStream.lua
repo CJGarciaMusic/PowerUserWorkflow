@@ -4203,7 +4203,7 @@ function smartshape_dashed_bracket()
     createBeatBasedSL(finale.SMARTSHAPE_DASHLINEDOWN, true)
 end
 
-function func_0607()
+function smartshape_solid_bracket()
     deleteBeatSmartShape(finale.SMARTSHAPE_DASHLINEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_SOLIDLINEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_SOLIDLINEDOWN, true)
@@ -4256,57 +4256,57 @@ function smartshape_8vb()
     createBeatBasedSL(finale.SMARTSHAPE_OCTAVEDOWN, false)
 end
 
-function func_0616()
+function smartshape_15mb()
     deleteBeatSmartShape(finale.SMARTSHAPE_OCTAVEDOWN)
     deleteBeatSmartShape(finale.SMARTSHAPE_TWOOCTAVEDOWN)
     createBeatBasedSL(finale.SMARTSHAPE_TWOOCTAVEDOWN, false)
 end
 
-function func_0700()
+function staff_styles_slash()
     applyStaffStyle("Slash Notation")
 end
 
-function func_0701()
+function staff_styles_rhythm()
     applyStaffStyle("Rythmic Notation")
 end
 
-function func_0702()
+function staff_styles_blank_ly1()
     applyStaffStyle("Blank Notation: Layer 1")
 end
 
-function func_0703()
+function staff_styles_blank_rests_ly1()
     applyStaffStyle("Blank Notation with Rests: Layer 1")
 end
 
-function func_0704()
+function staff_styles_blank_ly4()
     applyStaffStyle("Blank Notation: Layer 4")
 end
 
-function func_0705()
+function staff_styles_blank_rests_ly4()
     applyStaffStyle("Blank Notation with Rests: Layer 4")
 end
 
-function func_0706()
+function staff_styles_blank_all()
     applyStaffStyle("Blank Notation: All Layers")
 end
 
-function func_0707()
+function staff_styles_repeat_one()
     applyStaffStyle("One Bar Repeat")
 end
 
-function func_0708()
+function staff_styles_repeat_two()
     applyStaffStyle("Two Bar Repeat")
 end
 
-function func_0709()
+function staff_styles_stemless()
     applyStaffStyle("Stemless Notes")
 end
 
-function func_0710()
+function staff_styles_cutaway()
     applyStaffStyle("Cutaway")
 end
 
-function func_0711()
+function staff_styles_collapse()
     applyStaffStyle("Collapse")
 end
 
@@ -4320,22 +4320,22 @@ function dynamics_dim()
     getFirstNoteInRegionText("Start")
 end
 
-function func_0802()
+function expressions_espr()
     findTextExpression({"espr."}, text_expression, "espressivo", 4)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0803()
+function expressions_poco()
     findTextExpression({"poco"}, text_expression, "poco", 4)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0804()
+function expressions_pocoapoco()
     findTextExpression({"poco a poco"}, text_expression, "poco a poco", 4)
     getFirstNoteInRegionText("Start")
 end
 
-function func_0805()
+function expressions_molto()
     findTextExpression({"molto"}, text_expression, "molto", 4)
     getFirstNoteInRegionText("Start")
 end
@@ -4375,267 +4375,267 @@ function dynamics_ff_sub()
     getFirstNoteInRegionText("Start")
 end
 
-function func_0813()
+function expressions_solo()
     findTextExpression({"solo"}, text_expression, "solo", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0814()
+function expressions_unis()
     findTextExpression({"unis."}, text_expression, "unis", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0815()
+function expressions_tutti()
     findTextExpression({"tutti"}, text_expression, "tutti", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0816()
+function expressions_loco()
     findTextExpression({"loco"}, text_expression, "loco", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0817()
+function expressions_breath()
     findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
     getFirstNoteInRegionText("End")
 end
 
-function func_0818()
+function expressions_caesura()
     findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
     getFirstNoteInRegionText("Region End")
 end
 
-function func_0819()
+function expressions_glasses()
     findSpecialExpression({59}, {"Broadway Copyist", 8191, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0820()
+function expressions_mute()
     findTextExpression({"mute"}, text_expression, "mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0821()
+function expressions_open()
     findTextExpression({"open"}, text_expression, "open", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0822()
+function expressions_cup_mute()
     findTextExpression({"Cup Mute"}, text_expression, "Cup Mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0823()
+function expressions_straight_mute()
     findTextExpression({"Straight Mute"}, text_expression, "Straight Mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0824()
+function expressions_one()
     findTextExpression({"1°"}, text_expression, "1°", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0825()
+function expressions_two()
     findTextExpression({"2°"}, text_expression, "2°", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0826()
+function expressions_a2()
     findTextExpression({"a2"}, text_expression, "a2", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0827()
+function expressions_a3()
     findTextExpression({"a3"}, text_expression, "a3", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0828()
+function expressions_a4()
     findTextExpression({"a4"}, text_expression, "a4", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0829()
+function expressions_arco()
     findTextExpression({"arco"}, text_expression, "arco", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0830()
+function expressions_pizz()
     findTextExpression({"pizz."}, text_expression, "pizz.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0831()
+function expressions_spicc()
     findTextExpression({"spicc."}, text_expression, "spicc.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0832()
+function expressions_col_lengo()
     findTextExpression({"col legno"}, text_expression, "col legno", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0833()
+function expressions_con_sord()
     findTextExpression({"con sord."}, text_expression, "con sord", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0834()
+function expressions_ord()
     findTextExpression({"ord."}, text_expression, "ord.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0835()
+function expressions_sul_pont()
     findTextExpression({"sul pont."}, text_expression, "sul pont.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0836()
+function expressions_sul_tasto()
     findTextExpression({"sul tasto"}, text_expression, "sul tasto", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0837()
+function expressions_senza_sord()
     findTextExpression({"senza sord."}, text_expression, "senza sord.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0838()
+function expressions_trem()
     findTextExpression({"trem."}, text_expression, "trem.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0839()
+function expressions_half_pizz()
     findTextExpression({"½ pizz. ½ arco"}, text_expression, "half pizz. half arco", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0840()
+function expressions_half_trem()
     findTextExpression({"½ trem. ½ ord."}, text_expression, "half trem. half ord.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0841()
+function expressions_mallet_BD_hard()
     findSpecialExpression({100}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, hard", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0842()
+function expressions_mallet_BD_medium()
     findSpecialExpression({115}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, medium", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0843()
+function expressions_mallet_BD_soft()
     findSpecialExpression({97}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, soft", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0844()
+function expressions_mallet_brass()
     findSpecialExpression({106}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Brass Mallet", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0845()
+function expressions_mallet_sticks()
     findSpecialExpression({103}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Sticks", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0846()
+function expressions_mallet_timp_hard()
     findSpecialExpression({101}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0847()
+function expressions_mallet_timp_medium()
     findSpecialExpression({119}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0848()
+function expressions_mallet_timp_soft()
     findSpecialExpression({113}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0849()
+function expressions_mallet_timp_wood()
     findSpecialExpression({114}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0850()
+function expressions_mallet_xylo_hard()
     findSpecialExpression({117}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, hard", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0851()
+function expressions_mallet_xylo_medium()
     findSpecialExpression({121}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, medium", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0852()
+function expressions_mallet_xylo_soft()
     findSpecialExpression({116}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, soft", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0853()
+function expressions_mallet_yarn_med()
     findSpecialExpression({112}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0854()
+function expressions_mallet_yarn_soft()
     findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0855()
+function expressions_div()
     findTextExpression({"div."}, text_expression, "div.", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0856()
+function expressions_three()
     findTextExpression({"3°"}, text_expression, "3°", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0857()
+function expressions_four()
     findTextExpression({"4°"}, text_expression, "4°", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0858()
+function expressions_marc()
     findTextExpression({"marc."}, text_expression, "marcato", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0859()
+function expressions_stacc()
     findTextExpression({"stacc."}, text_expression, "staccato", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0860()
+function expressions_straight_jazz()
     findSpecialExpression({"[S\\T\\R\\A\\I\\G\\\\HT]"}, {"Finale Copyist Text", 4096, 14, 0}, text_expression, "Straight mute", 5)
     getFirstNoteInRegionText("Region Start")
 end
 
-function func_0900()
+function tuplet_manual()
     tuplet_options({"Placement Manual"})
 end
 
-function func_0901()
+function tuplet_stem_beam_side()
     tuplet_options({"Placement Stem"})
 end
 
-function func_0902()
+function tuplet_note_side()
     tuplet_options({"Placement Note"})
 end
 
-function func_0903()
+function tuplet_above()
     tuplet_options({"Placement Above"}) 
 end
 
-function func_0904()
+function tuplet_below()
     tuplet_options({"Placement Below"}) 
 end
 
-function func_0905()
+function tuplet_flip()
     for noteentry in eachentry(finenv.Region()) do
         local t = finale.FCTuplet()
         t:SetNoteEntry(noteentry)
@@ -4657,119 +4657,119 @@ function func_0905()
     end  
 end
 
-function func_0906()
+function tuplet_flat_on()
     tuplet_options({"Always Flat On"})
 end
 
-function func_0907()
+function tuplet_flat_off()
     tuplet_options({"Always Flat Off"}) 
 end
 
-function func_0908()
+function tuplet_avoid_staff_on()
     tuplet_options({"Avoid Staff On"})
 end
 
-function func_0909()
+function tuplet_avoid_staff_off()
     tuplet_options({"Avoid Staff Off"}) 
 end
 
-function func_0910()
+function tuplet_bracket_always()
     tuplet_options({"Bracket Always"})
 end
 
-function func_0911()
+function tuplet_unbeamed()
     tuplet_options({"Bracket Unbeamed"}) 
 end
 
-function func_0912()
+function tuplet_bracket_never_beamed()
     tuplet_options({"Bracket Never Beamed"})
 end
 
-function func_0913()
+function tuplet_increase_space()
     tuplet_options({"Increase Space"})
 end
 
-function func_0914()
+function tuplet_decrease_space()
     tuplet_options({"Decrease Space"})
 end
 
-function func_0915()
+function tuplet_increase_bracket()
     tuplet_options({"Increase Bracket"})
 end
 
-function func_0916()
+function tuplet_decrease_bracket()
     tuplet_options({"Decrease Bracket"})
 end
 
-function func_0917()
+function tuplet_shape_none()
     tuplet_options({"Shape None"})
 end
 
-function func_0918()
+function tuplet_shape_bracket()
     tuplet_options({"Shape Bracket"})
 end
 
-function func_0919()
+function tuplet_shape_slur()
     tuplet_options({"Shape Slur"})
 end
 
-function func_0920()
+function tuplet_number_none()
     tuplet_options({"Number None"})
 end
 
-function func_0921()
+function tuplet_number_regular()
     tuplet_options({"Number Regular"})
 end
 
-function func_0922()
+function tuplet_number_ratio()
     tuplet_options({"Number Ratio"})
 end
 
-function func_0923()
+function tuplet_number_ratio_last()
     tuplet_options({"Number Ratio Last"})
 end
 
-function func_0924()
+function tuplet_number_ratio_both()
     tuplet_options({"Number Ration Both"})
 end
 
-function func_0925()
+function tuplet_combo_hide_num_shape()
     tuplet_options({"Number None", "Shape None"}) 
 end
 
-function func_0926()
+function tuplet_combo_num_in_staff()
     tuplet_options({"Placement Stem", "Number Regular", "Bracket Never Beamed", "Avoid Staff Off", "Allow Horizontal Drag On"})
 end
 
-function func_0927()
+function tuplet_combo_bracket_stem_side()
     tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat Off", "Placement Stem"}) 
 end
 
-function func_0928()
+function tuplet_combo_bracket_flat_below_outside()
     tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat On", "Placement Below", "Avoid Staff On"}) 
 end
 
-function func_0929()
+function tuplet_combo_bracket_flat_maintain()
     tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat On"}) 
 end
 
-function func_0930()
+function tuplet_combo_bracket_flat_above_outside()
     tuplet_options({"Shape Bracket", "Bracket Always", "Always Flat On", "Placement Above", "Avoid Staff On"}) 
 end
 
-function func_0931()
+function tuplet_combo_number_beam_outside()
     tuplet_options({"Shape None", "Number Regular", "Placement Stem", "Avoid Staff On"}) 
 end
 
-function func_0932()
+function tuplet_combo_number_note_outside()
     tuplet_options({"Shape None", "Number Regular", "Placement Note", "Avoid Staff On"}) 
 end
 
-function func_0933()
+function tuplet_combo_number_beam_inside()
     tuplet_options({"Shape None", "Number Regular", "Placement Stem", "Avoid Staff Off"}) 
 end
 
-function func_0934()
+function tuplet_combo_number_note_inside()
     tuplet_options({"Shape None", "Number Regular", "Placement Note", "Avoid Staff Off"}) 
 end
 
@@ -4781,115 +4781,115 @@ function func_0936()
     tuplet_options({"Allow Horizontal Drag Off"}) 
 end
 
-function func_1000()
+function groups_none_on()
     staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1001()
+function groups_none_between()
     staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1002()
+function groups_none_through()
     staff_groups(finale.GRBRAC_NONE, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1003()
+function groups_plain_on()
     staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1004()
+function groups_plain_between()
     staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1005()
+function groups_plain_through()
     staff_groups(finale.GRBRAC_PLAIN, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1006()
+function groups_chorus_straight_on()
     staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1007()
+function groups_chorus_straight_between()
     staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1008()
+function groups_chorus_straight_through()
     staff_groups(finale.GRBRAC_CHORUS, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1009()
+function groups_piano_on()
     staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1010()
+function groups_piano_between()
     staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1011()
+function groups_piano_through()
     staff_groups(finale.GRBRAC_PIANO, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1012()
+function groups_reverse_chorus_on()
     staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1013()
+function groups_reverse_chorus_between()
     staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1014()
+function groups_reverse_chorus_through()
     staff_groups(finale.GRBRAC_REVERSECHORUS, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1015()
+function groups_reverse_piano_on()
     staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1016()
+function groups_reverse_piano_between()
     staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1017()
+function groups_reverse_piano_through()
     staff_groups(finale.GRBRAC_REVERSEPIANO, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1018()
+function groups_chorus_curved_on()
     staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1019()
+function groups_chorus_curved_between()
     staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1020()
+function groups_chorus_curved_through()
     staff_groups(finale.GRBRAC_CURVEDCHORUS, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1021()
+function groups_reverse_chorus_curved_on()
     staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYBETWEEN)
 end
 
-function func_1022()
+function groups_reverse_chorus_curved_between()
     staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_ONLYON)
 end
 
-function func_1023()
+function groups_reverse_chorus_curved_through()
     staff_groups(finale.GRBRAC_REVERSECURVEDCHORUS, finale.GROUPBARLINESTYLE_THROUGH)
 end
 
-function func_1024()
+function groups_sub_bracket()
     staff_groups(finale.GRBRAC_DESK, nil)
 end
 
-function func_1025()
+function groups_reverse_sub_bracket()
     staff_groups(finale.GRBRAC_REVERSEDESK, nil)
 end
 
-function func_1100()
+function key_AbM()
     change_key_signature("Major", -4)
 end
 
-function func_1101()
+function key_Abm()
     change_key_signature("Minor", -7)
 end
 
@@ -5823,7 +5823,7 @@ if returnvalues ~= nil then
             smartshape_dashed_bracket()
         end
         if returnvalues[1] == "0607" then
-            func_0607()
+            smartshape_solid_bracket()
         end
         if returnvalues[1] == "0608" then
             smartshape_custom()
@@ -5850,43 +5850,43 @@ if returnvalues ~= nil then
             smartshape_8vb()
         end
         if returnvalues[1] == "0616" then
-            func_0616()
+            smartshape_15mb()
         end
         if returnvalues[1] == "0700" then
-            func_0700()
+            staff_styles_slash()
         end
         if returnvalues[1] == "0701" then
-            func_0701()
+            staff_styles_rhythm()
         end
         if returnvalues[1] == "0702" then
-            func_0702()
+            staff_styles_blank_ly1()
         end
         if returnvalues[1] == "0703" then
-            func_0703()
+            staff_styles_blank_rests_ly1()
         end
         if returnvalues[1] == "0704" then
-            func_0704()
+            staff_styles_blank_ly4()
         end
         if returnvalues[1] == "0705" then
-            func_0705()
+            staff_styles_blank_rests_ly4()
         end
         if returnvalues[1] == "0706" then
-            func_0706()
+            staff_styles_blank_all()
         end
         if returnvalues[1] == "0707" then
-            func_0707()
+            staff_styles_repeat_one()
         end
         if returnvalues[1] == "0708" then
-            func_0708()
+            staff_styles_repeat_two()
         end
         if returnvalues[1] == "0709" then
-            func_0709()
+            staff_styles_stemless()
         end
         if returnvalues[1] == "0710" then
-            func_0710()
+            staff_styles_cutaway()
         end
         if returnvalues[1] == "0711" then
-            func_0711()
+            staff_styles_collapse()
         end
         if returnvalues[1] == "0800" then
             dynamics_cresc()
@@ -5895,16 +5895,16 @@ if returnvalues ~= nil then
             dynamics_dim()
         end
         if returnvalues[1] == "0802" then
-            func_0802()
+            expressions_espr()
         end
         if returnvalues[1] == "0803" then
-            func_0803()
+            expressions_poco()
         end
         if returnvalues[1] == "0804" then
-            func_0804()
+            expressions_pocoapoco()
         end
         if returnvalues[1] == "0805" then
-            func_0805()
+            expressions_molto()
         end
         if returnvalues[1] == "0806" then
             dynamics_piu_f()
@@ -5928,253 +5928,253 @@ if returnvalues ~= nil then
             dynamics_ff_sub()
         end
         if returnvalues[1] == "0813" then
-            func_0813()
+            expressions_solo()
         end
         if returnvalues[1] == "0814" then
-            func_0814()
+            expressions_unis()
         end
         if returnvalues[1] == "0815" then
-            func_0815()
+            expressions_tutti()
         end
         if returnvalues[1] == "0816" then
-            func_0816()
+            expressions_loco()
         end
         if returnvalues[1] == "0817" then
-            func_0817()
+            expressions_breath()
         end
         if returnvalues[1] == "0818" then
-            func_0818()
+            expressions_caesura()
         end
         if returnvalues[1] == "0819" then
-            func_0819()
+            expressions_glasses()
         end
         if returnvalues[1] == "0820" then
-            func_0820()
+            expressions_mute()
         end
         if returnvalues[1] == "0821" then
-            func_0821()
+            expressions_open()
         end
         if returnvalues[1] == "0822" then
-            func_0822()
+            expressions_cup_mute()
         end
         if returnvalues[1] == "0823" then
-            func_0823()
+            expressions_straight_mute()
         end
         if returnvalues[1] == "0824" then
-            func_0824()
+            expressions_one()
         end
         if returnvalues[1] == "0825" then
-            func_0825()
+            expressions_two()
         end
         if returnvalues[1] == "0826" then
-            func_0826()
+            expressions_a2()
         end
         if returnvalues[1] == "0827" then
-            func_0827()
+            expressions_a3()
         end
         if returnvalues[1] == "0828" then
-            func_0828()
+            expressions_a4()
         end
         if returnvalues[1] == "0829" then
-            func_0829()
+            expressions_arco()
         end
         if returnvalues[1] == "0830" then
-            func_0830()
+            expressions_pizz()
         end
         if returnvalues[1] == "0831" then
-            func_0831()
+            expressions_spicc()
         end
         if returnvalues[1] == "0832" then
-            func_0832()
+            expressions_col_lengo()
         end
         if returnvalues[1] == "0833" then
-            func_0833()
+            expressions_con_sord()
         end
         if returnvalues[1] == "0834" then
-            func_0834()
+            expressions_ord()
         end
         if returnvalues[1] == "0835" then
-            func_0835()
+            expressions_sul_pont()
         end
         if returnvalues[1] == "0836" then
-            func_0836()
+            expressions_sul_tasto()
         end
         if returnvalues[1] == "0837" then
-            func_0837()
+            expressions_senza_sord()
         end
         if returnvalues[1] == "0838" then
-            func_0838()
+            expressions_trem()
         end
         if returnvalues[1] == "0839" then
-            func_0839()
+            expressions_half_pizz()
         end
         if returnvalues[1] == "0840" then
-            func_0840()
+            expressions_half_trem()
         end
         if returnvalues[1] == "0841" then
-            func_0841()
+            expressions_mallet_BD_hard()
         end
         if returnvalues[1] == "0842" then
-            func_0842()
+            expressions_mallet_BD_medium()
         end
         if returnvalues[1] == "0843" then
-            func_0843()
+            expressions_mallet_BD_soft()
         end
         if returnvalues[1] == "0844" then
-            func_0844()
+            expressions_mallet_brass()
         end
         if returnvalues[1] == "0845" then
-            func_0845()
+            expressions_mallet_sticks()
         end
         if returnvalues[1] == "0846" then
-            func_0846()
+            expressions_mallet_timp_hard()
         end
         if returnvalues[1] == "0847" then
-            func_0847()
+            expressions_mallet_timp_medium()
         end
         if returnvalues[1] == "0848" then
-            func_0848()
+            expressions_mallet_timp_soft()
         end
         if returnvalues[1] == "0849" then
-            func_0849()
+            expressions_mallet_timp_wood()
         end
         if returnvalues[1] == "0850" then
-            func_0850()
+            expressions_mallet_xylo_hard()
         end
         if returnvalues[1] == "0851" then
-            func_0851()
+            expressions_mallet_xylo_medium()
         end
         if returnvalues[1] == "0852" then
-            func_0852()
+            expressions_mallet_xylo_soft()
         end
         if returnvalues[1] == "0853" then
-            func_0853()
+            expressions_mallet_yarn_med()
         end
         if returnvalues[1] == "0854" then
-            func_0854()
+            expressions_mallet_yarn_soft()
         end
         if returnvalues[1] == "0855" then
-            func_0855()
+            expressions_div()
         end
         if returnvalues[1] == "0856" then
-            func_0856()
+            expressions_three()
         end
         if returnvalues[1] == "0857" then
-            func_0857()
+            expressions_four()
         end
         if returnvalues[1] == "0858" then
-            func_0858()
+            expressions_marc()
         end
         if returnvalues[1] == "0859" then
-            func_0859()
+            expressions_stacc()
         end
         if returnvalues[1] == "0860" then
-            func_0860()
+            expressions_straight_jazz()
         end
         if returnvalues[1] == "0900" then
-            func_0900()
+            tuplet_manual()
         end
         if returnvalues[1] == "0901" then
-            func_0901()
+            tuplet_stem_beam()
         end
         if returnvalues[1] == "0902" then
-            func_0902()
+            tuplet_note_side()
         end
         if returnvalues[1] == "0903" then
-            func_0903()
+            tuplet_above()
         end
         if returnvalues[1] == "0904" then
-            func_0904()
+            tuplet_below()
         end
         if returnvalues[1] == "0905" then
-            func_0905()
+            tuplet_flip()
         end
         if returnvalues[1] == "0906" then
-            func_0906()
+            tuplet_flat_on()
         end
         if returnvalues[1] == "0907" then
-            func_0907()
+            tuplet_flat_off()
         end
         if returnvalues[1] == "0908" then
-            func_0908()
+            tuplet_avoid_staff_on()
         end
         if returnvalues[1] == "0909" then
-            func_0909()
+            tuplet_avoid_staff_off()
         end
         if returnvalues[1] == "0910" then
-            func_0910()
+            tuplet_bracket_always()
         end
         if returnvalues[1] == "0911" then
-            func_0911()
+            tuplet_unbeamed()
         end
         if returnvalues[1] == "0912" then
-            func_0912()
+            tuplet_bracket_never_beamed()
         end
         if returnvalues[1] == "0913" then
-            func_0913()
+            tuplet_increase_space()
         end
         if returnvalues[1] == "0914" then
-            func_0914()
+            tuplet_decrease_space()
         end
         if returnvalues[1] == "0915" then
-            func_0915()
+            tuplet_increase_bracket()
         end
         if returnvalues[1] == "0916" then
-            func_0916()
+            tuplet_decrease_bracket()
         end
         if returnvalues[1] == "0917" then
-            func_0917()
+            tuplet_shape_none()
         end
         if returnvalues[1] == "0918" then
-            func_0918()
+            tuplet_shape_bracket()
         end
         if returnvalues[1] == "0919" then
-            func_0919()
+            tuplet_shape_slur()
         end
         if returnvalues[1] == "0920" then
-            func_0920()
+            tuplet_number_none()
         end
         if returnvalues[1] == "0921" then
-            func_0921()
+            tuplet_number_regular()
         end
         if returnvalues[1] == "0922" then
-            func_0922()
+            tuplet_number_ratio()
         end
         if returnvalues[1] == "0923" then
-            func_0923()
+            tuplet_number_ratio_last()
         end
         if returnvalues[1] == "0924" then
-            func_0924()
+            tuplet_number_ratio_both()
         end
         if returnvalues[1] == "0925" then
-            func_0925()
+            tuplet_combo_hide_num_shape()
         end
         if returnvalues[1] == "0926" then
-            func_0926()
+            tuplet_combo_num_in_staff()
         end
         if returnvalues[1] == "0927" then
-            func_0927()
+            tuplet_combo_bracket_stem_side()
         end
         if returnvalues[1] == "0928" then
-            func_0928()
+            tuplet_combo_bracket_flat_below_outside()
         end
         if returnvalues[1] == "0929" then
-            func_0929()
+            tuplet_combo_bracket_flat_maintain()
         end
         if returnvalues[1] == "0930" then
-            func_0930()
+            tuplet_combo_bracket_flat_above_outside()
         end
         if returnvalues[1] == "0931" then
-            func_0931()
+            tuplet_combo_number_beam_outside()
         end
         if returnvalues[1] == "0932" then
-            func_0932()
+            tuplet_combo_number_note_outside()
         end
         if returnvalues[1] == "0933" then
-            func_0933()
+            tuplet_combo_number_beam_inside()
         end
         if returnvalues[1] == "0934" then
-            func_0934()
+            tuplet_combo_number_note_inside()
         end
         if returnvalues[1] == "0935" then
             func_0935()
@@ -6183,88 +6183,88 @@ if returnvalues ~= nil then
             func_0936()
         end
         if returnvalues[1] == "1000" then
-            func_1000()
+            groups_none_on()
         end
         if returnvalues[1] == "1001" then
-            func_1001()
+            groups_none_between()
         end
         if returnvalues[1] == "1002" then
-            func_1002()
+            groups_none_through()
         end
         if returnvalues[1] == "1003" then
-            func_1003()
+            groups_plain_on()
         end
         if returnvalues[1] == "1004" then
-            func_1004()
+            groups_plain_between()
         end
         if returnvalues[1] == "1005" then
-            func_1005()
+            groups_plain_through()
         end
         if returnvalues[1] == "1006" then
-            func_1006()
+            groups_chorus_straight_on()
         end
         if returnvalues[1] == "1007" then
-            func_1007()
+            groups_chorus_straight_between()
         end
         if returnvalues[1] == "1008" then
-            func_1008()
+            groups_chorus_straight_through()
         end
         if returnvalues[1] == "1009" then
-            func_1009()
+            groups_piano_on()
         end
         if returnvalues[1] == "1010" then
-            func_1010()
+            groups_piano_between()
         end
         if returnvalues[1] == "1011" then
-            func_1011()
+            groups_piano_through()
         end
         if returnvalues[1] == "1012" then
-            func_1012()
+            groups_reverse_chorus_on()
         end
         if returnvalues[1] == "1013" then
-            func_1013()
+            groups_reverse_chorus_between()
         end
         if returnvalues[1] == "1014" then
-            func_1014()
+            groups_reverse_chorus_through()
         end
         if returnvalues[1] == "1015" then
-            func_1015()
+            groups_reverse_piano_on()
         end
         if returnvalues[1] == "1016" then
-            func_1016()
+            groups_reverse_piano_between()
         end
         if returnvalues[1] == "1017" then
-            func_1017()
+            groups_reverse_piano_through()
         end
         if returnvalues[1] == "1018" then
-            func_1018()
+            groups_chorus_curved_on()
         end
         if returnvalues[1] == "1019" then
-            func_1019()
+            groups_chorus_curved_between()
         end
         if returnvalues[1] == "1020" then
-            func_1020()
+            groups_chorus_curved_through()
         end
         if returnvalues[1] == "1021" then
-            func_1021()
+            groups_reverse_chorus_curved_on()
         end
         if returnvalues[1] == "1022" then
-            func_1022()
+            groups_reverse_chorus_curved_between()
         end
         if returnvalues[1] == "1023" then
-            func_1023()
+            groups_reverse_chorus_curved_through()
         end
         if returnvalues[1] == "1024" then
-            func_1024()
+            groups_sub_bracket()
         end
         if returnvalues[1] == "1025" then
-            func_1025()
+            groups_reverse_sub_bracket()
         end
         if returnvalues[1] == "1100" then
-            func_1100()
+            key_AbM()
         end
         if returnvalues[1] == "1101" then
-            func_1101()
+            key_Abm()
         end
         if returnvalues[1] == "1102" then
             func_1102()
