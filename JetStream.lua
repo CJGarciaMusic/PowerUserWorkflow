@@ -1917,53 +1917,89 @@ function tuplet_options(tuplet_parameters)
     end
 end
 
-function move_markers(marker_pos)
-    local staff_sys = finale.FCStaffSystems()
-    staff_sys:LoadAll()
+-- function move_markers(marker_pos)
 
-    for sys in each(staff_sys) do
-        local exps = finale.FCExpressions()
-        local first_meas = sys:GetFirstMeasure()
-        local first_staff = sys:CalcTopStaff()
-        exps:LoadAllForItem(sys:GetFirstMeasure())
-        local distanceprefs = finale.FCDistancePrefs()
-        distanceprefs:Load(1)
-        local space_before_clef = distanceprefs:GetClefSpaceBefore()
-        for exp in each(exps) do
-            local ted = finale.FCTextExpressionDef()
-            ted:Load(exp:GetID())
-            if ted:IsAutoRehearsalMark() then
-                local first_region = finenv.Region()
-                first_region:SetStartMeasure(first_meas)
-                first_region:SetEndMeasure(first_meas)
-                first_region:SetStartStaff(first_staff)
-                first_region:SetEndStaff(first_staff)
-                for m, s in eachcell(first_region) do
-                   local cellpos = finale.FCCellPos(m, s, 0)
-                   local clef_id = cellpos:CalcClefIndex()
-                    if (clef_id == 0) or (clef_id == 5) or (clef_id == 8) or (clef_id == 13) then
-                        if marker_pos == "Clef Center" then
-                            exp:SetHorizontalPos(space_before_clef + 42)
-                        end
-                    elseif (clef_id == 3) or (clef_id == 6) or (clef_id == 7) or (clef_id == 14) then
-                        if marker_pos == "Clef Center" then
-                            exp:SetHorizontalPos(space_before_clef + 32)
-                        end
-                     elseif clef_id == 12 then
-                        if marker_pos == "Clef Center" then
-                            exp:SetHorizontalPos(space_before_clef + 16)
-                        end
-                     elseif (clef_id == 1) or (clef_id == 2) or (clef_id == 9) or (clef_id == 10) or (clef_id == 11) then
-                        if marker_pos == "Clef Center" then
-                            exp:SetHorizontalPos(space_before_clef + 31)
-                        end
-                    end
-                end
-                exp:Save()
-            end
-        end
-    end
-end
+--     function first_and_last()
+--         local selected_measures = {}
+--         local systems_selected = {}
+--         local music_region = finenv.Region()
+--         music_region:SetCurrentSelection()
+--         for i = music_region:GetStartMeasure(), music_region:GetEndMeasure() do
+--            table.insert(selected_measures, i)
+--         end
+
+--         local staff_sys = finale.FCStaffSystems()
+--         staff_sys:LoadAll()
+--         for sys in each(staff_sys) do
+--             for key, value in pairs(selected_measures) do
+--                 if sys:GetFirstMeasure() == value then
+--                     table.insert(systems_selected, sys:GetItemNo())
+--                 end
+--             end
+--         end
+--         if finenv.Region():IsEmpty() ~= nil then
+--             if (#systems_selected > 0) then
+--                 local m, n = systems_selected[1], systems_selected[#systems_selected]
+--                 return m, n
+--             else
+--                 finenv.UI():AlertInfo("Please either select a region that has rehearsal markers or deselect your region to apply to the entire document and try again.", "No Rehearsal Markers in Region")
+--                 return false
+--             end
+--         elseif (#systems_selected > 0) and (finenv.Region():IsEmpty() == nil) then
+--             local m, n = 1, staff_sys:LoadAll()
+--             return m, n
+--         end
+--     end
+--     print("blah!", first_and_last(0), first_and_last())
+--    --[[ if first_and_last() ~= false then
+--         local sys = finale.FCStaffSystem()
+--         for i = (start, last = first_and_last()) do
+--             sys:Load(i)
+--             local exps = finale.FCExpressions()
+--             local first_meas = sys:GetFirstMeasure()
+--             local first_staff = sys:CalcTopStaff()
+--             exps:LoadAllForItem(sys:GetFirstMeasure())
+--             local distanceprefs = finale.FCDistancePrefs()
+--             distanceprefs:Load(1)
+--             local space_before_clef = distanceprefs:GetClefSpaceBefore()
+--             for exp in each(exps) do
+--                 local ted = finale.FCTextExpressionDef()
+--                 ted:Load(exp:GetID())
+--                 if ted:IsAutoRehearsalMark() then
+--                     local first_region = finenv.Region()
+--                     first_region:SetStartMeasure(first_meas)
+--                     first_region:SetEndMeasure(first_meas)
+--                     first_region:SetStartStaff(first_staff)
+--                     first_region:SetEndStaff(first_staff)
+--                     for m, s in eachcell(first_region) do
+--                        local cellpos = finale.FCCellPos(m, s, 0)
+--                        local clef_id = cellpos:CalcClefIndex()
+--                         if (clef_id == 0) or (clef_id == 5) or (clef_id == 8) or (clef_id == 13) then
+--                             if marker_pos == "Clef Center" then
+--                                 exp:SetHorizontalPos(space_before_clef + 42)
+--                             end
+--                         elseif (clef_id == 3) or (clef_id == 6) or (clef_id == 7) or (clef_id == 14) then
+--                             if marker_pos == "Clef Center" then
+--                                 exp:SetHorizontalPos(space_before_clef + 32)
+--                             end
+--                          elseif clef_id == 12 then
+--                             if marker_pos == "Clef Center" then
+--                                 exp:SetHorizontalPos(space_before_clef + 16)
+--                             end
+--                          elseif (clef_id == 1) or (clef_id == 2) or (clef_id == 9) or (clef_id == 10) or (clef_id == 11) then
+--                             if marker_pos == "Clef Center" then
+--                                 exp:SetHorizontalPos(space_before_clef + 31)
+--                             end
+--                         end
+--                     end
+--                     exp:Save()
+--                 end
+--             end
+--         end
+--     end]]--
+-- end
+
+-- move_markers("Clef Center")
 
 function staff_spacing_adjust(moveBy)
     local music_region = finenv.Region()
@@ -2787,7 +2823,7 @@ function chord_line_keep_bottom()
     end
 end
 
-function double_octave_higher() 
+function double_octave(direction) 
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count == 1) then 
             local note = entry:CalcLowestNote(nil)
@@ -2797,24 +2833,7 @@ function double_octave_higher()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
             note:GetString(pitch_string, key_sig, false, false)
-            pitch_string = change_octave(pitch_string, 1)
-            local new_note = entry:AddNewNote()
-            new_note:SetString(pitch_string, key_sig, false)
-        end
-    end
-end
-
-function double_octave_lower() 
-    for entry in eachentrysaved(finenv.Region()) do
-        if (entry.Count == 1) then 
-            local note = entry:CalcLowestNote(nil)
-            local pitch_string = finale.FCString()
-            local measure = entry:GetMeasure()
-            measure_object = finale.FCMeasure()
-            measure_object:Load(measure)
-            local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
-            pitch_string = change_octave(pitch_string, -1)
+            pitch_string = change_octave(pitch_string, direction)
             local new_note = entry:AddNewNote()
             new_note:SetString(pitch_string, key_sig, false)
         end
@@ -2975,7 +2994,7 @@ function string_harmonics_touch(interval_num)
     end
 end
 
-function func_0000()
+function user_configuration()
     package.path = "/Users/cgarcia/CJGit/JetStream/JetStreamConfig.lua"
     local config = require "JetStreamConfig"
     local dialog = finenv.UserValueInput()
@@ -3767,7 +3786,7 @@ function noteheads_default()
     end
 end
 
-function func_0212()
+function reset_rests()
     for noteentry in eachentrysaved(finenv.Region()) do
         if noteentry:IsRest() then
             noteentry:SetFloatingRest(true)
@@ -3775,62 +3794,62 @@ function func_0212()
     end
 end
 
-function func_0213()
+function layers_one_reduce()
     change_notehead_size(1, 75, nil)
 end
 
-function func_0214()
+function layers_two_reduce()
     change_notehead_size(2, 75, nil)
 end
 
-function func_0215()
+function layers_three_reduce()
     change_notehead_size(3, 75, nil)
 end
 
-function func_0216()
+function layers_four_reduce()
     change_notehead_size(4, 75, nil)
 end
 
-function func_0217()
+function layers_one_melody_top()
     change_notehead_size(1, 75, true)
 end
 
-function func_0218()
+function layers_two_melody_top()
     change_notehead_size(2, 75, true)
 end
 
-function func_0219()
+function layers_three_melody_top()
     change_notehead_size(3, 75, true)
 end
 
-function func_0220()
+function layers_four_melody_top()
     change_notehead_size(4, 75, true)
 end
 
-function func_0221()
+function layers_one_melody_bottom()
     change_notehead_size(1, 75, false)
 end
 
-function func_0222()
+function layers_two_melody_bottom()
     change_notehead_size(2, 75, false)
 end
 
-function func_0223()
+function layers_three_melody_bottom()
     change_notehead_size(3, 75, false)
 end
 
-function func_0224()
+function layers_four_melody_bottom()
     change_notehead_size(4, 75, false)
 end
 
-function func_0225()
+function layers_all_reset()
     change_notehead_size(1, 100, nil)
     change_notehead_size(2, 100, nil)
     change_notehead_size(3, 100, nil)
     change_notehead_size(4, 100, nil)
 end
 
-function func_0226()
+function layers_all_reduce()
     change_notehead_size(1, 75, nil)
     change_notehead_size(2, 75, nil)
     change_notehead_size(3, 75, nil)
@@ -3858,7 +3877,7 @@ function noteheads_x_diamond()
     end
 end
 
-function func_0228()
+function noteheads_x_diamond_above_staff()
     local nm = finale.FCNoteheadMod()
     nm:SetUseCustomFont(true)
     nm.FontName = "Maestro Percussion"
@@ -3881,15 +3900,15 @@ function func_0228()
     end
 end
 
-function func_0280()
+function transform_harmonics_thrid()
     string_harmonics_touch(3)
 end
 
-function func_0281()
+function transform_harmonics_fourth()
     string_harmonics_touch(4)
 end
 
-function func_0282()
+function transform_harmonics_fifth()
     string_harmonics_touch(5)
 end
 
@@ -3913,7 +3932,7 @@ function lyrics_clear_lyrics()
     end
 end
 
-function func_0301()
+function reset_baselines_lyrics()
     local region = finenv.Region()
     local systems = finale.FCStaffSystems()
     systems:LoadAll()
@@ -4026,7 +4045,7 @@ function barline_bookend_custom()
     barline_change(7, true)
 end
 
-function func_0416()
+function reset_barlines()
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
     for measure in each(measures) do
@@ -4051,19 +4070,19 @@ function barline_clear_rehearsal()
     delete_rehearsal_marks()
 end
 
-function func_0500()
+function chords_altered_bass_after()
     alter_bass(0)
 end
 
-function func_0501()
+function chords_altered_bass_under()
     alter_bass(1)
 end
 
-function func_0502()
+function chords_altered_bass_subtext()
     alter_bass(2)
 end
 
-function func_0503()
+function reset_chord_symbol_pos()
     local chords = finale.FCChords()
     chords:LoadAllForRegion(finenv.Region())
     for c in each(chords) do
@@ -4073,43 +4092,43 @@ function func_0503()
     end
 end
 
-function func_0530()
-    double_octave_higher()
+function polyphony_add_octave_up()
+    double_octave(1)
 end
 
-function func_0531()
-    double_octave_lower()
+function polyphony_add_octave_down()
+    double_octave(-1)
 end
 
-function func_0532()
+function polyphony_add_diatonic_third_up()
     double_third_higher()
 end
 
-function func_0533()
+function polyphony_add_diatonic_third_down()
     double_third_lower()
 end
 
-function func_0534()
+function polyphony_rotate_up()
     rotate_chord_up()
 end
 
-function func_0535()
+function polyphony_rotate_down()
     rotate_chord_down()
 end
 
-function func_0536()
+function polyphony_delete_top_note()
     chord_line_delete_top()
 end
 
-function func_0537()
+function polyphony_delete_bottom_note()
     chord_line_delete_bottom()
 end
 
-function func_0538()
+function polyphony_keep_top_note()
     chord_line_keep_top()
 end
 
-function func_0539()
+function polyphony_keep_bottom_note()
     chord_line_keep_bottom()
 end
 
@@ -4773,11 +4792,11 @@ function tuplet_combo_number_note_inside()
     tuplet_options({"Shape None", "Number Regular", "Placement Note", "Avoid Staff Off"}) 
 end
 
-function func_0935()
+function tuplet_horizontal_drag_on()
     tuplet_options({"Allow Horizontal Drag On"}) 
 end
 
-function func_0936()
+function tuplet_horizontal_drag_off()
     tuplet_options({"Allow Horizontal Drag Off"}) 
 end
 
@@ -4885,135 +4904,135 @@ function groups_reverse_sub_bracket()
     staff_groups(finale.GRBRAC_REVERSEDESK, nil)
 end
 
-function key_AbM()
+function key_A_flat_major()
     change_key_signature("Major", -4)
 end
 
-function key_Abm()
+function key_A_flat_minor()
     change_key_signature("Minor", -7)
 end
 
-function func_1102()
+function key_A_major()
     change_key_signature("Major", 3)
 end
 
-function func_1103()
+function key_A_minor()
     change_key_signature("Minor", 0)
 end
 
-function func_1104()
+function key_A_sharp_minor()
     change_key_signature("Minor", 7)
 end
 
-function func_1105()
+function key_B_flat_major()
     change_key_signature("Major", -2)
 end
 
-function func_1106()
+function key_B_flat_minor()
     change_key_signature("Minor", -5)
 end
 
-function func_1107()
+function key_B_major()
     change_key_signature("Major", 5)
 end
 
-function func_1108()
+function key_B_minor()
     change_key_signature("Minor", 2)
 end
 
-function func_1109()
+function key_C_flat_major()
     change_key_signature("Major", -7)
 end
 
-function func_1110()
+function key_C_major()
     change_key_signature("Major", 0)
 end
 
-function func_1111()
+function key_C_minor()
     change_key_signature("Minor", -3)
 end
 
-function func_1112()
+function key_C_sharp_major()
     change_key_signature("Major", 7)
 end
 
-function func_1113()
+function key_C_sharp_minor()
     change_key_signature("Minor", 4)
 end
 
-function func_1114()
+function key_D_flat_major()
     change_key_signature("Major", -5)
 end
 
-function func_1115()
+function key_D_major()
     change_key_signature("Major", 2)
 end
 
-function func_1116()
+function key_D_minor()
     change_key_signature("Minor", -1)
 end
 
-function func_1117()
+function key_D_sharp_minor()
     change_key_signature("Minor", 6)
 end
 
-function func_1118()
+function key_E_flat_major()
     change_key_signature("Major", -3)
 end
 
-function func_1119()
+function key_E_flat_minor()
     change_key_signature("Minor", -6)
 end
 
-function func_1120()
+function key_E_major()
     change_key_signature("Major", 4)
 end
 
-function func_1121()
+function key_E_minor()
     change_key_signature("Minor", 1)
 end
 
-function func_1122()
+function key_F_major()
     change_key_signature("Major", -1)
 end
 
-function func_1123()
+function key_F_minor()
     change_key_signature("Minor", -4)
 end
 
-function func_1124()
+function key_F_sharp_major()
     change_key_signature("Major", 6)
 end
 
-function func_1125()
+function key_F_sharp_minor()
     change_key_signature("Minor", 3)
 end
 
-function func_1126()
+function key_G_flat_major()
     change_key_signature("Major", -6)
 end
 
-function func_1127()
+function key_G_major()
     change_key_signature("Major", 1)
 end
 
-function func_1128()
+function key_G_minor()
     change_key_signature("Minor", -2)
 end
 
-function func_1129()
+function key_G_sharp_minor()
     change_key_signature("Minor", 5)
 end
 
-function func_1130()
+function key_hide_key_show_acc()
     change_key_signature("HideShow", nil)
 end
 
-function func_1131()
+function key_keyless()
     change_key_signature("Keyless", nil)
 end
 
-function func_1200()
+function formatting_page_break_insert()
     local music_region = finenv.Region()
     local m = finale.FCMeasure()
     if m:Load(music_region:GetStartMeasure()) then
@@ -5022,7 +5041,7 @@ function func_1200()
     end
 end
 
-function func_1201()
+function formatting_page_break_remove()
     local music_region = finenv.Region()
     local m = finale.FCMeasure()
     if m:Load(music_region:GetStartMeasure()) then
@@ -5031,41 +5050,41 @@ function func_1201()
     end
 end
 
-function func_8000()
+function playback_all_staves_document_beginning_to_document_end()
     playback_type("Document", "Document", "Document") 
 end
 
-function func_8001()
+function playback_selected_staves_document_beginning_to_document_end()
     solo_staves()
     playback_type("Document", "Document") 
 end
 
-function func_8002()
+function playback_all_staves_document_beginning_to_region_end()
     unmute_staves()
     playback_type("Document", "Region") 
 end
 
-function func_8003()
+function playback_selected_staves_document_beginning_to_region_end()
     solo_staves()
     playback_type("Document", "Region") 
 end
 
-function func_8004()
+function playback_all_staves_region_beginning_to_document_end()
     unmute_staves()
     playback_type("Region", "Document") 
 end
 
-function func_8005()
+function playback_selected_staves_region_beginning_to_document_end()
     solo_staves()
     playback_type("Region", "Document") 
 end
 
-function func_8006()
+function playback_all_staves_region_beginning_to_region_end()
     unmute_staves()
     playback_type("Region", "Region") 
 end
 
-function func_8007()
+function playback_selected_staves_region_beginning_to_region_end()
     playback_type("Region", "Region", "Region") 
 end
 
@@ -5113,167 +5132,167 @@ function meter_beam_together()
     end
 end
 
-function func_9002()
+function formatting_measure_width_increase()
     measureWidth("Increase")
 end
 
-function func_9003()
+function formatting_measure_width_decrease()
     measureWidth("Decrease")
 end
 
-function func_9004()
+function plugin_center_rehearsal_marks()
     move_markers("Clef Center")
 end
 
-function func_9005()
+function formatting_staff_space_increase()
     staff_spacing_adjust(24)
 end
 
-function func_9006()
+function formatting_staff_space_decrease()
     staff_spacing_adjust(-24)
 end
 
-function func_9007()
+function layers_swap_one_two()
     swap_layers(1, 2)
 end
 
-function func_9008()
+function layers_swap_one_three()
     swap_layers(1, 3)
 end
 
-function func_9009()
+function layers_swap_one_four()
     swap_layers(1, 4)
 end
 
-function func_9010()
+function layers_swap_two_three()
     swap_layers(2, 3)
 end
 
-function func_9011()
+function layers_swap_two_four()
     swap_layers(2, 4)
 end
 
-function func_9012()
+function layers_swap_three_four()
     swap_layers(3, 4)
 end
 
-function func_9013()
+function layers_swap_one_three_two_four()
     swap_layers(1, 3)
     swap_layers(2, 4)
 end
 
-function func_9014()
+function layers_swap_one_two_three_four()
     swap_layers(1, 2)
     swap_layers(3, 4)
 end
 
-function func_9015()
+function layers_one_clear()
     clear_Layer(1)
 end
 
-function func_9016()
+function layers_two_clear()
     clear_Layer(2)
 end
 
-function func_9017()
+function layers_three_clear()
     clear_Layer(3)
 end
 
-function func_9018()
+function layers_four_clear()
     clear_Layer(4)
 end
 
-function func_9019()
+function layers_one_two_clear()
     clear_Layer(1)
     clear_Layer(2)
 end
 
-function func_9020()
+function layers_one_three_clear()
     clear_Layer(1)
     clear_Layer(3)
 end
 
-function func_9021()
+function layers_one_four_clear()
     clear_Layer(1)
     clear_Layer(4)
 end
 
-function func_9022()
+function layers_one_two_three_clear()
     clear_Layer(1)
-    clear_Layer(2)
-    clear_Layer(3)
-end
-
-function func_9023()
-    clear_Layer(1)
-    clear_Layer(3)
-    clear_Layer(4)
-end
-
-function func_9024()
     clear_Layer(2)
     clear_Layer(3)
 end
 
-function func_9025()
+function layers_one_three_four_clear()
+    clear_Layer(1)
+    clear_Layer(3)
+    clear_Layer(4)
+end
+
+function layers_two_three_clear()
+    clear_Layer(2)
+    clear_Layer(3)
+end
+
+function layers_two_four_clear()
     clear_Layer(2)
     clear_Layer(4)
 end
 
-function func_9026()
+function layers_two_three_four_clear()
     clear_Layer(2)
     clear_Layer(3)
     clear_Layer(4)
 end
 
-function func_9027()
+function layers_three_four_clear()
     clear_Layer(3)
     clear_Layer(4)
 end
 
-function func_9028()
+function plugin_custom_text_expressive()
     user_expression_input("Expressive")
 end
 
-function func_9029()
+function plugin_custom_text_technique()
     user_expression_input("Technique")
 end
 
-function func_9030()
+function plugin_custom_text_tempo()
     user_expression_input("Tempo")
 end
 
-function func_9031()
+function reset_baseline_expression_below()
     baseline_reset(finale.BASELINEMODE_EXPRESSIONBELOW)
 end
 
-function func_9032()
+function reset_baseline_expression_above()
     baseline_reset(finale.BASELINEMODE_EXPRESSIONABOVE)
 end
 
-function func_9033()
+function reset_baseline_expression_all()
     baseline_reset(finale.BASELINEMODE_EXPRESSIONBELOW)
     baseline_reset(finale.BASELINEMODE_EXPRESSIONABOVE)
 end
 
-function func_9034()
+function reset_baseline_chord()
     baseline_reset(finale.BASELINEMODE_CHORD)
 end
 
-function func_9035()
+function reset_baseline_fretboard()
     baseline_reset(finale.BASELINEMODE_FRETBOARD)
 end
 
-function func_9036()
+function reset_baseline_chord_fretboard()
     baseline_reset(finale.BASELINEMODE_CHORD)
     baseline_reset(finale.BASELINEMODE_FRETBOARD)
 end
 
-function func_9037()
+function transform_breath_to_expression()
     simple_art_to_exp_swap(",", "Breath Mark", 44)
 end
 
-function func_9038()
+function transform_caesura_to_expression()
     simple_art_to_exp_swap("\"", "Caesura", 34)
 end
 
@@ -5589,70 +5608,70 @@ if returnvalues ~= nil then
             noteheads_default()
         end
         if returnvalues[1] == "0212" then
-            func_0212()
+            reset_rests()
         end
         if returnvalues[1] == "0213" then
-            func_0213()
+            layers_one_reduce()
         end
         if returnvalues[1] == "0214" then
-            func_0214()
+            layers_two_reduce()
         end
         if returnvalues[1] == "0215" then
-            func_0215()
+            layers_three_reduce()
         end
         if returnvalues[1] == "0216" then
-            func_0216()
+            layers_four_reduce()
         end
         if returnvalues[1] == "0217" then
-            func_0217()
+            layers_one_melody_top()
         end
         if returnvalues[1] == "0218" then
-            func_0218()
+            layers_two_melody_top()
         end
         if returnvalues[1] == "0219" then
-            func_0219()
+            layers_three_melody_top()
         end
         if returnvalues[1] == "0220" then
-            func_0220()
+            layers_four_melody_top()
         end
         if returnvalues[1] == "0221" then
-            func_0221()
+            layers_one_melody_bottom()
         end
         if returnvalues[1] == "0222" then
-            func_0222()
+            layers_two_melody_bottom()
         end
         if returnvalues[1] == "0223" then
-            func_0223()
+            layers_three_melody_bottom()
         end
         if returnvalues[1] == "0224" then
-            func_0224()
+            layers_four_melody_bottom()
         end
         if returnvalues[1] == "0225" then
-            func_0225()
+            layers_all_reset()
         end
         if returnvalues[1] == "0226" then
-            func_0226()
+            layers_all_reduce()
         end
         if returnvalues[1] == "0227" then
             noteheads_x_diamond()
         end
         if returnvalues[1] == "0228" then
-            func_0228()
+            noteheads_x_diamond_above_staff()
         end
         if returnvalues[1] == "0280" then
-            func_0280()
+            transform_harmonics_thrid()
         end
         if returnvalues[1] == "0281" then
-            func_0281()
+            transform_harmonics_fourth()
         end
         if returnvalues[1] == "0282" then
-            func_0282()
+            transform_harmonics_fifth()
         end
         if returnvalues[1] == "0300" then
             lyrics_clear_lyrics()
         end
         if returnvalues[1] == "0301" then
-            func_0301()
+            reset_baselines_lyrics()
         end
         if returnvalues[1] == "0302" then
             lyrics_delete_lyrics()
@@ -5706,7 +5725,7 @@ if returnvalues ~= nil then
             barline_bookend_custom()
         end
         if returnvalues[1] == "0416" then
-            func_0416()
+            reset_barlines()
         end
         if returnvalues[1] == "0417" then
             barline_add_at_double_rehearsal_letter()
@@ -5721,46 +5740,46 @@ if returnvalues ~= nil then
             barline_clear_rehearsal()
         end
         if returnvalues[1] == "0500" then
-            func_0500()
+            chords_altered_bass_after()
         end
         if returnvalues[1] == "0501" then
-            func_0501()
+            chords_altered_bass_under()
         end
         if returnvalues[1] == "0502" then
-            func_0502()
+            chords_altered_bass_subtext()
         end
         if returnvalues[1] == "0503" then
-            func_0503()
+            reset_chord_symbol_pos()
         end
         if returnvalues[1] == "0530" then
-            func_0530()
+            polyphony_add_octave_up()
         end
         if returnvalues[1] == "0531" then
-            func_0531()
+            polyphony_add_octave_down()
         end
         if returnvalues[1] == "0532" then
-            func_0532()
+            polyphony_add_diatonic_third_up()
         end
         if returnvalues[1] == "0533" then
-            func_0533()
+            polyphony_add_diatonic_third_down()
         end
         if returnvalues[1] == "0534" then
-            func_0534()
+            polyphony_rotate_up()
         end
         if returnvalues[1] == "0535" then
-            func_0535()
+            polyphony_rotate_down()
         end
         if returnvalues[1] == "0536" then
-            func_0536()
+            polyphony_delete_top_note()
         end
         if returnvalues[1] == "0537" then
-            func_0537()
+            polyphony_delete_bottom_note()
         end
         if returnvalues[1] == "0538" then
-            func_0538()
+            polyphony_keep_top_note()
         end
         if returnvalues[1] == "0539" then
-            func_0539()
+            polyphony_keep_bottom_note()
         end
         if returnvalues[1] == "0550" then
             meter_2_4()
@@ -6177,10 +6196,10 @@ if returnvalues ~= nil then
             tuplet_combo_number_note_inside()
         end
         if returnvalues[1] == "0935" then
-            func_0935()
+            tuplet_horizontal_drag_on()
         end
         if returnvalues[1] == "0936" then
-            func_0936()
+            tuplet_horizontal_drag_off()
         end
         if returnvalues[1] == "1000" then
             groups_none_on()
@@ -6261,106 +6280,106 @@ if returnvalues ~= nil then
             groups_reverse_sub_bracket()
         end
         if returnvalues[1] == "1100" then
-            key_AbM()
+            key_A_flat_major()
         end
         if returnvalues[1] == "1101" then
-            key_Abm()
+            key_A_flat_minor()
         end
         if returnvalues[1] == "1102" then
-            func_1102()
+            key_A_major()
         end
         if returnvalues[1] == "1103" then
-            func_1103()
+            key_A_minor()
         end
         if returnvalues[1] == "1104" then
-            func_1104()
+            key_A_sharp_minor()
         end
         if returnvalues[1] == "1105" then
-            func_1105()
+            key_B_flat_major()
         end
         if returnvalues[1] == "1106" then
-            func_1106()
+            key_B_flat_minor()
         end
         if returnvalues[1] == "1107" then
-            func_1107()
+            key_B_major()
         end
         if returnvalues[1] == "1108" then
-            func_1108()
+            key_B_minor()
         end
         if returnvalues[1] == "1109" then
-            func_1109()
+            key_C_flat_major()
         end
         if returnvalues[1] == "1110" then
-            func_1110()
+            key_C_major()
         end
         if returnvalues[1] == "1111" then
-            func_1111()
+            key_C_minor()
         end
         if returnvalues[1] == "1112" then
-            func_1112()
+            key_C_sharp_major()
         end
         if returnvalues[1] == "1113" then
-            func_1113()
+            key_C_sharp_minor()
         end
         if returnvalues[1] == "1114" then
-            func_1114()
+            key_D_flat_major()
         end
         if returnvalues[1] == "1115" then
-            func_1115()
+            key_D_major()
         end
         if returnvalues[1] == "1116" then
-            func_1116()
+            key_D_minor()
         end
         if returnvalues[1] == "1117" then
-            func_1117()
+            key_D_sharp_minor()
         end
         if returnvalues[1] == "1118" then
-            func_1118()
+            key_E_flat_major()
         end
         if returnvalues[1] == "1119" then
-            func_1119()
+            key_E_flat_minor()
         end
         if returnvalues[1] == "1120" then
-            func_1120()
+            key_E_major()
         end
         if returnvalues[1] == "1121" then
-            func_1121()
+            key_E_minor()
         end
         if returnvalues[1] == "1122" then
-            func_1122()
+            key_F_major()
         end
         if returnvalues[1] == "1123" then
-            func_1123()
+            key_F_minor()
         end
         if returnvalues[1] == "1124" then
-            func_1124()
+            key_F_sharp_major()
         end
         if returnvalues[1] == "1125" then
-            func_1125()
+            key_F_sharp_minor()
         end
         if returnvalues[1] == "1126" then
-            func_1126()
+            key_G_flat_major()
         end
         if returnvalues[1] == "1127" then
-            func_1127()
+            key_G_major()
         end
         if returnvalues[1] == "1128" then
-            func_1128()
+            key_G_minor()
         end
         if returnvalues[1] == "1129" then
-            func_1129()
+            key_G_sharp_minor()
         end
         if returnvalues[1] == "1130" then
-            func_1130()
+            key_hide_key_show_acc()
         end
         if returnvalues[1] == "1131" then
-            func_1131()
+            key_keyless()
         end
         if returnvalues[1] == "1200" then
-            func_1200()
+            formatting_page_break_insert()
         end
         if returnvalues[1] == "1201" then
-            func_1201()
+            formatting_page_break_remove()
         end
         if returnvalues[1] == "9000" then
             noteheads_harmonics()
@@ -6369,143 +6388,146 @@ if returnvalues ~= nil then
             meter_beam_together()
         end
         if returnvalues[1] == "9002" then
-            func_9002()
+            formatting_measure_width_increase()
         end
         if returnvalues[1] == "9003" then
-            func_9003()
+            formatting_measure_width_decrease()
         end
         if returnvalues[1] == "8002" then
-            func_8002()
+            playback_all_staves_document_beginning_to_region_end()
         end
         if returnvalues[1] == "8003" then
-            func_8003()
+            playback_selected_staves_document_beginning_to_region_end()
         end
         if returnvalues[1] == "8004" then
-            func_8004()
+            playback_all_staves_region_beginning_to_document_end()
         end
         if returnvalues[1] == "8005" then
-            func_8005()
+            playback_selected_staves_region_beginning_to_document_end()
         end
         if returnvalues[1] == "8006" then
-            func_8006()
+            playback_all_staves_region_beginning_to_region_end()
         end
         if returnvalues[1] == "8007" then
-            func_8007()
+            playback_selected_staves_region_beginning_to_region_end()
+        end
+        if returnvalues[1] == "9004" then
+            plugin_center_rehearsal_marks()
         end
         if returnvalues[1] == "9005" then
-            func_9005()
+            formatting_staff_space_increase()
         end
         if returnvalues[1] == "9006" then
-            func_9006()
+            formatting_staff_space_decrease()
         end
         if returnvalues[1] == "9007" then
-            func_9007()
+            layers_swap_one_two()
         end
         if returnvalues[1] == "9008" then
-            func_9008()
+            layers_swap_one_three()
         end
         if returnvalues[1] == "9009" then
-            func_9009()
+            layers_swap_one_four()
         end
         if returnvalues[1] == "9010" then
-            func_9010()
+            layers_swap_two_three()
         end
         if returnvalues[1] == "9011" then
-            func_9011()
+            layers_swap_two_four()
         end
         if returnvalues[1] == "9012" then
-            func_9012()
+            layers_swap_three_four()
         end
         if returnvalues[1] == "9013" then
-            func_9013()
+            layers_swap_one_three_two_four()
         end
         if returnvalues[1] == "9014" then
-            func_9014()
+            layers_swap_one_two_three_four()
         end
         if returnvalues[1] == "9015" then
-            func_9015()
+            layers_one_clear()
         end
         if returnvalues[1] == "9016" then
-            func_9016()
+            layers_two_clear()
         end
         if returnvalues[1] == "9017" then
-            func_9017()
+            layers_three_clear()
         end
         if returnvalues[1] == "9018" then
-            func_9018()
+            layers_four_clear()
         end
         if returnvalues[1] == "9019" then
-            func_9019()
+            layers_one_two_clear()
         end
         if returnvalues[1] == "9020" then
-            func_9020()
+            layers_one_three_clear()
         end
         if returnvalues[1] == "9021" then
-            func_9021()
+            layers_one_four_clear()
         end
         if returnvalues[1] == "9022" then
-            func_9022()
+            layers_one_two_three_clear()
         end
         if returnvalues[1] == "9023" then
-            func_9023()
+            layers_one_three_four_clear()
         end
         if returnvalues[1] == "9024" then
-            func_9024()
+            layers_two_three_clear()
         end
         if returnvalues[1] == "9025" then
-            func_9025()
+            layers_two_four_clear()
         end
         if returnvalues[1] == "9026" then
-            func_9026()
+            layers_two_three_four_clear()
         end
         if returnvalues[1] == "9027" then
-            func_9027()
+            layers_three_four_clear()
         end
         if returnvalues[1] == "9028" then
-            func_9028()
+            plugin_custom_text_expressive()
         end
         if returnvalues[1] == "9029" then
-            func_9029()
+            plugin_custom_text_technique()
         end
         if returnvalues[1] == "9030" then
-            func_9030()
+            plugin_custom_text_tempo()
         end
         if returnvalues[1] == "9031" then
-            func_9031()
+            reset_baseline_expression_below()
         end
         if returnvalues[1] == "9032" then
-            func_9032()
+            reset_baseline_expression_above()
         end
         if returnvalues[1] == "9033" then
-            func_9033()
+            reset_baseline_expression_all()
         end
         if returnvalues[1] == "9034" then
-            func_9034()
+            reset_baseline_chord()
         end
         if returnvalues[1] == "9035" then
-            func_9035()
+            reset_baseline_fretboard()
         end
         if returnvalues[1] == "9036" then
-            func_9036()
+            reset_baseline_chord_fretboard()
         end
         if returnvalues[1] == "9037" then
-            func_9037()
+            transform_breath_to_expression()
         end
         if returnvalues[1] == "9038" then
-            func_9038()
+            transform_caesura_to_expression()
         end
         if returnvalues[1] == "9039" then
             articulations_delete_articulations_from_rests()
         end
     else
         if returnvalues[1] == "0000" then
-            func_0000()
+            user_configuration()
         elseif returnvalues[1] == "8000" then
-            func_8000()
+            playback_all_staves_document_beginning_to_document_end()
         elseif returnvalues[1] == "8001" then
-            func_8001()
+            playback_selected_staves_document_beginning_to_document_end()
         elseif returnvalues[1] == "9004" then
-            func_9004()
+            plugin_center_rehearsal_marks()
         else
             finenv.UI():AlertInfo("Please select a region and try again.", nil)
             return
