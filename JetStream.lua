@@ -606,6 +606,107 @@ function adjustHairpins(range_settings)
     vertical_space(range_settings)
 end
 
+function halfway_point(current_staff, first_pin, second_pin)
+    
+    function has_dynamic(last_measure, last_pos)
+
+        local region = finenv.Region()
+        region:SetStartStaff(current_staff)
+        region:SetEndStaff(current_staff)
+        local expression_list = {}
+        local new_end = finale.FCMeasure()
+        new_start_pos = last_pos - 256
+        new_end_pos = last_pos + 256
+        new_start_meas = last_measure
+        new_end_meas = last_measure
+        if new_start_pos < 0 then
+            last_measure = last_measure - 1
+            if new_end:Load(last_measure) then
+                new_start_pos = new_end:GetDuration() - 256
+                new_start_meas = last_measure
+            end
+        else
+            new_end:Load(last_measure)
+            if new_end_pos > (new_end:GetDuration()) then
+                last_measure = last_measure + 1
+                if new_end:Load(last_measure) then
+                    new_end_pos = 256
+                    new_end_meas = last_measure
+                end
+            end
+        end
+        region:SetStartMeasure(new_start_meas)
+        region:SetEndMeasure(new_end_meas)
+        region:SetStartMeasurePos(new_start_pos)
+        region:SetEndMeasurePos(new_end_pos)
+        local expressions = finale.FCExpressions()
+        expressions:LoadAllForRegion(region)
+        for e in each(expressions) do
+            local create_def = e:CreateTextExpressionDef()
+            local cd = finale.FCCategoryDef()
+            if cd:Load(create_def:GetCategoryID()) then
+                if string.find(cd:CreateName().LuaString, "Dynamic") then
+                    print(e:GetMeasure(), e:GetMeasurePos())
+                    table.insert(expression_list, {e:GetMeasure(), e:GetMeasurePos()})
+                end
+            end
+        end
+        if #expression_list > 0 then
+            return expression_list[1]
+        else
+            return false
+        end
+    end
+
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    music_region:SetStartStaff(current_staff)
+    music_region:SetEndStaff(current_staff)
+    local count = 0
+    local halfway_measure_pos = 0
+    local halfway_measure = 0
+    local start_measure = 0
+    local start_measure_pos = 0
+    local end_measure = 0
+    local end_measure_pos = 0
+    local notes_in_region = {}
+    for noteentry in eachentrysaved(music_region) do
+        if noteentry:IsNote() then
+            table.insert(notes_in_region, noteentry)
+        end
+    end
+    if #notes_in_region > 0 then
+        start_measure = notes_in_region[1]:GetMeasure()
+        start_measure_pos = notes_in_region[1]:GetMeasurePos()
+        end_measure = notes_in_region[#notes_in_region]:GetMeasure()
+        end_measure_pos = notes_in_region[#notes_in_region]:GetMeasurePos()
+        hairpin_end_measure_pos = notes_in_region[#notes_in_region]:GetMeasurePos()
+        if notes_in_region[#notes_in_region]:GetDuration() > 1536 then
+            end_measure_pos = end_measure_pos + notes_in_region[#notes_in_region]:GetDuration()
+        end            
+
+        halfway_measure = (((end_measure - start_measure) / 2) + start_measure)
+        music_region:SetStartMeasure(start_measure)
+        music_region:SetStartMeasurePos(start_measure_pos)
+        music_region:SetEndMeasure(end_measure)
+        music_region:SetEndMeasurePos(end_measure_pos)
+        local full_duration = music_region:CalcDuration()
+        local half_duration = full_duration / 2
+        music_region:SetDurationOffsetLeft(half_duration)
+        halfway_measure = music_region:GetStartMeasure()
+        halfway_measure_pos = music_region:GetStartMeasurePos()
+        local beginning_to_halfway = has_dynamic(halfway_measure, halfway_measure_pos)
+        if beginning_to_halfway ~= false then
+            halfway_measure = beginning_to_halfway[1]
+            halfway_measure_pos = beginning_to_halfway[2]            
+        end
+        createHairpin({current_staff, start_measure, halfway_measure, start_measure_pos, halfway_measure_pos}, first_pin)
+        createHairpin({current_staff, halfway_measure, end_measure, halfway_measure_pos, hairpin_end_measure_pos}, second_pin)
+    else
+        return
+    end
+end
+
 function createHairpin(range_settings, shape)
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
@@ -715,7 +816,7 @@ end
 
 function set_first_last_note_in_range(staff)
     
-    function find_dyanmic(last_measure, last_pos)
+    function has_dynamic(last_measure, last_pos)
         local region = finenv.Region()
         region:SetStartStaff(staff)
         region:SetEndStaff(staff)
@@ -775,7 +876,7 @@ function set_first_last_note_in_range(staff)
         local end_measure = notes_in_region[#notes_in_region]:GetMeasure()
 
         if items_in_region[#items_in_region] == notes_in_region[#notes_in_region] then
-            if find_dyanmic(end_measure, end_pos) == false then
+            if has_dynamic(end_measure, notes_in_region[#notes_in_region]:GetMeasurePos()) == false then
                 local get_time = finale.FCMeasure()
                 get_time:Load(notes_in_region[#notes_in_region]:GetMeasure())
                 local new_right_end = get_time:GetTimeSignature()
@@ -1506,6 +1607,14 @@ function findSpecialExpression(exp_string_list, font_details, table_name, descri
     else
         exp_def:Load(matching_glyphs[1])
         table.insert(table_name, exp_def:GetItemNo())  
+    end
+end
+
+function adjust_hairpins()
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        adjustHairpins(set_first_last_note_in_range(addstaff))
     end
 end
 
@@ -3141,7 +3250,6 @@ end
 function dynamics_crescendo()
     deleteHairpins()
     local music_region = finenv.Region()
-    local range_settings = {}
     music_region:SetCurrentSelection()
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         createHairpin(set_first_last_note_in_range(addstaff), finale.SMARTSHAPE_CRESCENDO)
@@ -3152,7 +3260,6 @@ end
 function dynamics_decrescendo()
     deleteHairpins()
     local music_region = finenv.Region()
-    local range_settings = {}
     music_region:SetCurrentSelection()
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
         createHairpin(set_first_last_note_in_range(addstaff), finale.SMARTSHAPE_DIMINUENDO)
@@ -3161,11 +3268,23 @@ function dynamics_decrescendo()
 end
 
 function dynamics_mess_di_voce_up()
-    setSwellRange(finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+    deleteHairpins()
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        halfway_point(addstaff, finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+        adjustHairpins(set_first_last_note_in_range(addstaff))
+    end
 end
 
 function dynamics_mess_di_voce_down()
-    setSwellRange(finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+    deleteHairpins()
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+        halfway_point(addstaff, finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+        adjustHairpins(set_first_last_note_in_range(addstaff))
+    end
 end
 
 function dynamics_delete_hairpins()
@@ -5462,6 +5581,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "0050" then
             dynamics_decrease_dynamic()
+        end
+        if return_values[1] == "0051" then
+            adjust_hairpins()
         end
         if return_values[1] == "0100" then
             articulations_accent()
