@@ -495,12 +495,14 @@ function adjustHairpins(range_settings)
                 local cd = finale.FCCategoryDef()
                 if cd:Load(create_def:GetCategoryID()) then
                     if string.find(cd:CreateName().LuaString, "Dynamic") then
-                        local difference = lowest_item[1] - original_lowest_expressions[k]
-                        if difference ~= 0 then
-                            e:SetVerticalPos(e:GetVerticalPos() + difference)
-                            e:Save()
+                        if (lowest_item[1] ~= nil) and (original_lowest_expressions[k] ~= nil) then
+                            local difference = lowest_item[1] - original_lowest_expressions[k]
+                            if difference ~= 0 then
+                                e:SetVerticalPos(e:GetVerticalPos() + difference)
+                                e:Save()
+                            end
+                            print(lowest_item[1], original_lowest_expressions[k], "="..difference)
                         end
-                        print(lowest_item[1], original_lowest_expressions[k], "="..difference)
                     else
                         return false
                     end
@@ -684,7 +686,15 @@ function halfway_point(current_staff, first_pin, second_pin)
         if notes_in_region[#notes_in_region]:GetDuration() > 1536 then
             end_measure_pos = end_measure_pos + notes_in_region[#notes_in_region]:GetDuration()
         end            
-
+        if halfway_to_end ~= false then
+            end_measure = halfway_to_end[1]
+            hairpin_end_measure_pos = halfway_to_end[2]
+        else
+            if notes_in_region[#notes_in_region]:GetDuration() > 1536 then
+                hairpin_end_measure_pos = hairpin_end_measure_pos + notes_in_region[#notes_in_region]:GetDuration()
+            end
+        end
+        
         halfway_measure = (((end_measure - start_measure) / 2) + start_measure)
         music_region:SetStartMeasure(start_measure)
         music_region:SetStartMeasurePos(start_measure_pos)
@@ -700,6 +710,8 @@ function halfway_point(current_staff, first_pin, second_pin)
             halfway_measure = beginning_to_halfway[1]
             halfway_measure_pos = beginning_to_halfway[2]            
         end
+        local halfway_to_end = has_dynamic(end_measure, hairpin_end_measure_pos)
+        
         createHairpin({current_staff, start_measure, halfway_measure, start_measure_pos, halfway_measure_pos}, first_pin)
         createHairpin({current_staff, halfway_measure, end_measure, halfway_measure_pos, hairpin_end_measure_pos}, second_pin)
     else
