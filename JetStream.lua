@@ -2216,27 +2216,31 @@ function staff_spacing_adjust(moveBy)
     end
 end
 
-function swap_layers(swapA, swapB)
+function swap_layers(swap_first, swap_second)
     local region = finenv.Region()
-    local start=region.StartMeasure
-    local stop=region.EndMeasure
-    local sysstaves = finale.FCSystemStaves()
-    sysstaves:LoadAllForRegion(region)
+    local start = region.StartMeasure
+    local stop = region.EndMeasure
+    local sys_staves = finale.FCSystemStaves()
+    sys_staves:LoadAllForRegion(region)
 
-    swapA = swapA - 1
-    swapB = swapB - 1
+    swap_first = swap_first - 1
+    swap_second = swap_second - 1
     
-    for sysstaff in each(sysstaves) do
-        staffNum = sysstaff.Staff
-        local noteentrylayer = finale.FCNoteEntryLayer(swapA,staffNum,start,stop)
-        noteentrylayer:Load()
-        noteentrylayer.LayerIndex=swapB
+    for sys_staff in each(sys_staves) do
+        staff_num = sys_staff.Staff
+        local noteentry_layer_first = finale.FCNoteEntryLayer(swap_first, staff_num, start, stop)
+        noteentry_layer_first:SetUseVisibleLayer(false)
+        if noteentry_layer_first:Load() then
+            noteentry_layer_first.LayerIndex = swap_second
+        end
 
-        local noteentrylayer2 = finale.FCNoteEntryLayer(swapB,staffNum,start,stop)
-        noteentrylayer2:Load()
-        noteentrylayer2.LayerIndex=swapA
-        noteentrylayer:Save()
-        noteentrylayer2:Save()
+        local noteentry_layer_second = finale.FCNoteEntryLayer(swap_second, staff_num, start, stop)
+        noteentry_layer_second:SetUseVisibleLayer(false)
+        if noteentry_layer_second:Load() then
+            noteentry_layer_second.LayerIndex = swap_first
+        end
+        noteentry_layer_first:Save()
+        noteentry_layer_second:Save()
     end
 end
 
