@@ -614,7 +614,7 @@ function hairpin_adjustments(range_settings, vertical_direction)
         end
     end
     
-    if has_dynamic(music_reg) == true then
+    if (has_dynamic(music_reg) == true) and (#notes_in_region > 1) then
         end_pos = range_settings[5]
     else
         local get_time = finale.FCMeasure()
@@ -929,15 +929,17 @@ function set_first_last_note_in_range(staff)
         local end_measure = notes_in_region[#notes_in_region]:GetMeasure()
 
         range_settings[staff] = {staff, start_measure, end_measure, start_pos, end_pos}
-    end
 
-    for key, value in pairs(range_settings) do
-        local a = value[1]
-        local b = value[2]
-        local c = value[3]
-        local d = value[4]
-        local e = value[5]
-        return {a, b, c, d, e}
+        for key, value in pairs(range_settings) do
+            local a = value[1]
+            local b = value[2]
+            local c = value[3]
+            local d = value[4]
+            local e = value[5]
+            return {a, b, c, d, e}
+        end
+    else
+        return false
     end
 end
 
@@ -1158,26 +1160,44 @@ function decreaseDynamic()
 end
 
 function dynamics_align_hairpins_and_dynamics()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        hairpin_adjustments(set_first_last_note_in_range(addstaff), "far")
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "far")
+            end
+        end
     end
 end
 
 function dynamics_align_far()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        hairpin_adjustments(set_first_last_note_in_range(addstaff), "far")
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "far")
+            end
+        end
     end
 end
 
 function dynamics_align_near()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        hairpin_adjustments(set_first_last_note_in_range(addstaff), "near")
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "near")
+            end
+        end
     end
 end
 
@@ -1263,44 +1283,56 @@ function add_dynamic(staff_num, measure_num, measure_pos)
     add_expression:SetID(first_expression[1])
     local and_cell = finale.FCCell(measure_num, staff_num)
     add_expression:SaveNewToCell(and_cell)
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        hairpin_adjustments(set_first_last_note_in_range(addstaff), "far")
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "far")
+            end
+        end
     end
 end
 
 function dynamic_region(note_range)
-    local music_region = finenv.Region()
     local range_settings = {}
-    
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        music_region:SetStartStaff(addstaff)
-        music_region:SetEndStaff(addstaff)
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                music_region:SetStartStaff(staff:GetItemNo())
+                music_region:SetEndStaff(staff:GetItemNo())
 
-        local measure_pos_table = {}
-        local measure_table = {}
-        
-        local count = 0
-        
-        for noteentry in eachentrysaved(music_region) do
-            if noteentry:IsNote() then
-                table.insert(measure_pos_table, noteentry:GetMeasurePos())
-                table.insert(measure_table, noteentry:GetMeasure())
-                count = count + 1
+                local measure_pos_table = {}
+                local measure_table = {}
+                
+                local count = 0
+                
+                for noteentry in eachentrysaved(music_region) do
+                    if noteentry:IsNote() then
+                        table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                        table.insert(measure_table, noteentry:GetMeasure())
+                        count = count + 1
+                    end
+                end
+
+                local start_pos = measure_pos_table[1]
+                local end_pos = measure_pos_table[count]
+                local start_measure = measure_table[1]
+                local end_measure = measure_table[count]
+
+                if count == 1 then
+                    end_pos = music_region:GetEndMeasurePos() 
+                end
+                if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
+                    range_settings[staff:GetItemNo()] = {staff:GetItemNo(), start_measure, end_measure, start_pos, end_pos}
+                end
             end
-        end
-
-        local start_pos = measure_pos_table[1]
-        local end_pos = measure_pos_table[count]
-        local start_measure = measure_table[1]
-        local end_measure = measure_table[count]
-
-        if count == 1 then
-            end_pos = music_region:GetEndMeasurePos() 
-        end
-        if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
-            range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
         end
     end
 
@@ -1485,49 +1517,52 @@ function getFirstNoteInRegionText(note_range)
     local range_settings = {}
     
     for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        music_region:SetStartStaff(addstaff)
-        music_region:SetEndStaff(addstaff)
+        if music_region:IsStaffIncluded(addstaff) then
 
-        local measure_pos_table = {}
-        local measure_table = {}
-        
-        local count = 0
-        
-        for noteentry in eachentrysaved(music_region) do
-            if noteentry:IsNote() then
-                table.insert(measure_pos_table, noteentry:GetMeasurePos())
-                table.insert(measure_table, noteentry:GetMeasure())
-                count = count + 1
+            music_region:SetStartStaff(addstaff)
+            music_region:SetEndStaff(addstaff)
+
+            local measure_pos_table = {}
+            local measure_table = {}
+            
+            local count = 0
+            
+            for noteentry in eachentrysaved(music_region) do
+                if noteentry:IsNote() then
+                    table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                    table.insert(measure_table, noteentry:GetMeasure())
+                    count = count + 1
+                end
             end
-        end
 
-        local start_pos = measure_pos_table[1]
-        local start_measure = measure_table[1]
-        if (note_range == "Region Start") or (start_pos == nil) then
-            start_pos = music_region:GetStartMeasurePos()
-            start_measure = music_region:GetStartMeasure()
-        end
-        local end_pos = measure_pos_table[count]
-        local end_measure = measure_table[count]
-        if (note_range == "Region End") or (end_pos == nil) then
-            end_measure = music_region:GetEndMeasure()
-            end_pos = music_region:GetEndMeasurePos()
-            if end_pos > 1000000 then
-                local get_time = finale.FCMeasure()
-                get_time:Load(end_measure)
-                local new_right_end = get_time:GetTimeSignature()
-                local beat = new_right_end:GetBeats()
-                local duration = new_right_end:GetBeatDuration()
-                end_pos = beat * duration
+            local start_pos = measure_pos_table[1]
+            local start_measure = measure_table[1]
+            if (note_range == "Region Start") or (start_pos == nil) then
+                start_pos = music_region:GetStartMeasurePos()
+                start_measure = music_region:GetStartMeasure()
             end
-        end
+            local end_pos = measure_pos_table[count]
+            local end_measure = measure_table[count]
+            if (note_range == "Region End") or (end_pos == nil) then
+                end_measure = music_region:GetEndMeasure()
+                end_pos = music_region:GetEndMeasurePos()
+                if end_pos > 1000000 then
+                    local get_time = finale.FCMeasure()
+                    get_time:Load(end_measure)
+                    local new_right_end = get_time:GetTimeSignature()
+                    local beat = new_right_end:GetBeats()
+                    local duration = new_right_end:GetBeatDuration()
+                    end_pos = beat * duration
+                end
+            end
 
-        if count == 1 then
-            end_pos = music_region:GetEndMeasurePos() 
-        end
-    
-        if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
-            range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+            if count == 1 then
+                end_pos = music_region:GetEndMeasurePos() 
+            end
+        
+            if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
+                range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+            end
         end
     end
 
@@ -1784,7 +1819,9 @@ function delete_rehearsal_marks()
             local the_staves = finenv.Region()
             the_staves:SetFullDocument()
             for addstaff = the_staves.StartStaff, the_staves.EndStaff do
-                e:DeleteData()
+                if music_reg:IsStaffIncluded(addstaff) then
+                    e:DeleteData()
+                end
             end
         end
     end
@@ -1899,19 +1936,21 @@ function applyStaffStyle(StaffStyleType)
     else
         local music_region = finenv.Region()
         for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-            local start_meas = music_region:GetStartMeasure()
-            local end_meas = music_region:GetEndMeasure()
-            local start_pos = music_region:GetStartMeasurePos()
-            local end_pos = music_region:GetEndMeasurePos()
-            music_region:SetStartStaff(addstaff)
-            music_region:SetEndStaff(addstaff)
-            local staff_style = finale.FCStaffStyleAssign()
-            staff_style:SetStartMeasure(start_meas)
-            staff_style:SetEndMeasure(end_meas)
-            staff_style:SetStartMeasurePos(start_pos)
-            staff_style:SetEndMeasurePos(end_pos)
-            staff_style:SetStyleID(staff_style_ID)
-            staff_style:SaveNew(addstaff)
+            if music_region:IsStaffIncluded(addstaff) then
+                local start_meas = music_region:GetStartMeasure()
+                local end_meas = music_region:GetEndMeasure()
+                local start_pos = music_region:GetStartMeasurePos()
+                local end_pos = music_region:GetEndMeasurePos()
+                music_region:SetStartStaff(addstaff)
+                music_region:SetEndStaff(addstaff)
+                local staff_style = finale.FCStaffStyleAssign()
+                staff_style:SetStartMeasure(start_meas)
+                staff_style:SetEndMeasure(end_meas)
+                staff_style:SetStartMeasurePos(start_pos)
+                staff_style:SetEndMeasurePos(end_pos)
+                staff_style:SetStyleID(staff_style_ID)
+                staff_style:SaveNew(addstaff)
+            end
         end
     end
 end
@@ -2345,52 +2384,55 @@ function user_expression_input(the_expression)
         local range_settings = {}
         
         for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-            music_region:SetStartStaff(addstaff)
-            music_region:SetEndStaff(addstaff)
+            if music_region:IsStaffIncluded(addstaff) then
 
-            local measure_pos_table = {}
-            local measure_table = {}
-            
-            local count = 0
-            
-            for noteentry in eachentrysaved(music_region) do
-                if noteentry:IsNote() then
-                    table.insert(measure_pos_table, noteentry:GetMeasurePos())
-                    table.insert(measure_table, noteentry:GetMeasure())
-                    count = count + 1
+                music_region:SetStartStaff(addstaff)
+                music_region:SetEndStaff(addstaff)
+
+                local measure_pos_table = {}
+                local measure_table = {}
+                
+                local count = 0
+                
+                for noteentry in eachentrysaved(music_region) do
+                    if noteentry:IsNote() then
+                        table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                        table.insert(measure_table, noteentry:GetMeasure())
+                        count = count + 1
+                    end
                 end
-            end
 
-            local start_pos = measure_pos_table[1]
-            local start_measure = measure_table[1]
-            if (note_range == "Region Start") or (start_pos == nil) then
-                start_pos = music_region:GetStartMeasurePos()
-                start_measure = music_region:GetStartMeasure()
-            elseif note_range == "Tempo" then
-                start_measure = music_region:GetStartMeasure()
-                start_pos = 0
-            end
-            local end_pos = measure_pos_table[count]
-            local end_measure = measure_table[count]
-            if (note_range == "Region End") or (end_pos == nil) then
-                end_measure = music_region:GetEndMeasure()
-                end_pos = music_region:GetEndMeasurePos()
-                if end_pos > 1000000 then
-                    local get_time = finale.FCMeasure()
-                    get_time:Load(end_measure)
-                    local new_right_end = get_time:GetTimeSignature()
-                    local beat = new_right_end:GetBeats()
-                    local duration = new_right_end:GetBeatDuration()
-                    end_pos = beat * duration
+                local start_pos = measure_pos_table[1]
+                local start_measure = measure_table[1]
+                if (note_range == "Region Start") or (start_pos == nil) then
+                    start_pos = music_region:GetStartMeasurePos()
+                    start_measure = music_region:GetStartMeasure()
+                elseif note_range == "Tempo" then
+                    start_measure = music_region:GetStartMeasure()
+                    start_pos = 0
                 end
-            end
+                local end_pos = measure_pos_table[count]
+                local end_measure = measure_table[count]
+                if (note_range == "Region End") or (end_pos == nil) then
+                    end_measure = music_region:GetEndMeasure()
+                    end_pos = music_region:GetEndMeasurePos()
+                    if end_pos > 1000000 then
+                        local get_time = finale.FCMeasure()
+                        get_time:Load(end_measure)
+                        local new_right_end = get_time:GetTimeSignature()
+                        local beat = new_right_end:GetBeats()
+                        local duration = new_right_end:GetBeatDuration()
+                        end_pos = beat * duration
+                    end
+                end
 
-            if count == 1 then
-                end_pos = music_region:GetEndMeasurePos() 
-            end
-        
-            if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
-                range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+                if count == 1 then
+                    end_pos = music_region:GetEndMeasurePos() 
+                end
+            
+                if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
+                    range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+                end
             end
         end
 
@@ -3314,40 +3356,64 @@ end
 
 function dynamics_crescendo()
     deleteHairpins()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        createHairpin(set_first_last_note_in_range(addstaff), finale.SMARTSHAPE_CRESCENDO)
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                createHairpin(set_first_last_note_in_range(staff:GetItemNo()), finale.SMARTSHAPE_CRESCENDO)
+            end
+        end
     end
     dynamics_align_hairpins_and_dynamics()
 end
 
 function dynamics_decrescendo()
     deleteHairpins()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        createHairpin(set_first_last_note_in_range(addstaff), finale.SMARTSHAPE_DIMINUENDO)
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                createHairpin(set_first_last_note_in_range(staff:GetItemNo()), finale.SMARTSHAPE_DIMINUENDO)
+            end
+        end
     end
     dynamics_align_hairpins_and_dynamics()
 end
 
 function dynamics_messa_di_voce_up()
     deleteHairpins()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        halfway_point(addstaff, finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                halfway_point(addstaff, finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+            end
+        end
     end
     dynamics_align_hairpins_and_dynamics()
 end
 
 function dynamics_messa_di_voce_down()
     deleteHairpins()
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        halfway_point(addstaff, finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                halfway_point(addstaff, finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+            end
+        end
     end
     dynamics_align_hairpins_and_dynamics()
 end
