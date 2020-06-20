@@ -8,6 +8,12 @@ end
 local dialog = finenv.UserValueInput()
 dialog.Title = "JetStream Finale Controller"
 
+function to_EVPUs(text)
+    local str = finale.FCString()
+    str.LuaString = text
+    return str:GetMeasurement(finale.MEASUREMENTUNIT_DEFAULT)
+end
+
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 function assignArticulation(art_id)
@@ -951,7 +957,13 @@ function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape,
     smartshape.BeatAttached= true
     smartshape.PresetShape = true
     smartshape.Visible = true
-    smartshape.LineID = shape
+    if shape == finale.SMARTSHAPE_CUSTOM then
+        local smartshapeprefs = finale.FCSmartShapePrefs()
+        smartshapeprefs:Load(1)
+        smartshape.LineID = smartshapeprefs:GetCustomLineDefID()
+    else
+        smartshape.LineID = shape
+    end
 
     if rightpos ~= nil then
         if rightpos > 1000000 then
@@ -1225,7 +1237,16 @@ function deleteBeatSmartShape(shape_num)
             local sm = mark:CreateSmartShape()
             if sm ~= nil then
                 if sm.ShapeType == shape_num then
-                    sm:DeleteData()
+                    if shape_num == finale.SMARTSHAPE_CUSTOM then
+                        local smartshapeprefs = finale.FCSmartShapePrefs()
+                        smartshapeprefs:Load(1)
+                        current_custom = smartshapeprefs:GetCustomLineDefID()
+                        if sm.LineID == current_custom then
+                            sm:DeleteData()
+                        end
+                    else
+                        sm:DeleteData()
+                    end
                 end
             end
         end
@@ -1852,12 +1873,27 @@ end
 function set_time(beat_num, beat_duration)
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
-    for m in each(measures) do
-        local time_sig = m:GetTimeSignature()
-        time_sig:SetBeats(beat_num)
-        time_sig:SetBeatDuration(beat_duration)
-        time_sig:Save()
-        m:Save()
+    if measures.Count > 1 then
+        for measure in each(measures) do
+            local time_sig = measure:GetTimeSignature()
+            time_sig:SetBeats(beat_num)
+            time_sig:SetBeatDuration(beat_duration)
+            time_sig:Save()
+            measure:Save()
+        end
+    else
+        local all_measures = finale.FCMeasures()
+        all_measures:LoadAll()
+        for measure in each(all_measures) do
+            local selected_measure = measures:GetItemAt(0)
+            if (measure.ItemNo >= selected_measure.ItemNo) then
+                local time_sig = measure:GetTimeSignature()
+                time_sig:SetBeats(beat_num)
+                time_sig:SetBeatDuration(beat_duration)
+                time_sig:Save()
+                measure:Save()
+            end
+        end
     end
 end
 
@@ -2712,6 +2748,36 @@ function baseline_reset(baseline_type)
             bl.VerticalOffset = 0
             bl:Save()
         end
+    end
+end
+
+function move_chord_baseline_down(staff)
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_chord_baseline_down(staff)
+        end
+    end
+    local region = finenv.Region()
+    local systems = finale.FCStaffSystems()
+    systems:LoadAll()
+
+    local start_measure = region:GetStartMeasure()
+    local end_measure = region:GetEndMeasure()
+    local system = systems:FindMeasureNumber(start_measure)
+    local lastSys = systems:FindMeasureNumber(end_measure)
+    local system_number = system:GetItemNo()
+    local lastSys_number = lastSys:GetItemNo()
+
+    for i = system_number, lastSys_number, 1 do
+        local baselines = finale.FCBaselines()
+        baselines:LoadAllForSystem(finale.BASELINEMODE_CHORD, i)
+            bl = baselines:AssureSavedStaff(finale.BASELINEMODE_CHORD, i, j)
+            bl.VerticalOffset = bl.VerticalOffset + to_EVPUs("-1s")
+            bl:Save()
     end
 end
 
