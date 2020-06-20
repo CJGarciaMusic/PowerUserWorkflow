@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "190520"
-    finaleplugin.Date = "5/19/2020"
+    finaleplugin.Version = "200620"
+    finaleplugin.Date = "6/20/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -2148,6 +2148,8 @@ function tuplet_options(tuplet_parameters)
         end
     end
 end
+
+
 
 -- function move_markers(marker_pos)
 
@@ -5494,6 +5496,37 @@ function formatting_page_break_remove()
     end
 end
 
+function move_system(direction)
+    local region = finenv.Region()
+    local systems = finale.FCStaffSystems()
+    systems:LoadAll()
+
+    local start_measure = region:GetStartMeasure()
+    local end_measure = region:GetEndMeasure()
+    local system = systems:FindMeasureNumber(start_measure)
+    local lastSys = systems:FindMeasureNumber(end_measure)
+    local system_number = system:GetItemNo()
+    local lastSys_number = lastSys:GetItemNo()
+
+    for i = system_number, lastSys_number, 1 do
+        local system = systems:GetItemAt(i - 1)
+        if direction == "down" then
+            system.TopMargin = system.TopMargin + to_EVPUs("-1s")
+        else
+            system.TopMargin = system.TopMargin + to_EVPUs("1s")
+        end
+        system:Save()
+    end
+end
+
+function formatting_system_move_down()
+    move_system("down")
+end
+
+function formatting_system_move_up()
+    move_system("up")
+end
+
 function playback_all_staves_document_beginning_to_document_end()
     playback_type("Document", "Document", "Document") 
 end
@@ -6794,6 +6827,12 @@ if return_values ~= nil then
         end
         if return_values[1] == "1205" then
             formatting_staff_space_decrease()
+        end
+        if return_values[1] == "1206" then
+            formatting_system_move_down()
+        end
+        if return_values[1] == "1207" then
+            formatting_system_move_up()
         end
         if return_values[1] == "1300" then
             layers_one_reduce()
