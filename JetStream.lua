@@ -2751,16 +2751,8 @@ function baseline_reset(baseline_type)
     end
 end
 
-function move_chord_baseline_down(staff)
-    local staves = finale.FCStaves()
-    staves:LoadAll()
-    for staff in each(staves) do
-        local music_region = finenv.Region()
-        music_region:SetCurrentSelection()
-        if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            move_chord_baseline_down(staff)
-        end
-    end
+function move_baseline(staff, baseline, direction)
+
     local region = finenv.Region()
     local systems = finale.FCStaffSystems()
     systems:LoadAll()
@@ -2769,15 +2761,109 @@ function move_chord_baseline_down(staff)
     local end_measure = region:GetEndMeasure()
     local system = systems:FindMeasureNumber(start_measure)
     local lastSys = systems:FindMeasureNumber(end_measure)
-    local system_number = system:GetItemNo()
-    local lastSys_number = lastSys:GetItemNo()
+    local first_sys = system:GetItemNo()
+    local last_sys = lastSys:GetItemNo()
 
-    for i = system_number, lastSys_number, 1 do
+    for i = first_sys, last_sys, 1 do
         local baselines = finale.FCBaselines()
-        baselines:LoadAllForSystem(finale.BASELINEMODE_CHORD, i)
-            bl = baselines:AssureSavedStaff(finale.BASELINEMODE_CHORD, i, j)
-            bl.VerticalOffset = bl.VerticalOffset + to_EVPUs("-1s")
+        baselines:LoadAllForSystem(baseline, i)
+        local bl = baselines:AssureSavedStaff(baseline, i, staff:GetItemNo())
+        if (baseline == finale.BASELINEMODE_LYRICSCHORUS) or (baseline == finale.BASELINEMODE_LYRICSSECTION) or (baseline == finale.BASELINEMODE_LYRICSVERSE) then
+            for k = 1, 100, 1 do
+                bl = baselines:AssureSavedLyricNumber(finale.BASELINEMODE_LYRICSVERSE, i, staff:GetItemNo(), k)
+                if direction == "up" then
+                    bl.VerticalOffset = bl.VerticalOffset + to_EVPUs("1s")
+                else
+                    bl.VerticalOffset = bl.VerticalOffset + to_EVPUs("-1s")
+                end
+                bl:Save()
+            end
+        else
+            if direction == "up" then
+                bl.VerticalOffset = bl.VerticalOffset + to_EVPUs("1s")
+            else
+                bl.VerticalOffset = bl.VerticalOffset + to_EVPUs("-1s")
+            end
             bl:Save()
+        end
+    end
+end
+
+function chords_move_baseline_down()
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_baseline(staff, finale.BASELINEMODE_CHORD, "down")
+        end
+    end
+end
+
+function chords_move_baseline_up()
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_baseline(staff, finale.BASELINEMODE_CHORD, "up")
+        end
+    end
+end
+
+function expressions_move_baseline_down()
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_baseline(staff, finale.BASELINEMODE_EXPRESSIONABOVE, "down")
+            move_baseline(staff, finale.BASELINEMODE_EXPRESSIONBELOW, "down")
+        end
+    end
+end
+
+function expressions_move_baseline_up()
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_baseline(staff, finale.BASELINEMODE_EXPRESSIONABOVE, "up")
+            move_baseline(staff, finale.BASELINEMODE_EXPRESSIONBELOW, "up")
+        end
+    end
+end
+
+function lyrics_move_baseline_down()
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_baseline(staff, finale.BASELINEMODE_LYRICSVERSE, "down")
+            -- move_baseline(staff, finale.BASELINEMODE_LYRICSCHORUS, "down")
+            -- move_baseline(staff, finale.BASELINEMODE_LYRICSSECTION, "down")
+        end
+    end
+end
+
+function lyrics_move_baseline_up()
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            move_baseline(staff, finale.BASELINEMODE_LYRICSVERSE, "up")
+            move_baseline(staff, finale.BASELINEMODE_LYRICSCHORUS, "up")
+            move_baseline(staff, finale.BASELINEMODE_LYRICSSECTION, "up")
+        end
     end
 end
 
@@ -6049,6 +6135,12 @@ if return_values ~= nil then
         if return_values[1] == "0301" then
             lyrics_delete_lyrics()
         end
+        if return_values[1] == "0302" then
+            lyrics_move_baseline_down()
+        end
+        if return_values[1] == "0303" then
+            lyrics_move_baseline_up()
+        end
         if return_values[1] == "0400" then
             barline_right_invisible()
         end
@@ -6393,6 +6485,12 @@ if return_values ~= nil then
         end
         if return_values[1] == "0851" then
             expressions_straight_jazz()
+        end
+        if return_values[1] == "0852" then
+            expressions_move_baseline_down()
+        end
+        if return_values[1] == "0853" then
+            expressions_move_baseline_up()
         end
         if return_values[1] == "0900" then
             tuplet_manual()
@@ -6855,6 +6953,12 @@ if return_values ~= nil then
         end
         if return_values[1] == "1602" then
             chords_altered_bass_subtext()
+        end
+        if return_values[1] == "1603" then
+            chords_move_baseline_down()
+        end
+        if return_values[1] == "1604" then
+            chords_move_baseline_up()
         end
         if return_values[1] == "1700" then
             reset_rests()
