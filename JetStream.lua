@@ -6165,9 +6165,6 @@ if return_values ~= nil then
         if return_values[1] == "0300" then
             lyrics_clear_lyrics()
         end
-        if return_values[1] == "0301" then
-            lyrics_delete_lyrics()
-        end
         if return_values[1] == "0302" then
             lyrics_move_baseline_down()
         end
@@ -7080,6 +7077,8 @@ if return_values ~= nil then
             playback_selected_staves_document_beginning_to_document_end()
         elseif return_values[1] == "9000" then
             plugin_center_rehearsal_marks()
+        elseif return_values[1] == "0301" then
+            lyrics_delete_lyrics()
         else
             finenv.UI():AlertInfo("Please select a region and try again.", nil)
             return
