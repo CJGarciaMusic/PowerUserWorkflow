@@ -693,10 +693,8 @@ function hairpin_adjustments(range_settings, adjustment_type)
         end
 
         vertical_dynamic_adjustment(music_reg, "far")
-    elseif adjustment_type == "far" then
-        vertical_dynamic_adjustment(music_reg, "far")
-    elseif adjustment_type == "near" then
-        vertical_dynamic_adjustment(music_reg, "near")
+    else 
+        vertical_dynamic_adjustment(music_reg, adjustment_type)
     end
 end
 
