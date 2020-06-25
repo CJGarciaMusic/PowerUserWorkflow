@@ -410,6 +410,7 @@ end
 
 function vertical_dynamic_adjustment(region, direction)
     local lowest_item = {}
+    local staff_pos = {}
     local has_dynamics = false
     local has_hairpins = false
     local arg_point = finale.FCPoint(0, 0)
@@ -470,7 +471,6 @@ function vertical_dynamic_adjustment(region, direction)
             end
         end
     else
-        local staff_pos = {}
         for noteentry in eachentrysaved(region) do
             if noteentry:IsNote() then
                 for note in each(noteentry) do
@@ -652,34 +652,25 @@ function hairpin_adjustments(range_settings, adjustment_type)
     local end_pos = range_settings[5]
     local end_cushion = false
 
-    music_reg:SetStartMeasure(range_settings[3])
-    music_reg:SetEndMeasure(range_settings[3])
-    music_reg:SetStartMeasurePos(end_pos)
-    music_reg:SetEndMeasurePos(end_pos)
-
     local notes_in_region = {}
     for noteentry in eachentrysaved(music_reg) do
         if noteentry:IsNote() then
             table.insert(notes_in_region, noteentry)
         end
     end
+
+    music_reg:SetStartMeasure(notes_in_region[#notes_in_region]:GetMeasure())
+    music_reg:SetEndMeasure(notes_in_region[#notes_in_region]:GetMeasure())
+    music_reg:SetStartMeasurePos(notes_in_region[#notes_in_region]:GetMeasurePos())
+    music_reg:SetEndMeasurePos(notes_in_region[#notes_in_region]:GetMeasurePos())
     
-    if (has_dynamic(music_reg) == true) and (#notes_in_region >= 1) then
+    if (has_dynamic(music_reg) == true) and (#notes_in_region > 1) then
+        end_pos = notes_in_region[#notes_in_region]:GetMeasurePos()
+    elseif (has_dynamic(music_reg) == true) and (#notes_in_region == 1) then
         end_pos = range_settings[5]
     else
-        local last_duration = notes_in_region[#notes_in_region]:GetDuration()
-        if last_duration >= 2048 then
-            end_pos = end_pos + last_duration
-            end_cushion = true
-        end
+        end_cushion = true
     end
-
-    music_reg:SetStartStaff(range_settings[1])
-    music_reg:SetEndStaff(range_settings[1])
-    music_reg:SetStartMeasure(range_settings[2])
-    music_reg:SetEndMeasure(range_settings[3])
-    music_reg:SetStartMeasurePos(range_settings[4])
-    music_reg:SetEndMeasurePos(end_pos)
 
     if adjustment_type == "both" then
         if #hairpin_list == 1 then
@@ -691,9 +682,22 @@ function hairpin_adjustments(range_settings, adjustment_type)
                 horziontal_hairpin_adjustment("right", value, {range_settings[1], range_settings[3], end_pos}, end_cushion, true)
             end
         end
+        music_reg:SetStartStaff(range_settings[1])
+        music_reg:SetEndStaff(range_settings[1])
+        music_reg:SetStartMeasure(range_settings[2])
+        music_reg:SetEndMeasure(range_settings[3])
+        music_reg:SetStartMeasurePos(range_settings[4])
+        music_reg:SetEndMeasurePos(end_pos)
 
         vertical_dynamic_adjustment(music_reg, "far")
     else 
+        music_reg:SetStartStaff(range_settings[1])
+        music_reg:SetEndStaff(range_settings[1])
+        music_reg:SetStartMeasure(range_settings[2])
+        music_reg:SetEndMeasure(range_settings[3])
+        music_reg:SetStartMeasurePos(range_settings[4])
+        music_reg:SetEndMeasurePos(end_pos)
+
         vertical_dynamic_adjustment(music_reg, adjustment_type)
     end
 end
@@ -969,7 +973,7 @@ function set_first_last_note_in_range(staff)
 
         local end_measure = notes_in_region[#notes_in_region]:GetMeasure()
         
-        if (start_measure == end_measure) and (start_pos == end_pos) then
+        if notes_in_region[#notes_in_region]:GetDuration() >= 2048 then
             end_pos = notes_in_region[#notes_in_region]:GetDuration() 
         end
 
