@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "200620"
-    finaleplugin.Date = "6/20/2020"
+    finaleplugin.Version = "200624"
+    finaleplugin.Date = "6/24/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -2149,7 +2149,19 @@ function tuplet_options(tuplet_parameters)
     end
 end
 
-
+function single_pitch(pitch)
+    pitchstring = finale.FCString()
+    pitchstring.LuaString = pitch
+    writtenpitch = true
+    for e in eachentrysaved(finenv.Region()) do
+        if e:IsNote() then
+            e:MakeRest()
+            e:MakeNote()
+            e:GetItemAt(0):SetString(pitchstring, nil, writtenpitch)
+            e.CheckAccidentals = true 
+        end
+    end
+end
 
 -- function move_markers(marker_pos)
 
@@ -3549,7 +3561,7 @@ function dynamics_messa_di_voce_up()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
             if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                halfway_point(addstaff, finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+                halfway_point(staff:GetItemNo(), finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
             end
         end
     end
@@ -3565,7 +3577,7 @@ function dynamics_messa_di_voce_down()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
             if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                halfway_point(addstaff, finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+                halfway_point(staff:GetItemNo(), finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
             end
         end
     end
@@ -5593,15 +5605,17 @@ function playback_unmute_all_notes()
 end
 
 function noteheads_harmonics()
+    local notes_changed = false
     for entry in eachentrysaved(finenv.Region()) do
-        if (entry.Count ~= 2) then 
-            goto continue 
+        if (entry.Count ~= 2) then
+            goto continue
         end
+        notes_changed = true
         local highest_note = entry:CalcHighestNote(nil)
         local lowest_note = entry:CalcLowestNote(nil)
         local midi_diff = highest_note:CalcMIDIKey() - lowest_note:CalcMIDIKey()
-        if (midi_diff ~= 12 and midi_diff > 7) or (3 > midi_diff or midi_diff == 6) then 
-            goto continue 
+        if (midi_diff ~= 12 and midi_diff > 7) or (3 > midi_diff or midi_diff == 6) then
+            goto continue
         end
         local notehead = finale.FCNoteheadMod()
         notehead:EraseAt(lowest_note)
@@ -5617,6 +5631,9 @@ function noteheads_harmonics()
         end
         notehead:SaveAt(highest_note)
         ::continue::
+    end
+    if (notes_changed == false) then
+        finenv.UI():AlertError("No valid diads to convert to harmonics. Only affects one of the following intervals: m3, M3, P4, P5, or Octave. Use the haromonics scripts in the \"polyphony\" section to create harmonics from a single note.", "JetStream - Notehead Harmonics")
     end
 end
 
@@ -5808,6 +5825,22 @@ function articulations_delete_articulations_from_rests()
             end
         end
     end
+end
+
+function plugin_single_pitch_F4()
+    single_pitch("F4")
+end
+
+function plugin_single_pitch_F5()
+    single_pitch("F5")
+end
+
+function plugin_single_pitch_C5()
+    single_pitch("C5")
+end
+
+function plugin_single_pitch_A5()
+    single_pitch("A5")
 end
 
 dialog:SetTypes("String")
@@ -7067,6 +7100,18 @@ if return_values ~= nil then
         end
         if return_values[1] == "9004" then
             plugin_custom_text_dynamics()
+        end
+        if return_values[1] == "9005" then
+            plugin_single_pitch_F4()
+        end
+        if return_values[1] == "9006" then
+            plugin_single_pitch_F5()
+        end
+        if return_values[1] == "9007" then
+            plugin_single_pitch_C5()
+        end
+        if return_values[1] == "9008" then
+            plugin_single_pitch_A5()
         end
     else
         if return_values[1] == "0000" then

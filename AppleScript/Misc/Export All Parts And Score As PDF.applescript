@@ -6,7 +6,7 @@ on errorMessage(displayMessage)
 	end tell
 end errorMessage
 
-on exportDocument(myApp, file_type, file_name)
+on exportDocument(myApp, file_type, file_name, filePath)
 	tell application "System Events"
 		tell process myApp
 			click menu item "Graphics" of menu "Tools" of menu bar 1
@@ -17,6 +17,11 @@ on exportDocument(myApp, file_type, file_name)
 			click UI element "OK" of window "Export Pages"
 			repeat until window "Save PDF File" exists
 			end repeat
+			if filePath is not false then
+				keystroke "g" using {shift down, command down}
+				keystroke filePath
+				click UI element "Go" of sheet 1 of window "Save PDF File"
+			end if
 			key code 124
 			keystroke " - " & file_name as text
 			click UI element "Save" of window "Save PDF File"
@@ -27,18 +32,12 @@ on exportDocument(myApp, file_type, file_name)
 	end tell
 end exportDocument
 
-<<<<<<< HEAD
-on exportGraphicPartsAndScore(file_type, finaleApp)
-
+on exportGraphicPartsAndScore(file_type, finaleApp, filePath)
+	
 	tell application finaleApp
-=======
-on exportGraphicPartsAndScore(file_type, theApp)
-
-	tell application theApp
->>>>>>> 31d2b7e7e7b8b84ad6eff3c4b4361e150748282d
 		activate
 	end tell
-
+	
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
@@ -56,15 +55,20 @@ on exportGraphicPartsAndScore(file_type, theApp)
 					my errorMessage("You don't appear to have any parts generated. Please Generate Parts and try again.")
 					return false
 				else
-					repeat with aNumber from 1 to ((length of instList) - 4)
+					if (menu item (item 1 of instList) of menu 1 of menu item "Edit Part" of menu 1 of menu bar item "Document" of menu bar 1) exists then
+						click menu item (item 1 of instList) of menu 1 of menu item "Edit Part" of menu 1 of menu bar item "Document" of menu bar 1
+						set instName to (item 1 of instList)
+						my exportDocument(appName, file_type, instName, filePath)
+					end if
+					repeat with aNumber from 2 to ((length of instList) - 4)
 						if (menu item (item aNumber of instList) of menu 1 of menu item "Edit Part" of menu 1 of menu bar item "Document" of menu bar 1) exists then
 							click menu item (item aNumber of instList) of menu 1 of menu item "Edit Part" of menu 1 of menu bar item "Document" of menu bar 1
 							set instName to (item aNumber of instList)
-							my exportDocument(appName, file_type, instName)
+							my exportDocument(appName, file_type, instName, false)
 						end if
 					end repeat
 					click menu item "Edit Score" of menu 1 of menu bar item "Document" of menu bar 1
-					my exportDocument(appName, file_type, "Score")
+					my exportDocument(appName, file_type, "Score", false)
 				end if
 			end tell
 		end tell
@@ -76,16 +80,12 @@ on exportGraphicPartsAndScore(file_type, theApp)
 end exportGraphicPartsAndScore
 
 tell application "System Events"
-<<<<<<< HEAD
 	set myFinale to name of the first process whose frontmost is true
-=======
-	set myFinale to name of the first process whose frontmost is true 
->>>>>>> 31d2b7e7e7b8b84ad6eff3c4b4361e150748282d
-	set theAsk to display dialog "Are you sure you want to continue with exporting all parts and score as a PDF?" buttons {"No", "Yes"} default button "Yes" with icon note
-	set buttonReturned to button returned of theAsk
-	if buttonReturned is "Yes" then
-		my exportGraphicPartsAndScore("PDF", myFinale)
-	else
+	try
+		set theOutputFolder to choose folder with prompt "Please select a destination for your PDFs:"
+		set thisPOSIXPath to (the POSIX path of theOutputFolder)
+		my exportGraphicPartsAndScore("PDF", myFinale, thisPOSIXPath)
+	on error
 		return false
-	end if
+	end try
 end tell
