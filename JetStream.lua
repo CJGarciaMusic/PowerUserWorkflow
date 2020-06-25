@@ -16,26 +16,60 @@ end
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
-function assignArticulation(art_id)
-    for noteentry in eachentrysaved(finenv.Region()) do
-        local a = finale.FCArticulation()
-        a:SetNoteEntry(noteentry)
-        local ad = finale.FCArticulationDef()
-        if (art_id == full_art_table[20]) or (art_id == full_art_table[21]) or (art_id == full_art_table[25]) or (art_id == full_art_table[26]) then
-            if (noteentry:IsNote()) and (noteentry:IsTied() == false) then
-                a:SetID(art_id)
-                a:SaveNew()  
+function tremolo_assignment(tremolo_type)
+    if tremolo_type == "metered tremolo" then
+        for noteentry in eachentrysaved(finenv.Region()) do
+            if noteentry:IsNote() then
+                local articulation = finale.FCArticulation()
+                articulation:SetNoteEntry(noteentry)
+                if noteentry.Duration < 512 then
+                    articulation:SetID(full_art_table[7])
+                    articulation:SaveNew() 
+                elseif (noteentry.Duration >= 512) and (noteentry.Duration < 1024) then
+                    articulation:SetID(full_art_table[8])
+                    articulation:SaveNew() 
+                elseif noteentry.Duration >= 1024 then
+                    articulation:SetID(full_art_table[9])
+                    articulation:SaveNew() 
+                end
             end
-        else      
-            if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then
-                a:SetID(art_id)
-                a:SaveNew()
-            else
-                if ad:GetAboveSymbolChar() == 85 then
+        end 
+    else
+        for noteentry in eachentrysaved(finenv.Region()) do
+            if noteentry:IsNote() then
+                local articulation = finale.FCArticulation()
+                articulation:SetNoteEntry(noteentry)
+                articulation:SetID(tremolo_type)
+                articulation:SaveNew()
+            end
+        end
+    end
+end
+
+function assignArticulation(art_id)
+    if (art_id == "metered tremolo") or (art_id == full_art_table[7]) or (art_id == full_art_table[8]) or (art_id == full_art_table[9]) then
+        tremolo_assignment(art_id)
+    else
+        for noteentry in eachentrysaved(finenv.Region()) do
+            local a = finale.FCArticulation()
+            a:SetNoteEntry(noteentry)
+            local ad = finale.FCArticulationDef()
+            if (art_id == full_art_table[20]) or (art_id == full_art_table[21]) or (art_id == full_art_table[25]) or (art_id == full_art_table[26]) then
+                if (noteentry:IsNote()) and (noteentry:IsTied() == false) then
+                    a:SetID(art_id)
+                    a:SaveNew()  
+                end
+            else      
+                if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then
                     a:SetID(art_id)
                     a:SaveNew()
-                end
-            end 
+                else
+                    if ad:GetAboveSymbolChar() == 85 then
+                        a:SetID(art_id)
+                        a:SaveNew()
+                    end
+                end 
+            end
         end
     end
 end
@@ -3801,6 +3835,25 @@ function articulations_wedge()
     end
 end
 
+function articulations_metered_tremolo()
+    findArticulation(7, 33, "")
+    findArticulation(8, 64, "")
+    findArticulation(9, 190, "")
+    if full_art_table[7] == 0 then
+        createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    end
+    if full_art_table[8] == 0 then
+        createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    end
+    if full_art_table[9] == 0 then
+        createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    end
+    deleteArticulation(full_art_table[7])
+    deleteArticulation(full_art_table[8])
+    deleteArticulation(full_art_table[9])
+    addArticulation("metered tremolo")
+end
+
 function articulations_tremolo_single()
     findArticulation(7, 33, "")
     if full_art_table[7] == 0 then
@@ -3810,7 +3863,7 @@ function articulations_tremolo_single()
         deleteArticulation(full_art_table[8])
         findArticulation(9, 190, "")
         deleteArticulation(full_art_table[9])
-        addArticulation(full_art_table[7])
+        assignArticulation(full_art_table[7])
     end
 end
 
@@ -3823,7 +3876,7 @@ function articulations_tremolo_double()
         deleteArticulation(full_art_table[7])
         findArticulation(9, 190, "")
         deleteArticulation(full_art_table[9])
-        addArticulation(full_art_table[8])
+        assignArticulation(full_art_table[8])
     end
 end
 
@@ -3836,7 +3889,7 @@ function articulations_tremolo_triple()
         deleteArticulation(full_art_table[7])
         findArticulation(8, 64, "")
         deleteArticulation(full_art_table[8])
-        addArticulation(full_art_table[9])
+        assignArticulation(full_art_table[9])
     end
 end
 
@@ -6149,6 +6202,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "0144" then
             articulations_delete_articulations_from_rests()
+        end
+        if return_values[1] == "0145" then
+            articulations_metered_tremolo()
         end
         if return_values[1] == "0200" then
             noteheads_x_circle()
