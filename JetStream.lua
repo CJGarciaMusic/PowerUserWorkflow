@@ -837,19 +837,6 @@ function nudge_dynamics_and_hairpins(hairpin, region, nudge_value)
     region:SetStartStaff(left_seg:GetStaff())
     region:SetEndStaff(right_seg:GetStaff())
 
-    local expressions = finale.FCExpressions()
-    expressions:LoadAllForRegion(region)
-    for e in each(expressions) do
-        local create_def = e:CreateTextExpressionDef()
-        local cd = finale.FCCategoryDef()
-        if cd:Load(create_def:GetCategoryID()) then
-            if string.find(cd:CreateName().LuaString, "Dynamic") then
-                e:SetVerticalPos(e:GetVerticalPos() + nudge_value)
-                e:Save()
-            end
-        end
-    end
-
     local ssmm = finale.FCSmartShapeMeasureMarks()
     ssmm:LoadAllForRegion(region, true)
     for mark in each(ssmm) do
@@ -1473,6 +1460,7 @@ function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, brev
     for noteentry in eachentrysaved(finenv.Region()) do 
         nm:SetNoteEntry(noteentry)
         for note in each(noteentry) do
+            nm:SetVerticalPos(0)
             if noteentry.Duration < 2048 then
                 nm.CustomChar = quarter_glyph
             end
@@ -3635,6 +3623,19 @@ function dynamics_nudge_up()
             table.insert(hairpin_list, smartshape)
         end
     end
+
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(music_reg)
+    for e in each(expressions) do
+        local create_def = e:CreateTextExpressionDef()
+        local cd = finale.FCCategoryDef()
+        if cd:Load(create_def:GetCategoryID()) then
+            if string.find(cd:CreateName().LuaString, "Dynamic") then
+                e:SetVerticalPos(e:GetVerticalPos() + 9)
+                e:Save()
+            end
+        end
+    end
         
     for key, value in pairs(hairpin_list) do
         nudge_dynamics_and_hairpins(value, music_reg, 9)
@@ -3653,6 +3654,19 @@ function dynamics_nudge_down()
         local smartshape = mark:CreateSmartShape()
         if smartshape:IsHairpin() then
             table.insert(hairpin_list, smartshape)
+        end
+    end
+
+    local expressions = finale.FCExpressions()
+    expressions:LoadAllForRegion(music_reg)
+    for e in each(expressions) do
+        local create_def = e:CreateTextExpressionDef()
+        local cd = finale.FCCategoryDef()
+        if cd:Load(create_def:GetCategoryID()) then
+            if string.find(cd:CreateName().LuaString, "Dynamic") then
+                e:SetVerticalPos(e:GetVerticalPos() -9)
+                e:Save()
+            end
         end
     end
         
