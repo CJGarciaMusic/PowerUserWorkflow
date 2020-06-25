@@ -6647,7 +6647,7 @@ if return_values ~= nil then
             tuplet_manual()
         end
         if return_values[1] == "0901" then
-            tuplet_stem_beam()
+            tuplet_stem_beam_side()
         end
         if return_values[1] == "0902" then
             tuplet_note_side()
