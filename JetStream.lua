@@ -7102,6 +7102,18 @@ if return_values ~= nil then
         if return_values[1] == "1504" then
             transform_caesura_to_expression()
         end
+        if return_values[1] == "1505" then
+            plugin_single_pitch_F4()
+        end
+        if return_values[1] == "1506" then
+            plugin_single_pitch_F5()
+        end
+        if return_values[1] == "1507" then
+            plugin_single_pitch_C5()
+        end
+        if return_values[1] == "1508" then
+            plugin_single_pitch_A5()
+        end
         if return_values[1] == "1600" then
             chords_altered_bass_after()
         end
@@ -7188,18 +7200,6 @@ if return_values ~= nil then
         end
         if return_values[1] == "9004" then
             plugin_custom_text_dynamics()
-        end
-        if return_values[1] == "9005" then
-            plugin_single_pitch_F4()
-        end
-        if return_values[1] == "9006" then
-            plugin_single_pitch_F5()
-        end
-        if return_values[1] == "9007" then
-            plugin_single_pitch_C5()
-        end
-        if return_values[1] == "9008" then
-            plugin_single_pitch_A5()
         end
     else
         if return_values[1] == "0000" then
