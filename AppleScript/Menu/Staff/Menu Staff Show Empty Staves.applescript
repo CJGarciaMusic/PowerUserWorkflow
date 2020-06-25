@@ -10,7 +10,7 @@ on chooseMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 	tell application "System Events"
 		set appName to name of the first process whose frontmost is true
 	end tell
-
+	
 	if appName does not contain "Finale" then
 		errorMessage("Please make sure Finale is the front application")
 		return false
@@ -25,19 +25,19 @@ on chooseMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 					set getItem to enabled of menu item theSubMenuItem of menu theMenuItemName of menu bar 1
 					if getItem is true then
 						click menu item theSubMenuItem of menu theMenuItemName of menu bar 1
-						return true 
+						return true
 					else
 						error
 					end if
 				else
-					error 
+					error
 				end if
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
+		errorMessage("This " & theMenuItemName & " tool operation wasn't able to be performed.\n\nPlease be sure you have made a selection and try again.")		
 		return false
 	end try
 end chooseMenuItem
 
-chooseMenuItem("Tools", "Staff", "Define Staff Styles…")
+chooseMenuItem("Tools", "Staff", "Show Empty Staves")

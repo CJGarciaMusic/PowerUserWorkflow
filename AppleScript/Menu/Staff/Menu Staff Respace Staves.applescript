@@ -35,7 +35,7 @@ on chooseMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your doucment is in focus and try again.")
+		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
 		return false
 	end try
 end chooseMenuItem

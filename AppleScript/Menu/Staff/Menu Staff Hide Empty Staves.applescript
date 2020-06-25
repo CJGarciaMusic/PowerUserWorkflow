@@ -35,9 +35,9 @@ on chooseMenuItem(theMenuName, theMenuItemName, theSubMenuItem)
 			end tell
 		end tell
 	on error
-		errorMessage("The " & theMenuItemName & " tool wasn't able to be selected.\n\nPlease be sure your document is in focus and try again.")
+		errorMessage("This " & theMenuItemName & " tool operation wasn't able to be performed.\n\nPlease be sure you have made a selection and try again.")
 		return false
 	end try
 end chooseMenuItem
 
-chooseMenuItem("Tools", "Staff", "Define Staff Styles…")
+chooseMenuItem("Tools", "Staff", "Hide Empty Staves")
