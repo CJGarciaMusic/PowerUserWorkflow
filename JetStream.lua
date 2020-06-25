@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "200624"
-    finaleplugin.Date = "6/24/2020"
+    finaleplugin.Version = "200625"
+    finaleplugin.Date = "6/25/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -408,19 +408,12 @@ function getUsedFontName(standard_name)
     return font_name
 end
 
-function vertical_hairpin_adjustment(hairpin, region, direction)
+function vertical_dynamic_adjustment(region, direction)
     local lowest_item = {}
     local has_dynamics = false
+    local has_hairpins = false
     local arg_point = finale.FCPoint(0, 0)
-    local left_seg = hairpin:GetTerminateSegmentLeft()
-    local right_seg = hairpin:GetTerminateSegmentRight()
 
-    region:SetStartMeasure(left_seg:GetMeasure())
-    region:SetEndMeasure(right_seg:GetMeasure())
-    region:SetStartMeasurePos(left_seg:GetMeasurePos())
-    region:SetEndMeasurePos(right_seg:GetMeasurePos())
-    region:SetStartStaff(left_seg:GetStaff())
-    region:SetEndStaff(right_seg:GetStaff())
     local expressions = finale.FCExpressions()
     expressions:LoadAllForRegion(region)
     for e in each(expressions) do
@@ -441,6 +434,7 @@ function vertical_hairpin_adjustment(hairpin, region, direction)
     for mark in each(ssmm) do
         local smart_shape = mark:CreateSmartShape()
         if smart_shape:IsHairpin() then
+            has_hairpins = true
             if smart_shape:CalcLeftCellMetricPos(arg_point) then 
                 table.insert(lowest_item, arg_point:GetY())
             elseif smart_shape:CalcRightCellMetricPos(arg_point) then
@@ -497,63 +491,60 @@ function vertical_hairpin_adjustment(hairpin, region, direction)
         end
     end
 
-    local ssmm = finale.FCSmartShapeMeasureMarks()
-    ssmm:LoadAllForRegion(region, true)
-    for mark in each(ssmm) do
-        local smart_shape = mark:CreateSmartShape()
-        if smart_shape:IsHairpin() then
-            if smart_shape:CalcLeftCellMetricPos(arg_point) then
-                local left_seg = smart_shape:GetTerminateSegmentLeft()
-                local current_pos = left_seg:GetEndpointOffsetY()
-                local difference_pos = arg_point:GetY() - lowest_item[1]
-                if direction == "near" then
-                    difference_pos = lowest_item[#lowest_item] - arg_point:GetY()
-                end
-                if has_dynamics == true then
-                    if direction == "far" then
-                        left_seg:SetEndpointOffsetY((current_pos - difference_pos) + 12)
-                    else
-                        left_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
+
+
+    if has_hairpins == true then
+        local ssmm = finale.FCSmartShapeMeasureMarks()
+        ssmm:LoadAllForRegion(region, true)
+        for mark in each(ssmm) do
+            local smart_shape = mark:CreateSmartShape()
+            if smart_shape:IsHairpin() then
+                if smart_shape:CalcLeftCellMetricPos(arg_point) then
+                    local left_seg = smart_shape:GetTerminateSegmentLeft()
+                    local current_pos = left_seg:GetEndpointOffsetY()
+                    local difference_pos = arg_point:GetY() - lowest_item[1]
+                    if direction == "near" then
+                        difference_pos = lowest_item[#lowest_item] - arg_point:GetY()
                     end
-                else
-                    left_seg:SetEndpointOffsetY(lowest_item[1])
-                end
-                smart_shape:Save()
-            elseif smart_shape:CalcRightCellMetricPos(arg_point) then 
-                local right_seg = smart_shape:GetTerminateSegmentRight()
-                local current_pos = right_seg:GetEndpointOffsetY()
-                local difference_pos = arg_point:GetY() - lowest_item[1]
-                if direction == "near" then
-                    difference_pos = lowest_item[#lowest_item] - arg_point:GetY()
-                end
-                if has_dynamics == true then
-                    if direction == "far" then
-                        right_seg:SetEndpointOffsetY((current_pos - difference_pos) + 12)
+                    if has_dynamics == true then
+                        if direction == "far" then
+                            left_seg:SetEndpointOffsetY((current_pos - difference_pos) + 12)
+                        else
+                            left_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
+                        end
                     else
-                        right_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
+                        left_seg:SetEndpointOffsetY(lowest_item[1])
                     end
-                else
-                    right_seg:SetEndpointOffsetY(lowest_item[1])
+                    smart_shape:Save()
+                elseif smart_shape:CalcRightCellMetricPos(arg_point) then 
+                    local right_seg = smart_shape:GetTerminateSegmentRight()
+                    local current_pos = right_seg:GetEndpointOffsetY()
+                    local difference_pos = arg_point:GetY() - lowest_item[1]
+                    if direction == "near" then
+                        difference_pos = lowest_item[#lowest_item] - arg_point:GetY()
+                    end
+                    if has_dynamics == true then
+                        if direction == "far" then
+                            right_seg:SetEndpointOffsetY((current_pos - difference_pos) + 12)
+                        else
+                            right_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
+                        end
+                    else
+                        right_seg:SetEndpointOffsetY(lowest_item[1])
+                    end
+                    smart_shape:Save()
                 end
-                smart_shape:Save()
             end
         end
     end
 end
 
-function horziontal_hairpin_adjustment(left_or_right, hairpin, region_settings, cushion_bool)
+function horziontal_hairpin_adjustment(left_or_right, hairpin, region_settings, cushion_bool, multiple_hairpin_bool)
     local the_seg = hairpin:GetTerminateSegmentLeft()
     local left_dynamic_cushion = 9
     local right_dynamic_cushion = -9
     local left_selection_cushion = 0
     local right_selection_cushion = -18
-    local region = finenv.Region()
-    region:SetStartStaff(region_settings[1])
-    region:SetEndStaff(region_settings[1])
-    region:SetStartMeasure(region_settings[2])
-    region:SetEndMeasure(region_settings[2])
-    region:SetStartMeasurePos(region_settings[3])
-    region:SetEndMeasurePos(region_settings[3])
 
     if left_or_right == "left" then
         the_seg = hairpin:GetTerminateSegmentLeft()
@@ -562,7 +553,23 @@ function horziontal_hairpin_adjustment(left_or_right, hairpin, region_settings, 
         the_seg = hairpin:GetTerminateSegmentRight()
     end
 
-    the_seg:SetMeasurePos(region_settings[3])
+    local region = finenv.Region()
+    region:SetStartStaff(region_settings[1])
+    region:SetEndStaff(region_settings[1])
+
+    if multiple_hairpin_bool == false then
+        region:SetStartMeasure(region_settings[2])
+        region:SetEndMeasure(region_settings[2])
+        region:SetStartMeasurePos(region_settings[3])
+        region:SetEndMeasurePos(region_settings[3])
+        the_seg:SetMeasurePos(region_settings[3])
+    else
+        region:SetStartMeasure(the_seg:GetMeasure())
+        region:SetStartMeasurePos(the_seg:GetMeasurePos())
+        region:SetEndMeasure(the_seg:GetMeasure())
+        region:SetEndMeasurePos(the_seg:GetMeasurePos())
+    end
+
 
     local expressions = finale.FCExpressions()
     expressions:LoadAllForRegion(region)
@@ -602,7 +609,7 @@ function horziontal_hairpin_adjustment(left_or_right, hairpin, region_settings, 
     hairpin:Save()
 end
 
-function hairpin_adjustments(range_settings, vertical_direction)
+function hairpin_adjustments(range_settings, adjustment_type)
 
     local music_reg = finenv.Region()
     music_reg:SetStartStaff(range_settings[1])
@@ -657,33 +664,39 @@ function hairpin_adjustments(range_settings, vertical_direction)
         end
     end
     
-    if (has_dynamic(music_reg) == true) and (#notes_in_region > 1) then
+    if (has_dynamic(music_reg) == true) and (#notes_in_region >= 1) then
         end_pos = range_settings[5]
     else
-        local get_time = finale.FCMeasure()
-        get_time:Load(notes_in_region[#notes_in_region]:GetMeasure())
-        local new_right_end = get_time:GetTimeSignature()
-        local beat = new_right_end:GetBeats()
-        local duration = new_right_end:GetBeatDuration()
-        local total_time = (beat * duration)
-        local last_note = notes_in_region[#notes_in_region]:GetDuration() + notes_in_region[#notes_in_region]:GetMeasurePos()
-        if (notes_in_region[#notes_in_region]:GetDuration() > 1536) or (last_note == total_time) then
-            end_pos = end_pos + notes_in_region[#notes_in_region]:GetDuration()
-        end
-        if last_note == total_time then
+        local last_duration = notes_in_region[#notes_in_region]:GetDuration()
+        if last_duration >= 2048 then
+            end_pos = end_pos + last_duration
             end_cushion = true
         end
     end
 
+    music_reg:SetStartStaff(range_settings[1])
+    music_reg:SetEndStaff(range_settings[1])
     music_reg:SetStartMeasure(range_settings[2])
     music_reg:SetEndMeasure(range_settings[3])
     music_reg:SetStartMeasurePos(range_settings[4])
     music_reg:SetEndMeasurePos(end_pos)
 
-    for key, value in pairs(hairpin_list) do
-        horziontal_hairpin_adjustment("left", value, {range_settings[1], range_settings[2], range_settings[4]}, end_cushion)
-        horziontal_hairpin_adjustment("right", value, {range_settings[1], range_settings[3], end_pos}, end_cushion)
-        vertical_hairpin_adjustment(value, music_reg, vertical_direction)
+    if adjustment_type == "both" then
+        if #hairpin_list == 1 then
+            horziontal_hairpin_adjustment("left", hairpin_list[1], {range_settings[1], range_settings[2], range_settings[4]}, end_cushion, false)
+            horziontal_hairpin_adjustment("right", hairpin_list[1], {range_settings[1], range_settings[3], end_pos}, end_cushion, false)
+        elseif #hairpin_list > 1 then
+            for key, value in pairs(hairpin_list) do
+                horziontal_hairpin_adjustment("left", value, {range_settings[1], range_settings[2], range_settings[4]}, end_cushion, true)
+                horziontal_hairpin_adjustment("right", value, {range_settings[1], range_settings[3], end_pos}, end_cushion, true)
+            end
+        end
+
+        vertical_dynamic_adjustment(music_reg, "far")
+    elseif adjustment_type == "far" then
+        vertical_dynamic_adjustment(music_reg, "far")
+    elseif adjustment_type == "near" then
+        vertical_dynamic_adjustment(music_reg, "near")
     end
 end
 
@@ -957,6 +970,10 @@ function set_first_last_note_in_range(staff)
         local start_measure = notes_in_region[1]:GetMeasure()
 
         local end_measure = notes_in_region[#notes_in_region]:GetMeasure()
+        
+        if (start_measure == end_measure) and (start_pos == end_pos) then
+            end_pos = notes_in_region[#notes_in_region]:GetDuration() 
+        end
 
         range_settings[staff] = {staff, start_measure, end_measure, start_pos, end_pos}
 
@@ -1203,7 +1220,7 @@ function dynamics_align_hairpins_and_dynamics()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
             if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "far")
+                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "both")
             end
         end
     end
@@ -1335,7 +1352,7 @@ function add_dynamic(staff_num, measure_num, measure_pos)
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
             if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "far")
+                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "both")
             end
         end
     end
