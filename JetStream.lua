@@ -2207,6 +2207,17 @@ function single_pitch(pitch)
     end
 end
 
+function transpose_semitones(pitch_difference)
+    for entry in eachentrysaved(finenv.Region()) do
+        if entry:IsNote() then
+            for note in each(entry) do
+                local midi = note:CalcMIDIKey()
+                note:SetMIDIKey(midi + pitch_difference)
+            end
+        end
+    end
+end
+
 -- function move_markers(marker_pos)
 
 --     function first_and_last()
@@ -5916,20 +5927,28 @@ function articulations_delete_articulations_from_rests()
     end
 end
 
-function plugin_single_pitch_F4()
+function transform_single_pitch_F4()
     single_pitch("F4")
 end
 
-function plugin_single_pitch_F5()
+function transform_single_pitch_F5()
     single_pitch("F5")
 end
 
-function plugin_single_pitch_C5()
+function transform_single_pitch_C5()
     single_pitch("C5")
 end
 
-function plugin_single_pitch_A5()
+function transform_single_pitch_A5()
     single_pitch("A5")
+end
+
+function transform_semitone_up()
+    transpose_semitones(1)
+end
+
+function transform_semitone_down()
+    transpose_semitones(-1)
 end
 
 dialog:SetTypes("String")
@@ -7107,16 +7126,22 @@ if return_values ~= nil then
             transform_caesura_to_expression()
         end
         if return_values[1] == "1505" then
-            plugin_single_pitch_F4()
+            transform_single_pitch_F4()
         end
         if return_values[1] == "1506" then
-            plugin_single_pitch_F5()
+            transform_single_pitch_F5()
         end
         if return_values[1] == "1507" then
-            plugin_single_pitch_C5()
+            transform_single_pitch_C5()
         end
         if return_values[1] == "1508" then
-            plugin_single_pitch_A5()
+            transform_single_pitch_A5()
+        end
+        if return_values[1] == "1509" then
+            transform_semitone_up()
+        end
+        if return_values[1] == "1510" then
+            transform_semitone_down()
         end
         if return_values[1] == "1600" then
             chords_altered_bass_after()
