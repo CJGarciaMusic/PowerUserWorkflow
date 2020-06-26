@@ -59,9 +59,11 @@ function assignArticulation(art_id)
                     a:SetID(art_id)
                     a:SaveNew()  
                 end
-            elseif art_id == full_art_table[12] then
-                a:SetID(art_id)
-                a:SaveNew()
+            elseif (art_id == full_art_table[12]) or (art_id == full_art_table[11]) then
+                if noteentry:IsNote() then
+                    a:SetID(art_id)
+                    a:SaveNew()
+                end
             else      
                 if (noteentry:IsNote()) and (noteentry:IsTiedBackwards() == false) then
                     a:SetID(art_id)
