@@ -1134,81 +1134,170 @@ function createBeatBasedSL(smart_shape, place_above)
     end
 end
 
-function increaseDynamic()
-    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local text_expression = {}
+
+function CreateTextExpression(exp_string_list, table_name, exp_description, category_number)
+    local ex_ted = finale.FCTextExpressionDef()
+    local ex_textstr = finale.FCString()
+    local cat_def = finale.FCCategoryDef()
+    cat_def:Load(category_number)
+    local fonti = cat_def:CreateTextFontInfo()
+    local text_font = "^fontTxt"..fonti:CreateEnigmaString(finale.FCString()).LuaString
+    cat_def:GetMusicFontInfo(fonti)
+    local music_font = "^fontMus"..fonti:CreateEnigmaString(finale.FCString()).LuaString
+    if exp_string_list[2] ~= nil then
+        if tonumber(exp_string_list[2]) ~= nil then
+            local exp_string_p2 = finale.FCString()
+            exp_string_p2.LuaString = music_font
+            exp_string_p2:AppendCharacter(exp_string_list[2])
+            ex_textstr.LuaString = text_font..exp_string_list[1].." "..exp_string_p2.LuaString
+        elseif tonumber(exp_string_list[1]) ~= nil then
+            local exp_string_p1 = finale.FCString()
+            exp_string_p1.LuaString = music_font
+            exp_string_p1:AppendCharacter(exp_string_list[1])
+            ex_textstr.LuaString = exp_string_p1.LuaString.." "..text_font..exp_string_list[2]
+        end
+    else
+        ex_textstr.LuaString = text_font..exp_string_list[1]
+    end
+    ex_ted:SaveNewTextBlock(ex_textstr)
+    
+    local and_descriptionstr = finale.FCString()
+    and_descriptionstr.LuaString = exp_description
+    ex_ted:SetDescription(and_descriptionstr)
+    local cat_def = finale.FCCategoryDef()
+    cat_def:Load(category_number)
+    ex_ted:AssignToCategory(cat_def)
+    ex_ted:SetUseCategoryPos(true)
+    ex_ted:SetUseCategoryFont(true)
+    ex_ted:SaveNew()
+    table.insert(table_name, ex_ted:GetItemNo())  
+end
+
+function findTextExpression(exp_string_list, table_name, description_text, category_num)
+    local matching_glyphs = {}
+    local exp_defs = finale.FCTextExpressionDefs()
+    local exp_def = finale.FCTextExpressionDef()
+    exp_defs:LoadAll()
+    for exp in each(exp_defs) do
+        local current_string = exp:CreateTextString()
+        current_string:TrimEnigmaTags()
+        if exp_string_list[2] ~= nil then
+            if tonumber(exp_string_list[2]) ~= nil then
+                local exp_string_p2 = finale.FCString()
+                exp_string_p2.LuaString = ""
+                exp_string_p2:AppendCharacter(exp_string_list[2])
+                if current_string.LuaString == exp_string_list[1].." "..exp_string_p2.LuaString then
+                    table.insert(matching_glyphs, exp:GetItemNo())
+                end
+            elseif tonumber(exp_string_list[1]) ~= nil then
+                local exp_string_p1 = finale.FCString()
+                exp_string_p1.LuaString = ""
+                exp_string_p1:AppendCharacter(exp_string_list[1])
+                if current_string.LuaString == exp_string_p1.LuaString.." "..exp_string_list[2] then
+                    table.insert(matching_glyphs, exp:GetItemNo())
+                end
+            end
+        else
+            if current_string.LuaString == exp_string_list[1] then
+                table.insert(matching_glyphs, exp:GetItemNo())
+            end
+        end
+    end
+    if matching_glyphs[1] == nil then
+        CreateTextExpression(exp_string_list, table_name, description_text, category_num)
+    else
+        exp_def:Load(matching_glyphs[1])
+        table.insert(table_name, exp_def:GetItemNo())  
+    end
+end
+
+function multi_character_dynamic(the_expression, direction)
+    local dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+    local exp_def = the_expression:CreateTextExpressionDef()
+    local exp_string = exp_def:CreateTextString()
+    exp_string:TrimEnigmaTags()
+    local char_to_change = 0
+    local new_char = 0
+    local first, last = string.find(exp_string.LuaString, "%s?sub[.]?[ito]?%s?")
+
+    if first ~= nil then
+        for index = 0, string.len(exp_string.LuaString) do
+            for key, value in pairs(dyn_char) do
+                if exp_string:GetCharacterAt(index) == value then
+                    if direction == "increase" then
+                        if key < 11 then
+                            new_char = dyn_char[key + 1]
+                        end
+                    elseif direction == "decrease" then
+                        if key > 1 then
+                            new_char = dyn_char[key - 1]
+                        end
+                    end
+                    char_to_change = index
+                end
+            end
+        end
+    end
+
+    exp_string:DeleteCharacterAt(char_to_change)
+    exp_string.LuaString = string.gsub(exp_string.LuaString, "%s", "")
+    local new_description = exp_def:CreateDescription().LuaString
+    new_description = string.gsub(new_description, " JetStream Addition", "")
+
+    if first ~= 1 then
+        findSpecialExpression({new_char, exp_string.LuaString}, {nil}, text_expression, new_description.." (JetStream)", 1)
+    else
+        findSpecialExpression({exp_string.LuaString, new_char}, {nil}, text_expression, new_description.." (JetStream)", 1)
+    end
+    addTextExpression(the_expression:GetStaff(), the_expression:GetMeasure(), the_expression:GetMeasurePos())
+end
+
+function increase_decrease_dynamics(direction)
+    local single_dyn_char = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     local dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
     
     local expressions = finale.FCTextExpressionDefs()
     expressions:LoadAll()
     for exp in each(expressions) do
-        local cat_num = finale.FCCategoryDef()
-        cat_num:Load(1)
-        if exp:GetCategoryID(cat_num) then
-            for key, value in pairs(dyn_char) do
-                local exp_string = exp:CreateTextString()
-                exp_string:TrimEnigmaTags()
-                if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
-                    dyn_table[key] = exp:GetItemNo()
-                end
-            end
-        end
-    end
-    
-    local expressions = finale.FCExpressions()
-    expressions:LoadAllForRegion(finenv.Region())
-    for exp in each(expressions) do
-        local ex_def = exp:CreateTextExpressionDef()
-        local cat_num = finale.FCCategoryDef()
-        cat_num:Load(1)
-        if ex_def:GetCategoryID(cat_num) then
-            for key, value in pairs(dyn_char) do
-                local exp_string = ex_def:CreateTextString()
-                exp_string:TrimEnigmaTags()
-                if key < 11 then
-                    if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
-                        exp:SetID(dyn_table[key + 1])
-                        exp:Save()
+        if exp:GetCategoryID() == 1 then
+            local exp_string = exp:CreateTextString()
+            exp_string:TrimEnigmaTags()
+            if string.len(exp_string.LuaString) <= 2 then
+                for key, value in pairs(dyn_char) do             
+                    if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(1) == 0) then
+                        single_dyn_char[key] = exp:GetItemNo()
                     end
                 end
             end
         end
     end
-end
-
-function decreaseDynamic()
-    local dyn_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    local dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
-    
-    local expressions = finale.FCTextExpressionDefs()
-    expressions:LoadAll()
-    for exp in each(expressions) do
-        local cat_num = finale.FCCategoryDef()
-        cat_num:Load(1)
-        if exp:GetCategoryID(cat_num) then
-            for key, value in pairs(dyn_char) do
-                local exp_string = exp:CreateTextString()
-                exp_string:TrimEnigmaTags()
-                if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
-                    dyn_table[key] = exp:GetItemNo()
-                end
-            end
-        end
-    end
     
     local expressions = finale.FCExpressions()
     expressions:LoadAllForRegion(finenv.Region())
     for exp in each(expressions) do
         local ex_def = exp:CreateTextExpressionDef()
-        local cat_num = finale.FCCategoryDef()
-        cat_num:Load(1)
-        if ex_def:GetCategoryID(cat_num) then
-            for key, value in pairs(dyn_char) do
-                local exp_string = ex_def:CreateTextString()
-                exp_string:TrimEnigmaTags()
-                if key > 1 then
-                    if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(-1) == value) then
-                        exp:SetID(dyn_table[key - 1])
-                        exp:Save()
+        if ex_def:GetCategoryID() == 1 then
+            local exp_string = ex_def:CreateTextString()
+            exp_string:TrimEnigmaTags()
+            if string.len(exp_string.LuaString) > 2 then
+                multi_character_dynamic(exp, direction)
+            else
+                for key, value in pairs(dyn_char) do
+                    if direction == "increase" then
+                        if key < 11 then
+                            if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(1) == 0) then
+                                exp:SetID(single_dyn_char[key + 1])
+                                exp:Save()
+                            end
+                        end
+                    elseif direction == "decrease" then
+                        if key > 1 then
+                            if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(1) == 0) then
+                                exp:SetID(single_dyn_char[key - 1])
+                                exp:Save()
+                            end
+                        end
                     end
                 end
             end
@@ -1439,22 +1528,22 @@ function find_dynamic(glyph_nums, table_name, description_text)
     local exp_def = finale.FCTextExpressionDef()
     exp_defs:LoadAll()
     for exp in each(exp_defs) do
-        local glyph_length = 0
-        local exp_string = finale.FCString()
-        exp_string.LuaString = ""
-        for key, value in pairs(glyph_nums) do
-            exp_string:AppendCharacter(value)
-            glyph_length = glyph_length + 1
-        end
-        local current_string = exp:CreateTextString()
-        current_string:TrimEnigmaTags()
-        if glyph_length > 1 then
-            if ((current_string:GetCharacterAt(-1) == glyph_nums[2]) and (current_string:GetCharacterAt(0) == glyph_nums[1])) then
-                table.insert(matching_glyphs, exp:GetItemNo())
+        if exp:GetCategoryID() == 1 then
+            local exp_string = finale.FCString()
+            exp_string.LuaString = ""
+            for key, value in pairs(glyph_nums) do
+                exp_string:AppendCharacter(value)
             end
-        else
-            if (current_string:GetCharacterAt(0) == glyph_nums[1]) then
-                table.insert(matching_glyphs, exp:GetItemNo()) 
+            local current_string = exp:CreateTextString()
+            current_string:TrimEnigmaTags()
+            if string.len(exp_string.LuaString) > 1 then
+                if ((current_string:GetCharacterAt(1) == glyph_nums[2]) and (current_string:GetCharacterAt(0) == glyph_nums[1])) then
+                    table.insert(matching_glyphs, exp:GetItemNo())
+                end
+            else
+                if (current_string:GetCharacterAt(0) == glyph_nums[1]) and (string.len(current_string.LuaString) == 1) then
+                    table.insert(matching_glyphs, exp:GetItemNo()) 
+                end
             end
         end
     end
@@ -1541,8 +1630,6 @@ function change_notehead_size(layer, size, resize_top_bottom)
     end
 end
 
-local text_expression = {}
-
 function addTextExpression(staff_num, measure_num, measure_pos)
     local del_region = finenv.Region()
     del_region:SetStartStaff(staff_num)
@@ -1582,53 +1669,57 @@ end
 function getFirstNoteInRegionText(note_range)
     local music_region = finenv.Region()
     local range_settings = {}
-    
-    for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-        if music_region:IsStaffIncluded(addstaff) then
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+                music_region:SetStartStaff(staff:GetItemNo())
+                music_region:SetEndStaff(staff:GetItemNo())
 
-            music_region:SetStartStaff(addstaff)
-            music_region:SetEndStaff(addstaff)
-
-            local measure_pos_table = {}
-            local measure_table = {}
-            
-            local count = 0
-            
-            for noteentry in eachentrysaved(music_region) do
-                if noteentry:IsNote() then
-                    table.insert(measure_pos_table, noteentry:GetMeasurePos())
-                    table.insert(measure_table, noteentry:GetMeasure())
-                    count = count + 1
+                local measure_pos_table = {}
+                local measure_table = {}
+                
+                local count = 0
+                
+                for noteentry in eachentrysaved(music_region) do
+                    if noteentry:IsNote() then
+                        table.insert(measure_pos_table, noteentry:GetMeasurePos())
+                        table.insert(measure_table, noteentry:GetMeasure())
+                        count = count + 1
+                    end
                 end
-            end
 
-            local start_pos = measure_pos_table[1]
-            local start_measure = measure_table[1]
-            if (note_range == "Region Start") or (start_pos == nil) then
-                start_pos = music_region:GetStartMeasurePos()
-                start_measure = music_region:GetStartMeasure()
-            end
-            local end_pos = measure_pos_table[count]
-            local end_measure = measure_table[count]
-            if (note_range == "Region End") or (end_pos == nil) then
-                end_measure = music_region:GetEndMeasure()
-                end_pos = music_region:GetEndMeasurePos()
-                if end_pos > 1000000 then
-                    local get_time = finale.FCMeasure()
-                    get_time:Load(end_measure)
-                    local new_right_end = get_time:GetTimeSignature()
-                    local beat = new_right_end:GetBeats()
-                    local duration = new_right_end:GetBeatDuration()
-                    end_pos = beat * duration
+                local start_pos = measure_pos_table[1]
+                local start_measure = measure_table[1]
+                if (note_range == "Region Start") or (start_pos == nil) then
+                    start_pos = music_region:GetStartMeasurePos()
+                    start_measure = music_region:GetStartMeasure()
                 end
-            end
+                local end_pos = measure_pos_table[count]
+                local end_measure = measure_table[count]
+                if (note_range == "Region End") or (end_pos == nil) then
+                    end_measure = music_region:GetEndMeasure()
+                    end_pos = music_region:GetEndMeasurePos()
+                    if end_pos > 1000000 then
+                        local get_time = finale.FCMeasure()
+                        get_time:Load(end_measure)
+                        local new_right_end = get_time:GetTimeSignature()
+                        local beat = new_right_end:GetBeats()
+                        local duration = new_right_end:GetBeatDuration()
+                        end_pos = beat * duration
+                    end
+                end
 
-            if count == 1 then
-                end_pos = music_region:GetEndMeasurePos() 
-            end
-        
-            if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
-                range_settings[addstaff] = {addstaff, start_measure, end_measure, start_pos, end_pos}
+                if count == 1 then
+                    end_pos = music_region:GetEndMeasurePos() 
+                end
+            
+                if (start_pos ~= nil) or (end_pos ~= nil) or (start_measure ~= nil) or (end_measure ~= nil) then
+                    range_settings[staff:GetItemNo()] = {staff:GetItemNo(), start_measure, end_measure, start_pos, end_pos}
+                end
             end
         end
     end
@@ -1643,89 +1734,11 @@ function getFirstNoteInRegionText(note_range)
     end
 end
 
-function CreateTextExpression(exp_string_list, table_name, exp_description, category_number)
+function CreateSpecialTextExpression(exp_string, table_name, exp_description, category_number)
     local ex_ted = finale.FCTextExpressionDef()
     local ex_textstr = finale.FCString()
-    local cat_def = finale.FCCategoryDef()
-    cat_def:Load(category_number)
-    local fonti = cat_def:CreateTextFontInfo()
-    local text_font = "^fontTxt"..fonti:CreateEnigmaString(finale.FCString()).LuaString
-    cat_def:GetMusicFontInfo(fonti)
-    local music_font = "^fontMus"..fonti:CreateEnigmaString(finale.FCString()).LuaString
-    if exp_string_list[2] ~= nil then
-        if tonumber(exp_string_list[2]) ~= nil then
-            local exp_string_p2 = finale.FCString()
-            exp_string_p2.LuaString = music_font
-            exp_string_p2:AppendCharacter(exp_string_list[2])
-            ex_textstr.LuaString = text_font..exp_string_list[1].." "..exp_string_p2.LuaString
-        elseif tonumber(exp_string_list[1]) ~= nil then
-            local exp_string_p1 = finale.FCString()
-            exp_string_p1.LuaString = music_font
-            exp_string_p1:AppendCharacter(exp_string_list[1])
-            ex_textstr.LuaString = exp_string_p1.LuaString.." "..text_font..exp_string_list[2]
-        end
-    else
-        ex_textstr.LuaString = text_font..exp_string_list[1]
-    end
-    ex_ted:SaveNewTextBlock(ex_textstr)
-    
-    local and_descriptionstr = finale.FCString()
-    and_descriptionstr.LuaString = exp_description
-    ex_ted:SetDescription(and_descriptionstr)
-    local cat_def = finale.FCCategoryDef()
-    cat_def:Load(category_number)
-    ex_ted:AssignToCategory(cat_def)
-    ex_ted:SetUseCategoryPos(true)
-    ex_ted:SetUseCategoryFont(true)
-    ex_ted:SaveNew()
-    table.insert(table_name, ex_ted:GetItemNo())  
-end
+    ex_textstr.LuaString = exp_string
 
-function findTextExpression(exp_string_list, table_name, description_text, category_num)
-    local matching_glyphs = {}
-    local exp_defs = finale.FCTextExpressionDefs()
-    local exp_def = finale.FCTextExpressionDef()
-    exp_defs:LoadAll()
-    for exp in each(exp_defs) do
-        local current_string = exp:CreateTextString()
-        current_string:TrimEnigmaTags()
-        if exp_string_list[2] ~= nil then
-            if tonumber(exp_string_list[2]) ~= nil then
-                local exp_string_p2 = finale.FCString()
-                exp_string_p2.LuaString = ""
-                exp_string_p2:AppendCharacter(exp_string_list[2])
-                if current_string.LuaString == exp_string_list[1].." "..exp_string_p2.LuaString then
-                    table.insert(matching_glyphs, exp:GetItemNo())
-                end
-            elseif tonumber(exp_string_list[1]) ~= nil then
-                local exp_string_p1 = finale.FCString()
-                exp_string_p1.LuaString = ""
-                exp_string_p1:AppendCharacter(exp_string_list[1])
-                if current_string.LuaString == exp_string_p1.LuaString.." "..exp_string_list[2] then
-                    table.insert(matching_glyphs, exp:GetItemNo())
-                end
-            end
-        else
-            if current_string.LuaString == exp_string_list[1] then
-                table.insert(matching_glyphs, exp:GetItemNo())
-            end
-        end
-    end
-    if matching_glyphs[1] == nil then
-        CreateTextExpression(exp_string_list, table_name, description_text, category_num)
-    else
-        exp_def:Load(matching_glyphs[1])
-        table.insert(table_name, exp_def:GetItemNo())  
-    end
-end
-
-function CreateSpecialTextExpression(exp_string_list, font_details, table_name, exp_description, category_number)
-    local ex_ted = finale.FCTextExpressionDef()
-    local ex_textstr = finale.FCString()
-    local exp_string_p1 = finale.FCString()
-    exp_string_p1.LuaString = "^fontMus("..font_details[1]..","..font_details[2]..")^size("..font_details[3]..")^nfx("..font_details[4]..")"
-    exp_string_p1:AppendCharacter(exp_string_list[1])
-    ex_textstr.LuaString = exp_string_p1.LuaString
     ex_ted:SaveNewTextBlock(ex_textstr)
     
     local and_descriptionstr = finale.FCString()
@@ -1744,24 +1757,90 @@ function findSpecialExpression(exp_string_list, font_details, table_name, descri
     local matching_glyphs = {}
     local exp_defs = finale.FCTextExpressionDefs()
     local exp_def = finale.FCTextExpressionDef()
+    local music_font_string = finale.FCString()
+    local text_font_string = finale.FCString()
+    local full_string = ""
+
+    if font_details[1] == nil then
+        local cat_def = finale.FCCategoryDef()
+        if cat_def:Load(category_num) then  
+            local fonti = finale.FCFontInfo()
+            if cat_def:GetMusicFontInfo(fonti) then
+                music_font_string.LuaString = fonti:CreateEnigmaString(nil).LuaString
+            end
+            if cat_def:GetTextFontInfo(fonti) then
+                text_font_string.LuaString = fonti:CreateEnigmaString(nil).LuaString
+            end
+        end
+    end
+
     exp_defs:LoadAll()
     local already_exists = 0
-    for exp in each(exp_defs) do
+    
+    if #exp_string_list == 1 then
         if tonumber(exp_string_list[1]) ~= nil then
-            local exp_string_p1 = finale.FCString()
-            exp_string_p1.LuaString = "%^fontMus%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
-            exp_string_p1:AppendCharacter(exp_string_list[1])
-            local exp_string_p2 = finale.FCString()
-            exp_string_p2.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
-            exp_string_p2:AppendCharacter(exp_string_list[1])
-            if (exp:CreateTextString().LuaString == string.gsub(exp_string_p1.LuaString, "%%", "")) or (exp:CreateTextString().LuaString == string.gsub(exp_string_p2.LuaString, "%%", "")) then
+            if font_details[1] ~= nil then
+                music_font_string.LuaString = "%^fontMus%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
+                music_font_string:AppendCharacter(exp_string_list[1])
+                full_string = string.gsub(music_font_string.LuaString, "%%", "")
+            else
+                music_font_string:AppendCharacter(exp_string_list[1])
+                full_string = music_font_string.LuaString
+            end
+        else
+            if font_details[1] ~= nil then
+                text_font_string.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"..exp_string_list[1]
+                full_string = string.gsub(text_font_string.LuaString, "%%", "")
+            else
+                text_font_string.LuaString = text_font_string.LuaString..exp_string_list[1]
+                full_string = text_font_string.LuaString
+            end
+        end
+    else
+        if tonumber(exp_string_list[1]) ~= nil then
+            if font_details[1] ~= nil then
+                music_font_string.LuaString = "%^fontMus%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
+                music_font_string:AppendCharacter(exp_string_list[1])
+                text_font_string.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"..exp_string_list[2]
+                full_string = string.gsub(music_font_string.LuaString.." "..text_font_string.LuaString, "%%", "")
+            else
+                music_font_string:AppendCharacter(exp_string_list[1])
+                text_font_string.LuaString = text_font_string.LuaString..exp_string_list[2]
+                full_string = music_font_string.LuaString.." "..text_font_string.LuaString
+            end
+        else
+            if font_details[1] ~= nil then
+                text_font_string.LuaString = "%^fontTxt%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"..exp_string_list[1]
+                music_font_string.LuaString = "%^fontMus%("..font_details[1]..","..font_details[2].."%)%^size%("..font_details[3].."%)%^nfx%("..font_details[4].."%)"
+                music_font_string:AppendCharacter(exp_string_list[2])
+                full_string = string.gsub(text_font_string.LuaString.." "..music_font_string.LuaString, "%%", "")
+
+
+            else
+                text_font_string.LuaString = text_font_string.LuaString..exp_string_list[1]
+                music_font_string:AppendCharacter(exp_string_list[2])
+                full_string = text_font_string.LuaString.." "..music_font_string.LuaString
+            end
+        end
+    end
+
+    local full_enigma_string = finale.FCString()
+    full_enigma_string.LuaString = full_string
+    full_enigma_string:TrimEnigmaTags()
+
+    for exp in each(exp_defs) do
+        if exp:GetCategoryID() == category_num then
+            local exp_string = exp:CreateTextString()
+            exp_string:TrimEnigmaTags()
+            if exp_string.LuaString == full_enigma_string.LuaString then
                 already_exists = exp:GetItemNo()
                 table.insert(matching_glyphs, already_exists)
             end
         end
     end
+
     if matching_glyphs[1] == nil then
-        CreateSpecialTextExpression(exp_string_list, font_details, table_name, description_text, category_num)
+        CreateSpecialTextExpression(full_string, table_name, description_text, category_num)
     else
         exp_def:Load(matching_glyphs[1])
         table.insert(table_name, exp_def:GetItemNo())  
@@ -3433,6 +3512,56 @@ function entries_mute(layers_input)
     end
 end
 
+function ui_switch_to_selected_part()
+
+    function get_top_left_selected_or_visible_cell()
+        local sel_region = finenv.Region()
+        if not sel_region:IsEmpty() then
+            return finale.FCCell(sel_region.StartMeasure, sel_region.StartStaff)
+        end
+        return false
+    end
+
+    local music_region = finenv.Region()
+    local selection_exists = not music_region:IsEmpty()
+    local ui = finenv.UI()
+
+    local top_cell = get_top_left_selected_or_visible_cell()
+    local parts = finale.FCParts()
+    parts:LoadAll()
+    local current_part = parts:GetCurrent()
+    if current_part:IsScore() then
+        local part_ID = nil
+        parts:SortByOrderID()
+        for part in each(parts) do
+            if (not part:IsScore()) and part:IsStaffIncluded(top_cell.Staff) then
+                part_ID = part:GetID()
+                break
+            end
+        end
+        if part_ID ~= nil then
+            local part = finale.FCPart(part_ID)
+            part:ViewInDocument()
+            if selection_exists then
+                music_region:SetInstrumentList(0)
+                music_region:SetStartStaff(top_cell.Staff)
+                music_region:SetEndStaff(top_cell.Staff)
+                music_region:SetInDocument()
+            end
+            ui:MoveToMeasure(top_cell.Measure, music_region.StartStaff)
+        else
+            finenv.UI():AlertInfo("Hmm, this part doesn't seem to be generated.\nTry generating parts and try again", "No Part Detected")
+        end
+    else
+        local score_ID = parts:GetScore()
+        local part = finale.FCPart(score_ID:GetID())
+        part:ViewInDocument()
+        ui:MoveToMeasure(top_cell.Measure, top_cell.Staff)
+    end
+
+    finenv.StartNewUndoBlock("Switch To Selected Part", false)
+end
+
 function user_configuration()
     package.path = "/Library/Application Support/MakeMusic/Finale 26/JetStreamConfig.lua"
     local config = require "JetStreamConfig"
@@ -3821,12 +3950,12 @@ function dynamics_sfzp_end()
 end
 
 function dynamics_increase_dynamic()
-    increaseDynamic()
+    increase_decrease_dynamics("increase")
     dynamics_align_hairpins_and_dynamics()
 end
 
 function dynamics_decrease_dynamic()
-    decreaseDynamic()
+    increase_decrease_dynamics("decrease")
     dynamics_align_hairpins_and_dynamics()
 end
 
@@ -5706,6 +5835,10 @@ function playback_unmute_all_notes()
     entries_mute({})
 end
 
+function navigation_switch_to_slected_part()
+    ui_switch_to_selected_part()
+end
+
 function noteheads_harmonics()
     local notes_changed = false
     for entry in eachentrysaved(finenv.Region()) do
@@ -7216,6 +7349,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "1810" then
             playback_unmute_all_notes()
+        end
+        if return_values[1] == "1811" then
+            navigation_switch_to_slected_part()
         end
         if return_values[1] == "9000" then
             plugin_center_rehearsal_marks()
