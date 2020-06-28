@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "200625"
-    finaleplugin.Date = "6/25/2020"
+    finaleplugin.Version = "200628"
+    finaleplugin.Date = "6/28/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -3629,6 +3629,51 @@ function user_configuration()
     end
 end
 
+function check_for_update(temp_dir, sd_type)
+    local temp_dir = ""
+    local check_string = ""
+    local current_file = ""
+    local open_command = ""
+    if string.find(sd_type, "mac") then
+        temp_dir = "/tmp/"
+        current_file = temp_dir.."/jetstream_update.html"
+        open_command = "open "
+        if string.find(sd_type, "XL") then
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20proXL%%20Profile%%20Set%%20Mac%%20"
+        elseif string.find(sd_type, "standard") then
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Profile%%20Set%%20Mac%%20"
+        end
+    elseif string.find(sd_type, "win") then
+        temp_dir = "\\Windows\\Temp\\"
+        current_file = temp_dir.."\\jetstream_update.html"
+        open_command = "start "
+        if string.find(sd_type, "XL") then
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20proXL%%20Profile%%20Set%%20Win%%20"
+        elseif string.find(sd_type, "standard") then
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Profile%%20Set%%20Win%%20"
+        end
+    end
+    os.execute("cd "..temp_dir.." && curl http://jetstreamfinale.com/twdmmfc0z1g345d7s5/ --output jetstream_update.html")
+    for line in io.lines (current_file) do
+        if string.find(line, check_string) then
+            local version_check = string.gsub(line, check_string, "")
+            version_check = (string.match(version_check, "%d*.zip"))
+            version_check = string.gsub(version_check, ".zip", "")
+            if version_check > (finaleplugin.Version) then
+                local update_window = finenv.UI():AlertYesNo("You currently have version: "..finaleplugin.Version.."\nWould you like to update to version "..version_check.."?", "An update is available!")
+                if update_window == 2 then
+                    local download_string = string.match(line, check_string.."%d*%.zip%?dl=1")
+                    os.execute(open_command..download_string)
+                end
+            elseif version_check < (finaleplugin.Version) then                
+                finenv.UI():AlertInfo("Um, you somehow have a build newer than the one we are currently offering... How'd you do that?", "Update Error")
+            elseif version_check == (finaleplugin.Version) then
+                finenv.UI():AlertInfo("You are up to date with the current version: ".. finaleplugin.Version.."\nPlease check back soon for a new version!", "No Update Available")
+            end
+        end
+    end
+end
+
 function dynamics_ffff_start()
     find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
     dynamic_region("Start")
@@ -6114,6 +6159,19 @@ function transform_semitone_down()
     transpose_semitones(-1)
 end
 
+function update_mac_48()
+    check_for_update("/tmp/", "mac XL")
+end
+function update_mac_35()
+    check_for_update("/tmp/", "mac standard")
+end
+function update_win_48()
+    check_for_update("\\Windows\\Temp\\", "win XL")
+end
+function update_win_35()
+    check_for_update("\\Windows\\Temp\\", "win standard")
+end
+
 dialog:SetTypes("String")
 dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
@@ -7396,6 +7454,18 @@ if return_values ~= nil then
         if return_values[1] == "9004" then
             plugin_custom_text_dynamics()
         end
+        if return_values[1] == "9996" then
+            update_win_35()
+        end
+        if return_values[1] == "9997" then
+            update_win_48()
+        end
+        if return_values[1] == "9998" then
+            update_mac_35()
+        end
+        if return_values[1] == "9999" then
+            update_mac_35()
+        end
     else
         if return_values[1] == "0000" then
             user_configuration()
@@ -7407,6 +7477,14 @@ if return_values ~= nil then
             plugin_center_rehearsal_marks()
         elseif return_values[1] == "0301" then
             lyrics_delete_lyrics()
+        elseif return_values[1] == "9996" then
+            update_win_35()
+        elseif return_values[1] == "9997" then
+            update_win_48()
+        elseif return_values[1] == "9998" then
+            update_mac_35()
+        elseif return_values[1] == "9999" then
+            update_mac_35()
         else
             finenv.UI():AlertInfo("Please select a region and try again.", nil)
             return
