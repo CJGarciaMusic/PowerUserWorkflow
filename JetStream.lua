@@ -2274,6 +2274,34 @@ function tuplet_options(tuplet_parameters)
     end
 end
 
+function clef_change(clef_type, staff, region)
+    local current_cell_frame = finale.FCCellFrameHold()
+    local new_cell_frame = finale.FCCellFrameHold()
+    for i, j in eachcell(region) do 
+        local  cell = finale.FCCell(i, j)
+        current_cell_frame:ConnectCell(cell)
+        if current_cell_frame:Load() then
+            new_cell_frame:ConnectCell(cell)
+            new_cell_frame:SetClefIndex(clef_type)
+            new_cell_frame:SaveNew()    
+        end
+        current_cell_frame:Save()
+    end
+end
+
+function clef_change_bass()
+
+    local staves = finale.FCStaves()
+    staves:LoadAll()
+    for staff in each(staves) do
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        if music_region:IsStaffIncluded(staff:GetItemNo()) then
+            clef_change(3, staff:GetItemNo(), music_region)
+        end
+    end
+end
+
 function single_pitch(pitch)
     pitchstring = finale.FCString()
     pitchstring.LuaString = pitch
