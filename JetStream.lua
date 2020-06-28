@@ -3639,18 +3639,22 @@ function check_for_update(temp_dir, sd_type)
         current_file = temp_dir.."/jetstream_update.html"
         open_command = "open "
         if string.find(sd_type, "XL") then
-            check_string = "https://www.dropbox.com/s/.*/JetStream%%20proXL%%20Profile%%20Set%%20Mac%%20"
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Mac%%20proXL%%20"
         elseif string.find(sd_type, "standard") then
-            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Profile%%20Set%%20Mac%%20"
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Mac%%20"
+        elseif string.find(sd_type, "km") then
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20KM%%20"
         end
     elseif string.find(sd_type, "win") then
         temp_dir = "\\Windows\\Temp\\"
         current_file = temp_dir.."\\jetstream_update.html"
         open_command = "start "
         if string.find(sd_type, "XL") then
-            check_string = "https://www.dropbox.com/s/.*/JetStream%%20proXL%%20Profile%%20Set%%20Win%%20"
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Win%%20proXL%%20"
         elseif string.find(sd_type, "standard") then
-            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Profile%%20Set%%20Win%%20"
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20Win%%20"
+        elseif string.find(sd_type, "ahk") then
+            check_string = "https://www.dropbox.com/s/.*/JetStream%%20AHK%%20"
         end
     end
     os.execute("cd "..temp_dir.." && curl http://jetstreamfinale.com/twdmmfc0z1g345d7s5/ --output jetstream_update.html")
@@ -6162,15 +6166,27 @@ end
 function update_mac_48()
     check_for_update("/tmp/", "mac XL")
 end
+
 function update_mac_35()
     check_for_update("/tmp/", "mac standard")
 end
+
 function update_win_48()
     check_for_update("\\Windows\\Temp\\", "win XL")
 end
+
 function update_win_35()
     check_for_update("\\Windows\\Temp\\", "win standard")
 end
+
+function update_win_ahk()
+    check_for_update("\\Windows\\Temp\\", "win ahk")
+end
+
+function update_mac_km()
+    check_for_update("/tmp/", "mac km")
+end
+
 
 dialog:SetTypes("String")
 dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
@@ -7454,6 +7470,12 @@ if return_values ~= nil then
         if return_values[1] == "9004" then
             plugin_custom_text_dynamics()
         end
+        if return_values[1] == "9994" then
+            update_win_ahk()
+        end
+        if return_values[1] == "9995" then
+            update_mac_km()
+        end
         if return_values[1] == "9996" then
             update_win_35()
         end
@@ -7477,6 +7499,10 @@ if return_values ~= nil then
             plugin_center_rehearsal_marks()
         elseif return_values[1] == "0301" then
             lyrics_delete_lyrics()
+        elseif return_values[1] == "9994" then
+            update_win_ahk()
+        elseif return_values[1] == "9995" then
+            update_mac_km()
         elseif return_values[1] == "9996" then
             update_win_35()
         elseif return_values[1] == "9997" then
