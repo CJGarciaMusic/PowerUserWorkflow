@@ -1,6 +1,6 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 200322
+ Version: 200628
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
@@ -23,7 +23,7 @@ Func LuaMenu($luaNum)
 	  WinWaitActive("JetStream")
 	  If WinGetTitle("JetStream Finale Controller") Then
 		 Send($luaNum)
-		 ControlClick("[CLASS:#32770]", "", "OK")
+		 ControlClick("JetStream", "", "OK")
 	  EndIf
    Else
 	  SetError(1)
@@ -70,18 +70,43 @@ Func FilterItems($actionType, $filterItems)
    ControlClick("[CLASS:#32770]", "", "OK")
 EndFunc
 
-Func exportToPDF()
-   WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "Adva&nced Tools", "&Graphics")
-   WinMenuSelectItem("[CLASS:Finale]", "", "&Graphics", "E&xport Pages...")
-   WinWait("Export Pages")
-   ControlCommand("Export Pages", "", "ComboBox2","SelectString", "PDF")
-   ControlClick("[CLASS:#32770]", "", "OK")
-   WinWaitActive("Save As")
-   WinActivate("Save As")
-   ControlClick("[CLASS:#32770]", "", "&Save")
-   WinWaitActive("Confirm Save As", "", 1)
-   If WinExists("Confirm Save As") Then
-	  ControlClick("[CLASS:#32770]", "", "&Yes")
+Func filePathSelection()
+   Local Const $sMessage = "Please select a destination for your PDF:"
+   Local $sFileSelectFolder = FileSelectFolder($sMessage, "")
+   If @error Then
+	  Return "Cancelled"
+   Else
+	  Return $sFileSelectFolder
+   EndIf
+EndFunc
+
+Func exportToPDF($destination_select)
+   Local $sMyFilePath = ""
+   If $destination_select == True Then
+	  $sMyFilePath = filePathSelection()
+   EndIf
+   If $sMyFilePath == "Cancelled" Then
+	  Return
+   Else
+	  WinActivate("Finale")
+	  WinMenuSelectItem("[CLASS:Finale]", "", "&Tools", "Adva&nced Tools", "&Graphics")
+	  WinMenuSelectItem("[CLASS:Finale]", "", "&Graphics", "E&xport Pages...")
+	  WinWait("Export Pages")
+	  ControlCommand("Export Pages", "", "ComboBox2","SelectString", "PDF")
+	  ControlClick("[CLASS:#32770]", "", "OK")
+	  WinWaitActive("Save As")
+	  WinActivate("Save As")
+	  If $destination_select == True Then
+		 Send("^c")
+		 Send($sMyFilePath)
+		 Send("{ENTER}")
+		 Send("^v")
+	  EndIf
+	  ControlClick("[CLASS:#32770]", "", "&Save")
+	  WinWaitActive("Confirm Save As", "", 1)
+	  If WinExists("Confirm Save As") Then
+		 ControlClick("[CLASS:#32770]", "", "&Yes")
+	  EndIf
    EndIf
 EndFunc
 
@@ -90,7 +115,7 @@ Func iterateThroughParts()
    Local $hMain = _GUICtrlMenu_GetMenu($hWnd)
    Local $menuCount = _GUICtrlMenu_GetItemCount($hMain)
    WinMenuSelectItem("[CLASS:Finale]", "", "D&ocument", "Edit &Score")
-   exportToPDF()
+   exportToPDF(True)
    For $a1 = 0 To  $menuCount
 	  If _GUICtrlMenu_GetItemText($hMain, $a1) = "D&ocument" Then
 		 Local $hFile = _GUICtrlMenu_GetItemSubMenu($hMain, $a1)
@@ -106,7 +131,7 @@ Func iterateThroughParts()
 					 Return
 				  Else
 					 WinMenuSelectItem("[CLASS:Finale]", "", "D&ocument", "Edit &Part", $partName)
-					 exportToPDF()
+					 exportToPDF(False)
 				  EndIf
 			   Next
 			EndIf
@@ -471,40 +496,6 @@ Func ProcessExtracted($topBottom, $singleNotes, $lineNumber)
    EndIf
 EndFunc
 
-Func CheckForUpdate($SDsize, $currentVersion)
-	$sWebSite = "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
-   $sHtml =  _INetGetSource($sWebSite)
-   If $sHtml Then
-	  If $SDsize = "Standard" Then
-		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
-		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
-	  ElseIf $SDsize = "XL" Then
-		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20proXL%20Profile%20Set%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
-		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
-	  EndIf
-
-	  If $sNewVersionNumber = $currentVersion Then
-		 MsgBox($MB_OK, "", "You're up to date with the current version: " & $sNewVersionNumber)
-		 Return
-	  Else
-		 If $SDsize = "Standard" Then
-			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
-		 ElseIf $SDsize = "XL" Then
-			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20proXL%20Profile%20Set%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
-		 EndIf
-		 $sDownloadLink = $aLinkArray[0]
-		 Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $sNewVersionNumber & "?")
-		 If $msgBox = 6 Then
-			 ShellExecute($sDownloadLink)
-		 Else
-			 Return
-		 EndIf
-	 EndIf
-   	Else
-		SetError(1)
-   	EndIf
-EndFunc
-
 Func CheckIfActive()
    If $CmdLine[1] = "Lua" Then
 	  LuaMenu($CmdLine[2])
@@ -532,14 +523,13 @@ Func CheckIfActive()
 		 MsgError("Unable to set or clear the Filter." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf $CmdLine[1] = "PDF" Then
-	  Local $msgBox = MsgBox($MB_YESNO, "Export to PDF", "Are you sure you want to continue with exporting all parts and score as a PDF?")
-	  If $msgBox = 6 Then
+	  If $CmdLine[2] = "Current" Then
+		 exportToPDF(True)
+	  ElseIf $CmdLine[2] = "Both" Then
 		 iterateThroughParts()
-		 If @error Then
-			MsgError("Unable to export parts and score to PDF." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
-		 EndIf
-	  Else
-		 Return
+	  EndIf
+	  If @error Then
+		 MsgError("Unable to export parts and score to PDF." & @CRLF & @CRLF & "Please be sure your document is in focus and try again.")
 	  EndIf
    ElseIf $CmdLine[1] = "Key" Then
 	  KeySig($CmdLine[2], $CmdLine[3])
@@ -614,22 +604,16 @@ Func CheckIfActive()
    EndIf
 EndFunc
 
-If $CmdLine[1] = "Update" Then
-	CheckForUpdate($CmdLine[2], $CmdLine[3])
-   If @error Then
-	  MsgError("Check for update failed." & @CRLF & @CRLF & "Please be sure you connected to the internet and try again.")
-   EndIf
-Else
-   Local $active = WinGetProcess("[ACTIVE]")
-   Local $aProcesses = ProcessList()
-   For $i = 1 To $aProcesses[0][0]
-	  Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
-	  If $myResult = 1 then
-		 If $active = $aProcesses[$i][1] Then
-			CheckIfActive()
-		 Else
-			MsgError("Please make sure Finale is the front application.")
-		 EndIf
+
+Local $active = WinGetProcess("[ACTIVE]")
+Local $aProcesses = ProcessList()
+For $i = 1 To $aProcesses[0][0]
+   Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
+   If $myResult = 1 then
+	  If $active = $aProcesses[$i][1] Then
+		 CheckIfActive()
+	  Else
+		 MsgError("Please make sure Finale is the front application.")
 	  EndIf
-   Next
-EndIf
+   EndIf
+Next
