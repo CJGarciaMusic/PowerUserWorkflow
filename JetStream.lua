@@ -3668,6 +3668,8 @@ function check_for_update(temp_dir, sd_type)
                 if update_window == 2 then
                     local download_string = string.match(line, check_string.."%d*%.zip%?dl=1")
                     os.execute(open_command..download_string)
+                else 
+                    return
                 end
             elseif version_check < (finaleplugin.Version) then                
                 finenv.UI():AlertInfo("Um, you somehow have a build newer than the one we are currently offering... How'd you do that?", "Update Error")
