@@ -3540,6 +3540,66 @@ function entries_mute(layers_input)
     end
 end
 
+function flip_enharmonic()
+    for entry in eachentrysaved(finenv.Region()) do
+        if entry:IsNote() then
+         local pitch_string = finale.FCString()
+         local measure = finale.FCMeasure()
+         measure:Load(entry.Measure)
+         local key = measure:GetKeySignature()
+            for note in each(entry) do
+                note:GetString(pitch_string, key, false, false)
+                local length = (string.len(pitch_string.LuaString))
+                local pitch = string.sub(pitch_string.LuaString, 1, length-1)
+                local octave = note:CalcOctave(key, 0)
+                if pitch == "C" then
+                    pitch = "B#"
+                    octave = octave -1
+                elseif pitch == "C#" then
+                    pitch = "Db"
+                elseif pitch == "Db" then
+                    pitch = "C#"
+                elseif pitch == "D#" then
+                    pitch = "Eb"
+                elseif pitch == "Eb" then
+                    pitch = "D#"
+                elseif pitch == "E" then
+                    pitch = "Fb"
+                elseif pitch == "Fb" then
+                    pitch = "E"
+                elseif pitch == "F" then
+                    pitch = "E#"
+                elseif pitch == "E#" then
+                    pitch = "F"
+                elseif pitch == "F#" then
+                    pitch = "Gb"
+                elseif pitch == "Gb" then
+                    pitch = "F#"
+                elseif pitch == "G#" then
+                    pitch = "Ab"
+                elseif pitch == "Ab" then
+                    pitch = "G#"
+                elseif pitch == "A#" then
+                    pitch = "Bb"
+                elseif pitch == "Bb" then
+                    pitch = "A#"
+                elseif pitch == "B" then
+                    pitch = "Cb"
+                    octave = octave + 1
+                elseif pitch == "Cb" then
+                    pitch = "B"
+                    octave = octave -1
+                elseif pitch == "B#" then
+                    pitch = "C"
+                    octave = octave +1
+                end
+                pitch_string.LuaString = pitch..octave
+                note:SetString(pitch_string, key, false)
+            end
+        end
+    end
+end
+
 function ui_switch_to_selected_part()
 
     function get_top_left_selected_or_visible_cell()
@@ -6165,6 +6225,10 @@ function transform_semitone_down()
     transpose_semitones(-1)
 end
 
+function transform_flip_enharmonic()
+    flip_enharmonic()
+end
+
 function update_mac_48()
     check_for_update("/tmp/", "mac XL")
 end
@@ -7381,6 +7445,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "1510" then
             transform_semitone_down()
+        end
+        if return_values[1] == "1511" then
+            transform_flip_enharmonic()
         end
         if return_values[1] == "1600" then
             chords_altered_bass_after()

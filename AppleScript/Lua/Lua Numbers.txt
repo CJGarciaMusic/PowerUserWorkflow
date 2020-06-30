@@ -426,6 +426,7 @@
 1508 Single Pitch A5
 1509 Semitone Up
 1510 Semitone Down
+1511 Flip Enharmonics
 
 1600 Chord Symbols
 1600 Chord Symbol Altered Bass After
