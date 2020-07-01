@@ -2277,11 +2277,23 @@ end
 function clef_change(clef_type, staff, region)
     local cell_frame = finale.FCCellFrameHold()
     for i, j in eachcell(region) do
+        local cell = finale.FCCell(i, j)
         if (region:IsFullMeasureIncluded(region:GetStartMeasure()) == false) or (region:IsFullMeasureIncluded(region:GetEndMeasure()) == false) then
-            finenv.UI():AlertInfo("Partial Measure selected at", region:GetStartMeasure())
-            local mid_measure_clef = cell_frame:CreateCellCelfChanges()
+            cell_frame:ConnectCell(cell)
+            if cell_frame:Load() then
+                local mid_measure_clef = cell_frame:CreateCellClefChanges()
+                if mid_measure_clef == nil then
+                    mid_measure_clef:SaveNew(2)
+                end
+                for item in each(mid_measure_clef) do
+                    if (item:GetMeasurePos() ~= 0) or (item:GetMeasurePos() ~= region:GetEndMeasurePos()) then
+                        item:SetMeasurePos(item:GetMeasurePos())
+                        item:SetClefIndex(clef_type)
+                        item:Save()
+                    end
+                end
+            end
         else
-            local cell = finale.FCCell(i, j)
             cell_frame:ConnectCell(cell)
             if cell_frame:Load() then
                 cell_frame:SetClefIndex(clef_type)
