@@ -40,7 +40,7 @@ on getUpdate(updateNumber)
 	
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"
-			display dialog "You're up to date with the current version: " & updateNumber buttons {"OK"}
+			display dialog "You're up to date with the current version: " & updateNumber & "\n\nPlease check back again soon for a new version." with title "No Update Available" buttons {"OK"}
 		end tell
 	else if updateNumber > scribeVersion then
 		tell application "System Events"

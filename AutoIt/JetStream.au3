@@ -496,6 +496,45 @@ Func ProcessExtracted($topBottom, $singleNotes, $lineNumber)
    EndIf
 EndFunc
 
+Func CheckForUpdate($SDsize, $currentVersion)
+	$sWebSite = "http://jetstreamfinale.com/twdmmfc0z1g345d7s5/"
+   $sHtml =  _INetGetSource($sWebSite)
+   If $sHtml Then
+	  If $SDsize = "Standard" Then
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
+	  ElseIf $SDsize = "XL" Then
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%20proXL%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
+	  EndIf
+
+	  If $sNewVersionNumber = $currentVersion Then
+		 MsgBox($MB_OK, "No Update Available", "You're up to date with the current version: " & $sNewVersionNumber & @CRLF & @CRLF & "Please check back again soon for a new version.")
+		 Return
+	  Else
+		 If $SDsize = "Standard" Then
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+		 ElseIf $SDsize = "XL" Then
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%20proXL%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+		 EndIf
+		 $sDownloadLink = $aLinkArray[0]
+		 If $currentVersion > $sNewVersionNumber Then
+			Local $msgBox = MsgBox($MB_OK, "An odd thing has happened", "You seem to have a version that is newer than the one we are currently offering... How'd you do that?" & @CRLF & @CRLF & "Let's get you back on the right track with the current build.")
+			ShellExecute($sDownloadLink)
+		 Else
+			Local $msgBox = MsgBox($MB_YESNO, "An update is available!", "You currently have version: " & $currentVersion & @CRLF & @CRLF & "Would you like to update to version: " & $sNewVersionNumber & "?")
+			If $msgBox = 6 Then
+				ShellExecute($sDownloadLink)
+			Else
+				Return
+			EndIf
+		 EndIf
+	 EndIf
+   	Else
+		SetError(1)
+   	EndIf
+EndFunc
+
 Func CheckIfActive()
    If $CmdLine[1] = "Lua" Then
 	  LuaMenu($CmdLine[2])
@@ -605,15 +644,22 @@ Func CheckIfActive()
 EndFunc
 
 
-Local $active = WinGetProcess("[ACTIVE]")
-Local $aProcesses = ProcessList()
-For $i = 1 To $aProcesses[0][0]
-   Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
-   If $myResult = 1 then
-	  If $active = $aProcesses[$i][1] Then
-		 CheckIfActive()
-	  Else
-		 MsgError("Please make sure Finale is the front application.")
-	  EndIf
+If $CmdLine[1] = "Update" Then
+	CheckForUpdate($CmdLine[2], $CmdLine[3])
+   If @error Then
+	  MsgError("Check for update failed." & @CRLF & @CRLF & "Please be sure you connected to the internet and try again.")
    EndIf
-Next
+Else
+   Local $active = WinGetProcess("[ACTIVE]")
+   Local $aProcesses = ProcessList()
+   For $i = 1 To $aProcesses[0][0]
+	  Local $myResult = StringInStr($aProcesses[$i][0], "Finale")
+	  If $myResult = 1 then
+		 If $active = $aProcesses[$i][1] Then
+			CheckIfActive()
+		 Else
+			MsgError("Please make sure Finale is the front application.")
+		 EndIf
+	  EndIf
+   Next
+EndIf
