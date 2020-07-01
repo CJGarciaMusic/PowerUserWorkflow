@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "200628"
-    finaleplugin.Date = "6/28/2020"
+    finaleplugin.Version = "200630"
+    finaleplugin.Date = "6/30/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -2275,17 +2275,22 @@ function tuplet_options(tuplet_parameters)
 end
 
 function clef_change(clef_type, staff, region)
-    local current_cell_frame = finale.FCCellFrameHold()
-    local new_cell_frame = finale.FCCellFrameHold()
-    for i, j in eachcell(region) do 
-        local  cell = finale.FCCell(i, j)
-        current_cell_frame:ConnectCell(cell)
-        if current_cell_frame:Load() then
-            new_cell_frame:ConnectCell(cell)
-            new_cell_frame:SetClefIndex(clef_type)
-            new_cell_frame:SaveNew()    
+    local cell_frame = finale.FCCellFrameHold()
+    for i, j in eachcell(region) do
+        if (region:IsFullMeasureIncluded(region:GetStartMeasure()) == false) or (region:IsFullMeasureIncluded(region:GetEndMeasure()) == false) then
+            finenv.UI():AlertInfo("Partial Measure selected at", region:GetStartMeasure())
+            local mid_measure_clef = cell_frame:CreateCellCelfChanges()
+        else
+            local cell = finale.FCCell(i, j)
+            cell_frame:ConnectCell(cell)
+            if cell_frame:Load() then
+                cell_frame:SetClefIndex(clef_type)
+                cell_frame:Save()
+            else
+                cell_frame:SetClefIndex(clef_type)
+                cell_frame:SaveNew()
+            end
         end
-        current_cell_frame:Save()
     end
 end
 
@@ -6213,6 +6218,10 @@ function transform_single_pitch_C5()
     single_pitch("C5")
 end
 
+function transform_single_pitch_G5()
+    single_pitch("G5")
+end
+
 function transform_single_pitch_A5()
     single_pitch("A5")
 end
@@ -7438,15 +7447,18 @@ if return_values ~= nil then
             transform_single_pitch_C5()
         end
         if return_values[1] == "1508" then
-            transform_single_pitch_A5()
+            transform_single_pitch_G5()
         end
         if return_values[1] == "1509" then
-            transform_semitone_up()
+            transform_single_pitch_A5()
         end
         if return_values[1] == "1510" then
-            transform_semitone_down()
+            transform_semitone_up()
         end
         if return_values[1] == "1511" then
+            transform_semitone_down()
+        end
+        if return_values[1] == "1512" then
             transform_flip_enharmonic()
         end
         if return_values[1] == "1600" then
@@ -7523,6 +7535,18 @@ if return_values ~= nil then
         end
         if return_values[1] == "1811" then
             navigation_switch_to_slected_part()
+        end
+        if return_values[1] == "1900" then
+            clef_change_treble()
+        end
+        if return_values[1] == "1901" then
+            clef_change_alto()
+        end
+        if return_values[1] == "1902" then
+            clef_change_tenor()
+        end
+        if return_values[1] == "1903" then
+            clef_change_bass()
         end
         if return_values[1] == "9000" then
             plugin_center_rehearsal_marks()

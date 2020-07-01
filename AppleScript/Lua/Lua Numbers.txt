@@ -423,10 +423,11 @@
 1505 Single Pitch F4
 1506 Single Pitch F5
 1507 Single Pitch C5
-1508 Single Pitch A5
-1509 Semitone Up
-1510 Semitone Down
-1511 Flip Enharmonics
+1508 Single Pitch G5
+1509 Single Pitch A5
+1510 Semitone Up
+1511 Semitone Down
+1512 Flip Enharmonics
 
 1600 Chord Symbols
 1600 Chord Symbol Altered Bass After
@@ -452,6 +453,12 @@
 1809 Mute Notes
 1810 Unmute Notes
 1811 Navigate to Selected Measure in Part
+
+1900 Clefs
+1900 Treble Clef
+1901 Alto Clef
+1902 Tenor Clef
+1903 Bass Clef
 
 9000 Plug-ins
 9000 Center Rehearsal Marks
