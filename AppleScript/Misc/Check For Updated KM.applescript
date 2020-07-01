@@ -34,9 +34,9 @@ on getUpdate(updateNumber)
 	set myText to removeMarkupFromText(myArray)
 	set myLength to (count of myText)
 	set firstNumber to (offset of "JetStream%20KM%20" in myText)
-	set secondNumber to (characters (firstNumber + 21) thru myLength of myText as text)
-	set scribeVersion to text 1 thru -11 of secondNumber
-	set theDownload to text 9 thru -14 of myText
+	set secondNumber to (characters (firstNumber + 17) thru myLength of myText as text)
+	set scribeVersion to text 1 thru -13 of secondNumber
+	set theDownload to text 9 thru -4 of myText
 	
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"
@@ -63,4 +63,4 @@ on getUpdate(updateNumber)
 	end if
 end getUpdate
 
-getUpdate("200630")
+getUpdate("200701")
