@@ -862,7 +862,7 @@ function vertical_dynamic_adjustment(region, direction)
     end
 end
 
-function horziontal_hairpin_adjustment(left_or_right, hairpin, region_settings, cushion_bool, multiple_hairpin_bool)
+function horizontal_hairpin_adjustment(left_or_right, hairpin, region_settings, cushion_bool, multiple_hairpin_bool)
     local the_seg = hairpin:GetTerminateSegmentLeft()
     local left_dynamic_cushion = 9
     local right_dynamic_cushion = -9
@@ -997,12 +997,12 @@ function hairpin_adjustments(range_settings, adjustment_type)
 
     if adjustment_type == "both" then
         if #hairpin_list == 1 then
-            horziontal_hairpin_adjustment("left", hairpin_list[1], {range_settings[1], range_settings[2], range_settings[4]}, end_cushion, false)
-            horziontal_hairpin_adjustment("right", hairpin_list[1], {range_settings[1], range_settings[3], end_pos}, end_cushion, false)
+            horizontal_hairpin_adjustment("left", hairpin_list[1], {range_settings[1], range_settings[2], range_settings[4]}, end_cushion, false)
+            horizontal_hairpin_adjustment("right", hairpin_list[1], {range_settings[1], range_settings[3], end_pos}, end_cushion, false)
         elseif #hairpin_list > 1 then
             for key, value in pairs(hairpin_list) do
-                horziontal_hairpin_adjustment("left", value, {range_settings[1], range_settings[2], range_settings[4]}, end_cushion, true)
-                horziontal_hairpin_adjustment("right", value, {range_settings[1], range_settings[3], end_pos}, end_cushion, true)
+                horizontal_hairpin_adjustment("left", value, {range_settings[1], range_settings[2], range_settings[4]}, end_cushion, true)
+                horizontal_hairpin_adjustment("right", value, {range_settings[1], range_settings[3], end_pos}, end_cushion, true)
             end
         end
         music_reg:SetStartStaff(range_settings[1])
@@ -3593,7 +3593,13 @@ function simple_art_to_exp_swap(art_to_find, description, char_num)
                     local and_expression=finale.FCExpression()
                     and_expression:SetStaff(noteentry.Staff)
                     and_expression:SetVisible(true)
-                    and_expression:SetMeasurePos(noteentry.MeasurePos)
+                    local pos = 0
+                    if noteentry:GetActualDuration() >= 2048 then
+                      pos = noteentry.MeasurePos + (noteentry:GetActualDuration() * 7 / 8)
+                    else
+                      pos = noteentry.MeasurePos + (noteentry:GetActualDuration() * 3 / 4)
+                    end                   
+                    and_expression:SetMeasurePos(pos)
                     and_expression:SetScaleWithEntry(true)
                     and_expression:SetLayerAssignment(noteentry.LayerNumber)
                     and_expression:SetPartAssignment(true)
@@ -7338,6 +7344,17 @@ if return_values ~= nil then
         if return_values[1] == "0063" then
             dynamics_ff_sub()
         end
+        if return_values[1] == "0070" then
+            dynamics_align_hairpins_and_dynamics()         
+        end       
+        if return_values[1] == "0071" then
+            dynamics_align_hairpins_and_dynamics()         
+            dynamics_nudge_down()
+        end
+        if return_values[1] == "0072" then
+            dynamics_align_hairpins_and_dynamics()           
+            dynamics_nudge_up()
+        end 
         if return_values[1] == "0100" then
             articulations_accent()
         end
