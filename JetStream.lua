@@ -3993,6 +3993,481 @@ function flip_enharmonic()
     end
 end
 
+function cluster_indeterminate()
+    local distance_prefs = finale.FCDistancePrefs()
+    distance_prefs:Load(1)
+    local dot_horz = distance_prefs.AugmentationDotNoteSpace
+    local dot_vert = distance_prefs.AugmentationDotVerticalAdjust
+    local sizeprefs = finale.FCSizePrefs()
+    sizeprefs:Load(1)
+    local stem_thickness = sizeprefs.StemLineThickness
+    stem_thickness = stem_thickness/64
+
+    for noteentry in eachentrysaved(finenv.Region()) do
+        if noteentry:IsNote() and noteentry.Count > 1 then
+            local max = noteentry.Count
+            local n = 1
+            local dot = finale.FCDotMod()
+            local lowest_note = noteentry:CalcLowestNote(nil)
+            local lowest_note_pos = lowest_note:CalcStaffPosition()
+            local low_space = lowest_note_pos % 2
+            local low_span = 0
+            local adjust_dots = false
+
+            local i = 1
+            for note in each(noteentry) do
+                local stemDir = noteentry:CalcStemUp()
+                local rightside = note:CalcRightsidePlacement()
+                if (stemDir == true and rightside == true) then
+                    adjust_dots = true
+                end
+                if i ==  2 then
+                    low_span = note:CalcStaffPosition() - lowest_note_pos
+                end 
+                i = i + 1
+            end 
+
+            for note in each(noteentry) do
+                local stemDir = noteentry:CalcStemUp()
+                local notehead = finale.FCNoteheadMod()
+                notehead:EraseAt(note)
+                notehead:SetUseCustomFont(true)
+                notehead.FontName = "Engraver Font Set"
+                local noteheadOffset = 35
+                local rightside = note:CalcRightsidePlacement()
+
+                if noteentry.Duration < 2048 then
+                    notehead.CustomChar = 242
+                    if stemDir == true and rightside == true then
+                        notehead.HorizontalPos = -noteheadOffset
+                    end
+                    if stemDir == false and rightside == false then
+                        notehead.HorizontalPos = noteheadOffset
+                    end      
+                end 
+
+                if (noteentry.Duration >= 2048) and (noteentry.Duration < 4096) then -- for half notes
+                    if n == 1 then
+                        notehead.CustomChar = 201
+                    elseif n == max then
+                        notehead.CustomChar = 59
+                    else
+                        notehead.CustomChar = 58
+                    end
+                    if stemDir == true and rightside == true then
+                        notehead.HorizontalPos = -noteheadOffset
+                    end
+                    if stemDir == false and rightside == false then
+                        notehead.HorizontalPos = noteheadOffset
+                    end
+                end
+
+                if (noteentry.Duration >= 4096) then
+                    if n == 1 then
+                        notehead.CustomChar = 201
+                    elseif n == max then
+                        notehead.CustomChar = 59
+                    else
+                        notehead.CustomChar = 58
+                    end
+                    noteheadOffset = 32
+                    if stemDir == true and rightside == true then
+                        notehead.HorizontalPos = -noteheadOffset
+                    end
+                    if stemDir == false and rightside == false then
+                        notehead.HorizontalPos = noteheadOffset
+                    end
+                end
+
+                if n > 1 and n < max then 
+                    note.Tie = false
+                end 
+
+                    
+                if noteentry:IsDotted() then 
+                    local horz = 0
+                    if adjust_dots == true then
+                        horz = -noteheadOffset
+                    end
+                    if n ==1 and low_span <= 1 and low_space == 1 then
+                        dot.VerticalPos = 24
+                    elseif n > 1 and n < max then
+                        dot.VerticalPos = 10000
+                        dot.HorizontalPos = 10000
+                    else
+                        dot.VerticalPos = 0
+                    end 
+                    dot.HorizontalPos = horz
+                    dot:SaveAt(note)
+                end 
+            
+                note.AccidentalFreeze = true
+                note.Accidental = false
+                notehead:SaveAt(note)
+                n = n + 1
+                end 
+            noteentry.LedgerLines = false
+        end 
+    end 
+end
+
+function cluster_determinate()
+    local region = finenv.Region()      
+    
+    local layer1note = {}
+    local layer2note = {}
+    local measure = {}
+    
+    local stemDir = false
+    
+    local horz_off = -20
+    
+    local function ProcessNotes(music_region)
+        local stem_dir = {}
+        for entry in eachentrysaved(region) do
+            entry.FreezeStem = false
+            table.insert(stem_dir, entry:CalcStemUp())
+        end
+        
+        CopyLayer(1, 2)
+        CopyLayer(1, 3)
+        
+        local i = 1
+        local j = 1
+        local stemDir = stem_dir[i]
+    
+        for noteentry in eachentrysaved(music_region) do
+            local span = noteentry:CalcDisplacementRange(nil)
+            local stemDir = stem_dir[i]
+            if noteentry.LayerNumber == 1 then
+                stemDir = stem_dir[i]
+                if noteentry:IsNote() then  
+                    if span > 2 then
+                        DeleteBottomNotes(noteentry)
+                    else
+                        DeleteMiddleNotes(noteentry)
+                        noteentry.FreezeStem = true
+                        noteentry.StemUp = stemDir
+                    end
+                elseif noteentry:IsRest() then
+                    noteentry:SetRestDisplacement(6)
+                end
+                if stemDir == false and span > 2 then 
+                    HideStems(noteentry, stemDir)
+                end
+                i = i + 1
+            elseif noteentry.LayerNumber == 2 then
+                stemDir = stem_dir[j]
+                if noteentry:IsNote() and span > 2 then            
+                    DeleteTopNotes(noteentry)
+                else
+                    noteentry:MakeRest()
+                    noteentry.Visible = false
+                    noteentry:SetRestDisplacement(4)                
+                end
+                if stemDir == true then
+                    HideStems(noteentry, stemDir)
+                end 
+                j = j + 1
+            elseif noteentry.LayerNumber == 3 then
+                if noteentry:IsNote() then
+                    for note in each(noteentry) do
+                        note.AccidentalFreeze = true
+                        note.Accidental = false
+                    end
+                    noteentry.FreezeStem = true
+                    noteentry.StemUp = true
+                    HideStems(noteentry, true)
+                    DeleteTopBottomNotes(noteentry)
+                elseif noteentry:IsRest() then
+                    noteentry:SetRestDisplacement(2)
+                end
+                noteentry.Visible = false
+            end 
+            noteentry.CheckAccidentals = true
+            if noteentry:IsNote() then
+                n = 1
+                for note in each(noteentry) do
+                    note.NoteID = n
+                    n = n +1
+                end 
+            end
+        end
+    end
+    
+    
+    function HideStems(entry, stemDir)
+        local stem = finale.FCCustomStemMod()
+        stem:SetNoteEntry(entry)
+        if stemDir then
+            stemDir = false
+        else
+            stemDir =true
+        end
+        stem:UseUpStemData(stemDir)
+        if stem:LoadFirst() then
+            stem.ShapeID = 0   
+            stem:Save()
+        else
+            stem.ShapeID = 0
+            stem:SaveNew()
+        end
+        entry:SetBeamBeat(true)
+    end
+    
+    function CopyLayer(src, dest)
+        local region = finenv.Region()
+        local start=region.StartMeasure
+        local stop=region.EndMeasure
+        local sysstaves = finale.FCSystemStaves()
+        sysstaves:LoadAllForRegion(region)
+        src = src - 1
+        dest = dest - 1
+        for sysstaff in each(sysstaves) do
+            staffNum = sysstaff.Staff
+            local noteentrylayerSrc = finale.FCNoteEntryLayer(src,staffNum,start,stop)
+            noteentrylayerSrc:Load()     
+            local noteentrylayerDest = noteentrylayerSrc:CreateCloneEntries(dest,staffNum,start)
+            noteentrylayerDest:Save()
+            noteentrylayerDest:CloneTuplets(noteentrylayerSrc)
+            noteentrylayerDest:Save()
+        end
+    end
+    
+    function DeleteBottomNotes(entry)
+        while entry.Count > 1 do
+            local lowestnote = entry:CalcLowestNote(nil)
+            entry:DeleteNote(lowestnote)
+        end
+    end
+    
+    function DeleteTopNotes(entry)
+        while entry.Count > 1 do
+            local highestnote = entry:CalcHighestNote(nil)
+            entry:DeleteNote(highestnote)
+        end
+    end
+    
+    function DeleteTopBottomNotes(entry)
+        local highestnote = entry:CalcHighestNote(nil)
+        entry:DeleteNote(highestnote)
+        local lowestnote = entry:CalcLowestNote(nil)
+        entry:DeleteNote(lowestnote)
+    end
+    
+    function DeleteMiddleNotes(entry)
+        while entry.Count > 2 do
+            local n = 1
+            for note in each(entry) do
+                note.NoteID = n
+                n = n +1
+            end 
+            for note in each(entry) do
+                if note.NoteID == 2 then
+                    entry:DeleteNote(note)
+                end
+            end 
+        end 
+    end 
+    
+    
+    local function create_cluster_line()
+        local lineExists = false
+        local myLine = 0
+        local myLineWidth = 64 * 24 * 0.5
+        local customsmartlinedefs = finale.FCCustomSmartLineDefs()
+        customsmartlinedefs:LoadAll()
+        for csld in each(customsmartlinedefs) do
+            if csld.LineStyle == finale.CUSTOMLINE_SOLID and csld.LineWidth == myLineWidth then
+                if csld.StartArrowheadStyle == finale.CLENDPOINT_NONE and  csld.EndArrowheadStyle == finale.CLENDPOINT_NONE then 
+                    if csld.Horizontal == false then
+                        myLine = csld.ItemNo
+                        lineExists = true
+                    end 
+                end 
+            end 
+        end 
+        
+        if lineExists == false then
+            local csld = finale.FCCustomSmartLineDef()
+            csld.Horizontal = false
+            csld.LineStyle = finale.CUSTOMLINE_SOLID
+            csld.StartArrowheadStyle = finale.CLENDPOINT_NONE
+            csld.EndArrowheadStyle = finale.CLENDPOINT_NONE
+            csld.LineWidth = myLineWidth
+            csld:SaveNew()
+            myLine = csld.ItemNo
+        end
+        return myLine
+    end
+    
+    local function create_short_cluster_line()
+        local lineExists = false
+        local myLine = 0
+        local myLineWidth = 64 * 24 * 0.333 
+        local customsmartlinedefs = finale.FCCustomSmartLineDefs()
+        customsmartlinedefs:LoadAll()
+        for csld in each(customsmartlinedefs) do
+            if csld.LineStyle == finale.CUSTOMLINE_SOLID and csld.LineWidth == myLineWidth then 
+                if csld.StartArrowheadStyle == finale.CLENDPOINT_NONE and  csld.EndArrowheadStyle == finale.CLENDPOINT_NONE then 
+                    if csld.Horizontal == false then
+                        myLine = csld.ItemNo
+                        lineExists = true
+                    end 
+                end 
+            end 
+        end
+            
+        if lineExists == false then
+            local csld = finale.FCCustomSmartLineDef()
+            csld.Horizontal = false
+            csld.LineStyle = finale.CUSTOMLINE_SOLID
+            csld.StartArrowheadStyle = finale.CLENDPOINT_NONE
+            csld.EndArrowheadStyle = finale.CLENDPOINT_NONE
+            csld.LineWidth = myLineWidth
+            csld:SaveNew()
+            myLine = csld.ItemNo
+        end
+        return myLine
+    end
+    
+    function add_cluster_line(leftnote, rightnote, lineID)
+        if leftnote:IsNote() and leftnote.Count == 1 and rightnote:IsNote() then
+            local smartshape = finale.FCSmartShape()
+            local layer1highest = leftnote:CalcHighestNote(nil)
+            local noteWidth = layer1highest:CalcNoteheadWidth()
+            local layer1noteY = layer1highest:CalcStaffPosition()
+            
+            local layer2highest = rightnote:CalcHighestNote(nil)
+            local layer2noteY = layer2highest:CalcStaffPosition()
+            
+            local topPad = 0
+            local bottomPad = 0
+            if leftnote.Duration >= 2048 and leftnote.Duration < 4096 then 
+                topPad = 9
+                bottomPad = topPad
+            elseif leftnote.Duration >= 4096 then 
+                topPad = 10
+                bottomPad = 11.5
+            end 
+            layer1noteY = (layer1noteY * 12) - topPad 
+            layer2noteY = (layer2noteY * 12) + bottomPad 
+            
+            smartshape.ShapeType = finale.SMARTSHAPE_CUSTOM
+            smartshape.EntryBased = false
+            smartshape.MakeHorizontal = false
+            smartshape.BeatAttached= true
+            smartshape.PresetShape = true
+            smartshape.Visible = true
+            smartshape.LineID = lineID
+            
+            local leftseg = smartshape:GetTerminateSegmentLeft()
+            leftseg:SetMeasure(leftnote.Measure)
+            leftseg:SetStaff(leftnote.Staff)
+            leftseg:SetMeasurePos(leftnote.MeasurePos)
+            leftseg:SetEndpointOffsetX(noteWidth/2)
+            leftseg:SetEndpointOffsetY(layer1noteY)
+            
+            local rightseg = smartshape:GetTerminateSegmentRight()
+            rightseg:SetMeasure(rightnote.Measure)
+            rightseg:SetStaff(rightnote.Staff)
+            rightseg:SetMeasurePos(rightnote.MeasurePos)
+            rightseg:SetEndpointOffsetX(noteWidth/2)
+            rightseg:SetEndpointOffsetY(layer2noteY)
+            
+            smartshape:SaveNewEverything(NULL,NULL)
+        end 
+    end 
+    
+    function add_short_cluster_line(entry, short_lineID)
+        if entry:IsNote() and entry.Count > 1 then
+            local smartshape = finale.FCSmartShape()
+            local leftnote = entry:CalcHighestNote(nil)
+            local leftnoteY = leftnote:CalcStaffPosition() * 12 + 12
+            
+            local rightnote = entry:CalcLowestNote(nil)
+            local rightnoteY = rightnote:CalcStaffPosition() * 12 - 12
+            
+            smartshape.ShapeType = finale.SMARTSHAPE_CUSTOM
+            smartshape.EntryBased = false
+            smartshape.MakeHorizontal = false
+            smartshape.PresetShape = true
+            smartshape.Visible = true
+            smartshape.BeatAttached= true
+            smartshape.LineID = short_lineID
+            
+            local leftseg = smartshape:GetTerminateSegmentLeft()
+            leftseg:SetMeasure(entry.Measure)
+            leftseg:SetStaff(entry.Staff)
+            leftseg:SetMeasurePos(entry.MeasurePos)
+            leftseg:SetEndpointOffsetX(horz_off)
+            leftseg:SetEndpointOffsetY(leftnoteY)
+            
+            local rightseg = smartshape:GetTerminateSegmentRight()
+            rightseg:SetMeasure(entry.Measure)
+            rightseg:SetStaff(entry.Staff)
+            rightseg:SetMeasurePos(entry.MeasurePos)
+            rightseg:SetEndpointOffsetX(horz_off)
+            rightseg:SetEndpointOffsetY(rightnoteY)
+            
+            smartshape:SaveNewEverything(NULL,NULL)
+        end 
+    end 
+        
+    local lineID = create_cluster_line()
+    local short_lineID = create_short_cluster_line()
+    
+    for addstaff = region:GetStartStaff(), region:GetEndStaff() do
+        local count = 0
+            
+        for k,v in pairs(layer1note) do
+            layer1note [k] = nil
+        end
+        for k,v in pairs(layer2note) do
+            layer2note [k] = nil
+        end
+        for k,v in pairs(measure) do
+            measure[k] = nil
+        end
+        
+        region:SetStartStaff(addstaff)
+        region:SetEndStaff(addstaff)
+        local measures = finale.FCMeasures()
+        measures:LoadRegion(region)
+        ProcessNotes(region)
+
+        for entry in eachentrysaved(region) do
+            if entry.LayerNumber == 1 then
+                table.insert(layer1note, entry)
+                table.insert(measure, entry.Measure)
+                staff = entry.Staff
+                count = count + 1
+            elseif entry.LayerNumber == 2 then
+                table.insert(layer2note, entry)
+            end
+        end
+        
+        for i = 1, count do
+            add_short_cluster_line(layer1note[i], short_lineID)
+            add_cluster_line(layer1note[i], layer2note[i], lineID)
+        end 
+    end
+    
+    for noteentry in eachentrysaved(finenv.Region()) do
+        if noteentry:IsNote() and noteentry.Count > 1 then
+            for note in each(noteentry) do
+                if note.Accidental == true then
+                    local am = finale.FCAccidentalMod()
+                    am:SetNoteEntry(noteentry)
+                    am:SetUseCustomVerticalPos(true)
+                    am:SetHorizontalPos(horz_off*1.5)
+                    am:SaveAt(note)
+                end
+            end
+        end
+    end    
+end
+
 function ui_switch_to_selected_part()
 
     function get_top_left_selected_or_visible_cell()
@@ -6634,6 +7109,14 @@ function transform_flip_enharmonic()
     flip_enharmonic()
 end
 
+function transform_cluster_indeterminate()
+    cluster_indeterminate()
+end
+
+function transform_cluster_determinate()
+    cluster_determinate()
+end
+
 function update_mac_48()
     check_for_update("/tmp/", "mac XL")
 end
@@ -7859,6 +8342,12 @@ if return_values ~= nil then
         end
         if return_values[1] == "1512" then
             transform_flip_enharmonic()
+        end
+        if return_values[1] == "1513" then
+            transform_cluster_indeterminate()
+        end
+        if return_values[1] == "1514" then
+            transform_cluster_determinate()
         end
         if return_values[1] == "1600" then
             chords_altered_bass_after()
