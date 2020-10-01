@@ -313,6 +313,327 @@ function findArticulation(table_placement, AboveSymbolChar, font_name)
     end
 end
 
+function articulations_lv_poly()
+    local region = finenv.Region()
+    local start = region.StartMeasure
+    local stop = region.EndMeasure
+    local sys_staves = finale.FCSystemStaves()
+    sys_staves:LoadAllForRegion(region)
+    
+    local lv_up = 0
+    local lv_down = 0
+    local lv_auto = 0
+    local articulationdefs = finale.FCArticulationDefs()
+      
+    local horz = 39
+    local vert = 0
+    avoid = false
+    auto_avoid = true
+
+    articulationdefs:LoadAll()
+    for ad in each(articulationdefs) do
+        if (ad:GetMainSymbolFont() == "Engraver Font Set") then
+            if (ad:GetAboveSymbolChar() == 105 and ad:GetBelowSymbolChar() == 105 and ad.AvoidStaffLines == avoid) then
+                lv_up = ad.ItemNo
+            elseif (ad:GetAboveSymbolChar() == 73 and ad:GetBelowSymbolChar() == 73 and ad.AvoidStaffLines == avoid) then
+                lv_down = ad.ItemNo
+            elseif (ad:GetAboveSymbolChar() == 105 and ad:GetBelowSymbolChar() == 73 and ad.AvoidStaffLines == auto_avoid) then  
+                lv_auto = ad.ItemNo
+            end 
+        end             
+    end 
+    if lv_up == 0 then
+        local ad = finale.FCArticulationDef()
+        ad.MainSymbolChar = 105
+        ad.MainSymbolFont = "Engraver Font Set"
+        ad.MainSymbolIsShape = false
+        ad.MainSymbolSize = 24
+        ad.FlippedSymbolChar = 105
+        ad.FlippedSymbolFont = "Engraver Font Set"
+        ad.FlippedSymbolIsShape = false
+        ad.FlippedSymbolSize = 24
+        ad.AboveSymbolChar = 105
+        ad.AboveUsesMain = true
+        ad.BelowSymbolChar = 105
+        ad.BelowUsesMain = true
+        
+        ad.DefaultVerticalPos = 0
+        ad.MainHandleHorizontalOffset = horz
+        ad.MainHandleVerticalOffset = vert
+        ad.FlippedHandleHorizontalOffset = horz
+        ad.FlippedHandleVerticalOffset = vert
+        
+        ad.AlwaysPlaceOutsideStaff = false
+        ad.AttachToTopNote = false
+        ad.AutoPosSide = 0 
+        ad.AvoidStaffLines = avoid
+        ad.CenterHorizontally = false
+        ad.CopyMainSymbol = false
+        ad.CopyMainSymbolHorizontally = false
+        
+        ad.InsideSlurs =  false
+        ad.OnScreenOnly = false
+        ad.Playback = false 
+        ad.AttackIsPercent = false
+        ad.TopAttack = 0
+        ad.BottomAttack = 0
+        ad.DurationIsPercent = false
+        ad.TopDuration = 0
+        ad.BottomDuration = 0
+        ad.TopVelocity = 0
+        ad.BottomVelocity = 0
+        ad:SaveNew()
+        lv_up = ad.ItemNo
+    end 
+    if lv_down == 0 then
+        local ad = finale.FCArticulationDef()
+        ad.MainSymbolChar = 73
+        ad.MainSymbolFont = "Engraver Font Set"
+        ad.MainSymbolIsShape = false
+        ad.MainSymbolSize = 24
+        ad.FlippedSymbolChar = 73
+        ad.FlippedSymbolFont = "Engraver Font Set"
+        ad.FlippedSymbolIsShape = false
+        ad.FlippedSymbolSize = 24
+        ad.AboveSymbolChar = 73
+        ad.AboveUsesMain = true
+        ad.BelowSymbolChar = 73
+        ad.BelowUsesMain = true
+         
+        ad.DefaultVerticalPos = 0
+        ad.MainHandleHorizontalOffset = horz
+        ad.MainHandleVerticalOffset = -vert
+        ad.FlippedHandleHorizontalOffset = horz
+        ad.FlippedHandleVerticalOffset = vert
+        
+        ad.AlwaysPlaceOutsideStaff = false
+        ad.AttachToTopNote = false
+        ad.AutoPosSide = 0
+        ad.AvoidStaffLines = avoid
+        ad.CenterHorizontally = false
+        ad.CopyMainSymbol = false
+        ad.CopyMainSymbolHorizontally = false
+        
+        ad.InsideSlurs =  false
+        ad.OnScreenOnly = false
+        ad.Playback = false 
+        ad.AttackIsPercent = false
+        ad.TopAttack = 0
+        ad.BottomAttack = 0
+        ad.DurationIsPercent = false
+        ad.TopDuration = 0
+        ad.BottomDuration = 0
+        ad.TopVelocity = 0
+        ad.BottomVelocity = 0
+        ad:SaveNew()
+        lv_down = ad.ItemNo
+    end 
+    if lv_auto == 0 then
+        local ad = finale.FCArticulationDef()
+        --ad.MainSymbolChar = 105
+        ad.MainSymbolFont = "Engraver Font Set"
+        ad.MainSymbolIsShape = false
+        ad.MainSymbolSize = 24
+        ad.FlippedSymbolChar = 73
+        ad.FlippedSymbolFont = "Engraver Font Set"
+        ad.FlippedSymbolIsShape = false
+        ad.FlippedSymbolSize = 24
+        ad.AboveSymbolChar = 105
+        ad.AboveUsesMain = true
+        ad.BelowSymbolChar = 73
+        ad.BelowUsesMain = false
+ 
+        ad.DefaultVerticalPos = 0
+        ad.MainHandleHorizontalOffset = horz
+        ad.MainHandleVerticalOffset = -6
+        ad.FlippedHandleHorizontalOffset = horz
+        ad.FlippedHandleVerticalOffset = 7
+        
+        ad.AlwaysPlaceOutsideStaff = false
+        ad.AttachToTopNote = false
+        ad.AutoPosSide = 2
+        --ad.AvoidStaffLines = avoid
+        ad.AvoidStaffLines = auto_avoid
+        ad.CenterHorizontally = true
+        ad.CopyMainSymbol = false
+        ad.CopyMainSymbolHorizontally = false
+        
+        ad.InsideSlurs =  false
+        ad.OnScreenOnly = false
+        ad.Playback = false 
+        ad.AttackIsPercent = false
+        ad.TopAttack = 0
+        ad.BottomAttack = 0
+        ad.DurationIsPercent = false
+        ad.TopDuration = 0
+        ad.BottomDuration = 0
+        ad.TopVelocity = 0
+        ad.BottomVelocity = 0
+        ad:SaveNew()
+        ad.MainSymbolChar = 105
+        ad:Save()
+        lv_auto = ad.ItemNo
+    end
+    local found = 0
+
+    for noteentry in eachentrysaved(finenv.Region()) do
+        noteentry:TieAll(false)
+        local artics = noteentry:CreateArticulations()
+        for a in each(artics) do
+            local defs = a:CreateArticulationDef()
+            if defs:GetItemNo() == lv_auto or defs:GetItemNo() == lv_up or defs:GetItemNo() == lv_down then
+                found = 1
+            end
+        end
+    end
+
+    if found ~= 0 then 
+        deleteArticulation(lv_auto)
+        deleteArticulation(lv_up)
+        deleteArticulation(lv_down)
+        goto continue
+    end
+
+    local count = 0
+    
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local interval = {}
+        local tiedir = {}
+        local i = 1
+        
+        if noteentry:IsNote() and noteentry:IsTied() == false then
+            local horz_pad = 24 * noteentry:CalcDots()
+            local a = finale.FCArticulation()
+            a:SetNoteEntry(noteentry)
+
+            local rightside_note = false
+            local ledger = false
+            count = noteentry.Count
+            local middle = 0
+            local clashes = 0
+            if count % 2 == 1 then
+                middle = count / 2 + .5
+            end 
+            local lowestnote = noteentry:CalcHighestStaffPosition() - noteentry:CalcDisplacementRange()
+            local lastnote = lowestnote
+            
+            for note in each(noteentry) do
+                interval[i] = note:CalcStaffPosition() - lastnote
+                lastnote = note:CalcStaffPosition()
+                if i > 1 and interval[i] <= 1 then
+                    clashes = clashes + 1
+                end
+                 
+                if i > 1 and interval[i] >= 3 and interval[i-1] <= 1 then
+                    clashes = clashes - 1
+                end
+                
+                if note:CalcRightsidePlacement() and noteentry:CalcStemUp() then
+                    rightside_note = true
+                end
+                if note:CalcOnLedgerLine() then
+                    ledger = true
+                end
+                i = i + 1
+            end
+            if rightside_note == true then
+                horz_pad = horz_pad + 28
+            end
+            if ledger == true then
+                horz_pad = horz_pad + 6
+            end
+
+            a.HorizontalPos = a.HorizontalPos + horz_pad
+            i = 1
+            for note in each(noteentry) do               
+                if count == 1 then
+                    tiedir[i] = "a"
+                elseif count > 1 then
+                    if i <= count / 2 and j ~= middle then
+                        tiedir[i] = "d"                        
+                    else
+                        tiedir[i] = "u"
+                    end -- if  
+                    if i == middle and noteentry:CalcStemUp() == true then
+                        tiedir[i] = "d"
+                    end
+                    if i > 1 and interval[i] <= 1 and clashes < 2 then
+                        tiedir[i] = "fu"
+                        tiedir[i-1] = "fd"
+                    end
+                    i = i + 1
+                end
+            end
+
+            i = 1
+            for note in each(noteentry) do
+                local cell = finale.FCNoteEntryCell(noteentry.Measure, noteentry.Staff)
+                cell:Load()
+                if cell:CalcEntriesInMultiLayers() then
+                    if noteentry.LayerNumber % 2 == 1 then
+                        tiedir[i] = "u"
+                    else
+                        tiedir[i] = "d"
+                    end 
+                end
+                i = i + 1
+            end
+
+            for i = i, 1, -1 do
+                if tiedir[i] == "fd" and tiedir[i-1] == "u" then
+                    tiedir[i-1] = "fd"
+                end
+
+            end
+
+            i = 1
+            for note in each(noteentry) do --3rd...
+                local vert_pad = 0
+                if tiedir[i] == "a" then
+                    a:SetID(lv_auto)
+                elseif tiedir[i] == "d" or tiedir[i] == "fd" then
+                    a:SetID(lv_down)                        
+                else
+                    a:SetID(lv_up)
+                end 
+
+                local staffpos = note:CalcStaffPosition()
+                if staffpos < -9 or staffpos > 1 then
+                    --print("Note is outside staff. No adjustment necessary")
+                elseif staffpos % 2 == 1 then
+                    if (tiedir[i] == "d" or tiedir[i] == "fd") then
+                        vert_pad = vert_pad + 4
+                    elseif (tiedir[i] == "u" or tiedir[i] == "fu") then
+                        vert_pad = vert_pad - 3
+                    end
+                else
+                    if (tiedir[i] == "d" or tiedir[i] == "fd") then
+                        vert_pad = vert_pad - 4
+                    elseif (tiedir[i] == "u" or tiedir[i] == "fu") then
+                        vert_pad = vert_pad + 4
+                    end
+                end
+ 
+                if (tiedir[i] == "d" or tiedir[i] == "fd") and (tiedir[i+1] == "d" or tiedir[i+1] == "fd") and interval[i+1] <= 1 then
+                    vert_pad = vert_pad - 6 
+                    if staffpos >= -9 and staffpos % 2 == 1 then --additional adjustment for staff space...
+                        vert_pad = vert_pad - 12
+                    end
+                elseif (tiedir[i] == "u" or tiedir[i] == "fu") and (tiedir[i-1] == "u" or tiedir[i-1] == "fu") and interval[i] <= 1 then
+                    vert_pad = vert_pad + 6
+                    if staffpos <= 1 and staffpos % 2 == 1 then --additional adjustment for staff space...
+                        vert_pad = vert_pad + 10
+                    end
+                end
+                a.VerticalPos = (note:CalcStaffPosition() - lowestnote) * 12 + vert_pad
+                a:SaveNew()
+                i = i + 1    
+            end
+        end
+    end
+::continue::
+end
+
 function delete_duplicate_articulations(note_entry)
     local art_list = {}
     local arts = note_entry:CreateArticulations()
@@ -2893,6 +3214,59 @@ function user_expression_input(the_expression)
         end
     end
 
+    function parse_dynamics(return_string)
+        local start_dynamic = ""
+        local hairpin = ""
+        local end_dynamic = ""
+        local dyn_start_table = {dynamics_n_start, dynamics_pppp_start, dynamics_ppp_start, dynamics_pp_start, dynamics_p_start, dynamics_mp_start, dynamics_mf_start, dynamics_f_start, dynamics_ff_start, dynamics_fff_start, dynamics_ffff_start}
+        local dyn_end_table = {dynamics_n_end, dynamics_pppp_end, dynamics_ppp_end, dynamics_pp_end, dynamics_p_end, dynamics_mp_end, dynamics_mf_end, dynamics_f_end, dynamics_ff_end, dynamics_fff_end, dynamics_ffff_end}
+        local dyn_char = {"n", "pppp", "ppp", "pp", "p", "mp", "mf", "f", "ff", "fff", "ffff"}
+        if (string.match(return_string, "[pPfFmMzZsS]*%-?<?>?[pPfPmMsSzZ]?")) then
+            if string.find(return_string, "[pPfFmMzZsS]*") then
+                local i, j = string.find(return_string, "[pPfFmMzZsS]*") 
+                start_dynamic = return_string:sub(i, j)
+            end
+            if string.find(return_string, "[<>]+") then
+                local i, j = string.find(return_string, "[<>]+")
+
+                if j == 0 then
+                    hairpin = return_string:sub(i+1, i+1)
+                else
+                    hairpin = return_string:sub(i, j)
+                end
+            end
+            if hairpin == "" then
+                if string.find(return_string, "%-") then
+                    local i, j = string.find(return_string, "%-[pPfPmMsSzZ]*")
+                    end_dynamic = return_string:sub(i+1, j)
+                end
+            else
+                i, j = string.find(return_string, "[<>]+")
+                end_dynamic = return_string:sub(j+1, string.len(return_string))
+            end
+        end
+        if start_dynamic ~= "" then
+            for key, value in pairs(dyn_char) do
+                if value == start_dynamic then
+                    dyn_start_table[key]()
+                    first_expression = {}
+                end
+            end
+        end
+        if end_dynamic ~= "" then
+            for key, value in pairs(dyn_char) do
+                if value == end_dynamic then
+                    dyn_end_table[key]()
+                end
+            end
+        end
+        if hairpin == ">" then
+            dynamics_decrescendo()
+        elseif hairpin == "<" then
+            dynamics_crescendo()
+        end
+    end
+
     function user_input(display_type)
         local input_dialog = finenv.UserValueInput()
         input_dialog.Title = "JetStream Expression Input"
@@ -2914,6 +3288,8 @@ function user_expression_input(the_expression)
                 elseif display_type == "Technique" then
                     find_text_expression(return_values[1], 5)
                     text_expression_region("Start")
+                elseif display_type == "Dynamic" then
+                    parse_dynamics(return_values[1])
                 end
             end
         end
@@ -4369,6 +4745,10 @@ function articulations_doit()
     else
         addArticulation(full_art_table[25])
     end
+end
+
+function articulations_lv_ties()
+    articulations_lv()
 end
 
 function articulations_split_articulations()
@@ -6174,6 +6554,10 @@ function plugin_custom_text_tempo()
     user_expression_input("Tempo")
 end
 
+function plugin_custom_text_dynamics()
+    user_expression_input("Dynamic")
+end
+
 function reset_baseline_expression_below()
     baseline_reset(finale.BASELINEMODE_EXPRESSIONBELOW)
 end
@@ -6554,6 +6938,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "0127" then
             articulations_lv()
+        end
+        if return_values[1] == "0128" then
+            articulations_lv_poly()
         end
         if return_values[1] == "0132" then
             articulations_left_brackets()
