@@ -1027,7 +1027,7 @@ end
 
 function halfway_point(current_staff, first_pin, second_pin)
     
-    function has_dynamic(last_measure, last_pos)
+    function mdv_has_dynamic(last_measure, last_pos)
 
         local region = finenv.Region()
         region:SetStartStaff(current_staff)
@@ -1099,7 +1099,7 @@ function halfway_point(current_staff, first_pin, second_pin)
         end_measure = notes_in_region[#notes_in_region]:GetMeasure()
         end_measure_pos = notes_in_region[#notes_in_region]:GetMeasurePos()
         hairpin_end_measure_pos = notes_in_region[#notes_in_region]:GetMeasurePos()
-        local halfway_to_end = has_dynamic(end_measure, hairpin_end_measure_pos)
+        local halfway_to_end = mdv_has_dynamic(end_measure, hairpin_end_measure_pos)
         if notes_in_region[#notes_in_region]:GetDuration() > 1536 then
             end_measure_pos = end_measure_pos + notes_in_region[#notes_in_region]:GetDuration()
         end            
@@ -1112,17 +1112,18 @@ function halfway_point(current_staff, first_pin, second_pin)
             end
         end
 
-        halfway_measure = (((end_measure - start_measure) / 2) + start_measure)
+        halfway_measure = math.floor((((end_measure - start_measure) / 2) + start_measure))
         music_region:SetStartMeasure(start_measure)
         music_region:SetStartMeasurePos(start_measure_pos)
         music_region:SetEndMeasure(end_measure)
         music_region:SetEndMeasurePos(end_measure_pos)
         local full_duration = music_region:CalcDuration()
-        local half_duration = full_duration / 2
-        music_region:SetDurationOffsetLeft(half_duration)
+        local half_duration = math.floor(full_duration / 2)
+        music_region:SetStartMeasurePos(start_measure_pos + half_duration)
         halfway_measure = music_region:GetStartMeasure()
         halfway_measure_pos = music_region:GetStartMeasurePos()
-        local beginning_to_halfway = has_dynamic(halfway_measure, halfway_measure_pos)
+
+        local beginning_to_halfway = mdv_has_dynamic(halfway_measure, halfway_measure_pos)
         if beginning_to_halfway ~= false then
             halfway_measure = beginning_to_halfway[1]
             halfway_measure_pos = beginning_to_halfway[2]            
@@ -1297,9 +1298,9 @@ function set_first_last_note_in_range(staff)
         local end_measure = notes_in_region[#notes_in_region]:GetMeasure()
         
         if notes_in_region[#notes_in_region]:GetDuration() >= 2048 then
-            end_pos = notes_in_region[#notes_in_region]:GetDuration() 
+            end_pos = end_pos + notes_in_region[#notes_in_region]:GetDuration() 
         end
-
+        
         range_settings[staff] = {staff, start_measure, end_measure, start_pos, end_pos}
 
         for key, value in pairs(range_settings) do
