@@ -5607,6 +5607,26 @@ function noteheads_x_diamond_above_staff()
     end
 end
 
+function noteheads_center_noteheads()
+    local region = finenv.Region()
+    for entry in eachentrysaved(region) do
+        local stem = entry:CalcStemUp()
+        for note in each(entry) do
+            local off = 0
+            local notehead = finale.FCNoteheadMod()
+            notehead:LoadAt(note)
+            local width = note:CalcNoteheadWidth()
+            if stem then
+                off = width / 2
+            else
+                off = -width /2
+            end
+            notehead.HorizontalPos = notehead.HorizontalPos + off
+            notehead:SaveAt(note)
+        end
+    end
+end
+
 function transform_harmonics_thrid()
     string_harmonics_touch(3)
 end
@@ -7124,6 +7144,17 @@ function transform_cluster_determinate()
     cluster_determinate()
 end
 
+function transform_toggle_ledger_lines()
+    local region = finenv.Region()
+    for entry in eachentrysaved(region) do
+        if entry:GetLedgerLines() then
+            entry:SetLedgerLines(false)
+        else
+            entry:SetLedgerLines(true)
+        end
+    end    
+end
+
 function update_mac_48()
     check_for_update("/tmp/", "mac XL")
 end
@@ -7517,6 +7548,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "0214" then
             noteheads_x_diamond_above_staff()
+        end
+        if return_values[1] == "0215" then
+            noteheads_center_noteheads()
         end
         if return_values[1] == "0300" then
             lyrics_clear_lyrics()
@@ -8366,6 +8400,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "1514" then
             transform_cluster_determinate()
+        end
+        if return_values[1] == "1515" then
+            transform_toggle_ledger_lines()
         end
         if return_values[1] == "1600" then
             chords_altered_bass_after()
