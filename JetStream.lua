@@ -5737,16 +5737,20 @@ function noteheads_center_noteheads()
     for entry in eachentrysaved(region) do
         local stem = entry:CalcStemUp()
         for note in each(entry) do
-            local off = 0
-            local notehead = finale.FCNoteheadMod()
-            notehead:LoadAt(note)
-            local width = note:CalcNoteheadWidth()
-            if stem then
-                off = width / 2
+                local off = 0
+                local notehead = finale.FCNoteheadMod()
+                notehead:LoadAt(note)
+                local width = note:CalcNoteheadWidth()
+                if stem then
+                    off = width / 2
+                else
+                    off = -width /2
+                end
+            if notehead.HorizontalPos == 0 then
+                notehead.HorizontalPos = notehead.HorizontalPos + off
             else
-                off = -width /2
+                notehead.HorizontalPos = 0
             end
-            notehead.HorizontalPos = notehead.HorizontalPos + off
             notehead:SaveAt(note)
         end
     end
