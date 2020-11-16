@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "201027"
-    finaleplugin.Date = "10/27/2020"
+    finaleplugin.Version = "201116"
+    finaleplugin.Date = "11/16/2020"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -3999,23 +3999,24 @@ function string_harmonics_touch(interval_num)
 
             local new_note = entry:AddNewNote()
 
-            new_note:SetString(pitch_string, key_sig, false)
-
             new_note.Tie = note.Tie
 
             if interval_num == 3 then
+                new_note:SetString(pitch_string, key_sig, false)
                 note:SetString(down_diatonic_third(pitch_string), key_sig, false)
                 if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 4) then
                     local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 4
                     note.RaiseLower = note.RaiseLower + error
                 end
             elseif interval_num == 4 then
-                note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
+                note:SetString(pitch_string, key_sig, false)
+                new_note:SetString(up_diatonic_fourth(pitch_string), key_sig, false)
                 if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 5) then
                     local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 5
                     note.RaiseLower = note.RaiseLower + error
                 end
             elseif interval_num == 5 then
+                new_note:SetString(pitch_string, key_sig, false)
                 note:SetString(down_diatonic_fifth(pitch_string), key_sig, false)
                 if (new_note:CalcMIDIKey() - note:CalcMIDIKey() ~= 7) then
                     local error = new_note:CalcMIDIKey() - note:CalcMIDIKey() - 7
