@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "201116"
-    finaleplugin.Date = "11/16/2020"
+    finaleplugin.Version = "210131"
+    finaleplugin.Date = "01/31/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -824,6 +824,7 @@ function vertical_dynamic_adjustment(region, direction)
             if smart_shape:IsHairpin() then
                 if smart_shape:CalcLeftCellMetricPos(arg_point) then
                     local left_seg = smart_shape:GetTerminateSegmentLeft()
+                    local right_seg = smart_shape:GetTerminateSegmentRight()
                     local current_pos = left_seg:GetEndpointOffsetY()
                     local difference_pos = arg_point:GetY() - lowest_item[1]
                     if direction == "near" then
@@ -832,27 +833,13 @@ function vertical_dynamic_adjustment(region, direction)
                     if has_dynamics == true then
                         if direction == "far" then
                             left_seg:SetEndpointOffsetY((current_pos - difference_pos) + 12)
-                        else
-                            left_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
-                        end
-                    else
-                        left_seg:SetEndpointOffsetY(lowest_item[1])
-                    end
-                    smart_shape:Save()
-                elseif smart_shape:CalcRightCellMetricPos(arg_point) then 
-                    local right_seg = smart_shape:GetTerminateSegmentRight()
-                    local current_pos = right_seg:GetEndpointOffsetY()
-                    local difference_pos = arg_point:GetY() - lowest_item[1]
-                    if direction == "near" then
-                        difference_pos = lowest_item[#lowest_item] - arg_point:GetY()
-                    end
-                    if has_dynamics == true then
-                        if direction == "far" then
                             right_seg:SetEndpointOffsetY((current_pos - difference_pos) + 12)
                         else
+                            left_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
                             right_seg:SetEndpointOffsetY((current_pos + difference_pos) + 12)
                         end
                     else
+                        left_seg:SetEndpointOffsetY(lowest_item[1])
                         right_seg:SetEndpointOffsetY(lowest_item[1])
                     end
                     smart_shape:Save()
