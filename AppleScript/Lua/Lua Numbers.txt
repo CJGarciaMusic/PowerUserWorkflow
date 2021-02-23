@@ -63,6 +63,9 @@
 0061 mf sub
 0062 f sub
 0063 ff sub
+0070 Align Dynamics - Furthest Element
+0071 Align Dynamics And Nudge Down
+0072 Align Dynamics And Nudge Up
 
 0100 Articulations
 0100 Accent
@@ -93,6 +96,7 @@
 0125 Split Articulations
 0126 Delete Articulations
 0127 Laissez Vibrer lv
+0128 LV polyphony
 0132 Left Bracket
 0137 Right Bracket
 0138 Combo Tenuto Staccato
@@ -120,6 +124,7 @@
 0212 X and Diamond
 0213 Harmonics 4th diad top notehead to diamond
 0214 X Top Space Above
+0215 Center Noteheads
 
 0300 Lyrics
 0300  Clear Lyrics
@@ -428,6 +433,9 @@
 1510 Semitone Up
 1511 Semitone Down
 1512 Flip Enharmonics
+1513 Cluster Indeterminate
+1514 Cluster Determinate
+1515 Toggle Ledger Lines
 
 1600 Chord Symbols
 1600 Chord Symbol Altered Bass After
@@ -466,6 +474,7 @@
 9002 Custom Technique Text
 9003 Custom Tempo Text
 9004 Custom Dynamics
+9005 Tacet
 
 9999 Update
 9994 Check For Update AutoHotKey
