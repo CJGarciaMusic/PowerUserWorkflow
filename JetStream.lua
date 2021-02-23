@@ -3868,7 +3868,7 @@ function chord_line_keep_bottom()
     end
 end
 
-function double_octave(direction) 
+function double_octave(direction)
     for entry in eachentrysaved(finenv.Region()) do
         if (entry.Count == 1) then 
             local note = entry:CalcLowestNote(nil)
@@ -3877,10 +3877,10 @@ function double_octave(direction)
             measure_object = finale.FCMeasure()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
+            note:GetString(pitch_string, key_sig, false, true)
             pitch_string = change_octave(pitch_string, direction)
             local new_note = entry:AddNewNote()
-            new_note:SetString(pitch_string, key_sig, false)
+            new_note:SetString(pitch_string, key_sig, true)
         end
     end
 end
@@ -3894,10 +3894,10 @@ function double_third_higher()
             measure_object = finale.FCMeasure()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
+            note:GetString(pitch_string, key_sig, false, true)
             pitch_string = up_diatonic_third(pitch_string)
             local new_note = entry:AddNewNote()
-            new_note:SetString(pitch_string, key_sig, false)
+            new_note:SetString(pitch_string, key_sig, true)
             new_note.RaiseLower = note.RaiseLower
         end
     end
@@ -3912,10 +3912,10 @@ function double_third_lower()
             measure_object = finale.FCMeasure()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
+            note:GetString(pitch_string, key_sig, false, true)
             pitch_string = down_diatonic_third(pitch_string)
             local new_note = entry:AddNewNote()
-            new_note:SetString(pitch_string, key_sig, false)
+            new_note:SetString(pitch_string, key_sig, true)
             new_note.RaiseLower = note.RaiseLower
         end
     end
@@ -3932,11 +3932,11 @@ function rotate_chord_up()
             measure_object = finale.FCMeasure()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
+            note:GetString(pitch_string, key_sig, false, true)
 
             while note:CalcMIDIKey() < top_note:CalcMIDIKey() do
                 pitch_string = change_octave(pitch_string, 1)
-                note:SetString(pitch_string, key_sig, false)
+                note:SetString(pitch_string, key_sig, true)
             end
         end
     end
@@ -3953,11 +3953,11 @@ function rotate_chord_down()
             measure_object = finale.FCMeasure()
             measure_object:Load(measure)
             local key_sig = measure_object:GetKeySignature()
-            note:GetString(pitch_string, key_sig, false, false)
+            note:GetString(pitch_string, key_sig, false, true)
 
             while note:CalcMIDIKey() > bottom_note:CalcMIDIKey() do
                 pitch_string = change_octave(pitch_string, -1)
-                note:SetString(pitch_string, key_sig, false)
+                note:SetString(pitch_string, key_sig, true)
             end
         end
     end
