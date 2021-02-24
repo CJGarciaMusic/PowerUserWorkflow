@@ -2304,16 +2304,32 @@ function alter_bass(placement)
     end
 end
 
-function set_time(beat_num, beat_duration)
+function set_time(beat_num, beat_dur, beat_abbr)
+
+    local function make_change(beat_number, beat_duration, the_measure, abbr_bool)
+        local time_sig = the_measure:GetTimeSignature()
+        time_sig:SetBeats(beat_number)
+        time_sig:SetBeatDuration(beat_duration)
+        if ((beat_number == 2 and beat_duration == 2048) or (beat_number == 4 and beat_duration == 1024)) then
+            local miscdocprefs = finale.FCMiscDocPrefs()
+            miscdocprefs:Load(1)
+            if beat_number == 2 then
+                miscdocprefs:SetAbbreviateCutTimeSig(abbr_bool)
+            elseif beat_number == 4 then
+                miscdocprefs:SetAbbreviateCommonTimeSig(abbr_bool)
+            end
+            miscdocprefs:Save()
+        end
+        time_sig:SetAbbreviate(abbr_bool)
+        time_sig:Save()
+        the_measure:Save()
+    end
+
     local measures = finale.FCMeasures()
     measures:LoadRegion(finenv.Region())
     if measures.Count > 1 then
         for measure in each(measures) do
-            local time_sig = measure:GetTimeSignature()
-            time_sig:SetBeats(beat_num)
-            time_sig:SetBeatDuration(beat_duration)
-            time_sig:Save()
-            measure:Save()
+            make_change(beat_num, beat_dur, measure, beat_abbr)
         end
     else
         local all_measures = finale.FCMeasures()
@@ -2321,11 +2337,7 @@ function set_time(beat_num, beat_duration)
         for measure in each(all_measures) do
             local selected_measure = measures:GetItemAt(0)
             if (measure.ItemNo >= selected_measure.ItemNo) then
-                local time_sig = measure:GetTimeSignature()
-                time_sig:SetBeats(beat_num)
-                time_sig:SetBeatDuration(beat_duration)
-                time_sig:Save()
-                measure:Save()
+                make_change(beat_num, beat_dur, measure, beat_abbr)
             end
         end
     end
@@ -5977,55 +5989,63 @@ function polyphony_keep_bottom_note()
 end
 
 function meter_2_4()
-   set_time(2, 1024) 
+    set_time(2, 1024, false) 
 end
 
 function meter_2_2()
-    set_time(2, 2048) 
+    set_time(2, 2048, false) 
 end
 
 function meter_3_2()
-    set_time(3, 2048) 
+    set_time(3, 2048, false) 
 end
 
 function meter_3_4()
-    set_time(3, 1024) 
+    set_time(3, 1024, false) 
 end
 
 function meter_3_8()
-    set_time(1, 1536) 
+    set_time(1, 1536, false) 
 end
 
 function meter_4_4()
-    set_time(4, 1024) 
+    set_time(4, 1024, false) 
 end
 
 function meter_5_4()
-    set_time(5, 1024) 
+    set_time(5, 1024, false) 
 end
 
 function meter_5_8()
-    set_time(5, 512) 
+    set_time(5, 512, false) 
 end
 
 function meter_6_8()
-    set_time(2, 1536) 
+    set_time(2, 1536, false) 
 end
 
 function meter_7_8()
-    set_time(7, 512) 
+    set_time(7, 512, false) 
 end
 
 function meter_9_8()
-    set_time(3, 1536) 
+    set_time(3, 1536, false) 
 end
 
 function meter_12_8()
-    set_time(4, 1536) 
+    set_time(4, 1536, false) 
 end
 
 function meter_6_4()
-    set_time(6, 1024) 
+    set_time(6, 1024, false) 
+end
+
+function meter_common_time()
+    set_time(4, 1024, true)
+end
+
+function meter_cut_time()
+    set_time(2, 2048, true) 
 end
 
 function smartshape_trill()
@@ -7783,6 +7803,12 @@ if return_values ~= nil then
         end
         if return_values[1] == "0513" then
             meter_beam_together()
+        end
+        if return_values[1] == "0514" then
+            meter_common_time()
+        end
+        if return_values[1] == "0515" then
+            meter_cut_time()
         end
         if return_values[1] == "0600" then
             smartshape_trill()
