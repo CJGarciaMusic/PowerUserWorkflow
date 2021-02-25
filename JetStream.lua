@@ -6048,6 +6048,7 @@ function noteheads_default()
     nm:SetUseCustomFont(false)
     
     for noteentry in eachentrysaved(finenv.Region()) do 
+        noteentry:SetLedgerLines(true)
         nm:SetNoteEntry(noteentry)
         for note in each(noteentry) do
             nm:ClearChar()
