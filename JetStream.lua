@@ -7742,7 +7742,7 @@ function transform_toggle_ledger_lines()
     end    
 end
 
-function transform_transform_highest_lowest_possible()
+function transform_highest_lowest_possible()
     create_centered_triangles()
 end
 
