@@ -1182,7 +1182,7 @@ end
 function deleteHairpins()
     local ssmm = finale.FCSmartShapeMeasureMarks()
     ssmm:LoadAllForRegion(finenv.Region(), true)
-    for mark in each(ssmm) do
+    for mark in eachbackwards(ssmm) do
         local sm = mark:CreateSmartShape()
         if sm ~= nil then
             if sm:IsHairpin() then
@@ -1659,7 +1659,7 @@ end
 function deleteDynamics()
     local expressions = finale.FCExpressions()
     expressions:LoadAllForRegion(finenv.Region())
-    for exp in each(expressions) do
+    for exp in eachbackwards(expressions) do
         local ex_def = exp:CreateTextExpressionDef()
         local cat_num = finale.FCCategoryDef()
         cat_num:Load(1)
@@ -6051,6 +6051,11 @@ function noteheads_default()
         nm:SetNoteEntry(noteentry)
         for note in each(noteentry) do
             nm:ClearChar()
+            local notehead = finale.FCNoteheadMod()
+            notehead:LoadAt(note)
+            notehead.HorizontalPos = 0
+            notehead.VerticalPos = 0
+            notehead:SaveAt(note)
             nm:SaveAt(note)
         end
     end
