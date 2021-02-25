@@ -3509,7 +3509,7 @@ function make_tacet_mm()
     tacet_mm()
 end 
 
-function make_x()
+function make_x(bool_kind)
     local nudge = -24
     function playX_mm(more)
         local region = finenv.Region()
@@ -3642,7 +3642,7 @@ function make_x()
             add_expression:SaveNewToCell(and_cell)
     end
 
-    playX_mm(true)
+    playX_mm(bool_kind)
 end
 
 function baseline_reset(baseline_type)
@@ -7640,7 +7640,11 @@ function plugin_tacet()
 end
 
 function plugin_make_x_times()
-    make_x()
+    make_x(false)
+end
+
+function plugin_make_x_more()
+    make_x(true)
 end
 
 function reset_baseline_expression_below()
@@ -9121,6 +9125,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "9006" then
             plugin_make_x_times()
+        end
+        if return_values[1] == "9007" then
+            plugin_make_x_more()
         end
         if return_values[1] == "9994" then
             update_win_ahk()
