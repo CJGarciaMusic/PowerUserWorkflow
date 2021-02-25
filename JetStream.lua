@@ -3505,7 +3505,7 @@ function make_tacet_mm()
             add_expression:SaveNewToCell(and_cell)
         end
     end
-    
+
     tacet_mm()
 end 
 
@@ -4823,6 +4823,221 @@ function cluster_determinate()
     end    
 end
 
+function create_centered_triangles()
+    local solid_tri_up = 49
+    local hollow_tri_up = 33
+    local solid_tri_down = 45
+    local hollow_tri_down = 95
+
+    local nm = finale.FCNoteheadMod()
+    nm:SetUseCustomFont(true)
+    nm.FontName = "Maestro Percussion"
+
+    for noteentry in eachentrysaved(finenv.Region()) do
+        local stem = noteentry:CalcStemUp()
+        noteentry:SetLedgerLines(false)
+        nm:SetNoteEntry(noteentry)
+        for note in each(noteentry) do
+            nm:SetVerticalPos(0)
+            if noteentry.Duration < 2048 then
+                if note:CalcStaffPosition() >= -4 then
+                    nm.CustomChar = solid_tri_up
+                else
+                    nm.CustomChar = solid_tri_down
+                end
+            end
+            if noteentry.Duration >= 2048 then
+                if note:CalcStaffPosition() >= -4 then
+                    nm.CustomChar = hollow_tri_up
+                else
+                  nm.CustomChar = hollow_tri_down
+                end
+            end
+            nm:SaveAt(note)
+            local off = 0
+            local notehead = finale.FCNoteheadMod()
+            notehead:LoadAt(note)
+            local width = note:CalcNoteheadWidth()
+            if note:CalcRightsidePlacement() then
+                off = -width / 2
+            else
+                off = width /2
+            end 
+            notehead.HorizontalPos = notehead.HorizontalPos + off
+            notehead:SaveAt(note)
+        end
+    end
+end
+
+function create_kicklink_layer_1()
+    function swap_layers(swap_first, swap_second)
+        local region = finenv.Region()
+        local start = region.StartMeasure
+        local stop = region.EndMeasure
+        local sys_staves = finale.FCSystemStaves()
+        sys_staves:LoadAllForRegion(region)
+    
+        swap_first = swap_first - 1
+        swap_second = swap_second - 1
+        
+        for sys_staff in each(sys_staves) do
+            staff_num = sys_staff.Staff
+            local noteentry_layer_first = finale.FCNoteEntryLayer(swap_first, staff_num, start, stop)
+            noteentry_layer_first:SetUseVisibleLayer(false)
+            if noteentry_layer_first:Load() then
+                noteentry_layer_first.LayerIndex = swap_second
+            end
+    
+            local noteentry_layer_second = finale.FCNoteEntryLayer(swap_second, staff_num, start, stop)
+            noteentry_layer_second:SetUseVisibleLayer(false)
+            if noteentry_layer_second:Load() then
+                noteentry_layer_second.LayerIndex = swap_first
+            end
+            noteentry_layer_first:Save()
+            noteentry_layer_second:Save()
+        end
+    end
+    
+    function change_notehead_size(layer, size, resize_top_bottom)
+        for noteentry in eachentrysaved(finenv.Region()) do
+            if noteentry.LayerNumber == layer then
+                if resize_top_bottom ~= nil then
+                    local nm = finale.FCNoteheadMod()
+                    nm:SetNoteEntry(noteentry)
+                    for note in each(noteentry) do
+                        local top_note = noteentry:CalcHighestNote(nil)
+                        local bottom_note = noteentry:CalcLowestNote(nil)
+                        local note_exception = bottom_note
+                        if resize_top_bottom == true then
+                           note_exception = top_note
+                        end
+                        if note:CalcMIDIKey() ~= note_exception:CalcMIDIKey() then
+                            nm:LoadAt(note)
+                            nm:SetResize(size)
+                            nm:SaveAt(note)
+                        else
+                            nm:LoadAt(note)
+                            nm:SetResize(100)
+                            nm:SaveAt(note)
+                        end
+                    end
+                else
+                    noteentry:SetNoteDetailFlag(true)
+                    local entry_mod = finale.FCEntryAlterMod()
+                    entry_mod:SetNoteEntry(noteentry)
+                    entry_mod:SetResize(size)
+                    entry_mod:Save()
+                end
+            end
+        end
+    end
+    
+    function kickline()
+        local music_region = finenv.Region()
+        music_region:SetCurrentSelection()
+        local staves = finale.FCStaves()
+        local perc_layout = finale.FCPercussionLayoutNotes()
+        local rhythmcue = finale.FCPercussionLayoutNote() 
+        staves:LoadAll()
+    
+        local ssds = finale.FCStaffStyleDefs()
+        ssds:LoadAll()
+        local slash = 0
+        for ssd in each(ssds) do
+            if ssd:GetAltNotationStyle() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
+                slash = ssd:GetItemNo()
+            end
+        end 
+
+        if slash == 0 then
+            local ssd = finale.FCStaffStyleDef()
+            local name = finale.FCString()
+            name.LuaString = "Slash + Notes"
+            ssd:SetUseAltNotationStyle(true)
+            ssd:SetAltNotationStyle(1)
+            ssd:SetAltSlashDots(true)
+            ssd:SetAltShowOtherNotes(true)
+            ssd:SetAltShowOtherArticulations(true)
+            ssd:SetAltShowExpression(true)
+            ssd:SetAltShowOtherExpressions(true)
+            ssd:SetAltShowOtherSmartShapes(true)
+            ssd:SetAltShowOtherLyrics(true)
+            ssd:SetShowChords(true)
+            ssd:SetAltNotationLayer(1)
+            ssd:SetName(name)
+            ssd:SetCopyable(true)
+            ssd:SaveNew()
+            slash = ssd:GetItemNo()
+        end
+            for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
+                if music_region:IsStaffIncluded(addstaff) then
+                    local start_meas = music_region:GetStartMeasure()
+                    local end_meas = music_region:GetEndMeasure()
+                    local start_pos = music_region:GetStartMeasurePos()
+                    local end_pos = music_region:GetEndMeasurePos()
+                    local staff_style = finale.FCStaffStyleAssign()
+                    staff_style:SetStartMeasure(start_meas)
+                    staff_style:SetEndMeasure(end_meas)
+                    staff_style:SetStartMeasurePos(start_pos)
+                    staff_style:SetEndMeasurePos(end_pos)
+                    staff_style:SetStyleID(slash)
+                    staff_style:SaveNew(addstaff)
+                end
+            end
+
+        swap_layers(1, 3)
+    
+        for entry in eachentrysaved(music_region) do
+            if entry:IsNote() then
+                local cnt = entry.Count
+                local i = 1
+                entry.FreezeStem = true
+                entry.StemUp = true
+                entry.Playback = false
+                for note in each(entry) do
+    
+                    if i == 1 then
+                    note.Displacement = 11
+                    local pnm = finale.FCPercussionNoteMod()
+                    pnm:SetNoteEntry(entry)
+                    pnm:SetNoteType(235)
+                    pnm:Save()
+                    elseif i > 1 then
+                        entry:DeleteNote(note)
+                    end
+                    i = i + 1  
+                end
+            else
+                entry:SetRestDisplacement(11)
+             end
+        end
+        change_notehead_size(3, 75, nil)
+    end
+
+    kickline()
+end
+
+function top_line()
+    local nm = finale.FCNoteheadMod()
+    for noteentry in eachentrysaved(finenv.Region()) do
+        noteentry.StemUp = true
+        noteentry.FreezeStem = true
+        local count = noteentry.Count
+        local i = 1
+        nm:SetNoteEntry(noteentry)
+        nm:SetUseCustomFont(true)
+        nm.FontName = Maestro
+        for note in each(noteentry) do
+            if i < count then
+                nm:SetVerticalPos(0)
+                nm.CustomChar = 32
+                nm:SaveAt(note)
+            end
+            i = i + 1
+        end    
+    end
+end
+
 function ui_switch_to_selected_part()
 
     function get_top_left_selected_or_visible_cell()
@@ -5958,24 +6173,19 @@ end
 function noteheads_center_noteheads()
     local region = finenv.Region()
     for entry in eachentrysaved(region) do
-        local stem = entry:CalcStemUp()
         for note in each(entry) do
-                local off = 0
-                local notehead = finale.FCNoteheadMod()
-                notehead:LoadAt(note)
-                local width = note:CalcNoteheadWidth()
-                if stem then
-                    off = width / 2
-                else
-                    off = -width /2
-                end
-            if notehead.HorizontalPos == 0 then
-                notehead.HorizontalPos = notehead.HorizontalPos + off
+            local off = 0
+            local notehead = finale.FCNoteheadMod()
+            notehead:LoadAt(note)
+            local width = note:CalcNoteheadWidth()
+            if note:CalcRightsidePlacement() then
+                off = -width / 2 + 1
             else
-                notehead.HorizontalPos = 0
+                off = width /2 - 1
             end
+            notehead.HorizontalPos = notehead.HorizontalPos + off
             notehead:SaveAt(note)
-        end
+        end 
     end
 end
 
@@ -7523,6 +7733,18 @@ function transform_toggle_ledger_lines()
     end    
 end
 
+function transform_transform_highest_lowest_possible()
+    create_centered_triangles()
+end
+
+function transform_create_kicks()
+    create_kicklink_layer_1()
+end
+
+function transform_topline_notation()
+    top_line()
+end
+
 function update_mac_48()
     check_for_update("/tmp/", "mac XL")
 end
@@ -8777,6 +8999,15 @@ if return_values ~= nil then
         end
         if return_values[1] == "1515" then
             transform_toggle_ledger_lines()
+        end
+        if return_values[1] == "1516" then
+            transform_highest_lowest_possible()
+        end
+        if return_values[1] == "1517" then
+            transform_create_kicks()
+        end
+        if return_values[1] == "1518" then
+            transform_topline_notation()
         end
         if return_values[1] == "1600" then
             chords_altered_bass_after()
