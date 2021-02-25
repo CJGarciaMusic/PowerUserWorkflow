@@ -35,7 +35,7 @@ on getUpdate(updateNumber)
 	set myLength to (count of myText)
 	set firstNumber to (offset of "JetStream%20KM%20" in myText)
 	set secondNumber to (characters (firstNumber + 17) thru myLength of myText as text)
-	set scribeVersion to text 1 thru -13 of secondNumber
+	set scribeVersion to text 1 thru -29 of secondNumber
 	set theDownload to text 9 thru -4 of myText
 	
 	if updateNumber is equal to scribeVersion then
