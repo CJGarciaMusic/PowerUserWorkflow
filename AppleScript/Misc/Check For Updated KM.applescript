@@ -36,7 +36,7 @@ on getUpdate(updateNumber)
 	set firstNumber to (offset of "JetStream%20KM%20" in myText)
 	set secondNumber to (characters (firstNumber + 17) thru myLength of myText as text)
 	set scribeVersion to text 1 thru -29 of secondNumber
-	set theDownload to text 9 thru -4 of myText
+	set theDownload to text 9 thru -20 of myText
 	
 	if updateNumber is equal to scribeVersion then
 		tell application "System Events"

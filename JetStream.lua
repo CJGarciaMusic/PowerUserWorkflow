@@ -3369,58 +3369,281 @@ function tacet_expr()
     add_expression:SaveNewToCell(and_cell)
 end  
 
-function tacet_mm()
-    local region = finenv.Region()
-    local mmrestprefs = finale.FCMultiMeasureRestPrefs()
-    mmrestprefs:Load(1)
-    local ui = finenv.UI()
-    local mmupdate = false
-    local process_all = 0
-    if region.StartMeasure == 0 then
-        process_all = ui:AlertYesNo("There is no active selection. Would you like to process the current part?", "No Selection:")
-        if process_all == 3 then
-            return
-        elseif process_all == 2 then
-            region:SetFullDocument()
+function make_tacet_mm()
+    local tacet_text = "TACET"
+    local nudge = -24 
+    function tacet_mm()
+        local region = finenv.Region()
+        local mmrestprefs = finale.FCMultiMeasureRestPrefs()
+        mmrestprefs:Load(1)
+        local ui = finenv.UI()
+        local mmupdate = false
+        local process_all = 0
+        if region.StartMeasure == 0 then
+            process_all = ui:AlertYesNo("There is no active selection. Would you like to process the current part?", "No Selection:")
+            if process_all == 3 then
+                return
+            elseif process_all == 2 then
+                region:SetFullDocument()
+            end
         end
-    end 
 
-    if mmrestprefs.AutoUpdate then
-        mmupdate = ui:AlertYesNo("Automatic Update is ON in the multimeasure preferences. Would you like to turn it OFF and proceed?", "Unable to create tacet:")
-        if mmupdate == 3 then
-            return
-        elseif mmupdate == 2 then
-            mmrestprefs.AutoUpdate = false
-            mmrestprefs:Save()
+        if mmrestprefs.AutoUpdate then
+            mmupdate = ui:AlertYesNo("Automatic Update is ON in the multimeasure preferences. Would you like to turn it OFF and proceed?", "Unable to create tacet:")
+            if mmupdate == 3 then
+                return
+            elseif mmupdate == 2 then
+                mmrestprefs.AutoUpdate = false
+                mmrestprefs:Save()
+            end
         end
-    end 
 
-    local mmrests = finale.FCMultiMeasureRests()
-    mmrests:LoadAll()
-    for mm in each (mmrests) do
-        if region:IsMeasureIncluded(mm.StartMeasure) or region:IsMeasureIncluded(mm.EndMeasure) then        
-            mm:DeleteData()
-        end 
+        local mmrests = finale.FCMultiMeasureRests()
+        mmrests:LoadAll()
+        for mm in each (mmrests) do
+            if region:IsMeasureIncluded(mm.StartMeasure) or region:IsMeasureIncluded(mm.EndMeasure) then        
+                mm:DeleteData()
+            end
+        end
+    
+        local mm = finale.FCMultiMeasureRest()
+        mm.StartMeasure = region.StartMeasure
+        mm.EndMeasure = region.EndMeasure
+        mm.NumberHorizontalAdjust = mmrestprefs.NumberHorizontalAdjust
+        mm.NumberVerticalAdjust = mmrestprefs.NumberVerticalAdjust
+        mm.ShapeEndAdjust = mmrestprefs.ShapeEndAdjust
+        mm.ShapeID = mmrestprefs.ShapeID
+        mm.ShapeStartAdjust = mmrestprefs.ShapeStartAdjust
+        mm.StartNumberingAt = 20000
+        mm.SymbolSpace = mmrestprefs.SymbolSpace
+        mm.UseSymbols = mmrestprefs.UseSymbols
+        mm.UseSymbolsLessThan = mmrestprefs.UseSymbolsLessThan
+        mm.Width = mmrestprefs.Width
+        mm:Save()
+        finale.FCStaffSystems.UpdateFullLayout()
+        tacet_expr()
     end
- 
-    local mm = finale.FCMultiMeasureRest()
-    mm.StartMeasure = region.StartMeasure
-    mm.EndMeasure = region.EndMeasure
-    mm.NumberHorizontalAdjust = mmrestprefs.NumberHorizontalAdjust
-    mm.NumberVerticalAdjust = mmrestprefs.NumberVerticalAdjust
-    mm.ShapeEndAdjust = mmrestprefs.ShapeEndAdjust
-    mm.ShapeID = mmrestprefs.ShapeID
-    mm.ShapeStartAdjust = mmrestprefs.ShapeStartAdjust
-    mm.StartNumberingAt = 20000
-    mm.SymbolSpace = mmrestprefs.SymbolSpace
-    mm.UseSymbols = mmrestprefs.UseSymbols
-    mm.UseSymbolsLessThan = mmrestprefs.UseSymbolsLessThan
-    mm.Width = mmrestprefs.Width
-    mm:Save()
-    finale.FCStaffSystems.UpdateFullLayout()
 
-    tacet_expr()
+    function tacet_expr()
+        local region = finenv.Region()
+        local font = finale.FCFontInfo()
+        local categorydefs = finale.FCCategoryDefs()
+        local misc_cat = finale.FCCategoryDef()
+        categorydefs:LoadAll()
+        local misc = 0
+        local tempo = 0 
+        for cat in eachbackwards(categorydefs) do
+            if cat:CreateName().LuaString == "Miscellaneous" and misc == 0 then
+                misc = cat.ID
+                misc_cat = cat
+            elseif cat:CreateName().LuaString == "Tempo Marks" and tempo == 0 then
+                tempo = cat.ID
+                font = cat:CreateTextFontInfo()
+            end
+        end
+        
+        local textexpressiondefs = finale.FCTextExpressionDefs()
+        textexpressiondefs:LoadAll()
+        local tacet_ted = 0
+        for ted in each(textexpressiondefs) do
+            if ted.CategoryID == misc and ted:CreateDescription().LuaString == "TACET for Multimeasure Rests" then
+                print ("Tacet found at",ted.ItemNo)
+                tacet_ted = ted.ItemNo
+            end
+        end
+
+        if tacet_ted == 0 then
+            local ex_ted = finale.FCTextExpressionDef()
+            local ted_descr = finale.FCString()
+            ted_descr.LuaString = "TACET for Multimeasure Rests"
+            local ted_text = finale.FCString()
+            local text_font = "^fontTxt"..font:CreateEnigmaString(finale.FCString()).LuaString
+            ted_text.LuaString = text_font..tacet_text
+            ex_ted:AssignToCategory(misc_cat)
+            ex_ted:SetDescription(ted_descr)
+            ex_ted:SaveNewTextBlock(ted_text)
+            ex_ted.HorizontalJustification = 1
+            ex_ted.HorizontalAlignmentPoint = 5
+            ex_ted.HorizontalOffset = nudge
+            ex_ted.VerticalAlignmentPoint = 3
+            ex_ted.VerticalBaselineOffset = 24
+            ex_ted:SaveNew()
+            tacet_ted = ex_ted.ItemNo
+        end
+
+        local tacet_assigned = false
+        local expressions = finale.FCExpressions()
+        expressions:LoadAllForRegion(region)
+        for e in each(expressions) do
+            local create_def = e:CreateTextExpressionDef()
+            if create_def.ItemNo == tacet_ted then
+                tacet_assigned = true
+            end
+        end
+
+        if tacet_assigned == false then
+            local sysstaves = finale.FCSystemStaves()
+            sysstaves:LoadScrollView()
+            local first_staff = 1
+            for sys in each(sysstaves) do
+                local staff_num = sys.Staff
+                if first_staff == 1 then
+                region:SetStartStaff(sys.Staff)
+                    first_staff = 0
+                end
+            end 
+
+            local sysstaff = finale.FCSystemStaff()
+            local measure_num = region.StartMeasure
+            local measure_pos = region.StartMeasurePos
+            local add_expression = finale.FCExpression()
+            local staff_num = region.StartStaff
+            add_expression:SetStaff(staff_num)
+            add_expression:SetMeasurePos(measure_pos)
+            add_expression:SetID(tacet_ted)
+            local and_cell = finale.FCCell(measure_num, staff_num)
+            add_expression:SaveNewToCell(and_cell)
+        end
+    end
+    
+    tacet_mm()
 end 
+
+function make_x()
+    local nudge = -24
+    function playX_mm(more)
+        local region = finenv.Region()
+        local mmrestprefs = finale.FCMultiMeasureRestPrefs()
+        mmrestprefs:Load(1)
+        local ui = finenv.UI()
+        local mmupdate = false
+        local process_all = 0
+        if region.StartMeasure == 0 then
+            process_all = ui:AlertYesNo("There is no active selection. Would you like to process the current part?", "No Selection:")
+            if process_all == 3 then
+                return
+            elseif process_all == 2 then
+                region:SetFullDocument()
+            end
+        end
+
+        if mmrestprefs.AutoUpdate then
+            mmupdate = ui:AlertYesNo("Automatic Update is ON in the multimeasure preferences. Would you like to turn it OFF and proceed?", "Unable to create marking:")
+            if mmupdate == 3 then
+                return
+            elseif mmupdate == 2 then
+                mmrestprefs.AutoUpdate = false
+                mmrestprefs:Save()
+            end
+        end
+
+        local mmrests = finale.FCMultiMeasureRests()
+        mmrests:LoadAll()
+        for mm in each (mmrests) do
+            if region:IsMeasureIncluded(mm.StartMeasure) or region:IsMeasureIncluded(mm.EndMeasure) then        
+                mm:DeleteData()
+            end
+        end
+    
+        local mm = finale.FCMultiMeasureRest()
+        mm.StartMeasure = region.StartMeasure
+        mm.EndMeasure = region.EndMeasure
+        mm.NumberHorizontalAdjust = mmrestprefs.NumberHorizontalAdjust
+        mm.NumberVerticalAdjust = mmrestprefs.NumberVerticalAdjust
+        mm.ShapeEndAdjust = mmrestprefs.ShapeEndAdjust
+        mm.ShapeID = 0 
+        mm.ShapeStartAdjust = mmrestprefs.ShapeStartAdjust
+        mm.StartNumberingAt = 20000
+        mm.SymbolSpace = mmrestprefs.SymbolSpace
+        mm.UseSymbols = mmrestprefs.UseSymbols
+        mm.UseSymbolsLessThan = mmrestprefs.UseSymbolsLessThan
+        mm.Width = 408
+        mm:Save()
+        finale.FCStaffSystems.UpdateFullLayout()
+        playX_expr(more)
+    end 
+
+    function playX_expr(more)
+        local region = finenv.Region()
+        local x = (region.EndMeasure + 1) - region.StartMeasure
+        local playX_text = x.." BARS OF TIME"
+        if more then
+            playX_text = "PLAY "..x.." MORE"
+        end
+        local font = finale.FCFontInfo()
+        local categorydefs = finale.FCCategoryDefs()
+        local misc_cat = finale.FCCategoryDef()
+        categorydefs:LoadAll()
+        local misc = 0
+        local tempo = 0 
+        for cat in eachbackwards(categorydefs) do
+            if cat:CreateName().LuaString == "Miscellaneous" and misc == 0 then
+                misc = cat.ID
+                misc_cat = cat
+            elseif cat:CreateName().LuaString == "Play X Bars" then
+                misc = cat.ID
+                misc_cat = cat
+            elseif cat:CreateName().LuaString == "Tempo Marks" and tempo == 0 then
+                tempo = cat.ID
+                font = cat:CreateTextFontInfo()
+            end
+        end
+        
+        local textexpressiondefs = finale.FCTextExpressionDefs()
+        textexpressiondefs:LoadAll()
+        local playX_ted = 0
+        for ted in each(textexpressiondefs) do
+            if ted.CategoryID == misc and ted:CreateDescription().LuaString == playX_text then
+                print ("Play X found at",ted.ItemNo)
+                playX_ted = ted.ItemNo
+            end
+        end
+
+        if playX_ted == 0 then
+            local ex_ted = finale.FCTextExpressionDef()
+            local ted_descr = finale.FCString()
+            ted_descr.LuaString = playX_text
+            local ted_text = finale.FCString()
+            local text_font = "^fontTxt"..font:CreateEnigmaString(finale.FCString()).LuaString
+            ted_text.LuaString = text_font..playX_text
+            ex_ted:AssignToCategory(misc_cat)
+            ex_ted:SetDescription(ted_descr)
+            ex_ted:SaveNewTextBlock(ted_text)
+            ex_ted.HorizontalJustification = 1
+            ex_ted.HorizontalAlignmentPoint = 5
+            ex_ted.HorizontalOffset = nudge
+            ex_ted.VerticalAlignmentPoint = 3
+            ex_ted.VerticalBaselineOffset = -66
+            ex_ted:SaveNew()
+            playX_ted = ex_ted.ItemNo
+            print ("New 'Play X' created at",playX_ted) 
+        end
+
+        local sysstaves = finale.FCSystemStaves()
+        sysstaves:LoadScrollView()
+        local first_staff = 1
+        for sys in each(sysstaves) do
+                local staff_num = sys.Staff
+                if first_staff == 1 then
+                region:SetStartStaff(sys.Staff)
+                    first_staff = 0
+                end
+            end 
+
+            local sysstaff = finale.FCSystemStaff()
+            local measure_num = region.StartMeasure
+            local measure_pos = region.StartMeasurePos
+            local add_expression = finale.FCExpression()
+            local staff_num = region.StartStaff
+            add_expression:SetStaff(staff_num)
+            add_expression:SetMeasurePos(measure_pos)
+            add_expression:SetID(playX_ted)
+            local and_cell = finale.FCCell(measure_num, staff_num)
+            add_expression:SaveNewToCell(and_cell)
+    end
+
+    playX_mm(true)
+end
 
 function baseline_reset(baseline_type)
     local region = finenv.Region()
@@ -7198,7 +7421,11 @@ function plugin_custom_text_dynamics()
 end
 
 function plugin_tacet()
-    tacet_mm()
+    make_tacet_mm()
+end
+
+function plugin_make_x_times()
+    make_x()
 end
 
 function reset_baseline_expression_below()
@@ -8655,6 +8882,9 @@ if return_values ~= nil then
         end
         if return_values[1] == "9005" then
             plugin_tacet()
+        end
+        if return_values[1] == "9006" then
+            plugin_make_x_times()
         end
         if return_values[1] == "9994" then
             update_win_ahk()
