@@ -3566,7 +3566,7 @@ function make_x(bool_kind)
     function playX_expr(more)
         local region = finenv.Region()
         local x = (region.EndMeasure + 1) - region.StartMeasure
-        local playX_text = x.." BARS OF TIME"
+        local playX_text = "PLAY "..x.." BARS"
         if more then
             playX_text = "PLAY "..x.." MORE"
         end
