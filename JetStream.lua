@@ -5018,24 +5018,80 @@ function create_kicklink_layer_1()
 end
 
 function top_line()
+    function changeoctave(pitchstring, n)
+        pitchstring.LuaString = pitchstring.LuaString:sub(1, -2) .. (tonumber(string.sub(pitchstring.LuaString, -1)) + n)
+        return pitchstring
+    end
+
+    function add8vb(entry)
+        local region = finenv.Region()
+        local hi_note = entry:CalcHighestNote(NULL)
+        local pitchstring = finale.FCString()
+        local measure = entry:GetMeasure()
+        measureobject = finale.FCMeasure()
+        measureobject:Load(measure)
+        local keysig = measureobject:GetKeySignature()
+        hi_note:GetString(pitchstring, keysig, false, false)
+        pitchstring = changeoctave(pitchstring, -1)
+        local newnote = entry:AddNewNote()
+        newnote:SetPlayback(false)
+        newnote:SetString(pitchstring, keysig, false)   
+    end
+
+    local reset_flag = false
     local nm = finale.FCNoteheadMod()
     for noteentry in eachentrysaved(finenv.Region()) do
+        for note in each(noteentry) do
+            nm:SetNoteEntry(noteentry)
+            nm:LoadAt(note)
+            if nm.CustomChar == 32 then
+                reset_flag = true
+                goto reset
+            end 
+        end
+    end
+
+    for noteentry in eachentrysaved(finenv.Region()) do
+        if noteentry:IsNote() then
+        if noteentry:CalcDisplacementRange() < 7 then
+            add8vb(noteentry)
+        end
+        local hi_note_ID = noteentry:CalcHighestNote(NULL)
+        local hi_note = hi_note_ID:CalcMIDIKey()
         noteentry.StemUp = true
         noteentry.FreezeStem = true
-        local count = noteentry.Count
-        local i = 1
-        nm:SetNoteEntry(noteentry)
         nm:SetUseCustomFont(true)
         nm.FontName = Maestro
         for note in each(noteentry) do
-            if i < count then
+            if note:CalcMIDIKey() ~= hi_note then
+                note.Tie = false
+                note.AccidentalFreeze = true
+                note.Accidental = false
                 nm:SetVerticalPos(0)
                 nm.CustomChar = 32
                 nm:SaveAt(note)
             end
-            i = i + 1
-        end    
+            end 
+        end
     end
+    ::reset::
+    if reset_flag == true then
+        for noteentry in eachentrysaved(finenv.Region()) do
+        local hi_note_ID = noteentry:CalcHighestNote(NULL)
+        local tie_status = hi_note_ID.Tie
+        noteentry.FreezeStem = false
+            for note in each(noteentry) do
+                if note.Playback == false then
+                    noteentry:DeleteNote(note)
+                end
+                note.AccidentalFreeze = false
+                noteheads_default()
+            end
+            for note in each(noteentry) do -- I don't know why this didn't work in the previous section... but it didn't5
+                note.Tie = tie_status
+            end
+        end
+    end 
 end
 
 function ui_switch_to_selected_part()
