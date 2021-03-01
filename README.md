@@ -1,7 +1,6 @@
 # PowerUserWorkflow
-All assets related the JetStream project
 
-Dynamics
+0001 Dynamics
 0001 ffff start
 0002 fff start
 0003 ff start
@@ -65,9 +64,11 @@ Dynamics
 0061 mf sub
 0062 f sub
 0063 ff sub
+0070 Align Dynamics - Furthest Element
+0071 Align Dynamics And Nudge Down
+0072 Align Dynamics And Nudge Up
 
-
-Articulations
+0100 Articulations
 0100 Accent
 0101 Marcato
 0102 Staccato
@@ -96,6 +97,7 @@ Articulations
 0125 Split Articulations
 0126 Delete Articulations
 0127 Laissez Vibrer lv
+0128 LV polyphony
 0132 Left Bracket
 0137 Right Bracket
 0138 Combo Tenuto Staccato
@@ -105,9 +107,9 @@ Articulations
 0142 buzz tremolo Z
 0143 Delete Duplicate Articulations
 0144 Remove Articulations From Rests
+0145 Add Metered Tremolo
 
-
-Noteheads
+0200 Noteheads
 0200 X and circled cross
 0201 cross and circled cross
 0202 Triangle Up
@@ -123,12 +125,15 @@ Noteheads
 0212 X and Diamond
 0213 Harmonics 4th diad top notehead to diamond
 0214 X Top Space Above
+0215 Center Noteheads
+
 0300 Lyrics
 0300  Clear Lyrics
 0301  Delete Lyrics From File
+0302  Move Lyric Baseline Down
+0303  Move Lyric Baseline Up
 
-
-Barlines Repeats and Form
+0400 Barlines Repeats and Form
 0400 Barline Invisible
 0401 Barline Single
 0402 Barline Double
@@ -150,8 +155,7 @@ Barlines Repeats and Form
 0418 Add Rehearsal Measures
 0419 Clear Rehearsal Marks
 
-
-Meter and Rhythm
+0500 Meter and Rhythm
 0500 Meter 2-4
 0501 Meter 2-2
 0502 Meter 3-2
@@ -166,9 +170,10 @@ Meter and Rhythm
 0511 Meter 12-8
 0512 Meter 6-4
 0513 Beam Together
+0514 Meter Common
+0515 Meter Cut
 
-
-Smart Shapes
+0600 Smart Shapes
 0600 Smart Shape Trill
 0601 Smart Shape Trill Extension
 0602 Smart Shape Dashed Line
@@ -186,6 +191,7 @@ Smart Shapes
 0614 Smart Shape 15ma
 0615 Smart Shape 8vb
 0616 Smart Shape 15mb
+
 0700 Staff Styles
 0700 Staff Style Slash
 0701 Staff Style Rhythm
@@ -200,8 +206,7 @@ Smart Shapes
 0710 Staff Style Cutaway
 0711 Staff Style Collapse
 
-
-Expressions
+0800 Expressions
 0800 Espr
 0801 Expr poco
 0802 Expr poco a poco
@@ -254,9 +259,10 @@ Expressions
 0849 Technique marc
 0850 Technique stacc
 0851 Mute Straight Jazz
+0852 Move Expression Baseline Down
+0853 Move Expression Baseline Up
 
-
-Tuplets
+0900 Tuplets
 0900 Tuplet Manual
 0901 Tuplet Stem Beam Side
 0902 Tuplet Note Side
@@ -295,8 +301,7 @@ Tuplets
 0935 Tuplet Horizontal Drag On
 0936 Tuplet Horizontal Drag Off
 
-
-Staff Groups
+1000 Staff Groups
 1000 None On
 1001 None Between
 1002 None Through
@@ -324,8 +329,7 @@ Staff Groups
 1024 Sub-Bracket
 1025 Reverse Sub-Bracket
 
-
-Key and Tonality
+1100 Key and Tonality
 1100 A Flat Major
 1101 A Flat Minor
 1102 A Major
@@ -359,14 +363,16 @@ Key and Tonality
 1130 Hide Key Show Accidentals
 1131 Keyless
 
-
-Page and Layout
+1200 Page and Layout
 1200 Insert Page Break Insert
 1201 Page Break Remove
 1202 Expand Measure Width
 1203 Reduce Measure Width
 1204 Vertical Staff Space Increase
 1205 Vertical Staff Space Decrease
+1206 Move System Down
+1207 Move System Up
+
 1300 Layers
 1300 Layer1 75 percent
 1301 Layer2 75 percent
@@ -404,8 +410,7 @@ Page and Layout
 1333 Clear Layer 234
 1334 Clear Layer 34
 
-
-Polyphony
+1400 Polyphony
 1400 Double 8va
 1401 Double 8vb
 1402 Double Diatonic 3rd higher
@@ -416,19 +421,36 @@ Polyphony
 1407 Chord Line Delete Bottom Note
 1408 Chord Line Keep Top Note
 1409 Chord Line Keep Bottom Note
+
 1500 Transformations
 1500 String Harmonics touch 3rd
 1501 String Harmonics touch 4th
 1502 String Harmonics touch 5th
 1503 Articulation Breath Mark to Expression
 1504 Articulation Caesura to Expression
+1505 Single Pitch F4
+1506 Single Pitch F5
+1507 Single Pitch C5
+1508 Single Pitch G5
+1509 Single Pitch A5
+1510 Semitone Up
+1511 Semitone Down
+1512 Flip Enharmonics
+1513 Cluster Indeterminate
+1514 Cluster Determinate
+1515 Toggle Ledger Lines
+1516 Triangle Highest and Lowest Note
+1517 Create Drum Kicks in Layer 4
+1518 Top Line Notation
+
 1600 Chord Symbols
 1600 Chord Symbol Altered Bass After
 1601 Chord Symbol Altered Bass Under
 1602 Chord Symbol Altered Bass Subtext
+1603 Move Chord Baseline Down
+1604 Move Chord Baseline Up
 
-
-Reset
+1700 Reset
 1700 Reset Rests
 1701  Reset Baseline Lyrics
 1702 Reset All Barlines To Default
@@ -439,15 +461,33 @@ Reset
 1707 Reset Baseline Chord
 1708 Reset Baseline Fretboard
 1709 Reset Baseline Chord Fretboard
+
 1800 Playback and Navigation
 1808 Mute Cue Notes
 1809 Mute Notes
 1810 Unmute Notes
+1811 Navigate to Selected Measure in Part
 
+1900 Clefs
+1900 Treble Clef
+1901 Alto Clef
+1902 Tenor Clef
+1903 Bass Clef
 
-Plug-ins
+9000 Plug-ins
 9000 Center Rehearsal Marks
 9001 Custom Expressive Text
 9002 Custom Technique Text
 9003 Custom Tempo Text
-9004 Custom Tempo Dynamics
+9004 Custom Dynamics
+9005 Tacet
+9006 Make X Bars
+9007 Make X More
+
+9999 Update
+9994 Check For Update AutoHotKey
+9995 Check For Update Keyboard Maestro
+9996 Check For Update Windows
+9997 Check For Update Windows XL
+9998 Check For Update Mac
+9999 Check For Update Mac XL
