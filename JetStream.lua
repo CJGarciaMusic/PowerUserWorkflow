@@ -5779,6 +5779,30 @@ function articulations_roll()
     else
         addArticulation(full_art_table[19])
     end
+    local has_acc = false
+    for note_entry in eachentrysaved(finenv.Region()) do
+        has_acc = false
+        for note in each(note_entry) do
+            if (note:CalcAccidental() == true) then
+                has_acc = true
+            end
+        end
+        if (has_acc == true) then
+            local entry_artics = note_entry:CreateArticulations()
+            entry_artics:LoadAll()
+            for art in each(entry_artics) do
+                local art_def = art:CreateArticulationDef()
+                if (art_def:GetAboveSymbolChar() == 103) then
+                    local entry_metrics = finale.FCEntryMetrics()
+                    entry_metrics:Load(note_entry)
+                    if entry_metrics:GetFirstAccidentalPosition() > 0 then
+                        art:SetHorizontalPos(0 - (entry_metrics:GetFirstAccidentalPosition() / 16))
+                        art:Save()
+                    end
+                end
+            end
+        end
+    end
 end
 
 function articulations_fall_short()
