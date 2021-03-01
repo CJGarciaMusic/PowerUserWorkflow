@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "280221"
-    finaleplugin.Date = "02/28/2021"
+    finaleplugin.Version = "010321"
+    finaleplugin.Date = "03/01/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -744,7 +744,7 @@ function vertical_dynamic_adjustment(region, direction)
         local create_def = e:CreateTextExpressionDef()
         local cd = finale.FCCategoryDef()
         if cd:Load(create_def:GetCategoryID()) then
-            if string.find(cd:CreateName().LuaString, "Dynamic") then
+            if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                 if e:CalcMetricPos(arg_point) then
                     has_dynamics = true
                     table.insert(lowest_item, arg_point:GetY())
@@ -776,7 +776,7 @@ function vertical_dynamic_adjustment(region, direction)
             local create_def = e:CreateTextExpressionDef()
             local cd = finale.FCCategoryDef()
             if cd:Load(create_def:GetCategoryID()) then
-                if string.find(cd:CreateName().LuaString, "Dynamic") then
+                if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                     if e:CalcMetricPos(arg_point) then
                         local difference_pos =  arg_point:GetY() - lowest_item[1]
                         if direction == "near" then
@@ -888,7 +888,7 @@ function horizontal_hairpin_adjustment(left_or_right, hairpin, region_settings, 
         local create_def = e:CreateTextExpressionDef()
         local cd = finale.FCCategoryDef()
         if cd:Load(create_def:GetCategoryID()) then
-            if string.find(cd:CreateName().LuaString, "Dynamic") then
+            if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                 local text_met = finale.FCTextMetrics()
                 local string = create_def:CreateTextString()
                 string:TrimEnigmaTags()
@@ -947,7 +947,7 @@ function hairpin_adjustments(range_settings, adjustment_type)
             local create_def = e:CreateTextExpressionDef()
             local cd = finale.FCCategoryDef()
             if cd:Load(create_def:GetCategoryID()) then
-                if string.find(cd:CreateName().LuaString, "Dynamic") then
+                if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                     table.insert(expression_list, e)
                 end
             end
@@ -1051,7 +1051,7 @@ function halfway_point(current_staff, first_pin, second_pin)
             local create_def = e:CreateTextExpressionDef()
             local cd = finale.FCCategoryDef()
             if cd:Load(create_def:GetCategoryID()) then
-                if string.find(cd:CreateName().LuaString, "Dynamic") then
+                if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                     table.insert(expression_list, {e:GetMeasure(), e:GetMeasurePos()})
                 end
             end
@@ -5411,7 +5411,7 @@ function dynamics_nudge_up()
         local create_def = e:CreateTextExpressionDef()
         local cd = finale.FCCategoryDef()
         if cd:Load(create_def:GetCategoryID()) then
-            if string.find(cd:CreateName().LuaString, "Dynamic") then
+            if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                 e:SetVerticalPos(e:GetVerticalPos() + 9)
                 e:Save()
             end
@@ -5444,7 +5444,7 @@ function dynamics_nudge_down()
         local create_def = e:CreateTextExpressionDef()
         local cd = finale.FCCategoryDef()
         if cd:Load(create_def:GetCategoryID()) then
-            if string.find(cd:CreateName().LuaString, "Dynamic") then
+            if ((cd:GetID() == finale.DEFAULTCATID_DYNAMICS) or (string.find(cd:CreateName().LuaString, "Dynamic"))) then
                 e:SetVerticalPos(e:GetVerticalPos() -9)
                 e:Save()
             end
