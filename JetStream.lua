@@ -4866,16 +4866,13 @@ function create_centered_triangles()
 end
 
 function create_kicklink_layer_4()
-    -- Initialize and load stuff...
     local music_region = finenv.Region()
     music_region:SetCurrentSelection()
     local staves = finale.FCStaves()
     local perc_layout = finale.FCPercussionLayoutNotes()
     local rhythmcue = finale.FCPercussionLayoutNote() 
     staves:LoadAll()
--- 1) Deal with staff styles:
--- Search for a "slash + notes" style and use it, 
--- or create a new one. Also One and Two bar repeats.
+
     local ssds = finale.FCStaffStyleDefs()
     ssds:LoadAll()
     local slash = 0
@@ -4889,9 +4886,8 @@ function create_kicklink_layer_4()
         elseif ssd:GetAltNotationStyle() == 4 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
             twobar = ssd:GetItemNo()
         end
-    end -- for ssd
-    print(slash,"",onebar,"",twobar)
-    --
+    end 
+
     function find_ssd(style, style_name)
         local ssd = finale.FCStaffStyleDef()
         local name = finale.FCString()
@@ -4912,59 +4908,54 @@ function create_kicklink_layer_4()
         ssd:SaveNew()
         return ssd:GetItemNo()
     end
---
+
     if slash == 0 then
         slash = find_ssd(1, "Slash Notation + Notes")
-        print("New \'Slash Notation + Notes\' created at",slash)
     end
     if onebar == 0 then
         onebar = find_ssd(3, "One-bar Repeat + Notes")
-        print("New \'One-bar Repeat + Notes\' created at",onebar)
     end
     if twobar == 0 then
         twobar = find_ssd(4, "Two-bar Repeat + Notes")
     end
---    
+    
     local region = finenv.Region()
     local start = region.StartMeasure
     local stop = region.EndMeasure
     local sys_staves = finale.FCSystemStaves()
     sys_staves:LoadAllForRegion(region)
 
-        for staff in each(staves) do
-            if music_region:IsStaffIncluded(staff.ItemNo) then
-                local start_meas = music_region:GetStartMeasure()
-                local end_meas = music_region:GetEndMeasure()
-                local start_pos = music_region:GetStartMeasurePos()
-                local end_pos = music_region:GetEndMeasurePos()
-                local staff_style = finale.FCStaffStyleAssign()
-                staff_style:SetStartMeasure(start_meas)
-                staff_style:SetEndMeasure(end_meas)
-                staff_style:SetStartMeasurePos(start_pos)
-                staff_style:SetEndMeasurePos(end_pos)
-                staff_style:SetStyleID(slash)
-                staff_style:SaveNew(staff.ItemNo)
-            end
+    for staff in each(staves) do
+        if music_region:IsStaffIncluded(staff.ItemNo) then
+            local start_meas = music_region:GetStartMeasure()
+            local end_meas = music_region:GetEndMeasure()
+            local start_pos = music_region:GetStartMeasurePos()
+            local end_pos = music_region:GetEndMeasurePos()
+            local staff_style = finale.FCStaffStyleAssign()
+            staff_style:SetStartMeasure(start_meas)
+            staff_style:SetEndMeasure(end_meas)
+            staff_style:SetStartMeasurePos(start_pos)
+            staff_style:SetEndMeasurePos(end_pos)
+            staff_style:SetStyleID(slash)
+            staff_style:SaveNew(staff.ItemNo)
         end
+    end
 
------
     for sys_staff in each(sys_staves) do
         local staff_num = sys_staff.Staff
         local cue_source = 1
--- 3) Analyze layers
         local staff_num = sys_staff.Staff
         for i = 3, 0, -1 do
             local layer = finale.FCNoteEntryLayer(i, staff_num, start, stop)
             layer:Load()
             if layer.Count > 0 then
                 cue_source = i + 1
-                if cue_source == 4 then -- If material is found in layer 4, use that and skip ahead
+                if cue_source == 4 then 
                     goto continue
-                end -- if cue_source...
-            end -- if layer.Count
-        end -- for i = 3...
-        --swap_layers(cue_source, 4) -- Will move the lowest numbered layer with content into layer 3, provided layer 3 is empty
---
+                end 
+            end 
+        end 
+
         swap_first = cue_source - 1
         swap_second = 3
         noteentry_layer_first = finale.FCNoteEntryLayer(swap_first, staff_num, start, stop)
@@ -4980,9 +4971,8 @@ function create_kicklink_layer_4()
         end
         noteentry_layer_first:Save()
         noteentry_layer_second:Save()
-::continue::
-
--- 4) Process notes
+        
+        ::continue::
 
         for entry in eachentrysaved(music_region) do
             if entry:IsNote() and entry.LayerNumber == 4 then
@@ -4990,31 +4980,28 @@ function create_kicklink_layer_4()
                 entry.FreezeStem = true
                 entry.StemUp = true
                 entry.Playback = false
---
-            for note in each(entry) do
-                if i == 1 then
-                note:SetMIDIKey(79)
-                note.Displacement = 11
-                local pnm = finale.FCPercussionNoteMod()
-                pnm:SetNoteEntry(entry)
-                pnm:SetNoteType(235)
-                    note.AccidentalFreeze = true
-                    note.Accidental = false
-                pnm:Save()
-                elseif i > 1 then
-                    entry:DeleteNote(note)
-                end
-                i = i + 1  
-            end -- for note...
 
-            else -- process rests
+                for note in each(entry) do
+                    if i == 1 then
+                    note:SetMIDIKey(79)
+                    note.Displacement = 11
+                    local pnm = finale.FCPercussionNoteMod()
+                    pnm:SetNoteEntry(entry)
+                    pnm:SetNoteType(235)
+                        note.AccidentalFreeze = true
+                        note.Accidental = false
+                    pnm:Save()
+                    elseif i > 1 then
+                        entry:DeleteNote(note)
+                    end
+                    i = i + 1  
+                end 
+            else 
                 entry:SetRestDisplacement(11)
-            end -- if entry is note...
-        end -- for entry...
+            end 
+        end 
         change_notehead_size(4, 75, nil)
-    end -- for sys_staff
-
-    rhythm_cue()
+    end 
 end
 
 function top_line()
