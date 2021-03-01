@@ -169,6 +169,8 @@
 0511 Meter 12-8
 0512 Meter 6-4
 0513 Beam Together
+0514 Meter Common
+0515 Meter Cut
 
 0600 Smart Shapes
 0600 Smart Shape Trill
@@ -436,6 +438,9 @@
 1513 Cluster Indeterminate
 1514 Cluster Determinate
 1515 Toggle Ledger Lines
+1516 Triangle Highest and Lowest Note
+1517 Create Drum Kicks in Layer 4
+1518 Top Line Notation
 
 1600 Chord Symbols
 1600 Chord Symbol Altered Bass After
@@ -475,6 +480,8 @@
 9003 Custom Tempo Text
 9004 Custom Dynamics
 9005 Tacet
+9006 Make X Bars
+9007 Make X More
 
 9999 Update
 9994 Check For Update AutoHotKey
