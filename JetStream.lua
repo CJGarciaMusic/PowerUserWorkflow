@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "250231"
-    finaleplugin.Date = "02/25/2021"
+    finaleplugin.Version = "280221"
+    finaleplugin.Date = "02/28/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -616,12 +616,12 @@ function articulations_lv_poly()
  
                 if (tiedir[i] == "d" or tiedir[i] == "fd") and (tiedir[i+1] == "d" or tiedir[i+1] == "fd") and interval[i+1] <= 1 then
                     vert_pad = vert_pad - 6 
-                    if staffpos >= -9 and staffpos % 2 == 1 then --additional adjustment for staff space...
+                    if staffpos >= -9 and staffpos % 2 == 1 then
                         vert_pad = vert_pad - 12
                     end
                 elseif (tiedir[i] == "u" or tiedir[i] == "fu") and (tiedir[i-1] == "u" or tiedir[i-1] == "fu") and interval[i] <= 1 then
                     vert_pad = vert_pad + 6
-                    if staffpos <= 1 and staffpos % 2 == 1 then --additional adjustment for staff space...
+                    if staffpos <= 1 and staffpos % 2 == 1 then
                         vert_pad = vert_pad + 10
                     end
                 end
@@ -3323,7 +3323,6 @@ function tacet_expr()
     local tacet_ted = 0
     for ted in each(textexpressiondefs) do
         if ted.CategoryID == misc and ted:CreateDescription().LuaString == "TACET for Multimeasure Rests" then
-            print ("Tacet found at",ted.ItemNo)
             tacet_ted = ted.ItemNo
         end
     end
@@ -3447,7 +3446,6 @@ function make_tacet_mm()
         local tacet_ted = 0
         for ted in each(textexpressiondefs) do
             if ted.CategoryID == misc and ted:CreateDescription().LuaString == "TACET for Multimeasure Rests" then
-                print ("Tacet found at",ted.ItemNo)
                 tacet_ted = ted.ItemNo
             end
         end
@@ -3594,7 +3592,6 @@ function make_x(bool_kind)
         local playX_ted = 0
         for ted in each(textexpressiondefs) do
             if ted.CategoryID == misc and ted:CreateDescription().LuaString == playX_text then
-                print ("Play X found at",ted.ItemNo)
                 playX_ted = ted.ItemNo
             end
         end
@@ -3616,7 +3613,6 @@ function make_x(bool_kind)
             ex_ted.VerticalBaselineOffset = -66
             ex_ted:SaveNew()
             playX_ted = ex_ted.ItemNo
-            print ("New 'Play X' created at",playX_ted) 
         end
 
         local sysstaves = finale.FCSystemStaves()
@@ -5087,7 +5083,7 @@ function top_line()
                 note.AccidentalFreeze = false
                 noteheads_default()
             end
-            for note in each(noteentry) do -- I don't know why this didn't work in the previous section... but it didn't5
+            for note in each(noteentry) do
                 note.Tie = tie_status
             end
         end
