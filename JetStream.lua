@@ -4865,152 +4865,156 @@ function create_centered_triangles()
     end
 end
 
-function create_kicklink_layer_1()
-    function swap_layers(swap_first, swap_second)
-        local region = finenv.Region()
-        local start = region.StartMeasure
-        local stop = region.EndMeasure
-        local sys_staves = finale.FCSystemStaves()
-        sys_staves:LoadAllForRegion(region)
-    
-        swap_first = swap_first - 1
-        swap_second = swap_second - 1
-        
-        for sys_staff in each(sys_staves) do
-            staff_num = sys_staff.Staff
-            local noteentry_layer_first = finale.FCNoteEntryLayer(swap_first, staff_num, start, stop)
-            noteentry_layer_first:SetUseVisibleLayer(false)
-            if noteentry_layer_first:Load() then
-                noteentry_layer_first.LayerIndex = swap_second
-            end
-    
-            local noteentry_layer_second = finale.FCNoteEntryLayer(swap_second, staff_num, start, stop)
-            noteentry_layer_second:SetUseVisibleLayer(false)
-            if noteentry_layer_second:Load() then
-                noteentry_layer_second.LayerIndex = swap_first
-            end
-            noteentry_layer_first:Save()
-            noteentry_layer_second:Save()
-        end
-    end
-    
-    function change_notehead_size(layer, size, resize_top_bottom)
-        for noteentry in eachentrysaved(finenv.Region()) do
-            if noteentry.LayerNumber == layer then
-                if resize_top_bottom ~= nil then
-                    local nm = finale.FCNoteheadMod()
-                    nm:SetNoteEntry(noteentry)
-                    for note in each(noteentry) do
-                        local top_note = noteentry:CalcHighestNote(nil)
-                        local bottom_note = noteentry:CalcLowestNote(nil)
-                        local note_exception = bottom_note
-                        if resize_top_bottom == true then
-                           note_exception = top_note
-                        end
-                        if note:CalcMIDIKey() ~= note_exception:CalcMIDIKey() then
-                            nm:LoadAt(note)
-                            nm:SetResize(size)
-                            nm:SaveAt(note)
-                        else
-                            nm:LoadAt(note)
-                            nm:SetResize(100)
-                            nm:SaveAt(note)
-                        end
-                    end
-                else
-                    noteentry:SetNoteDetailFlag(true)
-                    local entry_mod = finale.FCEntryAlterMod()
-                    entry_mod:SetNoteEntry(noteentry)
-                    entry_mod:SetResize(size)
-                    entry_mod:Save()
-                end
-            end
-        end
-    end
-    
-    function kickline()
-        local music_region = finenv.Region()
-        music_region:SetCurrentSelection()
-        local staves = finale.FCStaves()
-        local perc_layout = finale.FCPercussionLayoutNotes()
-        local rhythmcue = finale.FCPercussionLayoutNote() 
-        staves:LoadAll()
-    
-        local ssds = finale.FCStaffStyleDefs()
-        ssds:LoadAll()
-        local slash = 0
-        for ssd in each(ssds) do
-            if ssd:GetAltNotationStyle() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
-                slash = ssd:GetItemNo()
-            end
-        end 
-
-        if slash == 0 then
-            local ssd = finale.FCStaffStyleDef()
-            local name = finale.FCString()
-            name.LuaString = "Slash + Notes"
-            ssd:SetUseAltNotationStyle(true)
-            ssd:SetAltNotationStyle(1)
-            ssd:SetAltSlashDots(true)
-            ssd:SetAltShowOtherNotes(true)
-            ssd:SetAltShowOtherArticulations(true)
-            ssd:SetAltShowExpression(true)
-            ssd:SetAltShowOtherExpressions(true)
-            ssd:SetAltShowOtherSmartShapes(true)
-            ssd:SetAltShowOtherLyrics(true)
-            ssd:SetShowChords(true)
-            ssd:SetAltNotationLayer(1)
-            ssd:SetName(name)
-            ssd:SetCopyable(true)
-            ssd:SaveNew()
+function create_kicklink_layer_4()
+    -- Initialize and load stuff...
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    local staves = finale.FCStaves()
+    local perc_layout = finale.FCPercussionLayoutNotes()
+    local rhythmcue = finale.FCPercussionLayoutNote() 
+    staves:LoadAll()
+-- 1) Deal with staff styles:
+-- Search for a "slash + notes" style and use it, 
+-- or create a new one. Also One and Two bar repeats.
+    local ssds = finale.FCStaffStyleDefs()
+    ssds:LoadAll()
+    local slash = 0
+    local onebar = 0
+    local twobar = 0
+    for ssd in each(ssds) do
+        if ssd:GetAltNotationStyle() == 1 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
             slash = ssd:GetItemNo()
+        elseif ssd:GetAltNotationStyle() == 3 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
+            onebar = ssd:GetItemNo()
+        elseif ssd:GetAltNotationStyle() == 4 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
+            twobar = ssd:GetItemNo()
         end
-            for addstaff = music_region:GetStartStaff(), music_region:GetEndStaff() do
-                if music_region:IsStaffIncluded(addstaff) then
-                    local start_meas = music_region:GetStartMeasure()
-                    local end_meas = music_region:GetEndMeasure()
-                    local start_pos = music_region:GetStartMeasurePos()
-                    local end_pos = music_region:GetEndMeasurePos()
-                    local staff_style = finale.FCStaffStyleAssign()
-                    staff_style:SetStartMeasure(start_meas)
-                    staff_style:SetEndMeasure(end_meas)
-                    staff_style:SetStartMeasurePos(start_pos)
-                    staff_style:SetEndMeasurePos(end_pos)
-                    staff_style:SetStyleID(slash)
-                    staff_style:SaveNew(addstaff)
-                end
-            end
+    end -- for ssd
+    print(slash,"",onebar,"",twobar)
+    --
+    function find_ssd(style, style_name)
+        local ssd = finale.FCStaffStyleDef()
+        local name = finale.FCString()
+        name.LuaString = style_name
+        ssd:SetUseAltNotationStyle(true)
+        ssd:SetAltNotationStyle(style)
+        ssd:SetAltSlashDots(true)
+        ssd:SetAltShowOtherNotes(true)
+        ssd:SetAltShowOtherArticulations(true)
+        ssd:SetAltShowExpression(true)
+        ssd:SetAltShowOtherExpressions(true)
+        ssd:SetAltShowOtherSmartShapes(true)
+        ssd:SetAltShowOtherLyrics(true)
+        ssd:SetShowChords(true)
+        ssd:SetAltNotationLayer(1)
+        ssd:SetName(name)
+        ssd:SetCopyable(true)
+        ssd:SaveNew()
+        return ssd:GetItemNo()
+    end
+--
+    if slash == 0 then
+        slash = find_ssd(1, "Slash Notation + Notes")
+        print("New \'Slash Notation + Notes\' created at",slash)
+    end
+    if onebar == 0 then
+        onebar = find_ssd(3, "One-bar Repeat + Notes")
+        print("New \'One-bar Repeat + Notes\' created at",onebar)
+    end
+    if twobar == 0 then
+        twobar = find_ssd(4, "Two-bar Repeat + Notes")
+    end
+--    
+    local region = finenv.Region()
+    local start = region.StartMeasure
+    local stop = region.EndMeasure
+    local sys_staves = finale.FCSystemStaves()
+    sys_staves:LoadAllForRegion(region)
 
-        swap_layers(1, 3)
-    
+        for staff in each(staves) do
+            if music_region:IsStaffIncluded(staff.ItemNo) then
+                local start_meas = music_region:GetStartMeasure()
+                local end_meas = music_region:GetEndMeasure()
+                local start_pos = music_region:GetStartMeasurePos()
+                local end_pos = music_region:GetEndMeasurePos()
+                local staff_style = finale.FCStaffStyleAssign()
+                staff_style:SetStartMeasure(start_meas)
+                staff_style:SetEndMeasure(end_meas)
+                staff_style:SetStartMeasurePos(start_pos)
+                staff_style:SetEndMeasurePos(end_pos)
+                staff_style:SetStyleID(slash)
+                staff_style:SaveNew(staff.ItemNo)
+            end
+        end
+
+-----
+    for sys_staff in each(sys_staves) do
+        local staff_num = sys_staff.Staff
+        local cue_source = 1
+-- 3) Analyze layers
+        local staff_num = sys_staff.Staff
+        for i = 3, 0, -1 do
+            local layer = finale.FCNoteEntryLayer(i, staff_num, start, stop)
+            layer:Load()
+            if layer.Count > 0 then
+                cue_source = i + 1
+                if cue_source == 4 then -- If material is found in layer 4, use that and skip ahead
+                    goto continue
+                end -- if cue_source...
+            end -- if layer.Count
+        end -- for i = 3...
+        --swap_layers(cue_source, 4) -- Will move the lowest numbered layer with content into layer 3, provided layer 3 is empty
+--
+        swap_first = cue_source - 1
+        swap_second = 3
+        noteentry_layer_first = finale.FCNoteEntryLayer(swap_first, staff_num, start, stop)
+        noteentry_layer_first:SetUseVisibleLayer(false)
+        if noteentry_layer_first:Load() then
+            noteentry_layer_first.LayerIndex = swap_second
+        end
+
+        noteentry_layer_second = finale.FCNoteEntryLayer(swap_second, staff_num, start, stop)
+        noteentry_layer_second:SetUseVisibleLayer(false)
+        if noteentry_layer_second:Load() then
+            noteentry_layer_second.LayerIndex = swap_first
+        end
+        noteentry_layer_first:Save()
+        noteentry_layer_second:Save()
+::continue::
+
+-- 4) Process notes
+
         for entry in eachentrysaved(music_region) do
-            if entry:IsNote() then
-                local cnt = entry.Count
+            if entry:IsNote() and entry.LayerNumber == 4 then
                 local i = 1
                 entry.FreezeStem = true
                 entry.StemUp = true
                 entry.Playback = false
-                for note in each(entry) do
-    
-                    if i == 1 then
-                    note.Displacement = 11
-                    local pnm = finale.FCPercussionNoteMod()
-                    pnm:SetNoteEntry(entry)
-                    pnm:SetNoteType(235)
-                    pnm:Save()
-                    elseif i > 1 then
-                        entry:DeleteNote(note)
-                    end
-                    i = i + 1  
+--
+            for note in each(entry) do
+                if i == 1 then
+                note:SetMIDIKey(79)
+                note.Displacement = 11
+                local pnm = finale.FCPercussionNoteMod()
+                pnm:SetNoteEntry(entry)
+                pnm:SetNoteType(235)
+                    note.AccidentalFreeze = true
+                    note.Accidental = false
+                pnm:Save()
+                elseif i > 1 then
+                    entry:DeleteNote(note)
                 end
-            else
-                entry:SetRestDisplacement(11)
-             end
-        end
-        change_notehead_size(3, 75, nil)
-    end
+                i = i + 1  
+            end -- for note...
 
-    kickline()
+            else -- process rests
+                entry:SetRestDisplacement(11)
+            end -- if entry is note...
+        end -- for entry...
+        change_notehead_size(4, 75, nil)
+    end -- for sys_staff
+
+    rhythm_cue()
 end
 
 function top_line()
@@ -7800,7 +7804,7 @@ function transform_highest_lowest_possible()
 end
 
 function transform_create_kicks()
-    create_kicklink_layer_1()
+    create_kicklink_layer_4()
 end
 
 function transform_topline_notation()
