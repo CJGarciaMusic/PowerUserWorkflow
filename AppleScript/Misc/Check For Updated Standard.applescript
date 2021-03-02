@@ -4,7 +4,7 @@ on theSplit(theString, theDelimiter)
 	set theArray to every text item of theString
 	set AppleScript's text item delimiters to oldDelimiters
 	repeat with theItem in theArray
-		if theItem contains "JetStream%20Mac%2021" then
+		if theItem contains "JetStream%20Mac%20Reg%20" then
 			set myNum to theItem
 		end if
 	end repeat
@@ -33,8 +33,8 @@ on getUpdate(updateNumber)
 	set myArray to theSplit(theCurl, "<")
 	set myText to removeMarkupFromText(myArray)
 	set myLength to (count of myText)
-	set firstNumber to (offset of "JetStream%20Mac%2021" in myText)
-	set secondNumber to (characters (firstNumber + 18) thru myLength of myText as text)
+	set firstNumber to (offset of "JetStream%20Mac%20Reg%20" in myText)
+	set secondNumber to (characters (firstNumber + 24) thru myLength of myText as text)
 	set scribeVersion to text 1 thru -14 of secondNumber
 	set theDownload to text 9 thru -5 of myText
 	
