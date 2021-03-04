@@ -67,21 +67,22 @@ function roll_articulation_assignment(defualt_roll_num)
                 entry_artics:LoadAll()
                 for art in each(entry_artics) do
                     local art_def = art:CreateArticulationDef()
-                    if (art_def:GetAboveSymbolChar() == 103) then
+                    if (art_def:GetAboveSymbolChar() == defualt_roll_num) then
                         local entry_metrics = finale.FCEntryMetrics()
                         if note_entry:IsNote() then
                             local arg_point = finale.FCPoint(0, 0)
                             entry_metrics:Load(note_entry)
-                            local art_x_pos = 0
-
-                            if art:CalcMetricPos(arg_point) then
-                                art_x_pos = arg_point:GetX()
+                            local artic_pos = 0
+                            if note_entry:CalcStemUp() then
+                                artic_pos = entry_metrics:GetStemLeftPosition() - note_entry:CalcWidestNoteheadWidth()
+                            else
+                                artic_pos = entry_metrics:GetStemLeftPosition()
                             end
+                            local roll_cushion = 9
                             local accidental_pos = entry_metrics:GetFirstAccidentalPosition()
-                            local distance = art_x_pos - entry_metrics:GetFirstAccidentalPosition()
-                            print((arg_point:GetX()).." "..(arg_point:GetY()).." "..accidental_pos)
-                            --art:SetHorizontalPos(0 - (distance))
-                            --art:Save()
+                            local distance = artic_pos - entry_metrics:GetFirstAccidentalPosition()
+                            art:SetHorizontalPos(0 - (distance + roll_cushion))
+                            art:Save()
                         end
                     end
                 end
@@ -5836,7 +5837,7 @@ function articulations_roll()
     else
         addArticulation(full_art_table[19])
     end
-    -- roll_articulation_assignment(103)
+    roll_articulation_assignment(103)
 end
 
 function articulations_fall_short()
