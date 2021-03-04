@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "210303"
-    finaleplugin.Date = "03/03/2021"
+    finaleplugin.Version = "210304"
+    finaleplugin.Date = "03/04/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -41,6 +41,50 @@ function tremolo_assignment(tremolo_type)
                 articulation:SetNoteEntry(noteentry)
                 articulation:SetID(tremolo_type)
                 articulation:SaveNew()
+            end
+        end
+    end
+end
+
+function roll_articulation_assignment(defualt_roll_num)
+    
+    local has_acc = false
+    local is_polyphony = false
+    for note_entry in eachentry(finenv.Region()) do
+        has_acc = false
+        is_polyphony = false
+        for note in each(note_entry) do
+            if (note:CalcAccidental()) then
+                has_acc = true
+            end
+        end
+        if note_entry:GetCount() > 1 then
+            is_polyphony = true
+        end
+        if is_polyphony then
+            if has_acc then
+                local entry_artics = note_entry:CreateArticulations()
+                entry_artics:LoadAll()
+                for art in each(entry_artics) do
+                    local art_def = art:CreateArticulationDef()
+                    if (art_def:GetAboveSymbolChar() == 103) then
+                        local entry_metrics = finale.FCEntryMetrics()
+                        if note_entry:IsNote() then
+                            local arg_point = finale.FCPoint(0, 0)
+                            entry_metrics:Load(note_entry)
+                            local art_x_pos = 0
+
+                            if art:CalcMetricPos(arg_point) then
+                                art_x_pos = arg_point:GetX()
+                            end
+                            local accidental_pos = entry_metrics:GetFirstAccidentalPosition()
+                            local distance = art_x_pos - entry_metrics:GetFirstAccidentalPosition()
+                            print((arg_point:GetX()).." "..(arg_point:GetY()).." "..accidental_pos)
+                            --art:SetHorizontalPos(0 - (distance))
+                            --art:Save()
+                        end
+                    end
+                end
             end
         end
     end
@@ -763,7 +807,7 @@ function vertical_dynamic_adjustment(region, direction)
                 table.insert(lowest_item, arg_point:GetY())
             elseif smart_shape:CalcRightCellMetricPos(arg_point) then
                 table.insert(lowest_item, arg_point:GetY())
-            end
+            end 
         end
     end
 
@@ -5792,30 +5836,7 @@ function articulations_roll()
     else
         addArticulation(full_art_table[19])
     end
-    local has_acc = false
-    for note_entry in eachentrysaved(finenv.Region()) do
-        has_acc = false
-        for note in each(note_entry) do
-            if (note:CalcAccidental() == true) then
-                has_acc = true
-            end
-        end
-        if (has_acc == true) then
-            local entry_artics = note_entry:CreateArticulations()
-            entry_artics:LoadAll()
-            for art in each(entry_artics) do
-                local art_def = art:CreateArticulationDef()
-                if (art_def:GetAboveSymbolChar() == 103) then
-                    local entry_metrics = finale.FCEntryMetrics()
-                    entry_metrics:Load(note_entry)
-                    if entry_metrics:GetFirstAccidentalPosition() > 0 then
-                        art:SetHorizontalPos(0 - (entry_metrics:GetFirstAccidentalPosition() / 16))
-                        art:Save()
-                    end
-                end
-            end
-        end
-    end
+    -- roll_articulation_assignment(103)
 end
 
 function articulations_fall_short()
