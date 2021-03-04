@@ -76,7 +76,7 @@ function roll_articulation_assignment(defualt_roll_num)
                             if note_entry:CalcStemUp() then
                                 artic_pos = entry_metrics:GetStemLeftPosition() - note_entry:CalcWidestNoteheadWidth()
                             else
-                                artic_pos = entry_metrics:GetStemLeftPosition()
+                                artic_pos = entry_metrics:GetStemLeftPosition() - 6
                             end
                             local roll_cushion = 9
                             local accidental_pos = entry_metrics:GetFirstAccidentalPosition()
