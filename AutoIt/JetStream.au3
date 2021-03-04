@@ -1,6 +1,6 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 200628
+ Version: 210304
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
@@ -501,24 +501,25 @@ Func CheckForUpdate($SDsize, $currentVersion)
    $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
 	  If $SDsize = "Standard" Then
-		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%2015key%\d.*\.", $STR_REGEXPARRAYMATCH)
 		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
 	  ElseIf $SDsize = "XL" Then
 		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%20proXL%\d.*\.", $STR_REGEXPARRAYMATCH)
 		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
 	  EndIf
 
-	  If $sNewVersionNumber = $currentVersion Then
+	  If Number($sNewVersionNumber) = Number($currentVersion) Then
 		 MsgBox($MB_OK, "No Update Available", "You're up to date with the current version: " & $sNewVersionNumber & @CRLF & @CRLF & "Please check back again soon for a new version.")
 		 Return
 	  Else
 		 If $SDsize = "Standard" Then
-			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%2015key%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
 		 ElseIf $SDsize = "XL" Then
 			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%20proXL%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
 		 EndIf
 		 $sDownloadLink = $aLinkArray[0]
-		 If $currentVersion > $sNewVersionNumber Then
+
+		 If Number($currentVersion) > Number($sNewVersionNumber) Then
 			Local $msgBox = MsgBox($MB_OK, "An odd thing has happened", "You seem to have a version that is newer than the one we are currently offering... How'd you do that?" & @CRLF & @CRLF & "Let's get you back on the right track with the current build.")
 			ShellExecute($sDownloadLink)
 		 Else
