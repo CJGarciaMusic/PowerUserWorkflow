@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "010321"
-    finaleplugin.Date = "03/01/2021"
+    finaleplugin.Version = "210303"
+    finaleplugin.Date = "03/03/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -4886,7 +4886,7 @@ function create_kicklink_layer_4()
         elseif ssd:GetAltNotationStyle() == 4 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
             twobar = ssd:GetItemNo()
         end
-    end 
+    end
 
     function find_ssd(style, style_name)
         local ssd = finale.FCStaffStyleDef()
@@ -4918,43 +4918,44 @@ function create_kicklink_layer_4()
     if twobar == 0 then
         twobar = find_ssd(4, "Two-bar Repeat + Notes")
     end
-    
+
     local region = finenv.Region()
     local start = region.StartMeasure
     local stop = region.EndMeasure
     local sys_staves = finale.FCSystemStaves()
     sys_staves:LoadAllForRegion(region)
 
-    for staff in each(staves) do
-        if music_region:IsStaffIncluded(staff.ItemNo) then
-            local start_meas = music_region:GetStartMeasure()
-            local end_meas = music_region:GetEndMeasure()
-            local start_pos = music_region:GetStartMeasurePos()
-            local end_pos = music_region:GetEndMeasurePos()
-            local staff_style = finale.FCStaffStyleAssign()
-            staff_style:SetStartMeasure(start_meas)
-            staff_style:SetEndMeasure(end_meas)
-            staff_style:SetStartMeasurePos(start_pos)
-            staff_style:SetEndMeasurePos(end_pos)
-            staff_style:SetStyleID(slash)
-            staff_style:SaveNew(staff.ItemNo)
+        for staff in each(staves) do
+            if music_region:IsStaffIncluded(staff.ItemNo) then
+                local start_meas = music_region:GetStartMeasure()
+                local end_meas = music_region:GetEndMeasure()
+                local start_pos = music_region:GetStartMeasurePos()
+                local end_pos = music_region:GetEndMeasurePos()
+                local staff_style = finale.FCStaffStyleAssign()
+                staff_style:SetStartMeasure(start_meas)
+                staff_style:SetEndMeasure(end_meas)
+                staff_style:SetStartMeasurePos(start_pos)
+                staff_style:SetEndMeasurePos(end_pos)
+                staff_style:SetStyleID(slash)
+                staff_style:SaveNew(staff.ItemNo)
+            end
         end
-    end
 
     for sys_staff in each(sys_staves) do
         local staff_num = sys_staff.Staff
         local cue_source = 1
+
         local staff_num = sys_staff.Staff
         for i = 3, 0, -1 do
             local layer = finale.FCNoteEntryLayer(i, staff_num, start, stop)
             layer:Load()
             if layer.Count > 0 then
                 cue_source = i + 1
-                if cue_source == 4 then 
+                if cue_source == 4 then
                     goto continue
                 end 
-            end 
-        end 
+            end
+        end
 
         swap_first = cue_source - 1
         swap_second = 3
@@ -4966,19 +4967,23 @@ function create_kicklink_layer_4()
 
         noteentry_layer_second = finale.FCNoteEntryLayer(swap_second, staff_num, start, stop)
         noteentry_layer_second:SetUseVisibleLayer(false)
+
         if noteentry_layer_second:Load() then
             noteentry_layer_second.LayerIndex = swap_first
         end
+
         noteentry_layer_first:Save()
         noteentry_layer_second:Save()
-        
+    
         ::continue::
 
         for entry in eachentrysaved(music_region) do
+          for j = 1, 2, 1 do
             if entry:IsNote() and entry.LayerNumber == 4 then
                 local i = 1
                 entry.FreezeStem = true
                 entry.StemUp = true
+                entry.FlipTie = true
                 entry.Playback = false
 
                 for note in each(entry) do
@@ -4995,13 +5000,15 @@ function create_kicklink_layer_4()
                         entry:DeleteNote(note)
                     end
                     i = i + 1  
-                end 
-            else 
+                end
+
+            else
                 entry:SetRestDisplacement(11)
-            end 
-        end 
+            end
+          end 
+        end
         change_notehead_size(4, 75, nil)
-    end 
+    end
 end
 
 function top_line()
@@ -5012,21 +5019,22 @@ function top_line()
 
     function add8vb(entry)
         local region = finenv.Region()
-        local hi_note = entry:CalcHighestNote(NULL)
+        local hi_note = entry:CalcHighestNote(nil)
         local pitchstring = finale.FCString()
         local measure = entry:GetMeasure()
         measureobject = finale.FCMeasure()
         measureobject:Load(measure)
         local keysig = measureobject:GetKeySignature()
-        hi_note:GetString(pitchstring, keysig, false, false)
+        hi_note:GetString(pitchstring, keysig, false, true)
         pitchstring = changeoctave(pitchstring, -1)
         local newnote = entry:AddNewNote()
         newnote:SetPlayback(false)
-        newnote:SetString(pitchstring, keysig, false)   
+        newnote:SetString(pitchstring, keysig, true)   
     end
 
     local reset_flag = false
     local nm = finale.FCNoteheadMod()
+
     for noteentry in eachentrysaved(finenv.Region()) do
         for note in each(noteentry) do
             nm:SetNoteEntry(noteentry)
@@ -5040,44 +5048,49 @@ function top_line()
 
     for noteentry in eachentrysaved(finenv.Region()) do
         if noteentry:IsNote() then
-        if noteentry:CalcDisplacementRange() < 7 then
-            add8vb(noteentry)
-        end
-        local hi_note_ID = noteentry:CalcHighestNote(NULL)
-        local hi_note = hi_note_ID:CalcMIDIKey()
-        noteentry.StemUp = true
-        noteentry.FreezeStem = true
-        nm:SetUseCustomFont(true)
-        nm.FontName = Maestro
-        for note in each(noteentry) do
-            if note:CalcMIDIKey() ~= hi_note then
-                note.Tie = false
-                note.AccidentalFreeze = true
-                note.Accidental = false
-                nm:SetVerticalPos(0)
-                nm.CustomChar = 32
-                nm:SaveAt(note)
+            if noteentry:CalcDisplacementRange() < 7 then
+                add8vb(noteentry)
             end
+            local hi_note_ID = noteentry:CalcHighestNote(NULL)
+            local hi_note = hi_note_ID:CalcMIDIKey()
+            noteentry.StemUp = true
+            noteentry.FreezeStem = true
+            noteentry.FlipTie = true
+            nm:SetUseCustomFont(true)
+            nm.FontName = Maestro
+            for note in each(noteentry) do
+                if note:CalcMIDIKey() ~= hi_note then
+                    note.Tie = false
+                    note.AccidentalFreeze = true
+                    note.Accidental = false
+                    nm:SetVerticalPos(0)
+                    nm.CustomChar = 32
+                    nm:SaveAt(note)
+                end
             end 
-        end
-    end
+        end 
+    end 
+
     ::reset::
+
     if reset_flag == true then
         for noteentry in eachentrysaved(finenv.Region()) do
         local hi_note_ID = noteentry:CalcHighestNote(NULL)
         local tie_status = hi_note_ID.Tie
+        noteentry.FlipTie = false
         noteentry.FreezeStem = false
             for note in each(noteentry) do
                 if note.Playback == false then
                     noteentry:DeleteNote(note)
-                end
+                end 
                 note.AccidentalFreeze = false
                 noteheads_default()
             end
             for note in each(noteentry) do
                 note.Tie = tie_status
             end
-        end
+        end 
+
     end 
 end
 
