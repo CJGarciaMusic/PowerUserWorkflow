@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "210304"
-    finaleplugin.Date = "03/04/2021"
+    finaleplugin.Version = "210306"
+    finaleplugin.Date = "03/06/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -7882,1396 +7882,1410 @@ function update_mac_km()
 end
 
 
-dialog:SetTypes("String")
-dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
+-- dialog:SetTypes("String")
+-- dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
-local return_values = dialog:Execute() 
+-- local return_values = dialog:Execute() 
 
-if return_values ~= nil then
+local initial_settings = {}
+
+local file_path = os.getenv("HOME").."/Library/Application Support/com.elgato.StreamDeck/Plugins/com.mushoo.RunAppleScript.sdPlugin/JetStreamCode.txt"
+
+local read_file = io.open(file_path, "r")
+
+if not read_file then
+    finenv.UI():AlertInfo("Huh, it looks like you may not have installed the JetStream Plug-in quite right\nTry reinstalling it and trying again.", nil)
+else
+    for line in io.lines(file_path) do
+        table.insert(initial_settings, line)
+    end
+end
+
+for key, value in pairs(initial_settings) do
     if finenv.Region():IsEmpty() ~= true then
-        if return_values[1] == "0001" then
+        if value == "0001" then
             dynamics_ffff_start()
         end
-        if return_values[1] == "0002" then
+        if value == "0002" then
             dynamics_fff_start()
         end
-        if return_values[1] == "0003" then
+        if value == "0003" then
             dynamics_ff_start()
         end
-        if return_values[1] == "0004" then
+        if value == "0004" then
             dynamics_f_start()
         end
-        if return_values[1] == "0005" then
+        if value == "0005" then
             dynamics_mf_start()
         end
-        if return_values[1] == "0006" then
+        if value == "0006" then
             dynamics_mp_start()
         end
-        if return_values[1] == "0007" then
+        if value == "0007" then
             dynamics_p_start()
         end
-        if return_values[1] == "0008" then
+        if value == "0008" then
             dynamics_pp_start()
         end
-        if return_values[1] == "0009" then
+        if value == "0009" then
             dynamics_ppp_start()
         end
-        if return_values[1] == "0010" then
+        if value == "0010" then
             dynamics_pppp_start()
         end
-        if return_values[1] == "0011" then
+        if value == "0011" then
             dynamics_fp_start()
         end
-        if return_values[1] == "0012" then
+        if value == "0012" then
             dynamics_fz_start()
         end
-        if return_values[1] == "0013" then
+        if value == "0013" then
             dynamics_n_start()
         end
-        if return_values[1] == "0014" then
+        if value == "0014" then
             dynamics_rf_start()
         end
-        if return_values[1] == "0015" then
+        if value == "0015" then
             dynamics_rfz_start()
         end
-        if return_values[1] == "0016" then
+        if value == "0016" then
             dynamics_sf_start()
         end
-        if return_values[1] == "0017" then
+        if value == "0017" then
             dynamics_sffz_start()
         end
-        if return_values[1] == "0018" then
+        if value == "0018" then
             dynamics_sfp_start()
         end
-        if return_values[1] == "0019" then
+        if value == "0019" then
             dynamics_sfpp_start()
         end
-        if return_values[1] == "0020" then
+        if value == "0020" then
             dynamics_sfz_start()
         end
-        if return_values[1] == "0021" then
+        if value == "0021" then
             dynamics_sfzp_start()
         end
-        if return_values[1] == "0022" then
+        if value == "0022" then
             dynamics_crescendo()
         end
-        if return_values[1] == "0023" then
+        if value == "0023" then
             dynamics_decrescendo()
         end
-        if return_values[1] == "0024" then
+        if value == "0024" then
             dynamics_messa_di_voce_up()
         end
-        if return_values[1] == "0025" then
+        if value == "0025" then
             dynamics_messa_di_voce_down()
         end
-        if return_values[1] == "0026" then
+        if value == "0026" then
             dynamics_delete_hairpins()
         end
-        if return_values[1] == "0027" then
+        if value == "0027" then
             dynamics_delete_dynamics()
         end
-        if return_values[1] == "0028" then
+        if value == "0028" then
             dynamics_ffff_end()
         end
-        if return_values[1] == "0029" then
+        if value == "0029" then
             dynamics_fff_end()
         end
-        if return_values[1] == "0030" then
+        if value == "0030" then
             dynamics_ff_end()
         end
-        if return_values[1] == "0031" then
+        if value == "0031" then
             dynamics_f_end()
         end
-        if return_values[1] == "0032" then
+        if value == "0032" then
             dynamics_mf_end()
         end
-        if return_values[1] == "0033" then
+        if value == "0033" then
             dynamics_mp_end()
         end
-        if return_values[1] == "0034" then
+        if value == "0034" then
             dynamics_p_end()
         end
-        if return_values[1] == "0035" then
+        if value == "0035" then
             dynamics_pp_end()
         end
-        if return_values[1] == "0036" then
+        if value == "0036" then
             dynamics_ppp_end()
         end
-        if return_values[1] == "0037" then
+        if value == "0037" then
             dynamics_pppp_end()
         end
-        if return_values[1] == "0038" then
+        if value == "0038" then
             dynamics_fp_end()
         end
-        if return_values[1] == "0039" then
+        if value == "0039" then
             dynamics_fz_end()
         end
-        if return_values[1] == "0040" then
+        if value == "0040" then
             dynamics_n_end()
         end
-        if return_values[1] == "0041" then
+        if value == "0041" then
             dynamics_rf_end()
         end
-        if return_values[1] == "0042" then
+        if value == "0042" then
             dynamics_rfz_end()
         end
-        if return_values[1] == "0043" then
+        if value == "0043" then
             dynamics_sf_end()
         end
-        if return_values[1] == "0044" then
+        if value == "0044" then
             dynamics_sffz_end()
         end
-        if return_values[1] == "0045" then
+        if value == "0045" then
             dynamics_sfp_end()
         end
-        if return_values[1] == "0046" then
+        if value == "0046" then
             dynamics_sfpp_end()
         end
-        if return_values[1] == "0047" then
+        if value == "0047" then
             dynamics_sfz_end()
         end
-        if return_values[1] == "0048" then
+        if value == "0048" then
             dynamics_sfzp_end()
         end
-        if return_values[1] == "0049" then
+        if value == "0049" then
             dynamics_increase_dynamic()
         end
-        if return_values[1] == "0050" then
+        if value == "0050" then
             dynamics_decrease_dynamic()
         end
-        if return_values[1] == "0051" then
+        if value == "0051" then
             dynamics_align_far()
         end
-        if return_values[1] == "0052" then
+        if value == "0052" then
             dynamics_align_near()
         end
-        if return_values[1] == "0053" then
+        if value == "0053" then
             dynamics_nudge_down()
         end
-        if return_values[1] == "0054" then
+        if value == "0054" then
             dynamics_nudge_up()
         end
-        if return_values[1] == "0055" then
+        if value == "0055" then
             dynamics_cresc()
         end
-        if return_values[1] == "0056" then
+        if value == "0056" then
             dynamics_dim()
         end
-        if return_values[1] == "0057" then
+        if value == "0057" then
             dynamics_piu_f()
         end
-        if return_values[1] == "0058" then
+        if value == "0058" then
             dynamics_pp_sub()
         end
-        if return_values[1] == "0059" then
+        if value == "0059" then
             dynamics_p_sub()
         end
-        if return_values[1] == "0060" then
+        if value == "0060" then
             dynamics_mp_sub()
         end
-        if return_values[1] == "0061" then
+        if value == "0061" then
             dynamics_mf_sub()
         end
-        if return_values[1] == "0062" then
+        if value == "0062" then
             dynamics_f_sub()
         end
-        if return_values[1] == "0063" then
+        if value == "0063" then
             dynamics_ff_sub()
         end
-        if return_values[1] == "0070" then
+        if value == "0070" then
             dynamics_align_hairpins_and_dynamics()         
         end       
-        if return_values[1] == "0071" then
+        if value == "0071" then
             dynamics_align_hairpins_and_dynamics()         
             dynamics_nudge_down()
         end
-        if return_values[1] == "0072" then
+        if value == "0072" then
             dynamics_align_hairpins_and_dynamics()           
             dynamics_nudge_up()
         end 
-        if return_values[1] == "0100" then
+        if value == "0100" then
             articulations_accent()
         end
-        if return_values[1] == "0101" then
+        if value == "0101" then
             articulations_marcato()
         end
-        if return_values[1] == "0102" then
+        if value == "0102" then
             articulations_staccato()
         end
-        if return_values[1] == "0103" then
+        if value == "0103" then
             articulations_tenuto()
         end
-        if return_values[1] == "0104" then
+        if value == "0104" then
             articulations_staccatissimo()
         end
-        if return_values[1] == "0105" then
+        if value == "0105" then
             articulations_wedge()
         end
-        if return_values[1] == "0106" then
+        if value == "0106" then
             articulations_tremolo_single()
         end
-        if return_values[1] == "0107" then
+        if value == "0107" then
             articulations_tremolo_double()
         end
-        if return_values[1] == "0108" then
+        if value == "0108" then
             articulations_tremolo_triple()
         end
-        if return_values[1] == "0109" then
+        if value == "0109" then
             articulations_fermata()
         end
-        if return_values[1] == "0110" then
+        if value == "0110" then
             articulations_closed()
         end
-        if return_values[1] == "0111" then
+        if value == "0111" then
             articulations_open()
         end
-        if return_values[1] == "0112" then
+        if value == "0112" then
             articulations_upbow()
         end
-        if return_values[1] == "0113" then
+        if value == "0113" then
             articulations_downbow()
         end
-        if return_values[1] == "0114" then
+        if value == "0114" then
             articulations_trill()
         end
-        if return_values[1] == "0115" then
+        if value == "0115" then
             articulations_mordent_up()
         end
-        if return_values[1] == "0116" then
+        if value == "0116" then
             articulations_mordent_down()
         end
-        if return_values[1] == "0117" then
+        if value == "0117" then
             articulations_turn()
         end
-        if return_values[1] == "0118" then
+        if value == "0118" then
             articulations_roll()
         end
-        if return_values[1] == "0119" then
+        if value == "0119" then
             articulations_fall_short()
         end
-        if return_values[1] == "0120" then
+        if value == "0120" then
             articulations_fall_long()
         end
-        if return_values[1] == "0121" then
+        if value == "0121" then
             articulations_rip_straight()
         end
-        if return_values[1] == "0122" then
+        if value == "0122" then
             articulations_rip_long()
         end
-        if return_values[1] == "0123" then
+        if value == "0123" then
             articulations_scoop_short()
         end
-        if return_values[1] == "0124" then
+        if value == "0124" then
             articulations_doit()
         end
-        if return_values[1] == "0125" then
+        if value == "0125" then
             articulations_split_articulations()
         end
-        if return_values[1] == "0126" then
+        if value == "0126" then
             articulations_delete_articulations()
         end
-        if return_values[1] == "0127" then
+        if value == "0127" then
             articulations_lv()
         end
-        if return_values[1] == "0128" then
+        if value == "0128" then
             articulations_lv_poly()
         end
-        if return_values[1] == "0132" then
+        if value == "0132" then
             articulations_left_brackets()
         end
-        if return_values[1] == "0137" then
+        if value == "0137" then
             articulations_right_brackets()
         end
-        if return_values[1] == "0138" then
+        if value == "0138" then
             articulations_combo_tenuto_staccato()
         end
-        if return_values[1] == "0139" then
+        if value == "0139" then
             articulations_combo_accent_staccato()
         end
-        if return_values[1] == "0140" then
+        if value == "0140" then
             articulations_combo_accent_tenuto()
         end
-        if return_values[1] == "0141" then
+        if value == "0141" then
             articulations_combo_marcato_staccato()
         end
-        if return_values[1] == "0142" then
+        if value == "0142" then
             articulations_tremolo_z()
         end
-        if return_values[1] == "0143" then
+        if value == "0143" then
             articulations_delete_duplicate_articulations()
         end
-        if return_values[1] == "0144" then
+        if value == "0144" then
             articulations_delete_articulations_from_rests()
         end
-        if return_values[1] == "0145" then
+        if value == "0145" then
             articulations_metered_tremolo()
         end
-        if return_values[1] == "0200" then
+        if value == "0200" then
             noteheads_x_circle()
         end
-        if return_values[1] == "0201" then
+        if value == "0201" then
             noteheads_cross_circle()
         end
-        if return_values[1] == "0202" then
+        if value == "0202" then
             noteheads_triangle_up()
         end
-        if return_values[1] == "0203" then
+        if value == "0203" then
             noteheads_triangle_down()
         end
-        if return_values[1] == "0204" then
+        if value == "0204" then
             noteheads_diamond()
         end
-        if return_values[1] == "0205" then
+        if value == "0205" then
             noteheads_ghost()
         end
-        if return_values[1] == "0206" then
+        if value == "0206" then
             noteheads_cross_stick()
         end
-        if return_values[1] == "0207" then
+        if value == "0207" then
             noteheads_small_slash()
         end
-        if return_values[1] == "0208" then
+        if value == "0208" then
             noteheads_square()
         end
-        if return_values[1] == "0209" then
+        if value == "0209" then
             noteheads_rim()
         end
-        if return_values[1] == "0210" then
+        if value == "0210" then
             noteheads_no_notehead()
         end
-        if return_values[1] == "0211" then
+        if value == "0211" then
             noteheads_default()
         end
-        if return_values[1] == "0212" then
+        if value == "0212" then
             noteheads_x_diamond()
         end
-        if return_values[1] == "0213" then
+        if value == "0213" then
             noteheads_harmonics()
         end
-        if return_values[1] == "0214" then
+        if value == "0214" then
             noteheads_x_diamond_above_staff()
         end
-        if return_values[1] == "0215" then
+        if value == "0215" then
             noteheads_center_noteheads()
         end
-        if return_values[1] == "0300" then
+        if value == "0300" then
             lyrics_clear_lyrics()
         end
-        if return_values[1] == "0302" then
+        if value == "0302" then
             lyrics_move_baseline_down()
         end
-        if return_values[1] == "0303" then
+        if value == "0303" then
             lyrics_move_baseline_up()
         end
-        if return_values[1] == "0400" then
+        if value == "0400" then
             barline_right_invisible()
         end
-        if return_values[1] == "0401" then
+        if value == "0401" then
             barline_right_single()
         end
-        if return_values[1] == "0402" then
+        if value == "0402" then
             barline_right_double()
         end
-        if return_values[1] == "0403" then
+        if value == "0403" then
             barline_right_dashed()
         end
-        if return_values[1] == "0404" then
+        if value == "0404" then
             barline_right_thick()
         end
-        if return_values[1] == "0405" then
+        if value == "0405" then
             barline_right_final()
         end
-        if return_values[1] == "0406" then
+        if value == "0406" then
             barline_right_tick()
         end
-        if return_values[1] == "0407" then
+        if value == "0407" then
             barline_right_custom()
         end
-        if return_values[1] == "0408" then
+        if value == "0408" then
             barline_bookend_invisible()
         end
-        if return_values[1] == "0409" then
+        if value == "0409" then
             barline_bookend_single()
         end
-        if return_values[1] == "0410" then
+        if value == "0410" then
             barline_bookend_double()
         end
-        if return_values[1] == "0411" then
+        if value == "0411" then
             barline_bookend_dashed()
         end
-        if return_values[1] == "0412" then
+        if value == "0412" then
             barline_bookend_thick()
         end
-        if return_values[1] == "0413" then
+        if value == "0413" then
             barline_bookend_final()
         end
-        if return_values[1] == "0414" then
+        if value == "0414" then
             barline_bookend_tick()
         end
-        if return_values[1] == "0415" then
+        if value == "0415" then
             barline_bookend_custom()
         end
-        if return_values[1] == "0416" then
+        if value == "0416" then
             barline_add_at_double_rehearsal_letter()
         end
-        if return_values[1] == "0417" then
+        if value == "0417" then
             barline_add_at_double_rehearsal_number()
         end
-        if return_values[1] == "0418" then
+        if value == "0418" then
             barline_add_at_double_rehearsal_measure()
         end
-        if return_values[1] == "0419" then
+        if value == "0419" then
             barline_clear_rehearsal()
         end
-        if return_values[1] == "0500" then
+        if value == "0500" then
             meter_2_4()
         end
-        if return_values[1] == "0501" then
+        if value == "0501" then
             meter_2_2()
         end
-        if return_values[1] == "0502" then
+        if value == "0502" then
             meter_3_2()
         end
-        if return_values[1] == "0503" then
+        if value == "0503" then
             meter_3_4()
         end
-        if return_values[1] == "0504" then
+        if value == "0504" then
             meter_3_8()
         end
-        if return_values[1] == "0505" then
+        if value == "0505" then
             meter_4_4()
         end
-        if return_values[1] == "0506" then
+        if value == "0506" then
             meter_5_4()
         end
-        if return_values[1] == "0507" then
+        if value == "0507" then
             meter_5_8()
         end
-        if return_values[1] == "0508" then
+        if value == "0508" then
             meter_6_8()
         end
-        if return_values[1] == "0509" then
+        if value == "0509" then
             meter_7_8()
         end
-        if return_values[1] == "0510" then
+        if value == "0510" then
             meter_9_8()
         end
-        if return_values[1] == "0511" then
+        if value == "0511" then
             meter_12_8()
         end
-        if return_values[1] == "0512" then
+        if value == "0512" then
             meter_6_4()
         end
-        if return_values[1] == "0513" then
+        if value == "0513" then
             meter_beam_together()
         end
-        if return_values[1] == "0514" then
+        if value == "0514" then
             meter_common_time()
         end
-        if return_values[1] == "0515" then
+        if value == "0515" then
             meter_cut_time()
         end
-        if return_values[1] == "0600" then
+        if value == "0600" then
             smartshape_trill()
         end
-        if return_values[1] == "0601" then
+        if value == "0601" then
             smartshape_trill_extension()
         end
-        if return_values[1] == "0602" then
+        if value == "0602" then
             smartshape_dashed_line()
         end
-        if return_values[1] == "0603" then
+        if value == "0603" then
             smartshape_solid_line()
         end
-        if return_values[1] == "0604" then
+        if value == "0604" then
             smartshape_tab_slide()
         end
-        if return_values[1] == "0605" then
+        if value == "0605" then
             smartshape_glissando()
         end
-        if return_values[1] == "0606" then
+        if value == "0606" then
             smartshape_dashed_bracket()
         end
-        if return_values[1] == "0607" then
+        if value == "0607" then
             smartshape_solid_bracket()
         end
-        if return_values[1] == "0608" then
+        if value == "0608" then
             smartshape_custom()
         end
-        if return_values[1] == "0609" then
+        if value == "0609" then
             smartshape_slur_solid()
         end
-        if return_values[1] == "0610" then
+        if value == "0610" then
             smartshape_slur_dashed()
         end
-        if return_values[1] == "0611" then
+        if value == "0611" then
             smartshape_dashed_double_bracket()
         end
-        if return_values[1] == "0612" then
+        if value == "0612" then
             smartshape_solid_double_bracket()
         end
-        if return_values[1] == "0613" then
+        if value == "0613" then
             smartshape_8va()
         end
-        if return_values[1] == "0614" then
+        if value == "0614" then
             smartshape_15ma()
         end
-        if return_values[1] == "0615" then
+        if value == "0615" then
             smartshape_8vb()
         end
-        if return_values[1] == "0616" then
+        if value == "0616" then
             smartshape_15mb()
         end
-        if return_values[1] == "0700" then
+        if value == "0700" then
             staff_styles_slash()
         end
-        if return_values[1] == "0701" then
+        if value == "0701" then
             staff_styles_rhythm()
         end
-        if return_values[1] == "0702" then
+        if value == "0702" then
             staff_styles_blank_ly1()
         end
-        if return_values[1] == "0703" then
+        if value == "0703" then
             staff_styles_blank_rests_ly1()
         end
-        if return_values[1] == "0704" then
+        if value == "0704" then
             staff_styles_blank_ly4()
         end
-        if return_values[1] == "0705" then
+        if value == "0705" then
             staff_styles_blank_rests_ly4()
         end
-        if return_values[1] == "0706" then
+        if value == "0706" then
             staff_styles_blank_all()
         end
-        if return_values[1] == "0707" then
+        if value == "0707" then
             staff_styles_repeat_one()
         end
-        if return_values[1] == "0708" then
+        if value == "0708" then
             staff_styles_repeat_two()
         end
-        if return_values[1] == "0709" then
+        if value == "0709" then
             staff_styles_stemless()
         end
-        if return_values[1] == "0710" then
+        if value == "0710" then
             staff_styles_cutaway()
         end
-        if return_values[1] == "0711" then
+        if value == "0711" then
             staff_styles_collapse()
         end
-        if return_values[1] == "0800" then
+        if value == "0800" then
             expressions_espr()
         end
-        if return_values[1] == "0801" then
+        if value == "0801" then
             expressions_poco()
         end
-        if return_values[1] == "0802" then
+        if value == "0802" then
             expressions_pocoapoco()
         end
-        if return_values[1] == "0803" then
+        if value == "0803" then
             expressions_molto()
         end
-        if return_values[1] == "0804" then
+        if value == "0804" then
             expressions_solo()
         end
-        if return_values[1] == "0805" then
+        if value == "0805" then
             expressions_unis()
         end
-        if return_values[1] == "0806" then
+        if value == "0806" then
             expressions_tutti()
         end
-        if return_values[1] == "0807" then
+        if value == "0807" then
             expressions_loco()
         end
-        if return_values[1] == "0808" then
+        if value == "0808" then
             expressions_breath()
         end
-        if return_values[1] == "0809" then
+        if value == "0809" then
             expressions_caesura()
         end
-        if return_values[1] == "0810" then
+        if value == "0810" then
             expressions_glasses()
         end
-        if return_values[1] == "0811" then
+        if value == "0811" then
             expressions_mute()
         end
-        if return_values[1] == "0812" then
+        if value == "0812" then
             expressions_open()
         end
-        if return_values[1] == "0813" then
+        if value == "0813" then
             expressions_cup_mute()
         end
-        if return_values[1] == "0814" then
+        if value == "0814" then
             expressions_straight_mute()
         end
-        if return_values[1] == "0815" then
+        if value == "0815" then
             expressions_one()
         end
-        if return_values[1] == "0816" then
+        if value == "0816" then
             expressions_two()
         end
-        if return_values[1] == "0817" then
+        if value == "0817" then
             expressions_a2()
         end
-        if return_values[1] == "0818" then
+        if value == "0818" then
             expressions_a3()
         end
-        if return_values[1] == "0819" then
+        if value == "0819" then
             expressions_a4()
         end
-        if return_values[1] == "0820" then
+        if value == "0820" then
             expressions_arco()
         end
-        if return_values[1] == "0821" then
+        if value == "0821" then
             expressions_pizz()
         end
-        if return_values[1] == "0822" then
+        if value == "0822" then
             expressions_spicc()
         end
-        if return_values[1] == "0823" then
+        if value == "0823" then
             expressions_col_lengo()
         end
-        if return_values[1] == "0824" then
+        if value == "0824" then
             expressions_con_sord()
         end
-        if return_values[1] == "0825" then
+        if value == "0825" then
             expressions_ord()
         end
-        if return_values[1] == "0826" then
+        if value == "0826" then
             expressions_sul_pont()
         end
-        if return_values[1] == "0827" then
+        if value == "0827" then
             expressions_sul_tasto()
         end
-        if return_values[1] == "0828" then
+        if value == "0828" then
             expressions_senza_sord()
         end
-        if return_values[1] == "0829" then
+        if value == "0829" then
             expressions_trem()
         end
-        if return_values[1] == "0830" then
+        if value == "0830" then
             expressions_half_pizz()
         end
-        if return_values[1] == "0831" then
+        if value == "0831" then
             expressions_half_trem()
         end
-        if return_values[1] == "0832" then
+        if value == "0832" then
             expressions_mallet_BD_hard()
         end
-        if return_values[1] == "0833" then
+        if value == "0833" then
             expressions_mallet_BD_medium()
         end
-        if return_values[1] == "0834" then
+        if value == "0834" then
             expressions_mallet_BD_soft()
         end
-        if return_values[1] == "0835" then
+        if value == "0835" then
             expressions_mallet_brass()
         end
-        if return_values[1] == "0836" then
+        if value == "0836" then
             expressions_mallet_sticks()
         end
-        if return_values[1] == "0837" then
+        if value == "0837" then
             expressions_mallet_timp_hard()
         end
-        if return_values[1] == "0838" then
+        if value == "0838" then
             expressions_mallet_timp_medium()
         end
-        if return_values[1] == "0839" then
+        if value == "0839" then
             expressions_mallet_timp_soft()
         end
-        if return_values[1] == "0840" then
+        if value == "0840" then
             expressions_mallet_timp_wood()
         end
-        if return_values[1] == "0841" then
+        if value == "0841" then
             expressions_mallet_xylo_hard()
         end
-        if return_values[1] == "0842" then
+        if value == "0842" then
             expressions_mallet_xylo_medium()
         end
-        if return_values[1] == "0843" then
+        if value == "0843" then
             expressions_mallet_xylo_soft()
         end
-        if return_values[1] == "0844" then
+        if value == "0844" then
             expressions_mallet_yarn_med()
         end
-        if return_values[1] == "0845" then
+        if value == "0845" then
             expressions_mallet_yarn_soft()
         end
-        if return_values[1] == "0846" then
+        if value == "0846" then
             expressions_div()
         end
-        if return_values[1] == "0847" then
+        if value == "0847" then
             expressions_three()
         end
-        if return_values[1] == "0848" then
+        if value == "0848" then
             expressions_four()
         end
-        if return_values[1] == "0849" then
+        if value == "0849" then
             expressions_marc()
         end
-        if return_values[1] == "0850" then
+        if value == "0850" then
             expressions_stacc()
         end
-        if return_values[1] == "0851" then
+        if value == "0851" then
             expressions_straight_jazz()
         end
-        if return_values[1] == "0852" then
+        if value == "0852" then
             expressions_move_baseline_down()
         end
-        if return_values[1] == "0853" then
+        if value == "0853" then
             expressions_move_baseline_up()
         end
-        if return_values[1] == "0900" then
+        if value == "0900" then
             tuplet_manual()
         end
-        if return_values[1] == "0901" then
+        if value == "0901" then
             tuplet_stem_beam_side()
         end
-        if return_values[1] == "0902" then
+        if value == "0902" then
             tuplet_note_side()
         end
-        if return_values[1] == "0903" then
+        if value == "0903" then
             tuplet_above()
         end
-        if return_values[1] == "0904" then
+        if value == "0904" then
             tuplet_below()
         end
-        if return_values[1] == "0905" then
+        if value == "0905" then
             tuplet_flip()
         end
-        if return_values[1] == "0906" then
+        if value == "0906" then
             tuplet_flat_on()
         end
-        if return_values[1] == "0907" then
+        if value == "0907" then
             tuplet_flat_off()
         end
-        if return_values[1] == "0908" then
+        if value == "0908" then
             tuplet_avoid_staff_on()
         end
-        if return_values[1] == "0909" then
+        if value == "0909" then
             tuplet_avoid_staff_off()
         end
-        if return_values[1] == "0910" then
+        if value == "0910" then
             tuplet_bracket_always()
         end
-        if return_values[1] == "0911" then
+        if value == "0911" then
             tuplet_unbeamed()
         end
-        if return_values[1] == "0912" then
+        if value == "0912" then
             tuplet_bracket_never_beamed()
         end
-        if return_values[1] == "0913" then
+        if value == "0913" then
             tuplet_increase_space()
         end
-        if return_values[1] == "0914" then
+        if value == "0914" then
             tuplet_decrease_space()
         end
-        if return_values[1] == "0915" then
+        if value == "0915" then
             tuplet_increase_bracket()
         end
-        if return_values[1] == "0916" then
+        if value == "0916" then
             tuplet_decrease_bracket()
         end
-        if return_values[1] == "0917" then
+        if value == "0917" then
             tuplet_shape_none()
         end
-        if return_values[1] == "0918" then
+        if value == "0918" then
             tuplet_shape_bracket()
         end
-        if return_values[1] == "0919" then
+        if value == "0919" then
             tuplet_shape_slur()
         end
-        if return_values[1] == "0920" then
+        if value == "0920" then
             tuplet_number_none()
         end
-        if return_values[1] == "0921" then
+        if value == "0921" then
             tuplet_number_regular()
         end
-        if return_values[1] == "0922" then
+        if value == "0922" then
             tuplet_number_ratio()
         end
-        if return_values[1] == "0923" then
+        if value == "0923" then
             tuplet_number_ratio_last()
         end
-        if return_values[1] == "0924" then
+        if value == "0924" then
             tuplet_number_ratio_both()
         end
-        if return_values[1] == "0925" then
+        if value == "0925" then
             tuplet_combo_hide_num_shape()
         end
-        if return_values[1] == "0926" then
+        if value == "0926" then
             tuplet_combo_num_in_staff()
         end
-        if return_values[1] == "0927" then
+        if value == "0927" then
             tuplet_combo_bracket_stem_side()
         end
-        if return_values[1] == "0928" then
+        if value == "0928" then
             tuplet_combo_bracket_flat_below_outside()
         end
-        if return_values[1] == "0929" then
+        if value == "0929" then
             tuplet_combo_bracket_flat_maintain()
         end
-        if return_values[1] == "0930" then
+        if value == "0930" then
             tuplet_combo_bracket_flat_above_outside()
         end
-        if return_values[1] == "0931" then
+        if value == "0931" then
             tuplet_combo_number_beam_outside()
         end
-        if return_values[1] == "0932" then
+        if value == "0932" then
             tuplet_combo_number_note_outside()
         end
-        if return_values[1] == "0933" then
+        if value == "0933" then
             tuplet_combo_number_beam_inside()
         end
-        if return_values[1] == "0934" then
+        if value == "0934" then
             tuplet_combo_number_note_inside()
         end
-        if return_values[1] == "0935" then
+        if value == "0935" then
             tuplet_horizontal_drag_on()
         end
-        if return_values[1] == "0936" then
+        if value == "0936" then
             tuplet_horizontal_drag_off()
         end
-        if return_values[1] == "1000" then
+        if value == "1000" then
             groups_none_on()
         end
-        if return_values[1] == "1001" then
+        if value == "1001" then
             groups_none_between()
         end
-        if return_values[1] == "1002" then
+        if value == "1002" then
             groups_none_through()
         end
-        if return_values[1] == "1003" then
+        if value == "1003" then
             groups_plain_on()
         end
-        if return_values[1] == "1004" then
+        if value == "1004" then
             groups_plain_between()
         end
-        if return_values[1] == "1005" then
+        if value == "1005" then
             groups_plain_through()
         end
-        if return_values[1] == "1006" then
+        if value == "1006" then
             groups_chorus_straight_on()
         end
-        if return_values[1] == "1007" then
+        if value == "1007" then
             groups_chorus_straight_between()
         end
-        if return_values[1] == "1008" then
+        if value == "1008" then
             groups_chorus_straight_through()
         end
-        if return_values[1] == "1009" then
+        if value == "1009" then
             groups_piano_on()
         end
-        if return_values[1] == "1010" then
+        if value == "1010" then
             groups_piano_between()
         end
-        if return_values[1] == "1011" then
+        if value == "1011" then
             groups_piano_through()
         end
-        if return_values[1] == "1012" then
+        if value == "1012" then
             groups_reverse_chorus_on()
         end
-        if return_values[1] == "1013" then
+        if value == "1013" then
             groups_reverse_chorus_between()
         end
-        if return_values[1] == "1014" then
+        if value == "1014" then
             groups_reverse_chorus_through()
         end
-        if return_values[1] == "1015" then
+        if value == "1015" then
             groups_reverse_piano_on()
         end
-        if return_values[1] == "1016" then
+        if value == "1016" then
             groups_reverse_piano_between()
         end
-        if return_values[1] == "1017" then
+        if value == "1017" then
             groups_reverse_piano_through()
         end
-        if return_values[1] == "1018" then
+        if value == "1018" then
             groups_chorus_curved_on()
         end
-        if return_values[1] == "1019" then
+        if value == "1019" then
             groups_chorus_curved_between()
         end
-        if return_values[1] == "1020" then
+        if value == "1020" then
             groups_chorus_curved_through()
         end
-        if return_values[1] == "1021" then
+        if value == "1021" then
             groups_reverse_chorus_curved_on()
         end
-        if return_values[1] == "1022" then
+        if value == "1022" then
             groups_reverse_chorus_curved_between()
         end
-        if return_values[1] == "1023" then
+        if value == "1023" then
             groups_reverse_chorus_curved_through()
         end
-        if return_values[1] == "1024" then
+        if value == "1024" then
             groups_sub_bracket()
         end
-        if return_values[1] == "1025" then
+        if value == "1025" then
             groups_reverse_sub_bracket()
         end
-        if return_values[1] == "1100" then
+        if value == "1100" then
             key_A_flat_major()
         end
-        if return_values[1] == "1101" then
+        if value == "1101" then
             key_A_flat_minor()
         end
-        if return_values[1] == "1102" then
+        if value == "1102" then
             key_A_major()
         end
-        if return_values[1] == "1103" then
+        if value == "1103" then
             key_A_minor()
         end
-        if return_values[1] == "1104" then
+        if value == "1104" then
             key_A_sharp_minor()
         end
-        if return_values[1] == "1105" then
+        if value == "1105" then
             key_B_flat_major()
         end
-        if return_values[1] == "1106" then
+        if value == "1106" then
             key_B_flat_minor()
         end
-        if return_values[1] == "1107" then
+        if value == "1107" then
             key_B_major()
         end
-        if return_values[1] == "1108" then
+        if value == "1108" then
             key_B_minor()
         end
-        if return_values[1] == "1109" then
+        if value == "1109" then
             key_C_flat_major()
         end
-        if return_values[1] == "1110" then
+        if value == "1110" then
             key_C_major()
         end
-        if return_values[1] == "1111" then
+        if value == "1111" then
             key_C_minor()
         end
-        if return_values[1] == "1112" then
+        if value == "1112" then
             key_C_sharp_major()
         end
-        if return_values[1] == "1113" then
+        if value == "1113" then
             key_C_sharp_minor()
         end
-        if return_values[1] == "1114" then
+        if value == "1114" then
             key_D_flat_major()
         end
-        if return_values[1] == "1115" then
+        if value == "1115" then
             key_D_major()
         end
-        if return_values[1] == "1116" then
+        if value == "1116" then
             key_D_minor()
         end
-        if return_values[1] == "1117" then
+        if value == "1117" then
             key_D_sharp_minor()
         end
-        if return_values[1] == "1118" then
+        if value == "1118" then
             key_E_flat_major()
         end
-        if return_values[1] == "1119" then
+        if value == "1119" then
             key_E_flat_minor()
         end
-        if return_values[1] == "1120" then
+        if value == "1120" then
             key_E_major()
         end
-        if return_values[1] == "1121" then
+        if value == "1121" then
             key_E_minor()
         end
-        if return_values[1] == "1122" then
+        if value == "1122" then
             key_F_major()
         end
-        if return_values[1] == "1123" then
+        if value == "1123" then
             key_F_minor()
         end
-        if return_values[1] == "1124" then
+        if value == "1124" then
             key_F_sharp_major()
         end
-        if return_values[1] == "1125" then
+        if value == "1125" then
             key_F_sharp_minor()
         end
-        if return_values[1] == "1126" then
+        if value == "1126" then
             key_G_flat_major()
         end
-        if return_values[1] == "1127" then
+        if value == "1127" then
             key_G_major()
         end
-        if return_values[1] == "1128" then
+        if value == "1128" then
             key_G_minor()
         end
-        if return_values[1] == "1129" then
+        if value == "1129" then
             key_G_sharp_minor()
         end
-        if return_values[1] == "1130" then
+        if value == "1130" then
             key_hide_key_show_acc()
         end
-        if return_values[1] == "1131" then
+        if value == "1131" then
             key_keyless()
         end
-        if return_values[1] == "1200" then
+        if value == "1200" then
             formatting_page_break_insert()
         end
-        if return_values[1] == "1201" then
+        if value == "1201" then
             formatting_page_break_remove()
         end
-        if return_values[1] == "1202" then
+        if value == "1202" then
             formatting_measure_width_increase()
         end
-        if return_values[1] == "1203" then
+        if value == "1203" then
             formatting_measure_width_decrease()
         end
-        if return_values[1] == "1204" then
+        if value == "1204" then
             formatting_staff_space_increase()
         end
-        if return_values[1] == "1205" then
+        if value == "1205" then
             formatting_staff_space_decrease()
         end
-        if return_values[1] == "1206" then
+        if value == "1206" then
             formatting_system_move_down()
         end
-        if return_values[1] == "1207" then
+        if value == "1207" then
             formatting_system_move_up()
         end
-        if return_values[1] == "1300" then
+        if value == "1300" then
             layers_one_reduce()
         end
-        if return_values[1] == "1301" then
+        if value == "1301" then
             layers_two_reduce()
         end
-        if return_values[1] == "1302" then
+        if value == "1302" then
             layers_three_reduce()
         end
-        if return_values[1] == "1303" then
+        if value == "1303" then
             layers_four_reduce()
         end
-        if return_values[1] == "1304" then
+        if value == "1304" then
             layers_one_melody_top()
         end
-        if return_values[1] == "1305" then
+        if value == "1305" then
             layers_two_melody_top()
         end
-        if return_values[1] == "1306" then
+        if value == "1306" then
             layers_three_melody_top()
         end
-        if return_values[1] == "1307" then
+        if value == "1307" then
             layers_four_melody_top()
         end
-        if return_values[1] == "1308" then
+        if value == "1308" then
             layers_one_melody_bottom()
         end
-        if return_values[1] == "1309" then
+        if value == "1309" then
             layers_two_melody_bottom()
         end
-        if return_values[1] == "1310" then
+        if value == "1310" then
             layers_three_melody_bottom()
         end
-        if return_values[1] == "1311" then
+        if value == "1311" then
             layers_four_melody_bottom()
         end
-        if return_values[1] == "1312" then
+        if value == "1312" then
             layers_all_reset()
         end
-        if return_values[1] == "1313" then
+        if value == "1313" then
             layers_all_reduce()
         end
-        if return_values[1] == "1314" then
+        if value == "1314" then
             layers_swap_one_two()
         end
-        if return_values[1] == "1315" then
+        if value == "1315" then
             layers_swap_one_three()
         end
-        if return_values[1] == "1316" then
+        if value == "1316" then
             layers_swap_one_four()
         end
-        if return_values[1] == "1317" then
+        if value == "1317" then
             layers_swap_two_three()
         end
-        if return_values[1] == "1318" then
+        if value == "1318" then
             layers_swap_two_four()
         end
-        if return_values[1] == "1319" then
+        if value == "1319" then
             layers_swap_three_four()
         end
-        if return_values[1] == "1320" then
+        if value == "1320" then
             layers_swap_one_three_two_four()
         end
-        if return_values[1] == "1321" then
+        if value == "1321" then
             layers_swap_one_two_three_four()
         end
-        if return_values[1] == "1322" then
+        if value == "1322" then
             layers_one_clear()
         end
-        if return_values[1] == "1323" then
+        if value == "1323" then
             layers_two_clear()
         end
-        if return_values[1] == "1324" then
+        if value == "1324" then
             layers_three_clear()
         end
-        if return_values[1] == "1325" then
+        if value == "1325" then
             layers_four_clear()
         end
-        if return_values[1] == "1326" then
+        if value == "1326" then
             layers_one_two_clear()
         end
-        if return_values[1] == "1327" then
+        if value == "1327" then
             layers_one_three_clear()
         end
-        if return_values[1] == "1328" then
+        if value == "1328" then
             layers_one_four_clear()
         end
-        if return_values[1] == "1329" then
+        if value == "1329" then
             layers_one_two_three_clear()
         end
-        if return_values[1] == "1330" then
+        if value == "1330" then
             layers_one_three_four_clear()
         end
-        if return_values[1] == "1331" then
+        if value == "1331" then
             layers_two_three_clear()
         end
-        if return_values[1] == "1332" then
+        if value == "1332" then
             layers_two_four_clear()
         end
-        if return_values[1] == "1333" then
+        if value == "1333" then
             layers_two_three_four_clear()
         end
-        if return_values[1] == "1334" then
+        if value == "1334" then
             layers_three_four_clear()
         end
-        if return_values[1] == "1400" then
+        if value == "1400" then
             polyphony_add_octave_up()
         end
-        if return_values[1] == "1401" then
+        if value == "1401" then
             polyphony_add_octave_down()
         end
-        if return_values[1] == "1402" then
+        if value == "1402" then
             polyphony_add_diatonic_third_up()
         end
-        if return_values[1] == "1403" then
+        if value == "1403" then
             polyphony_add_diatonic_third_down()
         end
-        if return_values[1] == "1404" then
+        if value == "1404" then
             polyphony_rotate_up()
         end
-        if return_values[1] == "1405" then
+        if value == "1405" then
             polyphony_rotate_down()
         end
-        if return_values[1] == "1406" then
+        if value == "1406" then
             polyphony_delete_top_note()
         end
-        if return_values[1] == "1407" then
+        if value == "1407" then
             polyphony_delete_bottom_note()
         end
-        if return_values[1] == "1408" then
+        if value == "1408" then
             polyphony_keep_top_note()
         end
-        if return_values[1] == "1409" then
+        if value == "1409" then
             polyphony_keep_bottom_note()
         end
-        if return_values[1] == "1500" then
+        if value == "1500" then
             transform_harmonics_thrid()
         end
-        if return_values[1] == "1501" then
+        if value == "1501" then
             transform_harmonics_fourth()
         end
-        if return_values[1] == "1502" then
+        if value == "1502" then
             transform_harmonics_fifth()
         end
-        if return_values[1] == "1503" then
+        if value == "1503" then
             transform_breath_to_expression()
         end
-        if return_values[1] == "1504" then
+        if value == "1504" then
             transform_caesura_to_expression()
         end
-        if return_values[1] == "1505" then
+        if value == "1505" then
             transform_single_pitch_F4()
         end
-        if return_values[1] == "1506" then
+        if value == "1506" then
             transform_single_pitch_F5()
         end
-        if return_values[1] == "1507" then
+        if value == "1507" then
             transform_single_pitch_C5()
         end
-        if return_values[1] == "1508" then
+        if value == "1508" then
             transform_single_pitch_G5()
         end
-        if return_values[1] == "1509" then
+        if value == "1509" then
             transform_single_pitch_A5()
         end
-        if return_values[1] == "1510" then
+        if value == "1510" then
             transform_semitone_up()
         end
-        if return_values[1] == "1511" then
+        if value == "1511" then
             transform_semitone_down()
         end
-        if return_values[1] == "1512" then
+        if value == "1512" then
             transform_flip_enharmonic()
         end
-        if return_values[1] == "1513" then
+        if value == "1513" then
             transform_cluster_indeterminate()
         end
-        if return_values[1] == "1514" then
+        if value == "1514" then
             transform_cluster_determinate()
         end
-        if return_values[1] == "1515" then
+        if value == "1515" then
             transform_toggle_ledger_lines()
         end
-        if return_values[1] == "1516" then
+        if value == "1516" then
             transform_highest_lowest_possible()
         end
-        if return_values[1] == "1517" then
+        if value == "1517" then
             transform_create_kicks()
         end
-        if return_values[1] == "1518" then
+        if value == "1518" then
             transform_topline_notation()
         end
-        if return_values[1] == "1600" then
+        if value == "1600" then
             chords_altered_bass_after()
         end
-        if return_values[1] == "1601" then
+        if value == "1601" then
             chords_altered_bass_under()
         end
-        if return_values[1] == "1602" then
+        if value == "1602" then
             chords_altered_bass_subtext()
         end
-        if return_values[1] == "1603" then
+        if value == "1603" then
             chords_move_baseline_down()
         end
-        if return_values[1] == "1604" then
+        if value == "1604" then
             chords_move_baseline_up()
         end
-        if return_values[1] == "1700" then
+        if value == "1700" then
             reset_rests()
         end
-        if return_values[1] == "1701" then
+        if value == "1701" then
             reset_baselines_lyrics()
         end
-        if return_values[1] == "1702" then
+        if value == "1702" then
             reset_barlines()
         end
-        if return_values[1] == "1703" then
+        if value == "1703" then
             reset_chord_symbol_pos()
         end
-        if return_values[1] == "1704" then
+        if value == "1704" then
             reset_baseline_expression_below()
         end
-        if return_values[1] == "1705" then
+        if value == "1705" then
             reset_baseline_expression_above()
         end
-        if return_values[1] == "1706" then
+        if value == "1706" then
             reset_baseline_expression_all()
         end
-        if return_values[1] == "1707" then
+        if value == "1707" then
             reset_baseline_chord()
         end
-        if return_values[1] == "1708" then
+        if value == "1708" then
             reset_baseline_fretboard()
         end
-        if return_values[1] == "1709" then
+        if value == "1709" then
             reset_baseline_chord_fretboard()
         end
-        if return_values[1] == "1802" then
+        if value == "1802" then
             playback_all_staves_document_beginning_to_region_end()
         end
-        if return_values[1] == "1803" then
+        if value == "1803" then
             playback_selected_staves_document_beginning_to_region_end()
         end
-        if return_values[1] == "1804" then
+        if value == "1804" then
             playback_all_staves_region_beginning_to_document_end()
         end
-        if return_values[1] == "1805" then
+        if value == "1805" then
             playback_selected_staves_region_beginning_to_document_end()
         end
-        if return_values[1] == "1806" then
+        if value == "1806" then
             playback_all_staves_region_beginning_to_region_end()
         end
-        if return_values[1] == "1807" then
+        if value == "1807" then
             playback_selected_staves_region_beginning_to_region_end()
         end
-        if return_values[1] == "1808" then
+        if value == "1808" then
             playback_mute_cue_notes()
         end
-        if return_values[1] == "1809" then
+        if value == "1809" then
             playback_mute_all_notes()
         end
-        if return_values[1] == "1810" then
+        if value == "1810" then
             playback_unmute_all_notes()
         end
-        if return_values[1] == "1811" then
+        if value == "1811" then
             navigation_switch_to_slected_part()
         end
-        if return_values[1] == "1900" then
+        if value == "1900" then
             clef_change_treble()
         end
-        if return_values[1] == "1901" then
+        if value == "1901" then
             clef_change_alto()
         end
-        if return_values[1] == "1902" then
+        if value == "1902" then
             clef_change_tenor()
         end
-        if return_values[1] == "1903" then
+        if value == "1903" then
             clef_change_bass()
         end
-        if return_values[1] == "9000" then
+        if value == "9000" then
             plugin_center_rehearsal_marks()
         end
-        if return_values[1] == "9001" then
+        if value == "9001" then
             plugin_custom_text_expressive()
         end
-        if return_values[1] == "9002" then
+        if value == "9002" then
             plugin_custom_text_technique()
         end
-        if return_values[1] == "9003" then
+        if value == "9003" then
             plugin_custom_text_tempo()
         end
-        if return_values[1] == "9004" then
+        if value == "9004" then
             plugin_custom_text_dynamics()
         end
-        if return_values[1] == "9005" then
+        if value == "9005" then
             plugin_tacet()
         end
-        if return_values[1] == "9006" then
+        if value == "9006" then
             plugin_make_x_times()
         end
-        if return_values[1] == "9007" then
+        if value == "9007" then
             plugin_make_x_more()
         end
-        if return_values[1] == "9994" then
+        if value == "9994" then
             update_win_ahk()
         end
-        if return_values[1] == "9995" then
+        if value == "9995" then
             update_mac_km()
         end
-        if return_values[1] == "9996" then
+        if value == "9996" then
             update_win_35()
         end
-        if return_values[1] == "9997" then
+        if value == "9997" then
             update_win_48()
         end
-        if return_values[1] == "9998" then
+        if value == "9998" then
             update_mac_35()
         end
-        if return_values[1] == "9999" then
+        if value == "9999" then
             update_mac_35()
         end
     else
-        if return_values[1] == "0000" then
+        if value == "0000" then
             user_configuration()
-        elseif return_values[1] == "1800" then
+        elseif value == "1800" then
             playback_all_staves_document_beginning_to_document_end()
-        elseif return_values[1] == "1801" then
+        elseif value == "1801" then
             playback_selected_staves_document_beginning_to_document_end()
-        elseif return_values[1] == "9000" then
+        elseif value == "9000" then
             plugin_center_rehearsal_marks()
-        elseif return_values[1] == "0301" then
+        elseif value == "0301" then
             lyrics_delete_lyrics()
-        elseif return_values[1] == "9994" then
+        elseif value == "9994" then
             update_win_ahk()
-        elseif return_values[1] == "9995" then
+        elseif value == "9995" then
             update_mac_km()
-        elseif return_values[1] == "9996" then
+        elseif value == "9996" then
             update_win_35()
-        elseif return_values[1] == "9997" then
+        elseif value == "9997" then
             update_win_48()
-        elseif return_values[1] == "9998" then
+        elseif value == "9998" then
             update_mac_35()
-        elseif return_values[1] == "9999" then
+        elseif value == "9999" then
             update_mac_35()
         else
             finenv.UI():AlertInfo("Please select a region and try again.", nil)
