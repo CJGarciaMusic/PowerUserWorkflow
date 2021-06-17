@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "210304"
-    finaleplugin.Date = "03/04/2021"
+    finaleplugin.Version = "210617"
+    finaleplugin.Date = "06/17/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -12,6 +12,36 @@ function to_EVPUs(text)
     local str = finale.FCString()
     str.LuaString = text
     return str:GetMeasurement(finale.MEASUREMENTUNIT_DEFAULT)
+end
+
+function check_SMuFL(what_to_check)
+    local font_check = {"Finale Ash", "Finale Broadway", "Finale Engraver", "Finale Jazz", "Finale Maestro"}
+    local is_SMuFL = false
+    if what_to_check ~= nil then
+        if what_to_check[1] == "Expression" then
+            local cd = finale.FCCategoryDef()
+            if cd:Load(what_to_check[2]) then
+                local fontinfo = finale.FCFontInfo()
+                if cd:GetMusicFontInfo(fontinfo) then
+                    for k, v in pairs(font_check) do
+                        if fontinfo:GetName() == v then
+                            is_SMuFL = true
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    else
+        local fontinfo = finale.FCFontInfo()
+        if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
+            if fontinfo:GetName() == "Finale Maestro" then
+                is_SMuFL = true
+            end
+        end
+    end  
+
+    return is_SMuFL
 end
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -1876,7 +1906,7 @@ function create_dynamic(glyph_list, table_name, exp_description)
     table.insert(table_name, ex_ted:GetItemNo())  
 end
 
-function find_dynamic(glyph_nums, table_name, description_text)
+function find_dynamic(glyph_nums, table_name, description_text, uses_smufl)
     local matching_glyphs = {}
     local exp_defs = finale.FCTextExpressionDefs()
     local exp_def = finale.FCTextExpressionDef()
@@ -1890,13 +1920,26 @@ function find_dynamic(glyph_nums, table_name, description_text)
             end
             local current_string = exp:CreateTextString()
             current_string:TrimEnigmaTags()
-            if string.len(exp_string.LuaString) > 1 then
-                if ((current_string:GetCharacterAt(1) == glyph_nums[2]) and (current_string:GetCharacterAt(0) == glyph_nums[1])) then
-                    table.insert(matching_glyphs, exp:GetItemNo())
+            if uses_smufl then
+                if string.len(exp_string.LuaString) > 3 then
+                    if ((current_string:GetCharacterAt(3) == glyph_nums[2]) and (current_string:GetCharacterAt(0) == glyph_nums[1])) then
+                        table.insert(matching_glyphs, exp:GetItemNo())
+                    end
+                else 
+
+                    if (current_string:GetCharacterAt(0) == glyph_nums[1]) and (string.len(current_string.LuaString) == 3) then
+                        table.insert(matching_glyphs, exp:GetItemNo())
+                    end
                 end
             else
-                if (current_string:GetCharacterAt(0) == glyph_nums[1]) and (string.len(current_string.LuaString) == 1) then
-                    table.insert(matching_glyphs, exp:GetItemNo()) 
+                if string.len(exp_string.LuaString) > 1 then
+                    if ((current_string:GetCharacterAt(1) == glyph_nums[2]) and (current_string:GetCharacterAt(0) == glyph_nums[1])) then
+                        table.insert(matching_glyphs, exp:GetItemNo())
+                    end
+                else
+                    if (current_string:GetCharacterAt(0) == glyph_nums[1]) and (string.len(current_string.LuaString) == 1) then
+                        table.insert(matching_glyphs, exp:GetItemNo()) 
+                    end
                 end
             end
         end
@@ -5279,108 +5322,194 @@ function check_for_update(temp_dir, sd_type)
     end
 end
 
+local dyn_smufl = check_SMuFL({"Expression", finale.DEFAULTCATID_DYNAMICS})
+
 function dynamics_ffff_start()
-    find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
+    if dyn_smufl then
+        find_dynamic({58673}, first_expression, "fortissississimo (velocity = 127)", dyn_smufl)
+    else
+        find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_fff_start()    
-    find_dynamic({236}, first_expression, "fortississimo (velocity = 114)")
+function dynamics_fff_start()   
+    if dyn_smufl then
+        find_dynamic({58672}, first_expression, "fortississimo (velocity = 114)", dyn_smufl)
+    else
+        find_dynamic({236}, first_expression, "fortississimo (velocity = 114)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_ff_start()    
-    find_dynamic({196}, first_expression, "fortissimo (velocity = 101)")
+function dynamics_ff_start()
+    if dyn_smufl then
+        find_dynamic({58671}, first_expression, "fortissimo (velocity = 101)", dyn_smufl)
+    else
+        find_dynamic({196}, first_expression, "fortissimo (velocity = 101)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_f_start()
-    find_dynamic({102}, first_expression, "forte (velocity = 88)")
+    if dyn_smufl then
+        find_dynamic({58658}, first_expression, "forte (velocity = 88)", dyn_smufl)
+    else
+        find_dynamic({102}, first_expression, "forte (velocity = 88)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_mf_start()    
-    find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)")
+function dynamics_mf_start()
+    if dyn_smufl then
+        find_dynamic({58669}, first_expression, "mezzo forte (velocity = 75)", dyn_smufl)
+    else  
+        find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_mp_start()    
-    find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)")
+function dynamics_mp_start()
+    if dyn_smufl then 
+        find_dynamic({58668}, first_expression, "mezzo piano (velocity = 62)", dyn_smufl)
+    else
+        find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_p_start()    
-    find_dynamic({112}, first_expression, "piano (velocity = 49)")
+function dynamics_p_start()
+    if dyn_smufl then
+        find_dynamic({58656}, first_expression, "piano (velocity = 49)", dyn_smufl)
+    else
+        find_dynamic({112}, first_expression, "piano (velocity = 49)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_pp_start()
-    find_dynamic({185}, first_expression, "pianissimo (velocity = 36)")
+    if dyn_smufl then
+        find_dynamic({58667}, first_expression, "pianissimo (velocity = 36)", dyn_smufl)
+    else
+        find_dynamic({185}, first_expression, "pianissimo (velocity = 36)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_ppp_start()    
-    find_dynamic({184}, first_expression, "pianississimo (velocity = 23)")
+function dynamics_ppp_start()
+    if dyn_smufl then
+        find_dynamic({58666}, first_expression, "pianississimo (velocity = 23)", dyn_smufl)
+    else
+        find_dynamic({184}, first_expression, "pianississimo (velocity = 23)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
-function dynamics_pppp_start()    
-    find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)")
+function dynamics_pppp_start()
+    if dyn_smufl then
+        find_dynamic({58665}, first_expression, "pianissississimo (velocity = 10)", dyn_smufl)
+    else
+        find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_fp_start()
-    find_dynamic({234}, first_expression, "forte piano")
+    if dyn_smufl then
+        find_dynamic({58676}, first_expression, "forte piano", dyn_smufl)
+    else
+        find_dynamic({234}, first_expression, "forte piano", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_fz_start()
-    find_dynamic({90}, first_expression, "forzando")
+    if dyn_smufl then
+        find_dynamic({58677}, first_expression, "forzando", dyn_smufl)
+    else
+        find_dynamic({90}, first_expression, "forzando", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_n_start()
-    findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
+    if dyn_smufl then
+        find_dynamic({58662}, first_expression, "niente (velocity = 0)", dyn_smufl)
+    else
+        findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_rf_start()
-    find_dynamic({142, 102}, first_expression, "rinforte")
+    if dyn_smufl then
+        find_dynamic({58659}, first_expression, "rinforte", dyn_smufl)
+    else
+        find_dynamic({142, 102}, first_expression, "rinforte", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_rfz_start()
-    find_dynamic({142, 90}, first_expression, "rinforzando")
+    if dyn_smufl then
+        find_dynamic({58659}, first_expression, "rinforzando", dyn_smufl)
+    else
+        find_dynamic({142, 90}, first_expression, "rinforzando", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_sf_start()
-    find_dynamic({83}, first_expression, "sforzando")
+    if dyn_smufl then
+        find_dynamic({58678}, first_expression, "sforzando", dyn_smufl)
+    else
+        find_dynamic({83}, first_expression, "sforzando", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_sffz_start()
-    find_dynamic({141}, first_expression, "sforzato")
+    if dyn_smufl then
+        find_dynamic({58683}, first_expression, "sforzato", dyn_smufl)
+    else
+        find_dynamic({141}, first_expression, "sforzato", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_sfp_start()
-    find_dynamic({130}, first_expression, "sforzato piano")
+    if dyn_smufl then
+        find_dynamic({58679}, first_expression, "sforzato piano", dyn_smufl)
+    else
+        find_dynamic({130}, first_expression, "sforzato piano", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_sfpp_start()
-    find_dynamic({182}, first_expression, "sforzato pianissimo")
+    if dyn_smufl then
+        find_dynamic({58680}, first_expression, "sforzato pianissimo", dyn_smufl)
+    else
+        find_dynamic({182}, first_expression, "sforzato pianissimo", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_sfz_start()
-    find_dynamic({167}, first_expression, "sforzato")
+    if dyn_smufl then
+        find_dynamic({58681}, first_expression, "sforzato", dyn_smufl)
+    else
+        find_dynamic({167}, first_expression, "sforzato", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
 function dynamics_sfzp_start()
-    find_dynamic({167, 112}, first_expression, "sforzando piano")
+    if dyn_smufl then
+        find_dynamic({58681, 58656}, first_expression, "sforzando piano", dyn_smufl)
+    else
+        find_dynamic({167, 112}, first_expression, "sforzando piano", dyn_smufl)
+    end
     dynamic_region("Start")
 end
 
@@ -5523,107 +5652,191 @@ function dynamics_delete_dynamics()
 end
 
 function dynamics_ffff_end()
-    find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)")
+    if dyn_smufl then
+        find_dynamic({58673}, first_expression, "fortissississimo (velocity = 127)", dyn_smufl)
+    else
+        find_dynamic({235}, first_expression, "fortissississimo (velocity = 127)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_fff_end()    
-    find_dynamic({236}, first_expression, "fortississimo (velocity = 114)")
+    if dyn_smufl then
+        find_dynamic({58672}, first_expression, "fortississimo (velocity = 114)", dyn_smufl)
+    else
+        find_dynamic({236}, first_expression, "fortississimo (velocity = 114)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_ff_end()    
-    find_dynamic({196}, first_expression, "fortissimo (velocity = 101)")
+    if dyn_smufl then
+        find_dynamic({58671}, first_expression, "fortissimo (velocity = 101)", dyn_smufl)
+    else
+        find_dynamic({196}, first_expression, "fortissimo (velocity = 101)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_f_end()
-    find_dynamic({102}, first_expression, "forte (velocity = 88)")
+    if dyn_smufl then
+        find_dynamic({58658}, first_expression, "forte (velocity = 88)", dyn_smufl)
+    else
+        find_dynamic({102}, first_expression, "forte (velocity = 88)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_mf_end()    
-    find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)")
+    if dyn_smufl then
+        find_dynamic({58669}, first_expression, "mezzo forte (velocity = 75)", dyn_smufl)
+    else  
+        find_dynamic({70}, first_expression, "mezzo forte (velocity = 75)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_mp_end()    
-    find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)")
+    if dyn_smufl then 
+        find_dynamic({58668}, first_expression, "mezzo piano (velocity = 62)", dyn_smufl)
+    else
+        find_dynamic({80}, first_expression, "mezzo piano (velocity = 62)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_p_end()    
-    find_dynamic({112}, first_expression, "piano (velocity = 49)")
+    if dyn_smufl then
+        find_dynamic({58656}, first_expression, "piano (velocity = 49)", dyn_smufl)
+    else
+        find_dynamic({112}, first_expression, "piano (velocity = 49)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_pp_end()
-    find_dynamic({185}, first_expression, "pianissimo (velocity = 36)")
+    if dyn_smufl then
+        find_dynamic({58667}, first_expression, "pianissimo (velocity = 36)", dyn_smufl)
+    else
+        find_dynamic({185}, first_expression, "pianissimo (velocity = 36)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_ppp_end()    
-    find_dynamic({184}, first_expression, "pianississimo (velocity = 23)")
+    if dyn_smufl then
+        find_dynamic({58666}, first_expression, "pianississimo (velocity = 23)", dyn_smufl)
+    else
+        find_dynamic({184}, first_expression, "pianississimo (velocity = 23)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_pppp_end()    
-    find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)")
+    if dyn_smufl then
+        find_dynamic({58665}, first_expression, "pianissississimo (velocity = 10)", dyn_smufl)
+    else
+        find_dynamic({175}, first_expression, "pianissississimo (velocity = 10)", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_fp_end()
-    find_dynamic({234}, first_expression, "forte piano")
+    if dyn_smufl then
+        find_dynamic({58676}, first_expression, "forte piano", dyn_smufl)
+    else
+        find_dynamic({234}, first_expression, "forte piano", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_fz_end()
-    find_dynamic({90}, first_expression, "forzando")
+    if dyn_smufl then
+        find_dynamic({58677}, first_expression, "forzando", dyn_smufl)
+    else
+        find_dynamic({90}, first_expression, "forzando", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_n_end()
-    findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
+    if dyn_smufl then
+        find_dynamic({58662}, first_expression, "niente (velocity = 0)", dyn_smufl)
+    else
+        findSpecialExpression({150}, {"Font0", 0, 24, 0}, first_expression, "niente (velocity = 0)", 1)
+    end
     dynamic_region("End")
 end
 
 function dynamics_rf_end()
-    find_dynamic({142, 102}, first_expression, "rinforte")
+    if dyn_smufl then
+        find_dynamic({58659}, first_expression, "rinforte", dyn_smufl)
+    else
+        find_dynamic({142, 102}, first_expression, "rinforte", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_rfz_end()
-    find_dynamic({142, 90}, first_expression, "rinforzando")
+    if dyn_smufl then
+        find_dynamic({58659}, first_expression, "rinforzando", dyn_smufl)
+    else
+        find_dynamic({142, 90}, first_expression, "rinforzando", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_sf_end()
-    find_dynamic({83}, first_expression, "sforzando")
+    if dyn_smufl then
+        find_dynamic({58678}, first_expression, "sforzando", dyn_smufl)
+    else
+        find_dynamic({83}, first_expression, "sforzando", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_sffz_end()
-    find_dynamic({141}, first_expression, "sforzato")
+    if dyn_smufl then
+        find_dynamic({58683}, first_expression, "sforzato", dyn_smufl)
+    else
+        find_dynamic({141}, first_expression, "sforzato", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_sfp_end()
-    find_dynamic({130}, first_expression, "sforzato piano")
+    if dyn_smufl then
+        find_dynamic({58679}, first_expression, "sforzato piano", dyn_smufl)
+    else
+        find_dynamic({130}, first_expression, "sforzato piano", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_sfpp_end()
-    find_dynamic({182}, first_expression, "sforzato pianissimo")
+    if dyn_smufl then
+        find_dynamic({58680}, first_expression, "sforzato pianissimo", dyn_smufl)
+    else
+        find_dynamic({182}, first_expression, "sforzato pianissimo", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_sfz_end()
-    find_dynamic({167}, first_expression, "sforzato")
+    if dyn_smufl then
+        find_dynamic({58681}, first_expression, "sforzato", dyn_smufl)
+    else
+        find_dynamic({167}, first_expression, "sforzato", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
 function dynamics_sfzp_end()
-    find_dynamic({167, 112}, first_expression, "sforzando piano")
+    if dyn_smufl then
+        find_dynamic({58681, 58656}, first_expression, "sforzando piano", dyn_smufl)
+    else
+        find_dynamic({167, 112}, first_expression, "sforzando piano", dyn_smufl)
+    end
     dynamic_region("End")
 end
 
