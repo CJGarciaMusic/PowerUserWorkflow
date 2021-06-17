@@ -24,7 +24,7 @@ function check_SMuFL(what_to_check)
                 local fontinfo = finale.FCFontInfo()
                 if cd:GetMusicFontInfo(fontinfo) then
                     for k, v in pairs(font_check) do
-                        if fontinfo:GetName() == v then
+                        if fontinfo:GetName() == getUsedFontName(v) then
                             is_SMuFL = true
                             break
                         end
@@ -35,8 +35,11 @@ function check_SMuFL(what_to_check)
     else
         local fontinfo = finale.FCFontInfo()
         if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
-            if fontinfo:GetName() == "Finale Maestro" then
-                is_SMuFL = true
+            for k, v in pairs(font_check) do
+                if fontinfo:GetName() == getUsedFontName(v) then
+                    is_SMuFL = true
+                    break
+                end
             end
         end
     end  
