@@ -15,8 +15,8 @@ function to_EVPUs(text)
 end
 
 function check_SMuFL(what_to_check)
-    local font_check = {"Finale Ash", "Finale Broadway", "Finale Engraver", "Finale Jazz", "Finale Maestro"}
-    local is_SMuFL = false
+    local font_check = {"Maestro", "Engraver Font Set", "Broadway Copyist", "Jazz"}
+    local is_SMuFL = true
     if what_to_check ~= nil then
         if what_to_check[1] == "Expression" then
             local cd = finale.FCCategoryDef()
@@ -25,7 +25,7 @@ function check_SMuFL(what_to_check)
                 if cd:GetMusicFontInfo(fontinfo) then
                     for k, v in pairs(font_check) do
                         if fontinfo:GetName() == getUsedFontName(v) then
-                            is_SMuFL = true
+                            is_SMuFL = false
                             break
                         end
                     end
@@ -37,7 +37,7 @@ function check_SMuFL(what_to_check)
         if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
             for k, v in pairs(font_check) do
                 if fontinfo:GetName() == getUsedFontName(v) then
-                    is_SMuFL = true
+                    is_SMuFL = false
                     break
                 end
             end
