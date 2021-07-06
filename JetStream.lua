@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "210617"
-    finaleplugin.Date = "06/17/2021"
+    finaleplugin.Version = "210706"
+    finaleplugin.Date = "07/06/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -12,6 +12,16 @@ function to_EVPUs(text)
     local str = finale.FCString()
     str.LuaString = text
     return str:GetMeasurement(finale.MEASUREMENTUNIT_DEFAULT)
+end
+
+function getUsedFontName(standard_name)
+    local font_name = standard_name
+    if string.find(os.tmpname(), "/") then
+        font_name = standard_name
+    elseif string.find(os.tmpname(), "\\") then
+        font_name = string.gsub(standard_name, "%s", "")
+    end
+    return font_name
 end
 
 function check_SMuFL(what_to_check)
@@ -46,6 +56,15 @@ function check_SMuFL(what_to_check)
 
     return is_SMuFL
 end
+
+function get_def_mus_font()
+    local fontinfo = finale.FCFontInfo()
+    if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
+        return getUsedFontName(fontinfo:GetName())
+    end
+end
+
+local default_music_font = get_def_mus_font()
 
 local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
@@ -744,8 +763,30 @@ function split_articulations()
     local articulationdefs = finale.FCArticulationDefs()
     articulationdefs:LoadAll()
     local art_table = {0, 0, 0, 0}
+    local pairs_to_use = {}
+    local accent_staccato = 0
+    local accent_tenuto_def = 0
+    local accent_tenuto_eng = 0
+    local tenuto_staccato = 0
+    local marcato_staccato = 0
 
-    for k, v in pairs({46, 62, 45, 94}) do
+    if check_SMuFL() then
+        pairs_to_use = {58530, 58528, 58532, 58540}
+        accent_staccato = 58544
+        accent_tenuto_def = 58548
+        accent_tenuto_eng = accent_tenuto_def
+        tenuto_staccato = 58546
+        marcato_staccato = 58542
+    else
+        pairs_to_use = {46, 62, 45, 94}
+        accent_staccato = 249
+        accent_tenuto_def = 138
+        accent_tenuto_eng = 251
+        tenuto_staccato = 248
+        marcato_staccato = 172
+    end
+
+    for k, v in pairs(pairs_to_use) do
         local first_id_table = {}
         for ad in each(articulationdefs) do
             if (ad:GetAboveSymbolChar() == v) and (ad:GetFlippedSymbolChar() > 0) then
@@ -763,28 +804,28 @@ function split_articulations()
         for a in each(arts) do
             local ad = finale.FCArticulationDef()
             if ad:Load(a:GetID()) then
-                if ad:GetAboveSymbolChar() == 249 then
+                if ad:GetAboveSymbolChar() == accent_staccato then
                     a:SetID(art_table[2])
                     a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
                     remove_duplicates = remove_duplicates + 1
                 end
-                if (ad:GetAboveSymbolChar() == 138) or (ad:GetAboveSymbolChar() == 251) then
+                if (ad:GetAboveSymbolChar() == accent_tenuto_def) or (ad:GetAboveSymbolChar() == accent_tenuto_eng) then
                     a:SetID(art_table[2])
                     a:Save()
                     a:SetID(art_table[3])
                     a:SaveNew()
                     remove_duplicates = remove_duplicates + 1
                 end
-                if ad:GetAboveSymbolChar() == 248 then
+                if ad:GetAboveSymbolChar() == tenuto_staccato then
                     a:SetID(art_table[3])
                     a:Save()
                     a:SetID(art_table[1])
                     a:SaveNew()
                     remove_duplicates = remove_duplicates + 1
                 end
-                if ad:GetAboveSymbolChar() == 172 then
+                if ad:GetAboveSymbolChar() == marcato_staccato then
                     a:SetID(art_table[4])
                     a:Save()
                     a:SetID(art_table[1])
@@ -797,16 +838,6 @@ function split_articulations()
             delete_duplicate_articulations(noteentry)
         end
     end
-end
-
-function getUsedFontName(standard_name)
-    local font_name = standard_name
-    if string.find(os.tmpname(), "/") then
-        font_name = standard_name
-    elseif string.find(os.tmpname(), "\\") then
-        font_name = string.gsub(standard_name, "%s", "")
-    end
-    return font_name
 end
 
 function vertical_dynamic_adjustment(region, direction)
@@ -5854,264 +5885,534 @@ function dynamics_decrease_dynamic()
 end
 
 function articulations_accent()
-    findArticulation(1, 62, "")
-    if full_art_table[1] == 0 then
-        createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(1, 58528, "")
+        if full_art_table[1] == 0 then
+            createArticulation(1, 58528, default_music_font, 58528, true, true, false, false, 1, false, 58529, false, 0, 0, 125, true, false, false, 14, false, 0, 0, 0, 0, 58529, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[1])
+        end
     else
-        addArticulation(full_art_table[1])
+        findArticulation(1, 62, "")
+        if full_art_table[1] == 0 then
+            createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[1])
+        end
     end
 end
 
 function articulations_marcato()
-    findArticulation(2, 94, "")
-    if full_art_table[2] == 0 then
-        createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(2, 58540, "")
+        if full_art_table[2] == 0 then
+            createArticulation(2, 58540, default_music_font, 58540, true, true, false, false, 5, false, 58541, false, 0, 0, 140, true, false, false, 16, false, 0, 0, 0, 0, 58541, default_music_font, false, false, true, 0, 0, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        end
     else
-        addArticulation(full_art_table[2])
+        findArticulation(2, 94, "")
+        if full_art_table[2] == 0 then
+            createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[2])
+        end
     end
 end
 
 function articulations_staccato()
-    findArticulation(3, 46, "")
-    if full_art_table[3] == 0 then
-        createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(3, 58530, "")
+        if full_art_table[3] == 0 then
+            createArticulation(3, 58530, default_music_font, 58530, true, false, false, false, 1, true, 58531, false, 0, 40, 0, true, false, false, 16, true, 0, -4, 0, 4, 58531, default_music_font, true, false, true, 0, 40, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[3])
+        end
     else
-        addArticulation(full_art_table[3])
+        findArticulation(3, 46, "")
+        if full_art_table[3] == 0 then
+            createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[3])
+        end
     end
 end
 
 function articulations_tenuto()
-    findArticulation(4, 45, "")
-    if full_art_table[4] == 0 then
-        createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
+    if check_SMuFL() then
+        findArticulation(4, 58532, "")
+        if full_art_table[4] == 0 then
+            createArticulation(4, 58532, default_music_font, 58532, true, false, false, false, 1, true, 58533, false, 0, 0, 0, true, false, false, 14, false, 0, -2, 0, 2, 58533, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 26, 26, false, false, false, false, 0, false, false, default_music_font, 26, 26, false, false)
+        else
+            addArticulation(full_art_table[4])
+        end
     else
-        addArticulation(full_art_table[4])
+        findArticulation(4, 45, "")
+        if full_art_table[4] == 0 then
+            createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
+        else
+            addArticulation(full_art_table[4])
+        end
     end
 end
 
-function articulations_staccatissimo()
-    findArticulation(5, 171, "")
-    if full_art_table[5] == 0 then
-        createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+function articulations_flat_wedge()
+    if check_SMuFL() then
+        findArticulation(5, 58536, "")
+        if full_art_table[5] == 0 then
+            createArticulation(5, 58536, default_music_font, 58536, true, true, false, false, 1, true, 58537, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58537, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[5])
+        end
     else
-        addArticulation(full_art_table[5])
+        findArticulation(5, 171, "")
+        if full_art_table[5] == 0 then
+            createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[5])
+        end
     end
 end
 
-function articulations_wedge()
-    findArticulation(6, 174, "")
-    if full_art_table[6] == 0 then
-        createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+function articulations_round_wedge()
+    if check_SMuFL() then
+        findArticulation(6, 58534, "")
+        if full_art_table[6] == 0 then
+            createArticulation(6, 58534, default_music_font, 58534, true, true, false, false, 1, true, 58535, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58535, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[5])
+        end
     else
-        addArticulation(full_art_table[6])
+        findArticulation(6, 174, "")
+        if full_art_table[6] == 0 then
+            createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[6])
+        end
     end
 end
 
 function articulations_metered_tremolo()
-    findArticulation(7, 33, "")
-    findArticulation(8, 64, "")
-    findArticulation(9, 190, "")
-    if full_art_table[7] == 0 then
-        createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(7, 57888, "")
+        findArticulation(8, 57889, "")
+        findArticulation(9, 57890, "")
+        if full_art_table[7] == 0 then
+            createArticulation(7, 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        end
+        if full_art_table[8] == 0 then
+            createArticulation(8, 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        end
+        if full_art_table[9] == 0 then
+            createArticulation(9, 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        end
+        deleteArticulation(full_art_table[7])
+        deleteArticulation(full_art_table[8])
+        deleteArticulation(full_art_table[9])
+        addArticulation("metered tremolo")
+    else
+        findArticulation(7, 33, "")
+        findArticulation(8, 64, "")
+        findArticulation(9, 190, "")
+        if full_art_table[7] == 0 then
+            createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        end
+        if full_art_table[8] == 0 then
+            createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        end
+        if full_art_table[9] == 0 then
+            createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        end
+        deleteArticulation(full_art_table[7])
+        deleteArticulation(full_art_table[8])
+        deleteArticulation(full_art_table[9])
+        addArticulation("metered tremolo")
     end
-    if full_art_table[8] == 0 then
-        createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    end
-    if full_art_table[9] == 0 then
-        createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-    end
-    deleteArticulation(full_art_table[7])
-    deleteArticulation(full_art_table[8])
-    deleteArticulation(full_art_table[9])
-    addArticulation("metered tremolo")
 end
 
 function articulations_tremolo_single()
-    findArticulation(7, 33, "")
-    if full_art_table[7] == 0 then
-        createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(7, 57888, "")
+        if full_art_table[7] == 0 then
+            createArticulation(7, 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            findArticulation(8, 57889, "")
+            deleteArticulation(full_art_table[8])
+            findArticulation(9, 57890, "")
+            deleteArticulation(full_art_table[9])
+            assignArticulation(full_art_table[7])
+        end
     else
-        findArticulation(8, 64, "")
-        deleteArticulation(full_art_table[8])
-        findArticulation(9, 190, "")
-        deleteArticulation(full_art_table[9])
-        assignArticulation(full_art_table[7])
+        findArticulation(7, 33, "")
+        if full_art_table[7] == 0 then
+            createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            findArticulation(8, 64, "")
+            deleteArticulation(full_art_table[8])
+            findArticulation(9, 190, "")
+            deleteArticulation(full_art_table[9])
+            assignArticulation(full_art_table[7])
+        end
     end
 end
 
 function articulations_tremolo_double()
-    findArticulation(8, 64, "")
-    if full_art_table[8] == 0 then
-        createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(8, 57889, "")
+        if full_art_table[8] == 0 then
+            createArticulation(8, 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            findArticulation(7, 57888, "")
+            deleteArticulation(full_art_table[7])
+            findArticulation(9, 57890, "")
+            deleteArticulation(full_art_table[9])
+            assignArticulation(full_art_table[8])
+        end
     else
-        findArticulation(7, 33, "")
-        deleteArticulation(full_art_table[7])
-        findArticulation(9, 190, "")
-        deleteArticulation(full_art_table[9])
-        assignArticulation(full_art_table[8])
+        findArticulation(8, 64, "")
+        if full_art_table[8] == 0 then
+            createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            findArticulation(7, 33, "")
+            deleteArticulation(full_art_table[7])
+            findArticulation(9, 190, "")
+            deleteArticulation(full_art_table[9])
+            assignArticulation(full_art_table[8])
+        end
     end
 end
 
 function articulations_tremolo_triple()
-    findArticulation(9, 190, "")
-    if full_art_table[9] == 0 then
-        createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(9, 57890, "")
+        if full_art_table[9] == 0 then
+            createArticulation(9, 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            findArticulation(7, 57888, "")
+            deleteArticulation(full_art_table[7])
+            findArticulation(8, 57889, "")
+            deleteArticulation(full_art_table[8])
+            assignArticulation(full_art_table[9])
+        end
     else
-        findArticulation(7, 33, "")
-        deleteArticulation(full_art_table[7])
-        findArticulation(8, 64, "")
-        deleteArticulation(full_art_table[8])
-        assignArticulation(full_art_table[9])
+        findArticulation(9, 190, "")
+        if full_art_table[9] == 0 then
+            createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            findArticulation(7, 33, "")
+            deleteArticulation(full_art_table[7])
+            findArticulation(8, 64, "")
+            deleteArticulation(full_art_table[8])
+            assignArticulation(full_art_table[9])
+        end
     end
 end
 
 function articulations_fermata()
-    findArticulation(10, 85, "")
-    if full_art_table[10] == 0 then
-        createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
+    if check_SMuFL() then
+        findArticulation(10, 58560, "")
+        if full_art_table[10] == 0 then
+            createArticulation(10, 58560, default_music_font, 58560, true, true, false, false, 5, false, 58561, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 58561, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 22, 22, false, false, false, false, 0, false, false, default_music_font, 22, 22, false, false)
+        else
+            addArticulation(full_art_table[10])
+        end
     else
-        addArticulation(full_art_table[10])
+        findArticulation(10, 85, "")
+        if full_art_table[10] == 0 then
+            createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
+        else
+            addArticulation(full_art_table[10])
+        end
     end
 end
 
 function articulations_closed()
-    findArticulation(11, 43, "")
-    if full_art_table[11] == 0 then
-        createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(11, 58853, "")
+        if full_art_table[11] == 0 then
+            createArticulation(11, 58853, default_music_font, 58853, true, true, false, false, 5, true, 58853, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58853, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[11])
+        end
     else
-        addArticulation(full_art_table[11])
+        findArticulation(11, 43, "")
+        if full_art_table[11] == 0 then
+            createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[11])
+        end
     end
 end
 
 function articulations_open()
-    findArticulation(12, 111, "")
-    if full_art_table[12] == 0 then
-        createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(12, 58900, "")
+        if full_art_table[12] == 0 then
+            createArticulation(12, 58900, default_music_font, 58900, true, true, false, false, 5, true, 58900, false, 0, 0, 0, true, false, false, 20, false, 0, 0, 0, 0, 58900, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[12])
+        end
     else
-        addArticulation(full_art_table[12])
+        findArticulation(12, 111, "")
+        if full_art_table[12] == 0 then
+            createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[12])
+        end
     end
 end
 
 function articulations_upbow()
-    findArticulation(13, 178, "")
-    if full_art_table[13] == 0 then
-        createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(13, 58898, "")
+        if full_art_table[13] == 0 then
+            createArticulation(13, 58898, default_music_font, 58898, true, true, false, false, 5, false, 58898, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[13])
+        end
     else
-        addArticulation(full_art_table[13])
+        findArticulation(13, 178, "")
+        if full_art_table[13] == 0 then
+            createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[13])
+        end
     end
 end
 
 function articulations_downbow()
-    findArticulation(14, 179, "")
-    if full_art_table[14] == 0 then
-        createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(14, 58896, "")
+        if full_art_table[14] == 0 then
+            createArticulation(14, 58896, default_music_font, 58896, true, true, false, false, 5, false, 58896, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58896, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[14])
+        end
     else
-        addArticulation(full_art_table[14])
+        findArticulation(14, 179, "")
+        if full_art_table[14] == 0 then
+            createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[14])
+        end
     end
 end
 
 function articulations_trill()
-    findArticulation(15, 217, "")
-    if full_art_table[15] == 0 then
-        createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(15, 58726, "")
+        if full_art_table[15] == 0 then
+            createArticulation(15, 58726, default_music_font, 58726, true, true, false, false, 5, true, 58726, false, 0, 0, 0, true, false, false, 14, false, 3, 0, -3, 0, 58726, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[15])
+        end
     else
-        addArticulation(full_art_table[15])
+        findArticulation(15, 217, "")
+        if full_art_table[15] == 0 then
+            createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[15])
+        end
     end
 end
 
-function articulations_mordent_up()
-    findArticulation(16, 109, "")
-    if full_art_table[16] == 0 then
-        createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+function articulations_short_trill()
+    if check_SMuFL() then
+        findArticulation(16, 58732, "")
+        if full_art_table[16] == 0 then
+            createArticulation(16, 58732, default_music_font, 58732, true, true, false, false, 5, true, 58732, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58732, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[16])
+        end
     else
-        addArticulation(full_art_table[16])
+        findArticulation(16, 109, "")
+        if full_art_table[16] == 0 then
+            createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[16])
+        end
     end
 end
 
-function articulations_mordent_down()
-    findArticulation(17, 77, "")
-    if full_art_table[17] == 0 then
-        createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+function articulations_mordent()
+    if check_SMuFL() then
+        findArticulation(17, 58733, "")
+        if full_art_table[17] == 0 then
+            createArticulation(17, 58733, default_music_font, 58733, true, true, false, false, 5, true, 58733, false, 0, 0, 0, true, false, false, 16, false, 0, 0, 0, 0, 58733, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[17])
+        end
     else
-        addArticulation(full_art_table[17])
+        findArticulation(17, 77, "")
+        if full_art_table[17] == 0 then
+            createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[17])
+        end
     end
 end
 
 function articulations_turn()
-    findArticulation(18, 84, "")
-    if full_art_table[18] == 0 then
-        createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(18, 58727, "")
+        if full_art_table[18] == 0 then
+            createArticulation(18, 58727, default_music_font, 58727, true, true, false, false, 5, true, 58727, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58727, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[18])
+        end
     else
-        addArticulation(full_art_table[18])
+        findArticulation(18, 84, "")
+        if full_art_table[18] == 0 then
+            createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[18])
+        end
     end
 end
 
 function articulations_roll()
-    findArticulation(19, 103, "")
-    if full_art_table[19] == 0 then
-        createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(19, 63232, "")
+        if full_art_table[19] == 0 then
+            createArticulation(19, 63232, default_music_font, 63232, true, false, false, false, 0, false, 63232, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 63232, default_music_font, false, false, true, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[19])
+        end
+        roll_articulation_assignment(63232)
     else
-        addArticulation(full_art_table[19])
+        findArticulation(19, 103, "")
+        if full_art_table[19] == 0 then
+            createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[19])
+        end
+        roll_articulation_assignment(103)
     end
-    roll_articulation_assignment(103)
 end
 
 function articulations_fall_short()
-    findArticulation(20, 152, "Broadway Copyist")
-    if full_art_table[20] == 0 then
-        createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
+    if check_SMuFL() then
+        findArticulation(20, 58839, "")
+        if full_art_table[20] == 0 then
+            createArticulation(20, 58839, default_music_font, 58839, true, false, false, false, 2, false, 58839, false, 0, 0, 0, true, false, false, 0, false, 42, -12, 42, 12, 58839, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[20])
+        end
     else
-        addArticulation(full_art_table[20])
-    end
+        findArticulation(20, 152, "Broadway Copyist")
+        if full_art_table[20] == 0 then
+            createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
+        else
+            addArticulation(full_art_table[20])
+        end
+    end 
 end
 
 function articulations_fall_long()
-    findArticulation(21, 92, "Broadway Copyist")
-    if full_art_table[21] == 0 then
-        createArticulation(21, 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(21, 58846, "")
+        if full_art_table[21] == 0 then
+            createArticulation(21, 58846, default_music_font, 58846, true, false, false, false, 2, false, 58846, false, 0, 0, 0, true, false, false, 0, false, 72, -76, 72, -48, 58846, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[21])
+        end
     else
-        addArticulation(full_art_table[21])
+        findArticulation(21, 92, "Broadway Copyist")
+        if full_art_table[21] == 0 then
+            createArticulation(21, 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[21])
+        end
     end
 end
 
 function articulations_rip_straight()
-    findArticulation(22, 151, "Broadway Copyist")
-    if full_art_table[22] == 0 then
-        createArticulation(22, 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+    if check_SMuFL() then
+        findArticulation(22, 58833, "")
+        if full_art_table[22] == 0 then
+            createArticulation(22, 58833, default_music_font, 58833, true, false, false, false, 2, false, 58833, false, 0, 0, 0, true, false, false, 0, false, -54, -60, -54, -26, 58833, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[22])
+        end
     else
-        addArticulation(full_art_table[22])
+        findArticulation(22, 151, "Broadway Copyist")
+        if full_art_table[22] == 0 then
+            createArticulation(22, 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+        else
+            addArticulation(full_art_table[22])
+        end
     end
 end
 
 function articulations_rip_long()
-    findArticulation(23, 149, "Broadway Copyist")
-    if full_art_table[23] == 0 then
-        createArticulation(23, 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+    if check_SMuFL() then
+        findArticulation(23, 58834, "")
+        if full_art_table[23] == 0 then
+            createArticulation(23, 58834, default_music_font, 58834, true, false, false, false, 2, false, 58834, false, 0, 0, 0, true, false, false, 0, false, -70, -80, -70, -48, 58834, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[23])
+        end
     else
-        addArticulation(full_art_table[23])
+        findArticulation(23, 149, "Broadway Copyist")
+        if full_art_table[23] == 0 then
+            createArticulation(23, 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+        else
+            addArticulation(full_art_table[23])
+        end
     end
 end
 
 function articulations_scoop_short()
-    findArticulation(24, 155, "Broadway Copyist")
-    if full_art_table[24] == 0 then
-        createArticulation(24, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+    if check_SMuFL() then
+        findArticulation(24, 58834, "")
+        if full_art_table[24] == 0 then
+            createArticulation(24, 58832, default_music_font, 58832, true, false, false, false, 1, false, 58832, false, 0, 0, 0, false, false, false, 0, false, -48, -18, -48, 0, 58832, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[24])
+        end  
     else
-        addArticulation(full_art_table[24])
+        findArticulation(24, 155, "Broadway Copyist")
+        if full_art_table[24] == 0 then
+            createArticulation(24, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+        else
+            addArticulation(full_art_table[24])
+        end
     end
 end
 
 function articulations_doit()
-    findArticulation(25, 243, "Broadway Copyist")
-    if full_art_table[25] == 0 then
-        createArticulation(25, 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
+    if check_SMuFL() then
+        findArticulation(25, 58860, "")
+        if full_art_table[25] == 0 then
+            createArticulation(25, 58860, default_music_font, 58860, true, false, false, false, 2, false, 58860, false, 0, 0, 0, true, false, false, 0, false, 44, 0, 44, 12, 58860, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[25])
+        end   
     else
-        addArticulation(full_art_table[25])
+        findArticulation(25, 243, "Broadway Copyist")
+        if full_art_table[25] == 0 then
+            createArticulation(25, 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
+        else
+            addArticulation(full_art_table[25])
+        end
     end
 end
 
-function articulations_lv_ties()
-    articulations_lv()
+function articulations_lv()
+    if check_SMuFL() then
+        findArticulation(26, 58554, "")
+        if full_art_table[26] == 0 then
+            createArticulation(26, 58554, default_music_font, 58554, true, false, false, false, 2, true, 58555, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 58555, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 28, 28, false, false, false, false, 0, false, false, default_music_font, 28, 28, false, false)
+        else
+            addArticulation(full_art_table[26])
+        end    
+    else
+        local font_name = getUsedFontName("Engraver Font Set")
+        findArticulation(26, 105, font_name)
+        if full_art_table[26] == 0 then
+            createArticulation(26, 105, font_name, 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 28, 28, false, false, false, false, 0, false, false, font_name, 28, 28, false, false)
+        else
+            addArticulation(full_art_table[26])
+        end
+    end
 end
 
 function articulations_split_articulations()
@@ -6125,16 +6426,6 @@ function articulations_delete_articulations()
         while a:LoadFirst() do
             a:DeleteData()
         end
-    end
-end
-
-function articulations_lv()
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(26, 105, font_name)
-    if full_art_table[26] == 0 then
-        createArticulation(26, 105, font_name, 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 28, 28, false, false, false, false, 0, false, false, font_name, 28, 28, false, false)
-    else
-        addArticulation(full_art_table[26])
     end
 end
 
@@ -6263,51 +6554,96 @@ function articulations_right_brackets()
 end
 
 function articulations_combo_tenuto_staccato()
-    findArticulation(35, 248, "")
-    if full_art_table[35] == 0 then
-        createArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(35, 58546, "")
+        if full_art_table[35] == 0 then
+            createArticulation(35, 58546, default_music_font, 58546, true, true, false, false, 1, true, 58547, false, 0, 75, 110, true, false, false, 16, true, 0, 0, 0, 0, 58547, default_music_font, true, false, true, 0, 75, 110, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[35])
+        end
     else
-        addArticulation(full_art_table[35])
+        findArticulation(35, 248, "")
+        if full_art_table[35] == 0 then
+            createArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[35])
+        end
     end
 end
 
 function articulations_combo_accent_staccato()
-    findArticulation(36, 249, "")
-    if full_art_table[36] == 0 then
-        createArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(36, 58544, "")
+        if full_art_table[36] == 0 then
+            createArticulation(36, 58544, default_music_font, 58544, true, true, false, false, 1, false, 58545, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, 0, 58545, default_music_font, false, false, true, 0, 50, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[36])
+        end
     else
-        addArticulation(full_art_table[36])
+        findArticulation(36, 249, "")
+        if full_art_table[36] == 0 then
+            createArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[36])
+        end
     end
 end
 
 function articulations_combo_accent_tenuto()
-    findArticulation(37, 138, "")
-    if full_art_table[37] == 0 then
-        local font_name = getUsedFontName("Engraver Font Set")
-        findArticulation(37, 251, font_name)
+    if check_SMuFL() then
+        findArticulation(37, 58548, "")
         if full_art_table[37] == 0 then
-            createArticulation(37, 138, "Maestro", 138, true, true, false, false, 1, false, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, -30, 137, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+            createArticulation(37, 58548, default_music_font, 58548, true, true, false, false, 1, false, 58549, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, 0, 58549, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[37])
         end
     else
-        addArticulation(full_art_table[37])
+        findArticulation(37, 138, "")
+        if full_art_table[37] == 0 then
+            local font_name = getUsedFontName("Engraver Font Set")
+            findArticulation(37, 251, font_name)
+            if full_art_table[37] == 0 then
+                createArticulation(37, 138, "Maestro", 138, true, true, false, false, 1, false, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, -30, 137, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+            end
+        else
+            addArticulation(full_art_table[37])
+        end
     end
 end
 
 function articulations_combo_marcato_staccato()
-    findArticulation(38, 172, "")
-    if full_art_table[38] == 0 then
-        createArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    if check_SMuFL() then
+        findArticulation(38, 58542, "")
+        if full_art_table[38] == 0 then
+            createArticulation(38, 58542, default_music_font, 58542, true, true, false, false, 5, false, 58543, false, 0, 75, 140, true, false, false, 16, true, 0, 0, 0, 0, 58543, default_music_font, false, false, true, 0, 75, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[38])
+        end
     else
-        addArticulation(full_art_table[38])
+        findArticulation(38, 172, "")
+        if full_art_table[38] == 0 then
+            createArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        else
+            addArticulation(full_art_table[38])
+        end
     end
 end
 
 function articulations_tremolo_z()
-    findArticulation(39, 122, "")
-    if full_art_table[39] == 0 then
-        createArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
+    if check_SMuFL() then
+        findArticulation(39, 57898, "")
+        if full_art_table[39] == 0 then
+            createArticulation(39, 57898, default_music_font, 57898, true, false, false, false, 0, false, 57898, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, 0, 57898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 30, 30, false, false, false, false, 0, false, false, default_music_font, 30, 30, false, false)
+        else
+            addArticulation(full_art_table[39])
+        end
     else
-        addArticulation(full_art_table[39])
+        findArticulation(39, 122, "")
+        if full_art_table[39] == 0 then
+            createArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
+        else
+            addArticulation(full_art_table[39])
+        end
     end
 end
 
@@ -8318,10 +8654,10 @@ if return_values ~= nil then
             articulations_tenuto()
         end
         if return_values[1] == "0104" then
-            articulations_staccatissimo()
+            articulations_flat_wedge()
         end
         if return_values[1] == "0105" then
-            articulations_wedge()
+            articulations_round_wedge()
         end
         if return_values[1] == "0106" then
             articulations_tremolo_single()
@@ -8351,10 +8687,10 @@ if return_values ~= nil then
             articulations_trill()
         end
         if return_values[1] == "0115" then
-            articulations_mordent_up()
+            articulations_short_trill()
         end
         if return_values[1] == "0116" then
-            articulations_mordent_down()
+            articulations_mordent()
         end
         if return_values[1] == "0117" then
             articulations_turn()
