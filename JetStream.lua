@@ -1673,7 +1673,12 @@ end
 
 function increase_decrease_dynamics(direction)
     local single_dyn_char = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    local dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+    local dyn_char = {58662, 58665, 58666, 58667, 58656, 58668, 58669, 58658, 58671, 58672, 58673}
+    local char_check = 3
+    if not check_SMuFL() then
+        dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
+        char_check = 2
+    end
     
     local expressions = finale.FCTextExpressionDefs()
     expressions:LoadAll()
@@ -1681,7 +1686,8 @@ function increase_decrease_dynamics(direction)
         if exp:GetCategoryID() == 1 then
             local exp_string = exp:CreateTextString()
             exp_string:TrimEnigmaTags()
-            if string.len(exp_string.LuaString) <= 2 then
+            print(exp_string:GetCharacterAt(0))
+            if string.len(exp_string.LuaString) <= char_check then
                 for key, value in pairs(dyn_char) do             
                     if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(1) == 0) then
                         single_dyn_char[key] = exp:GetItemNo()
@@ -1698,7 +1704,7 @@ function increase_decrease_dynamics(direction)
         if ex_def:GetCategoryID() == 1 then
             local exp_string = ex_def:CreateTextString()
             exp_string:TrimEnigmaTags()
-            if string.len(exp_string.LuaString) > 2 then
+            if string.len(exp_string.LuaString) > char_check then
                 multi_character_dynamic(exp, direction)
             else
                 for key, value in pairs(dyn_char) do
@@ -7378,37 +7384,65 @@ function expressions_molto()
 end
 
 function dynamics_piu_f()
-    findTextExpression({"più", 102}, text_expression, "piu forte", 1)
+    if check_SMuFL() then
+        findTextExpression({"più", 58658}, text_expression, "piu forte", 1)
+    else
+        findTextExpression({"più", 102}, text_expression, "piu forte", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
 function dynamics_pp_sub()
-    findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1)
+    if check_SMuFL() then
+        findTextExpression({58667, "sub."}, text_expression, "pianissimo subito", 1)
+    else
+        findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
 function dynamics_p_sub()
-    findTextExpression({112, "sub."}, text_expression, "piano subito", 1)
+    if check_SMuFL() then
+        findTextExpression({58656, "sub."}, text_expression, "piano subito", 1)
+    else
+        findTextExpression({112, "sub."}, text_expression, "piano subito", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
 function dynamics_mp_sub()
-    findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1)
+    if check_SMuFL() then
+        findTextExpression({58668, "sub."}, text_expression, "mezzo piano subito", 1)
+    else
+        findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
 function dynamics_mf_sub()
-    findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1)
+    if check_SMuFL() then
+        findTextExpression({58669, "sub."}, text_expression, "mezzo forte subito", 1)
+    else
+        findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
 function dynamics_f_sub()
-    findTextExpression({102, "sub."}, text_expression, "forte subito", 1)
+    if check_SMuFL() then
+        findTextExpression({58658, "sub."}, text_expression, "forte subito", 1)
+    else
+        findTextExpression({102, "sub."}, text_expression, "forte subito", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
 function dynamics_ff_sub()
-    findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1)
+    if check_SMuFL() then
+        findTextExpression({58671, "sub."}, text_expression, "fortissimo subito", 1)
+    else
+        findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1)
+    end
     getFirstNoteInRegionText("Start")
 end
 
@@ -7433,17 +7467,29 @@ function expressions_loco()
 end
 
 function expressions_breath()
-    findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
+    if check_SMuFL() then
+        findSpecialExpression({58574}, {nil, 0, 24, 0}, text_expression, "Breath Mark", 5)
+    else
+        findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
+    end
     getFirstNoteInRegionText("End")
 end
 
 function expressions_caesura()
-    findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
+    if check_SMuFL() then
+        findSpecialExpression({58577}, {nil, 0, 24, 0}, text_expression, "Caesura", 5)
+    else
+       findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
+    end
     getFirstNoteInRegionText("Region End")
 end
 
 function expressions_glasses()
-    findSpecialExpression({59}, {"Broadway Copyist", 8191, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
+    if check_SMuFL() then
+        findSpecialExpression({60514}, {nil, 0, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
+    else
+        findSpecialExpression({59}, {"Broadway Copyist", 8191, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
@@ -7553,72 +7599,128 @@ function expressions_half_trem()
 end
 
 function expressions_mallet_BD_hard()
-    findSpecialExpression({100}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, hard", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59292}, {nil, 0, 24, 0}, text_expression, "Bass Drum, hard", 5)
+    else
+        findSpecialExpression({100}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, hard", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_BD_medium()
-    findSpecialExpression({115}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, medium", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59290}, {nil, 0, 24, 0}, text_expression, "Bass Drum, medium", 5)
+    else
+        findSpecialExpression({115}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, medium", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_BD_soft()
-    findSpecialExpression({97}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, soft", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59288}, {nil, 0, 24, 0}, text_expression, "Bass Drum, soft", 5)
+    else
+        findSpecialExpression({97}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, soft", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_brass()
-    findSpecialExpression({106}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Brass Mallet", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59353}, {nil, 0, 24, 0}, text_expression, "Brass Mallet", 5)
+    else
+        findSpecialExpression({106}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Brass Mallet", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_sticks()
-    findSpecialExpression({103}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Sticks", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59345}, {nil, 0, 24, 0}, text_expression, "Sticks", 5)
+    else
+        findSpecialExpression({103}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Sticks", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_timp_hard()
-    findSpecialExpression({101}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59280}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
+    else
+        findSpecialExpression({101}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_timp_medium()
-    findSpecialExpression({119}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59276}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
+    else
+        findSpecialExpression({119}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_timp_soft()
-    findSpecialExpression({113}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59272}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
+    else
+        findSpecialExpression({113}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_timp_wood()
-    findSpecialExpression({114}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59284}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
+    else
+        findSpecialExpression({114}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_xylo_hard()
-    findSpecialExpression({117}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, hard", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59256}, {nil, 0, 24, 0}, text_expression, "Xylophone, hard", 5)
+    else
+        findSpecialExpression({117}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, hard", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_xylo_medium()
-    findSpecialExpression({121}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, medium", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59252}, {nil, 0, 24, 0}, text_expression, "Xylophone, medium", 5)
+    else
+        findSpecialExpression({121}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, medium", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_xylo_soft()
-    findSpecialExpression({116}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, soft", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59248}, {nil, 0, 24, 0}, text_expression, "Xylophone, soft", 5)
+    else
+        findSpecialExpression({116}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, soft", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_yarn_med()
-    findSpecialExpression({112}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59302}, {nil, 0, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
+    else
+        findSpecialExpression({112}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
 function expressions_mallet_yarn_soft()
-    findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
+    if check_SMuFL() then
+        findSpecialExpression({59298}, {nil, 0, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
+    else
+        findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
+    end
     getFirstNoteInRegionText("Region Start")
 end
 
