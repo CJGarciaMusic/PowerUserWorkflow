@@ -1990,7 +1990,7 @@ function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, brev
     if font_name == "" then
         local fontinfo = finale.FCFontInfo()
         if fontinfo:LoadFontPrefs(23) then
-            font_name = fontinfo:GetName()  
+            font_name = getUsedFontName(fontinfo:GetName())  
         end
     end
 
@@ -4366,7 +4366,11 @@ function string_harmonics_touch(interval_num)
         
             local notehead = finale.FCNoteheadMod()
             notehead:EraseAt(new_note)
-            notehead.CustomChar = 79
+            if check_SMuFL() then
+                notehead.CustomChar = 57562
+            else
+                notehead.CustomChar = 79
+            end
             notehead.Resize = 110
             if entry:GetDuration() == 4096 then
                 finenv.UI():AlertInfo(tostring(entry:CalcStemUp()), "Stem up?")
@@ -4519,7 +4523,7 @@ function cluster_indeterminate()
                     end      
                 end 
 
-                if (noteentry.Duration >= 2048) and (noteentry.Duration < 4096) then -- for half notes
+                if (noteentry.Duration >= 2048) and (noteentry.Duration < 4096) then
                     if n == 1 then
                         notehead.CustomChar = 201
                     elseif n == max then
@@ -6654,47 +6658,91 @@ function articulations_delete_duplicate_articulations()
 end
 
 function noteheads_x_circle()
-    changeNoteheads("Maestro Percussion", 120, 88, 88, 88)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57513, 57523, 57523, 57523)
+    else
+        changeNoteheads("Maestro Percussion", 57513, 88, 88, 88)
+    end
 end
 
 function noteheads_cross_circle()
-    changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57514, 57515, 57515, 57515)
+    else
+        changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
+    end
 end
 
 function noteheads_triangle_up()
-    changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57534, 57533, 57533, 57533)
+    else
+        changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
+    end
 end
 
 function noteheads_triangle_down()
-    changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57543, 57542, 57542, 57542)
+    else
+        changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
+    end
 end
 
 function noteheads_diamond()
-    changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57564, 57566, 57566, 57566)
+    else
+        changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
+    end
 end
 
 function noteheads_ghost()
-    changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 62929, 62930, 62931, 62931)
+    else
+        changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
+    end
 end
 
 function noteheads_cross_stick()
-    changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57576, 57577, 57578, 57578)
+    else
+        changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
+    end
 end
 
 function noteheads_small_slash()
-    changeNoteheads("Maestro", 243, 124, 124, 218)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57600, 57604, 57604, 57604)
+    else
+        changeNoteheads("Maestro", 243, 124, 124, 218)
+    end
 end
 
 function noteheads_square()
-    changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57529, 57528, 57528, 57528)
+    else
+        changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
+    end
 end
 
 function noteheads_rim()
-    changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57552, 57554, 57556, 57556)
+    else
+        changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
+    end
 end
 
 function noteheads_no_notehead()
-    changeNoteheads("Maestro", 32, 32, 32, 32)
+    if check_SMuFL() then
+        changeNoteheads("Maestro", 57509, 57509, 57509, 57509)
+    else
+        changeNoteheads("Maestro", 32, 32, 32, 32)
+    end
 end
 
 function noteheads_default()
@@ -6787,7 +6835,12 @@ function layers_all_reduce()
 end
 
 function noteheads_x_diamond()
-    changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
+    if check_SMuFL() then
+        changeNoteheads(default_music_font, 57513, 57565, 57565, 57565)
+    else
+        changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
+    end
+
     local nm = finale.FCNoteheadMod()
     for noteentry in eachentrysaved(finenv.Region()) do
         nm:SetNoteEntry(noteentry)
@@ -6810,7 +6863,15 @@ end
 function noteheads_x_diamond_above_staff()
     local nm = finale.FCNoteheadMod()
     nm:SetUseCustomFont(true)
-    nm.FontName = "Maestro Percussion"
+    nm.FontName = default_music_font
+    local standard_note = 57513
+    local open_note = 57565
+
+    if not check_SMuFL() then
+        nm.FontName = "Maestro Percussion"
+        standard_note = 120
+        open_note = 84
+    end
 
     for noteentry in eachentrysaved(finenv.Region()) do 
         nm:SetNoteEntry(noteentry)
