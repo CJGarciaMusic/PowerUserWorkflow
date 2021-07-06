@@ -770,7 +770,7 @@ function split_articulations()
     local tenuto_staccato = 0
     local marcato_staccato = 0
 
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         pairs_to_use = {58530, 58528, 58532, 58540}
         accent_staccato = 58544
         accent_tenuto_def = 58548
@@ -1675,7 +1675,7 @@ function increase_decrease_dynamics(direction)
     local single_dyn_char = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     local dyn_char = {58662, 58665, 58666, 58667, 58656, 58668, 58669, 58658, 58671, 58672, 58673}
     local char_check = 3
-    if not check_SMuFL() then
+    if not check_SMuFL(nil) then
         dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
         char_check = 2
     end
@@ -4371,7 +4371,7 @@ function string_harmonics_touch(interval_num)
         
             local notehead = finale.FCNoteheadMod()
             notehead:EraseAt(new_note)
-            if check_SMuFL() then
+            if check_SMuFL(nil) then
                 notehead.CustomChar = 57562
             else
                 notehead.CustomChar = 79
@@ -5894,7 +5894,7 @@ function dynamics_decrease_dynamic()
 end
 
 function articulations_accent()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(1, 58528, "")
         if full_art_table[1] == 0 then
             createArticulation(1, 58528, default_music_font, 58528, true, true, false, false, 1, false, 58529, false, 0, 0, 125, true, false, false, 14, false, 0, 0, 0, 0, 58529, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -5912,7 +5912,7 @@ function articulations_accent()
 end
 
 function articulations_marcato()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(2, 58540, "")
         if full_art_table[2] == 0 then
             createArticulation(2, 58540, default_music_font, 58540, true, true, false, false, 5, false, 58541, false, 0, 0, 140, true, false, false, 16, false, 0, 0, 0, 0, 58541, default_music_font, false, false, true, 0, 0, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -5928,7 +5928,7 @@ function articulations_marcato()
 end
 
 function articulations_staccato()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(3, 58530, "")
         if full_art_table[3] == 0 then
             createArticulation(3, 58530, default_music_font, 58530, true, false, false, false, 1, true, 58531, false, 0, 40, 0, true, false, false, 16, true, 0, -4, 0, 4, 58531, default_music_font, true, false, true, 0, 40, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -5946,7 +5946,7 @@ function articulations_staccato()
 end
 
 function articulations_tenuto()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(4, 58532, "")
         if full_art_table[4] == 0 then
             createArticulation(4, 58532, default_music_font, 58532, true, false, false, false, 1, true, 58533, false, 0, 0, 0, true, false, false, 14, false, 0, -2, 0, 2, 58533, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 26, 26, false, false, false, false, 0, false, false, default_music_font, 26, 26, false, false)
@@ -5964,7 +5964,7 @@ function articulations_tenuto()
 end
 
 function articulations_flat_wedge()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(5, 58536, "")
         if full_art_table[5] == 0 then
             createArticulation(5, 58536, default_music_font, 58536, true, true, false, false, 1, true, 58537, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58537, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -5982,7 +5982,7 @@ function articulations_flat_wedge()
 end
 
 function articulations_round_wedge()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(6, 58534, "")
         if full_art_table[6] == 0 then
             createArticulation(6, 58534, default_music_font, 58534, true, true, false, false, 1, true, 58535, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58535, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6000,7 +6000,7 @@ function articulations_round_wedge()
 end
 
 function articulations_metered_tremolo()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(7, 57888, "")
         findArticulation(8, 57889, "")
         findArticulation(9, 57890, "")
@@ -6038,7 +6038,7 @@ function articulations_metered_tremolo()
 end
 
 function articulations_tremolo_single()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(7, 57888, "")
         if full_art_table[7] == 0 then
             createArticulation(7, 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6064,7 +6064,7 @@ function articulations_tremolo_single()
 end
 
 function articulations_tremolo_double()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(8, 57889, "")
         if full_art_table[8] == 0 then
             createArticulation(8, 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6090,7 +6090,7 @@ function articulations_tremolo_double()
 end
 
 function articulations_tremolo_triple()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(9, 57890, "")
         if full_art_table[9] == 0 then
             createArticulation(9, 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6116,7 +6116,7 @@ function articulations_tremolo_triple()
 end
 
 function articulations_fermata()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(10, 58560, "")
         if full_art_table[10] == 0 then
             createArticulation(10, 58560, default_music_font, 58560, true, true, false, false, 5, false, 58561, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 58561, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 22, 22, false, false, false, false, 0, false, false, default_music_font, 22, 22, false, false)
@@ -6134,7 +6134,7 @@ function articulations_fermata()
 end
 
 function articulations_closed()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(11, 58853, "")
         if full_art_table[11] == 0 then
             createArticulation(11, 58853, default_music_font, 58853, true, true, false, false, 5, true, 58853, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58853, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6152,7 +6152,7 @@ function articulations_closed()
 end
 
 function articulations_open()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(12, 58900, "")
         if full_art_table[12] == 0 then
             createArticulation(12, 58900, default_music_font, 58900, true, true, false, false, 5, true, 58900, false, 0, 0, 0, true, false, false, 20, false, 0, 0, 0, 0, 58900, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6170,7 +6170,7 @@ function articulations_open()
 end
 
 function articulations_upbow()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(13, 58898, "")
         if full_art_table[13] == 0 then
             createArticulation(13, 58898, default_music_font, 58898, true, true, false, false, 5, false, 58898, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6188,7 +6188,7 @@ function articulations_upbow()
 end
 
 function articulations_downbow()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(14, 58896, "")
         if full_art_table[14] == 0 then
             createArticulation(14, 58896, default_music_font, 58896, true, true, false, false, 5, false, 58896, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58896, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6206,7 +6206,7 @@ function articulations_downbow()
 end
 
 function articulations_trill()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(15, 58726, "")
         if full_art_table[15] == 0 then
             createArticulation(15, 58726, default_music_font, 58726, true, true, false, false, 5, true, 58726, false, 0, 0, 0, true, false, false, 14, false, 3, 0, -3, 0, 58726, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6224,7 +6224,7 @@ function articulations_trill()
 end
 
 function articulations_short_trill()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(16, 58732, "")
         if full_art_table[16] == 0 then
             createArticulation(16, 58732, default_music_font, 58732, true, true, false, false, 5, true, 58732, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58732, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6242,7 +6242,7 @@ function articulations_short_trill()
 end
 
 function articulations_mordent()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(17, 58733, "")
         if full_art_table[17] == 0 then
             createArticulation(17, 58733, default_music_font, 58733, true, true, false, false, 5, true, 58733, false, 0, 0, 0, true, false, false, 16, false, 0, 0, 0, 0, 58733, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6260,7 +6260,7 @@ function articulations_mordent()
 end
 
 function articulations_turn()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(18, 58727, "")
         if full_art_table[18] == 0 then
             createArticulation(18, 58727, default_music_font, 58727, true, true, false, false, 5, true, 58727, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58727, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6278,7 +6278,7 @@ function articulations_turn()
 end
 
 function articulations_roll()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(19, 63232, "")
         if full_art_table[19] == 0 then
             createArticulation(19, 63232, default_music_font, 63232, true, false, false, false, 0, false, 63232, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 63232, default_music_font, false, false, true, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6298,7 +6298,7 @@ function articulations_roll()
 end
 
 function articulations_fall_short()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(20, 58839, "")
         if full_art_table[20] == 0 then
             createArticulation(20, 58839, default_music_font, 58839, true, false, false, false, 2, false, 58839, false, 0, 0, 0, true, false, false, 0, false, 42, -12, 42, 12, 58839, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6316,7 +6316,7 @@ function articulations_fall_short()
 end
 
 function articulations_fall_long()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(21, 58846, "")
         if full_art_table[21] == 0 then
             createArticulation(21, 58846, default_music_font, 58846, true, false, false, false, 2, false, 58846, false, 0, 0, 0, true, false, false, 0, false, 72, -76, 72, -48, 58846, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6334,7 +6334,7 @@ function articulations_fall_long()
 end
 
 function articulations_rip_straight()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(22, 58833, "")
         if full_art_table[22] == 0 then
             createArticulation(22, 58833, default_music_font, 58833, true, false, false, false, 2, false, 58833, false, 0, 0, 0, true, false, false, 0, false, -54, -60, -54, -26, 58833, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6352,7 +6352,7 @@ function articulations_rip_straight()
 end
 
 function articulations_rip_long()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(23, 58834, "")
         if full_art_table[23] == 0 then
             createArticulation(23, 58834, default_music_font, 58834, true, false, false, false, 2, false, 58834, false, 0, 0, 0, true, false, false, 0, false, -70, -80, -70, -48, 58834, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6370,7 +6370,7 @@ function articulations_rip_long()
 end
 
 function articulations_scoop_short()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(24, 58834, "")
         if full_art_table[24] == 0 then
             createArticulation(24, 58832, default_music_font, 58832, true, false, false, false, 1, false, 58832, false, 0, 0, 0, false, false, false, 0, false, -48, -18, -48, 0, 58832, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6388,7 +6388,7 @@ function articulations_scoop_short()
 end
 
 function articulations_doit()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(25, 58860, "")
         if full_art_table[25] == 0 then
             createArticulation(25, 58860, default_music_font, 58860, true, false, false, false, 2, false, 58860, false, 0, 0, 0, true, false, false, 0, false, 44, 0, 44, 12, 58860, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6406,7 +6406,7 @@ function articulations_doit()
 end
 
 function articulations_lv()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(26, 58554, "")
         if full_art_table[26] == 0 then
             createArticulation(26, 58554, default_music_font, 58554, true, false, false, false, 2, true, 58555, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 58555, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 28, 28, false, false, false, false, 0, false, false, default_music_font, 28, 28, false, false)
@@ -6563,7 +6563,7 @@ function articulations_right_brackets()
 end
 
 function articulations_combo_tenuto_staccato()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(35, 58546, "")
         if full_art_table[35] == 0 then
             createArticulation(35, 58546, default_music_font, 58546, true, true, false, false, 1, true, 58547, false, 0, 75, 110, true, false, false, 16, true, 0, 0, 0, 0, 58547, default_music_font, true, false, true, 0, 75, 110, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6581,7 +6581,7 @@ function articulations_combo_tenuto_staccato()
 end
 
 function articulations_combo_accent_staccato()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(36, 58544, "")
         if full_art_table[36] == 0 then
             createArticulation(36, 58544, default_music_font, 58544, true, true, false, false, 1, false, 58545, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, 0, 58545, default_music_font, false, false, true, 0, 50, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6599,7 +6599,7 @@ function articulations_combo_accent_staccato()
 end
 
 function articulations_combo_accent_tenuto()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(37, 58548, "")
         if full_art_table[37] == 0 then
             createArticulation(37, 58548, default_music_font, 58548, true, true, false, false, 1, false, 58549, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, 0, 58549, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6621,7 +6621,7 @@ function articulations_combo_accent_tenuto()
 end
 
 function articulations_combo_marcato_staccato()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(38, 58542, "")
         if full_art_table[38] == 0 then
             createArticulation(38, 58542, default_music_font, 58542, true, true, false, false, 5, false, 58543, false, 0, 75, 140, true, false, false, 16, true, 0, 0, 0, 0, 58543, default_music_font, false, false, true, 0, 75, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
@@ -6639,7 +6639,7 @@ function articulations_combo_marcato_staccato()
 end
 
 function articulations_tremolo_z()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findArticulation(39, 57898, "")
         if full_art_table[39] == 0 then
             createArticulation(39, 57898, default_music_font, 57898, true, false, false, false, 0, false, 57898, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, 0, 57898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 30, 30, false, false, false, false, 0, false, false, default_music_font, 30, 30, false, false)
@@ -6663,7 +6663,7 @@ function articulations_delete_duplicate_articulations()
 end
 
 function noteheads_x_circle()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57513, 57523, 57523, 57523)
     else
         changeNoteheads("Maestro Percussion", 57513, 88, 88, 88)
@@ -6671,7 +6671,7 @@ function noteheads_x_circle()
 end
 
 function noteheads_cross_circle()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57514, 57515, 57515, 57515)
     else
         changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
@@ -6679,7 +6679,7 @@ function noteheads_cross_circle()
 end
 
 function noteheads_triangle_up()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57534, 57533, 57533, 57533)
     else
         changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
@@ -6687,7 +6687,7 @@ function noteheads_triangle_up()
 end
 
 function noteheads_triangle_down()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57543, 57542, 57542, 57542)
     else
         changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
@@ -6695,7 +6695,7 @@ function noteheads_triangle_down()
 end
 
 function noteheads_diamond()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57564, 57566, 57566, 57566)
     else
         changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
@@ -6703,7 +6703,7 @@ function noteheads_diamond()
 end
 
 function noteheads_ghost()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 62929, 62930, 62931, 62931)
     else
         changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
@@ -6711,7 +6711,7 @@ function noteheads_ghost()
 end
 
 function noteheads_cross_stick()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57576, 57577, 57578, 57578)
     else
         changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
@@ -6719,7 +6719,7 @@ function noteheads_cross_stick()
 end
 
 function noteheads_small_slash()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57600, 57604, 57604, 57604)
     else
         changeNoteheads("Maestro", 243, 124, 124, 218)
@@ -6727,7 +6727,7 @@ function noteheads_small_slash()
 end
 
 function noteheads_square()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57529, 57528, 57528, 57528)
     else
         changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
@@ -6735,7 +6735,7 @@ function noteheads_square()
 end
 
 function noteheads_rim()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57552, 57554, 57556, 57556)
     else
         changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
@@ -6743,7 +6743,7 @@ function noteheads_rim()
 end
 
 function noteheads_no_notehead()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads("Maestro", 57509, 57509, 57509, 57509)
     else
         changeNoteheads("Maestro", 32, 32, 32, 32)
@@ -6840,7 +6840,7 @@ function layers_all_reduce()
 end
 
 function noteheads_x_diamond()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         changeNoteheads(default_music_font, 57513, 57565, 57565, 57565)
     else
         changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
@@ -6872,7 +6872,7 @@ function noteheads_x_diamond_above_staff()
     local standard_note = 57513
     local open_note = 57565
 
-    if not check_SMuFL() then
+    if not check_SMuFL(nil) then
         nm.FontName = "Maestro Percussion"
         standard_note = 120
         open_note = 84
@@ -7383,7 +7383,7 @@ function expressions_molto()
 end
 
 function dynamics_piu_f()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({"più", 58658}, text_expression, "piu forte", 1)
     else
         findTextExpression({"più", 102}, text_expression, "piu forte", 1)
@@ -7392,7 +7392,7 @@ function dynamics_piu_f()
 end
 
 function dynamics_pp_sub()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({58667, "sub."}, text_expression, "pianissimo subito", 1)
     else
         findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1)
@@ -7401,7 +7401,7 @@ function dynamics_pp_sub()
 end
 
 function dynamics_p_sub()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({58656, "sub."}, text_expression, "piano subito", 1)
     else
         findTextExpression({112, "sub."}, text_expression, "piano subito", 1)
@@ -7410,7 +7410,7 @@ function dynamics_p_sub()
 end
 
 function dynamics_mp_sub()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({58668, "sub."}, text_expression, "mezzo piano subito", 1)
     else
         findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1)
@@ -7419,7 +7419,7 @@ function dynamics_mp_sub()
 end
 
 function dynamics_mf_sub()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({58669, "sub."}, text_expression, "mezzo forte subito", 1)
     else
         findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1)
@@ -7428,7 +7428,7 @@ function dynamics_mf_sub()
 end
 
 function dynamics_f_sub()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({58658, "sub."}, text_expression, "forte subito", 1)
     else
         findTextExpression({102, "sub."}, text_expression, "forte subito", 1)
@@ -7437,7 +7437,7 @@ function dynamics_f_sub()
 end
 
 function dynamics_ff_sub()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findTextExpression({58671, "sub."}, text_expression, "fortissimo subito", 1)
     else
         findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1)
@@ -7466,7 +7466,7 @@ function expressions_loco()
 end
 
 function expressions_breath()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({58574}, {nil, 0, 24, 0}, text_expression, "Breath Mark", 5)
     else
         findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
@@ -7475,7 +7475,7 @@ function expressions_breath()
 end
 
 function expressions_caesura()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({58577}, {nil, 0, 24, 0}, text_expression, "Caesura", 5)
     else
        findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
@@ -7484,7 +7484,7 @@ function expressions_caesura()
 end
 
 function expressions_glasses()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({60514}, {nil, 0, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
     else
         findSpecialExpression({59}, {"Broadway Copyist", 8191, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
@@ -7598,7 +7598,7 @@ function expressions_half_trem()
 end
 
 function expressions_mallet_BD_hard()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59292}, {nil, 0, 24, 0}, text_expression, "Bass Drum, hard", 5)
     else
         findSpecialExpression({100}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, hard", 5)
@@ -7607,7 +7607,7 @@ function expressions_mallet_BD_hard()
 end
 
 function expressions_mallet_BD_medium()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59290}, {nil, 0, 24, 0}, text_expression, "Bass Drum, medium", 5)
     else
         findSpecialExpression({115}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, medium", 5)
@@ -7616,7 +7616,7 @@ function expressions_mallet_BD_medium()
 end
 
 function expressions_mallet_BD_soft()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59288}, {nil, 0, 24, 0}, text_expression, "Bass Drum, soft", 5)
     else
         findSpecialExpression({97}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, soft", 5)
@@ -7625,7 +7625,7 @@ function expressions_mallet_BD_soft()
 end
 
 function expressions_mallet_brass()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59353}, {nil, 0, 24, 0}, text_expression, "Brass Mallet", 5)
     else
         findSpecialExpression({106}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Brass Mallet", 5)
@@ -7634,7 +7634,7 @@ function expressions_mallet_brass()
 end
 
 function expressions_mallet_sticks()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59345}, {nil, 0, 24, 0}, text_expression, "Sticks", 5)
     else
         findSpecialExpression({103}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Sticks", 5)
@@ -7643,7 +7643,7 @@ function expressions_mallet_sticks()
 end
 
 function expressions_mallet_timp_hard()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59280}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
     else
         findSpecialExpression({101}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
@@ -7652,7 +7652,7 @@ function expressions_mallet_timp_hard()
 end
 
 function expressions_mallet_timp_medium()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59276}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
     else
         findSpecialExpression({119}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
@@ -7661,7 +7661,7 @@ function expressions_mallet_timp_medium()
 end
 
 function expressions_mallet_timp_soft()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59272}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
     else
         findSpecialExpression({113}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
@@ -7670,7 +7670,7 @@ function expressions_mallet_timp_soft()
 end
 
 function expressions_mallet_timp_wood()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59284}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
     else
         findSpecialExpression({114}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
@@ -7679,7 +7679,7 @@ function expressions_mallet_timp_wood()
 end
 
 function expressions_mallet_xylo_hard()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59256}, {nil, 0, 24, 0}, text_expression, "Xylophone, hard", 5)
     else
         findSpecialExpression({117}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, hard", 5)
@@ -7688,7 +7688,7 @@ function expressions_mallet_xylo_hard()
 end
 
 function expressions_mallet_xylo_medium()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59252}, {nil, 0, 24, 0}, text_expression, "Xylophone, medium", 5)
     else
         findSpecialExpression({121}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, medium", 5)
@@ -7697,7 +7697,7 @@ function expressions_mallet_xylo_medium()
 end
 
 function expressions_mallet_xylo_soft()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59248}, {nil, 0, 24, 0}, text_expression, "Xylophone, soft", 5)
     else
         findSpecialExpression({116}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, soft", 5)
@@ -7706,7 +7706,7 @@ function expressions_mallet_xylo_soft()
 end
 
 function expressions_mallet_yarn_med()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59302}, {nil, 0, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
     else
         findSpecialExpression({112}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
@@ -7715,7 +7715,7 @@ function expressions_mallet_yarn_med()
 end
 
 function expressions_mallet_yarn_soft()
-    if check_SMuFL() then
+    if check_SMuFL(nil) then
         findSpecialExpression({59298}, {nil, 0, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
     else
         findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
