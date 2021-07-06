@@ -1686,7 +1686,6 @@ function increase_decrease_dynamics(direction)
         if exp:GetCategoryID() == 1 then
             local exp_string = exp:CreateTextString()
             exp_string:TrimEnigmaTags()
-            print(exp_string:GetCharacterAt(0))
             if string.len(exp_string.LuaString) <= char_check then
                 for key, value in pairs(dyn_char) do             
                     if (exp_string:GetCharacterAt(0) == value) and (exp_string:GetCharacterAt(1) == 0) then
