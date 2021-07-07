@@ -1992,18 +1992,22 @@ function find_dynamic(glyph_nums, table_name, description_text, uses_smufl)
 end
 
 function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, breve_glyph)
+    local use_custom = false
     if font_name == "" then
         local fontinfo = finale.FCFontInfo()
         if fontinfo:LoadFontPrefs(23) then
-            font_name = getUsedFontName(fontinfo:GetName())  
+            font_name = getUsedFontName(fontinfo:GetName()) 
         end
     else
-        font_name = getUsedFontName(font_name)  
+        font_name = getUsedFontName(font_name)
+        use_custom = true 
     end
 
     local nm = finale.FCNoteheadMod()
-    nm:SetUseCustomFont(true)
-    nm.FontName = font_name
+    nm:SetUseCustomFont(use_custom)
+    if use_custom then
+        nm.FontName = font_name
+    end
 
     for noteentry in eachentrysaved(finenv.Region()) do 
         nm:SetNoteEntry(noteentry)
