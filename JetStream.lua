@@ -5933,6 +5933,8 @@ function articulations_marcato()
         findArticulation(2, 58540, "")
         if full_art_table[2] == 0 then
             createArticulation(2, 58540, default_music_font, 58540, true, true, false, false, 5, false, 58541, false, 0, 0, 140, true, false, false, 16, false, 0, 0, 0, 0, 58541, default_music_font, false, false, true, 0, 0, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        else
+            addArticulation(full_art_table[2])
         end
     else
         findArticulation(2, 94, "")
