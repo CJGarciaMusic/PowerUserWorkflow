@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "210706"
-    finaleplugin.Date = "07/06/2021"
+    finaleplugin.Version = "210708"
+    finaleplugin.Date = "07/08/2021"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -4093,7 +4093,12 @@ function simple_art_to_exp_swap(art_to_find, description, char_num)
     local function createBreathMark()
         local exp_def = finale.FCTextExpressionDef()
         local textstr = finale.FCString()
-        textstr.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"..art_to_find
+        if art_to_find == nil then
+            textstr.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"
+            textstr:AppendCharacter(char_num)
+        else
+            textstr.LuaString = "^fontMus(Font0,0)^size(24)^nfx(0)"..art_to_find
+        end
         exp_def:SaveNewTextBlock(textstr)
         local descriptionstr = finale.FCString()
         descriptionstr.LuaString = description
@@ -4119,8 +4124,14 @@ function simple_art_to_exp_swap(art_to_find, description, char_num)
         for ted in each(exp_defs) do
             local current_exp = ted:CreateTextString()
             current_exp:TrimEnigmaTags()
-            if current_exp.LuaString == art_to_find then
-                table.insert(breath_mark_id, ted:GetItemNo())
+            if art_to_find == nil then
+                if current_exp:GetCharacterAt(0) == char_num then
+                    table.insert(breath_mark_id, ted:GetItemNo())
+                end
+            else
+                if current_exp.LuaString == art_to_find then
+                    table.insert(breath_mark_id, ted:GetItemNo())
+                end
             end
         end
         if breath_mark_id[1] == nil then
@@ -7473,7 +7484,7 @@ end
 
 function expressions_breath()
     if check_SMuFL(nil) then
-        findSpecialExpression({58574}, {nil, 0, 24, 0}, text_expression, "Breath Mark", 5)
+        findSpecialExpression({58574}, {nil, 0, 24, 0}, text_expression, "Breath Mark", 7)
     else
         findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
     end
@@ -7482,7 +7493,7 @@ end
 
 function expressions_caesura()
     if check_SMuFL(nil) then
-        findSpecialExpression({58577}, {nil, 0, 24, 0}, text_expression, "Caesura", 5)
+        findSpecialExpression({58577}, {nil, 0, 24, 0}, text_expression, "Caesura", 7)
     else
        findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
     end
@@ -8291,7 +8302,7 @@ function noteheads_harmonics()
         local notehead = finale.FCNoteheadMod()
         notehead:EraseAt(lowest_note)
         notehead:EraseAt(highest_note)
-        if check_SMuFL() then
+        if check_SMuFL(nil) then
             notehead.CustomChar = 57562
         else
             notehead.CustomChar = 79
@@ -8501,11 +8512,19 @@ function reset_baseline_chord_fretboard()
 end
 
 function transform_breath_to_expression()
-    simple_art_to_exp_swap(",", "Breath Mark", 44)
+    if check_SMuFL(nil) then
+        simple_art_to_exp_swap(nil, "Breath Mark", 58574)
+    else
+        simple_art_to_exp_swap(",", "Breath Mark", 44)
+    end
 end
 
 function transform_caesura_to_expression()
-    simple_art_to_exp_swap("\"", "Caesura", 34)
+    if check_SMuFL(nil) then
+        simple_art_to_exp_swap(nil, "Caesura", 58577)
+    else
+        simple_art_to_exp_swap("\"", "Caesura", 34)
+    end
 end
 
 function articulations_delete_articulations_from_rests()
