@@ -6006,7 +6006,7 @@ function articulations_round_wedge()
         if full_art_table[6] == 0 then
             createArticulation(6, 58534, default_music_font, 58534, true, true, false, false, 1, true, 58535, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58535, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[5])
+            addArticulation(full_art_table[6])
         end
     else
         findArticulation(6, 174, "")
