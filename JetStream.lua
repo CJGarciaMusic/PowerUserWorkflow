@@ -1573,7 +1573,7 @@ function CreateTextExpression(exp_string_list, table_name, exp_description, cate
             local exp_string_p1 = finale.FCString()
             exp_string_p1.LuaString = music_font
             exp_string_p1:AppendCharacter(exp_string_list[1])
-            ex_textstr.LuaString = exp_string_p1.LuaString.." "..text_font..exp_string_list[2]
+            ex_textstr.LuaString = exp_string_p1.LuaString..text_font.." "..exp_string_list[2]
         end
     else
         ex_textstr.LuaString = text_font..exp_string_list[1]
@@ -1598,27 +1598,35 @@ function findTextExpression(exp_string_list, table_name, description_text, categ
     local exp_def = finale.FCTextExpressionDef()
     exp_defs:LoadAll()
     for exp in each(exp_defs) do
-        local current_string = exp:CreateTextString()
-        current_string:TrimEnigmaTags()
-        if exp_string_list[2] ~= nil then
-            if tonumber(exp_string_list[2]) ~= nil then
-                local exp_string_p2 = finale.FCString()
-                exp_string_p2.LuaString = ""
-                exp_string_p2:AppendCharacter(exp_string_list[2])
-                if current_string.LuaString == exp_string_list[1].." "..exp_string_p2.LuaString then
+        if exp:GetCategoryID() == category_num then
+            local current_string = exp:CreateTextString()
+            current_string:TrimEnigmaTags()
+            if exp_string_list[2] ~= nil then
+                if tonumber(exp_string_list[2]) ~= nil then
+                    local exp_string_p2 = finale.FCString()
+                    exp_string_p2.LuaString = ""
+                    exp_string_p2:AppendCharacter(exp_string_list[2])
+                    if current_string.LuaString == exp_string_list[1].." "..exp_string_p2.LuaString then
+                        table.insert(matching_glyphs, exp:GetItemNo())
+                    end
+                elseif tonumber(exp_string_list[1]) ~= nil then
+                    local text_enigma = ""
+                    local cat_def = finale.FCCategoryDef()
+                    if cat_def:Load(category_num) then
+                        local fonti = cat_def:CreateTextFontInfo()
+                        text_enigma = fonti:CreateEnigmaString(nil).LuaString
+                    end
+                    local exp_string_p1 = finale.FCString()
+                    exp_string_p1.LuaString = ""
+                    exp_string_p1:AppendCharacter(exp_string_list[1])
+                    if current_string.LuaString == exp_string_p1.LuaString.." "..exp_string_list[2] then
+                        table.insert(matching_glyphs, exp:GetItemNo())
+                    end
+                end
+            else
+                if current_string.LuaString == exp_string_list[1] then
                     table.insert(matching_glyphs, exp:GetItemNo())
                 end
-            elseif tonumber(exp_string_list[1]) ~= nil then
-                local exp_string_p1 = finale.FCString()
-                exp_string_p1.LuaString = ""
-                exp_string_p1:AppendCharacter(exp_string_list[1])
-                if current_string.LuaString == exp_string_p1.LuaString.." "..exp_string_list[2] then
-                    table.insert(matching_glyphs, exp:GetItemNo())
-                end
-            end
-        else
-            if current_string.LuaString == exp_string_list[1] then
-                table.insert(matching_glyphs, exp:GetItemNo())
             end
         end
     end
