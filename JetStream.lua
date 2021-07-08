@@ -8291,8 +8291,12 @@ function noteheads_harmonics()
         local notehead = finale.FCNoteheadMod()
         notehead:EraseAt(lowest_note)
         notehead:EraseAt(highest_note)
-        notehead.CustomChar = 79
-        notehead.Resize = 110
+        if check_SMuFL() then
+            notehead.CustomChar = 57562
+        else
+            notehead.CustomChar = 79
+            notehead.Resize = 110
+        end
         if entry:GetDuration() == 4096 then
             if entry:CalcStemUp() == false then
                 notehead.HorizontalPos = 5
