@@ -1260,6 +1260,62 @@ function createHairpin(range_settings, shape)
     smartshape:SaveNewEverything(nil, nil)
 end
 
+function messa_di_voce(staff_num, beginning_shape, end_shape)
+    local function measureDuration(m)
+        local get_time = finale.FCMeasure()
+        get_time:Load(m)
+        local pos = get_time:GetTimeSignature()
+        local beat = pos:GetBeats()
+        local duration = pos:GetBeatDuration()
+        return beat * duration
+    end
+
+    local function setRange()
+        local rgn = finenv.Region()
+        local arc1 = { rgn.StartMeasure, 0, rgn.EndMeasure, 0 }
+        local arc2 = { arc1[3], 0, arc1[3], 0 }
+        local bars = {}
+        local accum = 0
+        local buffer = 128
+
+        for i = arc1[1], arc1[3] do
+            local durn = measureDuration(i)
+            if i == arc1[1] then
+                local start_pos = rgn.StartMeasurePos
+                arc1[2] = start_pos
+                durn = durn - start_pos
+            end
+            if i == arc1[3] then
+                local time = durn
+                local m = rgn.EndMeasurePos
+                if m < 999999 then time = m end
+                arc2[4] = time - buffer
+                durn = time
+            end
+            accum = accum + durn
+            table.insert(bars, { i, durn, accum } )
+        end
+        
+        local halfway = math.floor(accum/2)
+        for i,v in ipairs(bars) do
+            if halfway <= v[3] then
+                arc1[3] = v[1]
+                arc1[4] = halfway - buffer
+                arc2[1] = v[1]
+                arc2[2] = halfway + buffer
+                break
+            else
+                halfway = halfway - v[2]
+            end
+        end
+        
+        createHairpin({staff_num, arc1[1], arc1[3], arc1[2], arc1[4]}, beginning_shape)
+        createHairpin({staff_num, arc2[1], arc2[3], arc2[2], arc2[4]}, end_shape)
+    end
+
+    setRange()
+end
+
 function nudge_dynamics_and_hairpins(hairpin, region, nudge_value)
     local arg_point = finale.FCPoint(0, 0)
     local left_seg = hairpin:GetTerminateSegmentLeft()
@@ -5622,7 +5678,7 @@ function dynamics_messa_di_voce_up()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
             if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                halfway_point(staff:GetItemNo(), finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
+                messa_di_voce(staff:GetItemNo(), finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
             end
         end
     end
@@ -5638,7 +5694,7 @@ function dynamics_messa_di_voce_down()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
             if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                halfway_point(staff:GetItemNo(), finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
+                messa_di_voce(staff:GetItemNo(), finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
             end
         end
     end
