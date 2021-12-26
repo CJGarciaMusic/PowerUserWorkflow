@@ -5,8 +5,43 @@ function plugindef()
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
+--[[
 local dialog = finenv.UserValueInput()
 dialog.Title = "JetStream Finale Controller"
+]]
+function userValueInput(title, text)
+  local return_value = finale.FCString()
+  local str = finale.FCString()
+  --
+  function format_ctrl(ctrl, h, w, st)
+      ctrl:SetHeight(h)
+      ctrl:SetWidth(w)
+      str.LuaString = st
+      ctrl:SetText(str)
+  end -- function format_ctrl
+  --
+  str.LuaString = title
+  local dialog = finale.FCCustomLuaWindow()
+  dialog:SetTitle(str)
+  local user_value_input = dialog:CreateEdit(0, 18)
+  format_ctrl(user_value_input, 20, 220, "")
+  local descr = dialog:CreateStatic(0, 0)
+  format_ctrl(descr, 12, 220, text)
+  dialog:CreateOkButton()
+  dialog:CreateCancelButton()
+  --
+  function callback(ctrl)
+  end -- callback
+  --
+  dialog:RegisterHandleCommand(callback)
+  --
+  if dialog:ExecuteModal(nil) == 1 then
+    return_value.LuaString = user_value_input:GetText(return_value)
+    --print(return_value.LuaString)
+    return return_value
+  -- OK button was pressed
+  end
+end -- function userValueInput
 
 function to_EVPUs(text)
     local str = finale.FCString()
@@ -3468,11 +3503,14 @@ function user_expression_input(the_expression)
     end
 
     function user_input(display_type)
+      --[[
         local input_dialog = finenv.UserValueInput()
         input_dialog.Title = "JetStream Expression Input"
         input_dialog:SetTypes("String")
         input_dialog:SetDescriptions("Please Enter Your "..display_type.." Text")
         local return_values = input_dialog:Execute()
+        ]]
+        local return_values = userValueInput("JetStream Expression Input", "Please Enter Your "..display_type.." Text")
 
         if return_values ~= nil then
             if return_values[1] ~= "" then
@@ -5359,6 +5397,8 @@ function ui_switch_to_selected_part()
     finenv.StartNewUndoBlock("Switch To Selected Part", false)
 end
 
+--[[
+--Disabled by Jake: too many parameters to easily convert to easily convert to FCCustomWindow.
 function user_configuration()
     package.path = "/Library/Application Support/MakeMusic/Finale 26/JetStreamConfig.lua"
     local config = require "JetStreamConfig"
@@ -5397,6 +5437,7 @@ function user_configuration()
         end
     end
 end
+]]
 
 function check_for_update(temp_dir, sd_type)
     local temp_dir = ""
@@ -8694,10 +8735,16 @@ function update_mac_km()
 end
 
 
+--[[
 dialog:SetTypes("String")
 dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 
 local return_values = dialog:Execute() 
+]]
+
+local return_values = {}
+ return_values[1] = userValueInput("JetStream Finale Controller", "Enter a JetStream Finale Controller code:").LuaString
+ print("JetStream Code:",return_values[1])
 
 if return_values ~= nil then
     if finenv.Region():IsEmpty() ~= true then
