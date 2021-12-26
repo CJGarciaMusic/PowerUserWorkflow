@@ -3510,7 +3510,8 @@ function user_expression_input(the_expression)
         input_dialog:SetDescriptions("Please Enter Your "..display_type.." Text")
         local return_values = input_dialog:Execute()
         ]]
-        local return_values = userValueInput("JetStream Expression Input", "Please Enter Your "..display_type.." Text")
+        local return_values = {}
+        return_values[1] = userValueInput("JetStream Expression Input", "Please Enter Your "..display_type.." Text").LuaString
 
         if return_values ~= nil then
             if return_values[1] ~= "" then
