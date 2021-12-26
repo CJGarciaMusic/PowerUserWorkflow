@@ -2063,7 +2063,7 @@ function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, brev
             font_name = getUsedFontName(fontinfo:GetName()) 
         end
     else
-        font_name = getUsedFontName(font_name)
+        --font_name = getUsedFontName(font_name)
         use_custom = true 
     end
 
@@ -2843,8 +2843,11 @@ function single_pitch(pitch)
     writtenpitch = true
     for e in eachentrysaved(finenv.Region()) do
         if e:IsNote() then
-            e:MakeRest()
-            e:MakeNote()
+            local note_count = e.Count
+            while e.Count > 1 do
+                local lowestnote = e:CalcLowestNote(nil)
+                e:DeleteNote(lowestnote)
+            end
             e:GetItemAt(0):SetString(pitchstring, nil, writtenpitch)
             e.CheckAccidentals = true 
         end
@@ -6749,7 +6752,7 @@ function noteheads_x_circle()
     if check_SMuFL(nil) then
         changeNoteheads("", 57513, 57523, 57523, 57523)
     else
-        changeNoteheads("Maestro Percussion", 57513, 88, 88, 88)
+        changeNoteheads("Maestro Percussion", 120, 88, 88, 88)
     end
 end
 
