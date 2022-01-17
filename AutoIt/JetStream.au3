@@ -19,11 +19,11 @@ Func MsgError($text)
 EndFunc
 
 Func LuaMenu($luaNum)
-   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "JW Lua", "JetStream Finale Controller") Then
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "RPG Lua", "JetStream Finale Controller") Then
 	  WinWaitActive("JetStream")
 	  If WinGetTitle("JetStream Finale Controller") Then
 		 Send($luaNum)
-		 ControlClick("JetStream", "", "OK")
+		 Send("{Enter}")
 	  EndIf
    Else
 	  SetError(1)
