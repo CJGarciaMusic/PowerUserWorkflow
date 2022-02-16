@@ -2584,6 +2584,47 @@ function set_time(beat_num, beat_dur, beat_abbr)
   end
 end
 
+function set_complex_time(comp_top, beat_dur)
+  local function make_change(composite_top, beat_duration, the_measure)
+    the_measure.UseTimeSigForDisplay = true
+    local time_sig = the_measure:GetTimeSignature()
+    local display_sig = the_measure.TimeSignatureForDisplay
+    local ctop = finale.FCCompositeTimeSigTop()
+    local beat_total = 0
+    local group = ctop:AddGroup(#composite_top)
+    for i = 1, #composite_top do
+      ctop:SetGroupElementBeats(group, i-1, composite_top[i])
+      beat_total = beat_total + composite_top[i]
+    end
+
+    ctop:SaveAll()
+    time_sig:SaveNewCompositeTop(ctop)
+    time_sig:SetBeatDuration(beat_duration)
+    time_sig:Save()
+    display_sig:SetBeatDuration(beat_duration)
+    display_sig:SetBeats(beat_total)
+    display_sig:Save()
+    the_measure:Save()
+  end
+
+  local measures = finale.FCMeasures()
+  measures:LoadRegion(finenv.Region())
+  if measures.Count > 1 then
+    for measure in each(measures) do
+      make_change(comp_top, beat_dur, measure)
+    end
+  else
+    local all_measures = finale.FCMeasures()
+    all_measures:LoadAll()
+    for measure in each(all_measures) do
+      local selected_measure = measures:GetItemAt(0)
+      if (measure.ItemNo >= selected_measure.ItemNo) then
+        make_change(comp_top, beat_dur, measure)
+      end
+    end
+  end
+end
+
 function applyStaffStyle(StaffStyleType)
   local ssds = finale.FCStaffStyleDefs()
   ssds:LoadAll()
@@ -7354,16 +7395,24 @@ function meter_5_4()
   set_time(5, 1024, false) 
 end
 
-function meter_5_8()
-  set_time(5, 512, false) 
+function meter_5_8_23()
+  set_complex_time({2, 3}, 512, false) 
+end
+
+function meter_5_8_32()
+  set_complex_time({3, 2}, 512, false) 
 end
 
 function meter_6_8()
   set_time(2, 1536, false) 
 end
 
-function meter_7_8()
-  set_time(7, 512, false) 
+function meter_7_8_223()
+  set_complex_time({2, 2, 3}, 512, false) 
+end
+
+function meter_7_8_322()
+  set_complex_time({3, 2, 2}, 512, false) 
 end
 
 function meter_9_8()
@@ -9262,14 +9311,21 @@ for i,k in pairs(execute_function) do
       if compare({"0506","5/4"}) == true then
         meter_5_4()
       end
-      if compare({"0507","5/8"}) == true then
-        meter_5_8()
+      if compare({"0507","5/8","5/8_23"}) == true then
+        meter_5_8_23()
       end
+      if compare({"0516","5/8_32"}) == true then
+        meter_5_8_32()
+      end
+
       if compare({"0508","6/8"}) == true then
         meter_6_8()
       end
-      if compare({"0509","7/8"}) == true then
-        meter_7_8()
+      if compare({"0509","7/8","7/8_223"}) == true then
+        meter_7_8_223()
+      end
+      if compare({"0517","7/8_322"}) == true then
+        meter_7_8_322()
       end
       if compare({"0510","9/8"}) == true then
         meter_9_8()
