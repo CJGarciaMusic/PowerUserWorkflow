@@ -5,11 +5,17 @@ function plugindef()
   return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 --
+local path = finale.FCString()
+path:SetRunningLuaFolderPath()
+package.path = package.path .. ";" .. path.LuaString .. "?.lua"
+require("JetStream_Config")
+--
 local init_region = finenv.Region()
 init_region:SetCurrentSelection()
 --
 function split(s, delimiter)
   result = {};
+  if s == nil then s = "" end -- to prevent error on 'cancel'
   for match in (s..delimiter):gmatch("(.-)"..delimiter) do
     match = string.lower(match)
     if match ~= "" then
@@ -1025,8 +1031,10 @@ end
 
 function horizontal_hairpin_adjustment(left_or_right, hairpin, region_settings, cushion_bool, multiple_hairpin_bool)
   local the_seg = hairpin:GetTerminateSegmentLeft()
-  local left_dynamic_cushion = 9
-  local right_dynamic_cushion = -9
+  local config = config_load()
+  local dynamic_cushion = tonumber(config[7])
+  local left_dynamic_cushion = dynamic_cushion
+  local right_dynamic_cushion = -dynamic_cushion
   local left_selection_cushion = 0
   local right_selection_cushion = -18
 
@@ -1065,13 +1073,7 @@ function horizontal_hairpin_adjustment(left_or_right, hairpin, region_settings, 
         local text_met = finale.FCTextMetrics()
         local string = create_def:CreateTextString()
         string:TrimEnigmaTags()
-
-        if finenv.IsRGPLua and finenv.UI():IsOnWindows() then
-          text_met:LoadStringA(string, create_def:CreateTextString():CreateLastFontInfo(), 100)
-        else
-          text_met:LoadString(string, create_def:CreateTextString():CreateLastFontInfo(), 100)
-        end
-
+        text_met:LoadString(string, create_def:CreateTextString():CreateLastFontInfo(), 100)
         table.insert(expression_list, {text_met:CalcWidthEVPUs(), e, e:GetItemInci()})
       end
     end
@@ -3784,6 +3786,9 @@ function make_tacet_mm()
         font = category_definition:CreateTextFontInfo()
         text_font = "^fontTxt"..font:CreateEnigmaString(finale.FCString()).LuaString
       end
+      local config = config_load()
+      local tacet_text = config[1]
+      local al_fine_text = config[2]
 
       if al_fine_check == true then
         ted_text.LuaString = text_font..al_fine_text
@@ -3895,9 +3900,24 @@ function make_x(bool_kind)
   function playX_expr(more)
     local region = finenv.Region()
     local x = (region.EndMeasure + 1) - region.StartMeasure
-    local playX_text = "PLAY "..x.." BARS"
+    --
+    local config = config_load()
+    if config[3] ~= "" then 
+      config[3] = config[3].." " 
+    end
+    if config[4] ~= "" then 
+      config[4] = " "..config[4] 
+    end
+    if config[5] ~= "" then 
+      config[5] = config[5].." " 
+    end
+    if config[6] ~= "" then 
+      config[6] = " "..config[6] 
+    end
+    --
+    local playX_text = config[3]..x..config[4]
     if more then
-      playX_text = "PLAY "..x.." MORE"
+      playX_text = config[5]..x..config[6]
     end
     local font = finale.FCFontInfo()
     local categorydefs = finale.FCCategoryDefs()
@@ -8851,11 +8871,11 @@ for i,k in pairs(execute_function) do
   if execute_function ~= nil then
     local mr = finale.FCMusicRegion()
     mr:SetCurrentSelection()
+    function compare(compare_to)
+      local result = compare_values(k, compare_to)
+      return result
+    end
     if mr:IsEmpty() ~= true then
-      function compare(compare_to)
-        local result = compare_values(k, compare_to)
-        return result
-      end
       if compare({"0001","ffff"}) == true then
         dynamics_ffff_start()
       end
@@ -9317,7 +9337,6 @@ for i,k in pairs(execute_function) do
       if compare({"0516","5/8_32"}) == true then
         meter_5_8_32()
       end
-
       if compare({"0508","6/8"}) == true then
         meter_6_8()
       end
@@ -10200,10 +10219,10 @@ for i,k in pairs(execute_function) do
       if compare({"9005","tacet"}) == true then
         plugin_tacet()
       end
-      if compare({"9006","playx"}) == true then
+      if compare({"9006","playx", "playxtimes", "playxbars"}) == true then
         plugin_make_x_times()
       end
-      if compare({"9007","playxmore","playmore"}) == true then
+      if compare({"9007","playxmore","playmore", "more"}) == true then
         plugin_make_x_more()
       end
       if execute_function[i] == "9994" then
@@ -10225,8 +10244,9 @@ for i,k in pairs(execute_function) do
         update_mac_35()
       end
     else
-      if execute_function[i] == "0000" then
-        user_configuration()
+      if compare({"0000","config"}) == true then
+        --user_configuration()
+        config_jetstream()
       elseif execute_function[i] == "1800" then
         playback_all_staves_document_beginning_to_document_end()
       elseif execute_function[i] == "1801" then

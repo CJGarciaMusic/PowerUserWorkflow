@@ -19,7 +19,7 @@ Func MsgError($text)
 EndFunc
 
 Func LuaMenu($luaNum)
-   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "RGP Lua", "JetStream Finale Controller") Then
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "JetStream", "JetStream Finale Controller") Then
 	  WinWaitActive("JetStream")
 	  If WinGetTitle("JetStream Finale Controller") Then
 		 Send($luaNum)
