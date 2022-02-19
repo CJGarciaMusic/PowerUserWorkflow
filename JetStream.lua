@@ -10243,7 +10243,13 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "9999" then
         update_mac_35()
       end
+      -- Jake: Putting this in twice so that it will trigger regardless of if region is selected
+      if compare({"0000","config"}) == true then
+        --user_configuration()
+        config_jetstream()
+      end
     else
+      -- this is if the region is empty...
       if compare({"0000","config"}) == true then
         --user_configuration()
         config_jetstream()
