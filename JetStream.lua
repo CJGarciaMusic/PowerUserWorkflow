@@ -64,7 +64,9 @@ function simple_input(title, text)
   format_ctrl(descr, 16, min_width, text)
   local input = dialog:CreateEdit(0, 20)
   format_ctrl(input, 20, min_width, "") -- edit "" for defualt value
-  dialog:CreateOkButton()
+  local ok = dialog:CreateOkButton()
+  str.LuaString = "OK"
+  ok:SetText(str)
   dialog:CreateCancelButton()
   --
   function callback(ctrl)
@@ -10243,13 +10245,7 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "9999" then
         update_mac_35()
       end
-      -- Jake: Putting this in twice so that it will trigger regardless of if region is selected
-      if compare({"0000","config"}) == true then
-        --user_configuration()
-        config_jetstream()
-      end
     else
-      -- this is if the region is empty...
       if compare({"0000","config"}) == true then
         --user_configuration()
         config_jetstream()
