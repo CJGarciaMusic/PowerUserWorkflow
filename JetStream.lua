@@ -2913,8 +2913,55 @@ function clef_change(clef_type, staff, region)
   end
 end
 
-function clef_change_bass()
+function clef_change_treble()
+  local staves = finale.FCStaves()
+  staves:LoadAll()
+  for staff in each(staves) do
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    if music_region:IsStaffIncluded(staff:GetItemNo()) then
+      clef_change(0, staff:GetItemNo(), music_region)
+    end
+  end
+end
 
+function clef_change_treble_8ba()
+  local staves = finale.FCStaves()
+  staves:LoadAll()
+  for staff in each(staves) do
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    if music_region:IsStaffIncluded(staff:GetItemNo()) then
+      clef_change(5, staff:GetItemNo(), music_region)
+    end
+  end
+end
+
+function clef_change_alto()
+  local staves = finale.FCStaves()
+  staves:LoadAll()
+  for staff in each(staves) do
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    if music_region:IsStaffIncluded(staff:GetItemNo()) then
+      clef_change(1, staff:GetItemNo(), music_region)
+    end
+  end
+end
+
+function clef_change_tenor()
+  local staves = finale.FCStaves()
+  staves:LoadAll()
+  for staff in each(staves) do
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    if music_region:IsStaffIncluded(staff:GetItemNo()) then
+      clef_change(2, staff:GetItemNo(), music_region)
+    end
+  end
+end
+
+function clef_change_bass()
   local staves = finale.FCStaves()
   staves:LoadAll()
   for staff in each(staves) do
@@ -2922,6 +2969,18 @@ function clef_change_bass()
     music_region:SetCurrentSelection()
     if music_region:IsStaffIncluded(staff:GetItemNo()) then
       clef_change(3, staff:GetItemNo(), music_region)
+    end
+  end
+end
+
+function clef_change_perc()
+  local staves = finale.FCStaves()
+  staves:LoadAll()
+  for staff in each(staves) do
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    if music_region:IsStaffIncluded(staff:GetItemNo()) then
+      clef_change(12, staff:GetItemNo(), music_region)
     end
   end
 end
@@ -10202,6 +10261,12 @@ for i,k in pairs(execute_function) do
       end
       if compare({"1903","bass"}) == true then
         clef_change_bass()
+      end
+      if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8"}) == true then
+        clef_change_treble_8ba()
+      end
+      if compare({"1905","perc"}) == true then
+        clef_change_perc()
       end
       if execute_function[i] == "9000" then
         plugin_center_rehearsal_marks()
