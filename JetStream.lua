@@ -2913,74 +2913,14 @@ function clef_change(clef_type, staff, region)
   end
 end
 
-function clef_change_treble()
+function clef_change_pre(clef)
   local staves = finale.FCStaves()
   staves:LoadAll()
   for staff in each(staves) do
     local music_region = finenv.Region()
     music_region:SetCurrentSelection()
     if music_region:IsStaffIncluded(staff:GetItemNo()) then
-      clef_change(0, staff:GetItemNo(), music_region)
-    end
-  end
-end
-
-function clef_change_treble_8ba()
-  local staves = finale.FCStaves()
-  staves:LoadAll()
-  for staff in each(staves) do
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    if music_region:IsStaffIncluded(staff:GetItemNo()) then
-      clef_change(5, staff:GetItemNo(), music_region)
-    end
-  end
-end
-
-function clef_change_alto()
-  local staves = finale.FCStaves()
-  staves:LoadAll()
-  for staff in each(staves) do
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    if music_region:IsStaffIncluded(staff:GetItemNo()) then
-      clef_change(1, staff:GetItemNo(), music_region)
-    end
-  end
-end
-
-function clef_change_tenor()
-  local staves = finale.FCStaves()
-  staves:LoadAll()
-  for staff in each(staves) do
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    if music_region:IsStaffIncluded(staff:GetItemNo()) then
-      clef_change(2, staff:GetItemNo(), music_region)
-    end
-  end
-end
-
-function clef_change_bass()
-  local staves = finale.FCStaves()
-  staves:LoadAll()
-  for staff in each(staves) do
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    if music_region:IsStaffIncluded(staff:GetItemNo()) then
-      clef_change(3, staff:GetItemNo(), music_region)
-    end
-  end
-end
-
-function clef_change_perc()
-  local staves = finale.FCStaves()
-  staves:LoadAll()
-  for staff in each(staves) do
-    local music_region = finenv.Region()
-    music_region:SetCurrentSelection()
-    if music_region:IsStaffIncluded(staff:GetItemNo()) then
-      clef_change(12, staff:GetItemNo(), music_region)
+      clef_change(clef, staff:GetItemNo(), music_region)
     end
   end
 end
@@ -5572,7 +5512,7 @@ function ui_switch_to_selected_part()
 end
 
 --[[
---Disabled by Jake: too many parameters to easily convert to easily convert to FCCustomWindow.
+--Disabled by Jake: too many parameters to easily convert to easily convert to FCCustomWindow. ALSO to be replaced by JetStream_Config.lua...
 function user_configuration()
     package.path = "/Library/Application Support/MakeMusic/Finale 26/JetStreamConfig.lua"
     local config = require "JetStreamConfig"
@@ -10251,22 +10191,22 @@ for i,k in pairs(execute_function) do
         navigation_switch_to_slected_part()
       end
       if compare({"1900","treble"}) == true then
-        clef_change_treble()
+        clef_change_pre(0) --treble clef
       end
       if compare({"1901","alto"}) == true then
-        clef_change_alto()
+        clef_change_pre(1) -- alto clef
       end
       if compare({"1902","tenor"}) == true then
-        clef_change_tenor()
+        clef_change_pre(2) -- tenor clef
       end
       if compare({"1903","bass"}) == true then
-        clef_change_bass()
+        clef_change_pre(3) -- bass clef
       end
       if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8"}) == true then
-        clef_change_treble_8ba()
+        clef_change_pre(5) -- treble_8ba clef
       end
       if compare({"1905","perc"}) == true then
-        clef_change_perc()
+        clef_change_pre(12) -- perc clef (new style)
       end
       if execute_function[i] == "9000" then
         plugin_center_rehearsal_marks()
