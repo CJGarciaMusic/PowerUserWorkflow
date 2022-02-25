@@ -9266,7 +9266,7 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0404" then
         barline_right_thick()
       end
-      if compare({"0405","final"}) == true then
+      if compare({"0405","final", "fin"}) == true then
         barline_right_final()
       end
       if execute_function[i] == "0406" then
@@ -9416,13 +9416,13 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0616" then
         smartshape_15mb()
       end
-      if execute_function[i] == "0700" then
+      if compare({"0700","slash", "////", "/s"}) == true then
         staff_styles_slash()
       end
-      if execute_function[i] == "0701" then
+      if compare({"0701","rhythm", "rthm"}) == true then
         staff_styles_rhythm()
       end
-      if execute_function[i] == "0702" then
+      if compare({"0702","blank"}) == true then
         staff_styles_blank_ly1()
       end
       if execute_function[i] == "0703" then
@@ -9437,19 +9437,19 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0706" then
         staff_styles_blank_all()
       end
-      if execute_function[i] == "0707" then
+      if compare({"0707","%","1barrpt"}) == true then
         staff_styles_repeat_one()
       end
-      if execute_function[i] == "0708" then
+      if compare({"0708","%%", "2barrpt"}) == true then
         staff_styles_repeat_two()
       end
-      if execute_function[i] == "0709" then
+      if compare({"0709","stemless"}) == true then
         staff_styles_stemless()
       end
-      if execute_function[i] == "0710" then
+      if compare({"0710","cutaway"}) == true then
         staff_styles_cutaway()
       end
-      if execute_function[i] == "0711" then
+      if compare({"0711","collapse"}) == true then
         staff_styles_collapse()
       end
       if execute_function[i] == "0800" then
