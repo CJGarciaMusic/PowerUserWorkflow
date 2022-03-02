@@ -1,6 +1,6 @@
 function plugindef()
   finaleplugin.RequireSelection = false
-  finaleplugin.Version = "210708"
+  finaleplugin.Version = "220224"
   finaleplugin.Date = "07/08/2021"
   return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
@@ -6937,7 +6937,8 @@ end
 
 function noteheads_diamond()
   if check_SMuFL(nil) then
-    changeNoteheads("", 57564, 57566, 57566, 57566)
+    --changeNoteheads("", 57513, 57565, 57565, 57565) -- weaker open diamond
+    changeNoteheads("", 57513, 57562, 57562, 57562) -- open diamond with thickened walls
   else
     changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
   end
@@ -7082,7 +7083,8 @@ end
 
 function noteheads_x_diamond()
   if check_SMuFL(nil) then
-    changeNoteheads("", 57513, 57565, 57565, 57565)
+    --changeNoteheads("", 57513, 57565, 57565, 57565) -- weaker open diamond
+    changeNoteheads("", 57513, 57562, 57562, 57562) -- open diamond with thickened walls
   else
     changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
   end
@@ -7093,13 +7095,13 @@ function noteheads_x_diamond()
     if noteentry.Duration > 1536 then
       for note in each(noteentry) do
         nm:LoadAt(note)
-        nm:SetResize(130)
+        --nm:SetResize(130)
         nm:SaveAt(note)
       end
     else
       for note in each(noteentry) do
         nm:LoadAt(note)
-        nm:SetResize(100)
+        --nm:SetResize(100)
         nm:SaveAt(note)
       end
     end
@@ -7110,26 +7112,27 @@ function noteheads_x_diamond_above_staff()
   local nm = finale.FCNoteheadMod()
   nm:SetUseCustomFont(true)
   nm.FontName = default_music_font
-  local standard_note = 57513
-  local open_note = 57565
+  local closed_note = 57513
+  --local open_note = 57523 -- weaker diamond
+  local half_note = 57562
 
   if not check_SMuFL(nil) then
     nm.FontName = "Maestro Percussion"
-    standard_note = 120
-    open_note = 84
+    closed_note = 120
+    half_note = 84
   end
-
+  
   for noteentry in eachentrysaved(finenv.Region()) do 
     nm:SetNoteEntry(noteentry)
     for note in each(noteentry) do
       if note:CalcStaffPosition() >= -1 then
         if noteentry.Duration < 2048 then
-          nm.CustomChar = 120
-          nm:SetResize(100)
+          nm.CustomChar = closed_note
+          --nm:SetResize(100)
         end
         if (noteentry.Duration > 1536) then
-          nm.CustomChar = 84
-          nm:SetResize(130)
+          nm.CustomChar = half_note
+          --nm:SetResize(130)
         end
         nm:SaveAt(note)
       end
@@ -9083,10 +9086,10 @@ for i,k in pairs(execute_function) do
       if compare({"0101","marc"}) == true then
         articulations_marcato()
       end
-      if compare({"0102","stacc","staccato"}) == true then
+      if compare({"0102","stacc","staccato", "stac"}) == true then
         articulations_staccato()
       end
-      if compare({"0103","ten","tenuto"}) == true then
+      if compare({"0103","ten","tenuto", "-"}) == true then
         articulations_tenuto()
       end
       if execute_function[i] == "0104" then
@@ -9095,13 +9098,13 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0105" then
         articulations_round_wedge()
       end
-      if execute_function[i] == "0106" then
+      if compare({"0106","/"}) == true then
         articulations_tremolo_single()
       end
-      if execute_function[i] == "0107" then
+      if compare({"0107","//"}) == true then
         articulations_tremolo_double()
       end
-      if execute_function[i] == "0108" then
+      if compare({"0108","///"}) == true then
         articulations_tremolo_triple()
       end
       if compare({"0109","fermata","ferm"}) == true then
@@ -9110,7 +9113,7 @@ for i,k in pairs(execute_function) do
       if compare({"0110","closed","+"}) == true then
         articulations_closed()
       end
-      if compare({"0111","open"}) == true then
+      if compare({"0111","open", "o"}) == true then
         articulations_open()
       end
       if compare({"0112","upbow"}) == true then
@@ -9131,7 +9134,7 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0117" then
         articulations_turn()
       end
-      if execute_function[i] == "0118" then
+      if compare({"0118","roll"}) == true then
         articulations_roll()
       end
       if execute_function[i] == "0119" then
@@ -9170,19 +9173,19 @@ for i,k in pairs(execute_function) do
       if compare({"0137","]"}) == true then
         articulations_right_brackets()
       end
-      if execute_function[i] == "0138" then
+      if compare({"0138","-.", ".-"}) == true then
         articulations_combo_tenuto_staccato()
       end
-      if execute_function[i] == "0139" then
+      if compare({"0139",">.", ".>"}) == true then
         articulations_combo_accent_staccato()
       end
-      if execute_function[i] == "0140" then
+      if compare({"0140",">-", "->"}) == true then
         articulations_combo_accent_tenuto()
       end
       if execute_function[i] == "0141" then
         articulations_combo_marcato_staccato()
       end
-      if execute_function[i] == "0142" then
+      if compare({"0142","z"}) == true then
         articulations_tremolo_z()
       end
       if execute_function[i] == "0143" then
@@ -9191,28 +9194,28 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0144" then
         articulations_delete_articulations_from_rests()
       end
-      if execute_function[i] == "0145" then
+      if compare({"0145","trem"}) == true then
         articulations_metered_tremolo()
       end
-      if execute_function[i] == "0200" then
+      if compare({"0200", "xo","nh_xo","nh_xcircle"}) == true then
         noteheads_x_circle()
       end
-      if execute_function[i] == "0201" then
+      if compare({"0201","cross","nh_cross"}) == true then
         noteheads_cross_circle()
       end
-      if execute_function[i] == "0202" then
+      if compare({"0202","tri","tri_up", "triup","nh_tri"}) == true then
         noteheads_triangle_up()
       end
-      if execute_function[i] == "0203" then
+      if compare({"0203","tri_dn","tridn","tri_down", "nh_tri_down"}) == true then
         noteheads_triangle_down()
       end
-      if execute_function[i] == "0204" then
+      if compare({"0204","nh_dia","nh_diamond","diamond","dia"}) == true then
         noteheads_diamond()
       end
-      if execute_function[i] == "0205" then
+      if compare({"0205","ghost","nh_ghost","nh_gho","nh_paren"}) == true then
         noteheads_ghost()
       end
-      if execute_function[i] == "0206" then
+      if compare({"0206","xstick","crossstick","nh_xstick","nh_circled"}) == true then
         noteheads_cross_stick()
       end
       if execute_function[i] == "0207" then
@@ -9221,25 +9224,25 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "0208" then
         noteheads_square()
       end
-      if execute_function[i] == "0209" then
+      if compare({"0209","rim","rimshot","nh_rim"}) == true then
         noteheads_rim()
       end
-      if execute_function[i] == "0210" then
+      if compare({"0210","nonote","nh_none","nh_no"}) == true then
         noteheads_no_notehead()
       end
-      if execute_function[i] == "0211" then
+      if compare({"0211", "defualt", "def","nh_def", "nh_default"}) == true then
         noteheads_default()
       end
-      if execute_function[i] == "0212" then
+      if compare({"0212","nh_xd","xd"}) == true then
         noteheads_x_diamond()
       end
-      if compare({"0213","touchharmonics","touchharmx","touch"}) == true then
+      if compare({"0213","touchharmonics","touchharmx","touch","harm","hrmx","harmx"}) == true then
         noteheads_harmonics()
       end
-      if execute_function[i] == "0214" then
+      if compare({"0214","pas","drum"}) == true then
         noteheads_x_diamond_above_staff()
       end
-      if execute_function[i] == "0215" then
+      if compare({"0215","nh_center"}) == true then
         noteheads_center_noteheads()
       end
       if execute_function[i] == "0300" then
@@ -9356,7 +9359,7 @@ for i,k in pairs(execute_function) do
       if compare({"0512","6/4"}) == true then
         meter_6_4()
       end
-      if compare({"0513","beam_together"}) == true then
+      if compare({"0513","beam_together", "beam"}) == true then
         meter_beam_together()
       end
       if compare({"0514","common","c"}) == true then
@@ -9452,16 +9455,16 @@ for i,k in pairs(execute_function) do
       if compare({"0711","collapse"}) == true then
         staff_styles_collapse()
       end
-      if execute_function[i] == "0800" then
+      if compare({"0800","espr","esp","espressivo"}) == true then
         expressions_espr()
       end
-      if execute_function[i] == "0801" then
+      if compare({"0801","poco"}) == true then
         expressions_poco()
       end
-      if execute_function[i] == "0802" then
+      if compare({"0802","pocoapoco","poco_a_poco"}) == true then
         expressions_pocoapoco()
       end
-      if execute_function[i] == "0803" then
+      if compare({"0803","molto"}) == true then
         expressions_molto()
       end
       if execute_function[i] == "0804" then
@@ -10109,7 +10112,7 @@ for i,k in pairs(execute_function) do
       if execute_function[i] == "1516" then
         transform_highest_lowest_possible()
       end
-      if compare({"1517","kickline","bandhits"}) == true then
+      if compare({"1517","kickline","bandhits","kick"}) == true then
         transform_create_kicks()
       end
       if compare({"1518","topline"}) == true then
@@ -10202,7 +10205,7 @@ for i,k in pairs(execute_function) do
       if compare({"1903","bass"}) == true then
         clef_change_pre(3) -- bass clef
       end
-      if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8"}) == true then
+      if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8","treb8"}) == true then
         clef_change_pre(5) -- treble_8ba clef
       end
       if compare({"1905","perc"}) == true then
