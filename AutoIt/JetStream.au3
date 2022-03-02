@@ -1,6 +1,6 @@
 #cs ----------------------------------------------------------------------------
  AutoIt Version: 3.3.14.5
- Version: 210304
+ Version: 220206
  Script Function: JetStream Finale Controller for Windows
 #ce ----------------------------------------------------------------------------
 #include <MsgBoxConstants.au3>
@@ -19,7 +19,7 @@ Func MsgError($text)
 EndFunc
 
 Func LuaMenu($luaNum)
-   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "RPG Lua", "JetStream Finale Controller") Then
+   If WinMenuSelectItem("[CLASS:Finale]", "", "Plug-&ins", "JetStream", "JetStream Finale Controller") Then
 	  WinWaitActive("JetStream")
 	  If WinGetTitle("JetStream Finale Controller") Then
 		 Send($luaNum)
