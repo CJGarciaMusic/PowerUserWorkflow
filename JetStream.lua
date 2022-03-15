@@ -6944,6 +6944,16 @@ function noteheads_diamond()
   end
 end
 
+function noteheads_x_default()
+  local config = config_load()
+  local x_type = tonumber(config[8])
+  if x_type == 0 then
+    noteheads_x_circle()
+  elseif x_type == 1 then
+    noteheads_x_diamond()
+  end
+end
+
 function noteheads_ghost()
   if check_SMuFL(nil) then
     changeNoteheads("", 62929, 62930, 62931, 62931)
@@ -7108,20 +7118,30 @@ function noteheads_x_diamond()
   end
 end
 
-function noteheads_x_diamond_above_staff()
+function noteheads_x_above_staff()
   local nm = finale.FCNoteheadMod()
   nm:SetUseCustomFont(true)
   nm.FontName = default_music_font
+  local config = config_load()
+  local x_type = tonumber(config[8])
   local closed_note = 57513
-  --local open_note = 57523 -- weaker diamond
-  local half_note = 57562
+  local half_note = 0
+  if x_type == 0 then
+    half_note = 57523
+  elseif x_type == 1 then
+    half_note = 57562
+  end
 
   if not check_SMuFL(nil) then
     nm.FontName = "Maestro Percussion"
     closed_note = 120
+  if x_type == 0 then
+    half_note = 88
+  elseif x_type == 1 then
     half_note = 84
   end
-  
+  end
+
   for noteentry in eachentrysaved(finenv.Region()) do 
     nm:SetNoteEntry(noteentry)
     for note in each(noteentry) do
@@ -9212,6 +9232,9 @@ for i,k in pairs(execute_function) do
       if compare({"0204","nh_dia","nh_diamond","diamond","dia"}) == true then
         noteheads_diamond()
       end
+      if compare({"x","nh_x"}) == true then
+        noteheads_x_default()
+      end
       if compare({"0205","ghost","nh_ghost","nh_gho","nh_paren"}) == true then
         noteheads_ghost()
       end
@@ -9240,7 +9263,7 @@ for i,k in pairs(execute_function) do
         noteheads_harmonics()
       end
       if compare({"0214","pas","drum"}) == true then
-        noteheads_x_diamond_above_staff()
+        noteheads_x_above_staff()
       end
       if compare({"0215","nh_center"}) == true then
         noteheads_center_noteheads()

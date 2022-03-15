@@ -8,14 +8,6 @@ function plugindef()
   return "JetStream Configuration", "JetStream Configuration", "JetStream Configuration"
 end
 
---[[
-if finenv.IsRGPLua then
-  if nil ~= finenv.RetainLuaState then
-    finenv.RetainLuaState = true
-  end
-end
-]]
-
 function config_load()
   local path = finale.FCString()
   local config_settings = {} 
@@ -25,12 +17,13 @@ function config_load()
   if file_r == nil then
     print("Config file does not exist. Creating one.")
     --[[ DEFAULT JETSTREAM VARIABLES ]]
-    config_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18}
+    config_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 0}
     ----------------------------------------------
     config_save(config_settings)
     file_r = io.open(path.LuaString, "r")
   end
   for line in file_r:lines() do
+    line = line:gsub("[\n\r]", "")
     table.insert(config_settings, line)
   end
   return(config_settings)
@@ -88,6 +81,10 @@ function config_jetstream()
 --
   local dynamic_cushion = finale.FCString()
   dynamic_cushion.LuaString = config_settings[7]
+--
+  --local x_type = finale.FCString()
+  --x_type.LuaString = config_settings[8]
+  local x_type = tonumber(config_settings[8])
 --
   function add_ctrl(dialog, ctrl_type, text, x, y, h, w, min, max)
     str.LuaString = text
@@ -154,6 +151,17 @@ function config_jetstream()
   --
   local dynamic_cushion_static = add_ctrl(dialog, "static", "Dynamic/hairpin cushion: (EVPUs)", col[1], row[7], row_h * 2, col_w, 0, 0)
   local dynamic_cushion_edit = add_ctrl(dialog, "edit", dynamic_cushion.LuaString, col[2], row[7], row_h, 40, 0, 0)
+  --
+  add_ctrl(dialog, "horizontalline", "", col[1], row[8] + 10, 1, col_w * 3, 0, 0)
+  --
+  local x_type_static = add_ctrl(dialog, "static", "Default X-notehead type:", col[1], row[9], row_h, col_w, 0, 0)
+  local x_type_popup = add_ctrl(dialog, "popup", "", col[2], row[9], row_h, col_w, 0, 0)
+  local x_types = {"Xs and Circled Xs","Xs and Diamonds"}
+  for i,j in pairs(x_types) do
+    str.LuaString = x_types[i]
+    x_type_popup:AddString(str)
+  end   
+  x_type_popup:SetSelectedItem(x_type)
 
 --[[ ]]
   dialog:CreateOkButton()
@@ -183,6 +191,8 @@ function config_jetstream()
     --
     dynamic_cushion_edit:GetText(dynamic_cushion)
     config_settings[7] = dynamic_cushion.LuaString
+    --
+    config_settings[8] = x_type_popup:GetSelectedItem()
     --
     config_save(config_settings)
   end
