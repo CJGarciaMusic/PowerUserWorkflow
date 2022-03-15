@@ -7135,11 +7135,11 @@ function noteheads_x_above_staff()
   if not check_SMuFL(nil) then
     nm.FontName = "Maestro Percussion"
     closed_note = 120
-  if x_type == 0 then
-    half_note = 88
-  elseif x_type == 1 then
-    half_note = 84
-  end
+    if x_type == 0 then
+      half_note = 88
+    elseif x_type == 1 then
+      half_note = 84
+    end
   end
 
   for noteentry in eachentrysaved(finenv.Region()) do 
@@ -10275,6 +10275,10 @@ for i,k in pairs(execute_function) do
       end
       if execute_function[i] == "9999" then
         update_mac_35()
+      end
+      if compare({"0000","config"}) == true then
+        --user_configuration()
+        config_jetstream()
       end
     else
       if compare({"0000","config"}) == true then
