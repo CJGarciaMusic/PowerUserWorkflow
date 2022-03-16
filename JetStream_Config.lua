@@ -8,16 +8,35 @@ function plugindef()
   return "JetStream Configuration", "JetStream Configuration", "JetStream Configuration"
 end
 
-function config_load()
+function path_set()
   local path = finale.FCString()
-  local config_settings = {} 
-  path:SetRunningLuaFolderPath()
-  path.LuaString = path.LuaString.."JetStream_Config.txt"
+  local path_more = finale.FCString()
+  local ui = finenv.UI()
+  path:SetUserOptionsPath()
+  if ui:IsOnMac() then
+    path_more.LuaString = "/"
+  elseif ui:IsOnWindows() then
+    path_more.LuaString = "\\"
+  end
+  path.LuaString = path.LuaString..path_more.LuaString.."com.jetstreamfinale.config.txt"
+  return path
+end
+
+
+function config_load()
+  local path = path_set()
+  local config_settings = {}
+  local init_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 0,}
+  local init_count = 0
+  for i,k in pairs(init_settings) do
+    init_count = init_count + 1
+  end
+  --
   local file_r = io.open(path.LuaString, "r")
   if file_r == nil then
     print("Config file does not exist. Creating one.")
     --[[ DEFAULT JETSTREAM VARIABLES ]]
-    config_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 0}
+    config_settings = init_settings
     ----------------------------------------------
     config_save(config_settings)
     file_r = io.open(path.LuaString, "r")
@@ -26,13 +45,21 @@ function config_load()
     line = line:gsub("[\n\r]", "")
     table.insert(config_settings, line)
   end
+  --[[This is to take into account older config files so they don't get confused when we add new configurable parameters.
+Instead, it will grab the new parameter default values and insert them in for saving.
+]]
+--require('mobdebug').start()
+  for i = 0, init_count do
+    if config_settings[i] == nil then
+      config_settings[i] = init_settings[i]
+    end
+  end
   return(config_settings)
 end -- config_load()
 
+
 function config_save(config_settings)
-  local path = finale.FCString()
-  path:SetRunningLuaFolderPath()
-  path.LuaString = path.LuaString.."JetStream_Config.txt"
+  local path = path_set()
   local file_w = io.open(path.LuaString, "w") 
   for a, b in pairs(config_settings) do
     file_w:write(config_settings[a].."\n")
