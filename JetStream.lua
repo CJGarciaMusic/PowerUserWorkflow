@@ -5,43 +5,80 @@ function plugindef()
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
---[[
-local dialog = finenv.UserValueInput()
-dialog.Title = "JetStream Finale Controller"
-]]
-function userValueInput(title, text)
+local path = finale.FCString()
+path:SetRunningLuaFolderPath()
+package.path = package.path .. ";" .. path.LuaString .. "?.lua"
+require("JetStream_Config")
+
+local init_region = finenv.Region()
+init_region:SetCurrentSelection()
+
+function split(s, delimiter)
+  result = {};
+  if s == nil then s = "" end
+  for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+    match = string.lower(match)
+    if match ~= "" then
+      table.insert(result, match);
+    end
+  end
+  return result;
+end
+
+function trim(s)
+  return s:match'^()%s*$' and '' or s:match'^%s*(.*%S)'
+end
+
+function compare_values(source,compare_to)
+  local result = false
+  for i,k in pairs(compare_to) do
+    if source == compare_to[i] then
+      result = true
+    end
+  end
+  return result
+end
+
+function simple_input(title, text)
   local return_value = finale.FCString()
+  return_value.LuaString = ""
   local str = finale.FCString()
-  --
+  local min_width = 160
+
   function format_ctrl(ctrl, h, w, st)
-      ctrl:SetHeight(h)
-      ctrl:SetWidth(w)
-      str.LuaString = st
-      ctrl:SetText(str)
-  end -- function format_ctrl
-  --
+    ctrl:SetHeight(h)
+    ctrl:SetWidth(w)
+    str.LuaString = st
+    ctrl:SetText(str)
+  end
+
+  title_width = string.len(title) * 6 + 54
+  if title_width > min_width then min_width = title_width end
+  text_width = string.len(text) * 6
+  if text_width > min_width then min_width = text_width end
+
   str.LuaString = title
   local dialog = finale.FCCustomLuaWindow()
   dialog:SetTitle(str)
-  local user_value_input = dialog:CreateEdit(0, 18)
-  format_ctrl(user_value_input, 20, 220, "")
   local descr = dialog:CreateStatic(0, 0)
-  format_ctrl(descr, 12, 220, text)
-  dialog:CreateOkButton()
+  format_ctrl(descr, 16, min_width, text)
+  local input = dialog:CreateEdit(0, 20)
+  format_ctrl(input, 20, min_width, "")
+  local ok = dialog:CreateOkButton()
+  str.LuaString = "OK"
+  ok:SetText(str)
   dialog:CreateCancelButton()
-  --
+
   function callback(ctrl)
-  end -- callback
-  --
-  dialog:RegisterHandleCommand(callback)
-  --
-  if dialog:ExecuteModal(nil) == 1 then
-    return_value.LuaString = user_value_input:GetText(return_value)
-    --print(return_value.LuaString)
-    return return_value
-  -- OK button was pressed
   end
-end -- function userValueInput
+
+  dialog:RegisterHandleCommand(callback)
+  if dialog:ExecuteModal(nil) == finale.EXECMODAL_OK then
+    return_value.LuaString = input:GetText(return_value)
+    return return_value.LuaString
+  end
+end
+
 
 function get_region(per_system_bool)
     local single_region = {}
