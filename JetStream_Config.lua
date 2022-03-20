@@ -8,7 +8,7 @@ function plugindef()
   return "JetStream Configuration", "JetStream Configuration", "JetStream Configuration"
 end
 
-function path_set()
+function path_set(filename)
   local path = finale.FCString()
   local path_more = finale.FCString()
   local ui = finenv.UI()
@@ -18,13 +18,13 @@ function path_set()
   elseif ui:IsOnWindows() then
     path_more.LuaString = "\\"
   end
-  path.LuaString = path.LuaString..path_more.LuaString.."com.jetstreamfinale.config.txt"
+  path.LuaString = path.LuaString..path_more.LuaString..filename
   return path
 end
 
 
 function config_load()
-  local path = path_set()
+  local path = path_set("com.jetstreamfinale.config.txt")
   local config_settings = {}
   local init_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 0,}
   local init_count = 0
@@ -59,7 +59,7 @@ end -- config_load()
 
 
 function config_save(config_settings)
-  local path = path_set()
+  local path = path_set("com.jetstreamfinale.config.txt")
   local file_w = io.open(path.LuaString, "w") 
   for a, b in pairs(config_settings) do
     file_w:write(config_settings[a].."\n")
