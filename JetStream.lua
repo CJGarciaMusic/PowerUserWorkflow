@@ -6946,7 +6946,7 @@ end
 
 function noteheads_x_default()
   local config = config_load()
-  local x_type = tonumber(config[8])
+  local x_type = tonumber(config[13])
   if x_type == 0 then
     noteheads_x_circle()
   elseif x_type == 1 then
@@ -7123,7 +7123,7 @@ function noteheads_x_above_staff()
   nm:SetUseCustomFont(true)
   nm.FontName = default_music_font
   local config = config_load()
-  local x_type = tonumber(config[8])
+  local x_type = tonumber(config[13])
   local closed_note = 57513
   local half_note = 0
   if x_type == 0 then
