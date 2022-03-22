@@ -26,7 +26,7 @@ end
 function config_load()
   local path = path_set("com.jetstreamfinale.config.txt")
   local config_settings = {}
-  local init_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 0,}
+  local init_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 18, 32, 24, 12, 24, 0,}
   local init_count = 0
   for i,k in pairs(init_settings) do
     init_count = init_count + 1
@@ -78,7 +78,7 @@ function config_jetstream()
   dialog:SetTitle(str)
 --
   local row = {}
-  for i = 1, 11 do
+  for i = 1, 100 do
     row[i] = (i -1) * row_h
   end
 --
@@ -106,12 +106,25 @@ function config_jetstream()
   local play_x_more_suffix = finale.FCString()
   play_x_more_suffix.LuaString = config_settings[6]
 --
-  local dynamic_cushion = finale.FCString()
-  dynamic_cushion.LuaString = config_settings[7]
+  local dynamic_L_cushion = finale.FCString()
+  dynamic_L_cushion.LuaString = config_settings[7]
+  local dynamic_R_cushion = finale.FCString()
+  dynamic_R_cushion.LuaString = config_settings[8]
 --
+  local noteentry_cushion = finale.FCString()
+  noteentry_cushion.LuaString = config_settings[9]
+  local staff_cushion = finale.FCString()
+  staff_cushion.LuaString = config_settings[10]
+  --
+  local nudge_normal = finale.FCString()
+  nudge_normal.LuaString = config_settings[11]
+  local nudge_large = finale.FCString()
+  nudge_large.LuaString = config_settings[12]
+  --
+
   --local x_type = finale.FCString()
   --x_type.LuaString = config_settings[8]
-  local x_type = tonumber(config_settings[8])
+  local x_type = tonumber(config_settings[13])
 --
   function add_ctrl(dialog, ctrl_type, text, x, y, h, w, min, max)
     str.LuaString = text
@@ -176,13 +189,32 @@ function config_jetstream()
   --
   add_ctrl(dialog, "horizontalline", "", col[1], row[6] + 10, 1, col_w * 3, 0, 0)
   --
-  local dynamic_cushion_static = add_ctrl(dialog, "static", "Dynamic/hairpin cushion: (EVPUs)", col[1], row[7], row_h * 2, col_w, 0, 0)
-  local dynamic_cushion_edit = add_ctrl(dialog, "edit", dynamic_cushion.LuaString, col[2], row[7], row_h, 40, 0, 0)
+  local dynamics_cushions_static = add_ctrl(dialog, "static", "Dynamics Cushions (EVPUs)", col[1], row[7], row_h, col_w, 0, 0)
+  local dynamic_cushion_1_static = add_ctrl(dialog, "static", "Dynamic to Hairpins:", col[1], row[8], row_h, col_w, 0, 0)
+  local L = add_ctrl(dialog, "static", "L", col[2] - 10, row[8], row_h, 20, 0, 0)
+  local R = add_ctrl(dialog, "static", "R", col[2] + 50, row[8], row_h, 20, 0, 0)
+  local dynamic_L_cushion_edit = add_ctrl(dialog, "edit", dynamic_L_cushion.LuaString, col[2], row[8], row_h, 40, 0, 0)
+  local dynamic_R_cushion_edit = add_ctrl(dialog, "edit", dynamic_R_cushion.LuaString, col[2] + 60, row[8], row_h, 40, 0, 0)
   --
-  add_ctrl(dialog, "horizontalline", "", col[1], row[8] + 10, 1, col_w * 3, 0, 0)
+
+  local dynamic_cushion_2_static = add_ctrl(dialog, "static", "Lone Hairpins:", col[1], row[9], row_h, col_w +20, 0, 0)
+
+  local noteentry_cushion_static = add_ctrl(dialog, "static", "Notes", col[2] - 30, row[9], row_h, 40, 0, 0)
+  local staff_cushion_static = add_ctrl(dialog, "static", "Staff", col[2] + 35, row[9], row_h, 40, 0, 0)
+  local noteentry_cushion_edit = add_ctrl(dialog, "edit", noteentry_cushion.LuaString, col[2], row[9], row_h, 40, 0, 0)
+  local staff_cushion_edit = add_ctrl(dialog, "edit", staff_cushion.LuaString, col[2] + 60, row[9], row_h, 40, 0, 0)
+--
+  local nudge_static = add_ctrl(dialog, "static", "Nudge amounts:", col[1], row[10], row_h, col_w, 0, 0)
+  local nudge_normal_edit = add_ctrl(dialog, "edit", nudge_normal.LuaString, col[2], row[10], row_h, 40, 0, 0)
+  local nudge_large_edit = add_ctrl(dialog, "edit", nudge_large.LuaString, col[2] + 60, row[10], row_h, 40, 0, 0)
+
+
+
   --
-  local x_type_static = add_ctrl(dialog, "static", "Default X-notehead type:", col[1], row[9], row_h, col_w, 0, 0)
-  local x_type_popup = add_ctrl(dialog, "popup", "", col[2], row[9], row_h, col_w, 0, 0)
+  add_ctrl(dialog, "horizontalline", "", col[1], row[11] + 10, 1, col_w * 3, 0, 0)
+  --
+  local x_type_static = add_ctrl(dialog, "static", "Default X-notehead type:", col[1], row[12], row_h, col_w, 0, 0)
+  local x_type_popup = add_ctrl(dialog, "popup", "", col[2], row[12], row_h, col_w, 0, 0)
   local x_types = {"Xs and Circled Xs","Xs and Diamonds"}
   for i,j in pairs(x_types) do
     str.LuaString = x_types[i]
@@ -216,10 +248,21 @@ function config_jetstream()
     play_x_more_suffix_edit:GetText(play_x_more_suffix)
     config_settings[6] = play_x_more_suffix.LuaString
     --
-    dynamic_cushion_edit:GetText(dynamic_cushion)
-    config_settings[7] = dynamic_cushion.LuaString
+    dynamic_L_cushion_edit:GetText(dynamic_L_cushion)
+    config_settings[7] = dynamic_L_cushion.LuaString
+    dynamic_R_cushion_edit:GetText(dynamic_R_cushion)
+    config_settings[8] = dynamic_R_cushion.LuaString
+    noteentry_cushion_edit:GetText(noteentry_cushion)
+    config_settings[9] = noteentry_cushion.LuaString
+    staff_cushion_edit:GetText(staff_cushion)
+    config_settings[10] = staff_cushion.LuaString
     --
-    config_settings[8] = x_type_popup:GetSelectedItem()
+    nudge_normal_edit:GetText(nudge_normal)
+    config_settings[11] = nudge_normal.LuaString
+    nudge_large_edit:GetText(nudge_large)
+    config_settings[12] = nudge_large.LuaString
+    --
+    config_settings[13] = x_type_popup:GetSelectedItem()
     --
     config_save(config_settings)
   end
