@@ -1021,8 +1021,19 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
     local lowest_item_measure = 0
     local lowest_item_type = ""
     local alert_text = ""
+    local expression_height = 0
+    local noteentry_cushion = 21
+    local staff_cushion = 42
 
     for k, e in pairs(expression_list) do
+        local exp_ted = e:CreateTextExpressionDef()
+        local exp_string = exp_ted:CreateTextString()
+        local font_info = exp_string:CreateLastFontInfo()
+        exp_string:TrimEnigmaTags()
+        local text_met = finale.FCTextMetrics()
+        text_met:LoadStringA(exp_string, font_info, 100)
+        expression_height = (text_met:CalcHeightEVPUs() / 6)
+
         local arg_point_exp = finale.FCPoint(0, 0)
         if e:CalcMetricPos(arg_point_exp) then
             local exp_x, exp_y = math.floor(arg_point_exp.X * system_scale), math.floor(arg_point_exp.Y * system_scale)
@@ -1031,7 +1042,7 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
             if (exp_y < lowest_item) then
                 lowest_item = exp_y
                 -- lowest_item_measure = e.Measure
-                lowest_item_type = "Expression"
+                lowest_item_type = "Expression: " .. e:GetID()
             end
             if (exp_y > nearest_item) then
                 nearest_item = exp_y
@@ -1040,28 +1051,26 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
     end
 
     for key, smart_shape in pairs(hairpin_list) do
-        -- local arg_point_hairpin = finale.FCPoint(0, 0)
-        -- if smart_shape:CalcLeftCellMetricPos(arg_point_hairpin) then
-            local left_seg = smart_shape:GetTerminateSegmentLeft()
-            local left_meas = left_seg:GetMeasure()
-            local left_staff = left_seg:GetStaff()
-            local cell = finale.FCCell(left_meas, left_staff)
-            local cell_metrics = cell:CreateCellMetrics()
-            local top_staff_pos = math.floor(cell_metrics:GetTopStafflinePos() * system_scale)
-            
-            local hairpin_x, hairpin_y = left_seg:GetEndpointOffsetX(), (left_seg:GetEndpointOffsetY() + top_staff_pos)
-            -- finenv.UI():AlertInfo("Hairpin Y: "..hairpin_y, nil)
+        local arg_point_hairpin = finale.FCPoint(0, 0)
+        local hairpin_left_term = smart_shape:CalcLeftCellMetricPos(arg_point_hairpin)
+        local hairpin_right_term = smart_shape:CalcRightCellMetricPos(arg_point_hairpin)
+        if (hairpin_left_term and hairpin_right_term) then
+            local hairpin_x, hairpin_y = math.floor(arg_point_hairpin.X * system_scale), math.floor(arg_point_hairpin.Y * system_scale)
+
             local hairpin_info =  string.format("\r========\rHairpin Y: %s", hairpin_y)
+
             alert_text = alert_text..hairpin_info
+
             if (hairpin_y < lowest_item) then
                 lowest_item = hairpin_y
                 -- lowest_item_measure = left_meas
                 lowest_item_type = "Hairpin"   
             end
+
             if (hairpin_y > nearest_item) then
                 nearest_item = hairpin_y
             end
-        -- end
+        end
     end
 
 
@@ -1073,15 +1082,26 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
         alert_text = alert_text..entry_info
         if (current_pos_entry < lowest_item) then
             lowest_item = current_pos_entry
-            -- lowest_item_measure = noteentry:GetMeasure()
+            lowest_item_measure = noteentry:GetMeasure()
+            lowest_item_staff = noteentry:GetStaff()
             lowest_item_type = "Entry"
         end
     end
 
-    -- finenv.UI():AlertInfo(alert_text, nil)
-    -- finenv.UI():AlertInfo("Lowest Item: "..lowest_item_type, "Lowest Item")
+    if lowest_item_type == "Entry" then
+        local cell = finale.FCCell(lowest_item_measure, lowest_item_staff)
+        local cell_metrics = cell:CreateCellMetrics()
+        local lowest_staff_line = math.floor(cell_metrics:GetBottomStafflinePos() * system_scale)
+        if (lowest_item <= (lowest_staff_line - 24)) then
+            lowest_item = lowest_item - noteentry_cushion
+        else
+            lowest_item = lowest_staff_line - staff_cushion
+        end
+    end
 
-    
+    -- finenv.UI():AlertInfo(alert_text, nil)
+    -- finenv.UI():AlertInfo("Lowest Item: "..lowest_item_type.."\rLowest_Pos: "..lowest_item, "Lowest Item")
+
     for k, e in pairs(expression_list) do
         local arg_point_exp = finale.FCPoint(0, 0)
         if e:CalcMetricPos(arg_point_exp) then
@@ -1100,29 +1120,24 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
 
 
     for key, smart_shape in pairs(hairpin_list) do
-        -- local arg_point_hairpin = finale.FCPoint(0, 0)
+        local arg_point_hairpin = finale.FCPoint(0, 0)
         -- finenv.UI():AlertInfo(tostring(smart_shape:CalcLeftCellMetricPos(arg_point_hairpin)), nil)
-        -- if smart_shape:CalcLeftCellMetricPos(arg_point_hairpin) then
+        if smart_shape:CalcLeftCellMetricPos(arg_point_hairpin) then
             local left_seg = smart_shape:GetTerminateSegmentLeft()
-            local left_meas = left_seg:GetMeasure()
-            local left_staff = left_seg:GetStaff()
-            local cell = finale.FCCell(left_meas, left_staff)
-            local cell_metrics = cell:CreateCellMetrics()
-            local top_staff_pos = math.floor(cell_metrics:GetTopStafflinePos() * system_scale)
+            -- local left_meas = left_seg:GetMeasure()
+            -- local left_staff = left_seg:GetStaff()
             
-            local hairpin_x, hairpin_y = left_seg:GetEndpointOffsetX(), (left_seg:GetEndpointOffsetY() + top_staff_pos)
-
-            -- local hairpin_x, hairpin_y = math.floor(arg_point_hairpin.X * system_scale), math.floor(arg_point_hairpin.Y * system_scale)
+            local hairpin_x, hairpin_y = math.floor(arg_point_hairpin.X * system_scale), math.floor(arg_point_hairpin.Y * system_scale)
             local difference_far = math.abs(hairpin_y - lowest_item) / system_scale
             local difference_near = math.abs(hairpin_y - nearest_item) / system_scale
             -- finenv.UI():AlertInfo(lowest_item.." - "..hairpin_y.." = "..difference_far.."\rNew Pos:"..(hairpin_y - difference_far), "Hairpin")
             if direction == "far" then
-                left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far)
+                left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far + expression_height)
             else
-                left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near)
+                left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near - expression_height)
             end
             smart_shape:Save()
-        -- end
+        end
     end
     
 end
@@ -1952,15 +1967,10 @@ function dynamics_align_far()
 end
 
 function dynamics_align_near()
-    local staves = finale.FCStaves()
-    staves:LoadAll()
-    for staff in each(staves) do
-        local music_region = finenv.Region()
-        music_region:SetCurrentSelection()
-        if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
-                hairpin_adjustments(set_first_last_note_in_range(staff:GetItemNo()), "near")
-            end
+    for key, region in pairs(get_region(true)) do
+        local return_dynamic_region = set_first_last_note_in_range(region)
+        if return_dynamic_region ~= false then
+            hairpin_adjustments(return_dynamic_region, "near")
         end
     end
 end
@@ -8817,6 +8827,7 @@ local return_value = simple_input("JetStream Finale Controller", "Enter a JetStr
 local execute_function = split(return_value, " ")
 
 for i,k in pairs(execute_function) do
+  finale.FCCellMetrics.MarkMetricsForRebuild()
   if execute_function ~= nil then
     local mr = finale.FCMusicRegion()
     mr:SetCurrentSelection()
