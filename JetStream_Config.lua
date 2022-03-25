@@ -7,62 +7,124 @@ function plugindef()
   finaleplugin.Date = "2/13/2022"
   return "JetStream Configuration", "JetStream Configuration", "JetStream Configuration"
 end
+-- finalelua library functions
 
+local strip_leading_trailing_whitespace = function (str)
+  return str:match("^%s*(.-)%s*$") -- lua pattern magic taken from the Internet
+end
+
+local parse_parameter -- forward function declaration
+
+local parse_table = function(val_string)
+  local ret_table = {}
+  for element in val_string:gmatch('[^,%s]+') do  -- lua pattern magic taken from the Internet
+    local parsed_element = parse_parameter(element)
+    table.insert(ret_table, parsed_element)
+  end
+  return ret_table
+end
+
+parse_parameter = function(val_string)
+  if '"' == val_string:sub(1,1) and '"' == val_string:sub(#val_string,#val_string) then -- double-quote string
+    return string.gsub(val_string, '"(.+)"', "%1") -- lua pattern magic: "(.+)" matches all characters between two double-quote marks (no escape chars)
+  elseif "'" == val_string:sub(1,1) and "'" == val_string:sub(#val_string,#val_string) then -- single-quote string
+    return string.gsub(val_string, "'(.+)'", "%1") -- lua pattern magic: '(.+)' matches all characters between two single-quote marks (no escape chars)
+  elseif "{" == val_string:sub(1,1) and "}" == val_string:sub(#val_string,#val_string) then
+    return parse_table(string.gsub(val_string, "{(.+)}", "%1"))
+  elseif "true" == val_string then
+    return true
+  elseif "false" == val_string then
+    return false
+  end
+--    return tonumber(val_string)
+  return val_string
+end
+
+local get_parameters_from_file = function(file_name) -- modified
+  local parameters = {}
+  for line in io.lines(file_name) do
+    local comment_marker = "--"
+    local parameter_delimiter = "="
+    local comment_at = string.find(line, comment_marker, 1, true) -- true means find raw string rather than lua pattern
+    if nil ~= comment_at then
+      line = string.sub(line, 1, comment_at-1)
+    end
+    local delimiter_at = string.find(line, parameter_delimiter, 1, true)
+    if nil ~= delimiter_at then
+      local name = strip_leading_trailing_whitespace(string.sub(line, 1, delimiter_at-1))
+      local val_string = strip_leading_trailing_whitespace(string.sub(line, delimiter_at+1))
+      parameters[name] = parse_parameter(val_string)
+    end
+  end
+
+  return parameters
+end
+
+-- this one is still from library, but modified...
+function get_parameters(file_name, parameter_list)
+
+  local file_parameters = get_parameters_from_file(file_name)
+
+  if nil ~= file_parameters then
+    for param_name, def_val in pairs(file_parameters) do
+      local param_val = file_parameters[param_name]
+      if nil ~= param_val then
+        parameter_list[param_name] = param_val
+      end
+    end
+  end
+  return parameter_list
+end
+
+--------------------------------------
 function path_set(filename)
   local path = finale.FCString()
-  local path_more = finale.FCString()
+  local path_delimiter = finale.FCString()
   local ui = finenv.UI()
   path:SetUserOptionsPath()
   if ui:IsOnMac() then
-    path_more.LuaString = "/"
+    path_delimiter.LuaString = "/"
   elseif ui:IsOnWindows() then
-    path_more.LuaString = "\\"
+    path_delimiter.LuaString = "\\"
+    --path_delimiter.LuaString = "/" -- apparently Windows can use either! Go figure!
   end
-  path.LuaString = path.LuaString..path_more.LuaString..filename
+  path.LuaString = path.LuaString..path_delimiter.LuaString..filename
   return path
 end
-
 
 function config_load()
   local path = path_set("com.jetstreamfinale.config.txt")
   local config_settings = {}
-  local init_settings = {"Tacet", "tacet al fine", "PLAY", "BARS", "PLAY", "MORE", 18, 18, 32, 24, 12, 24, 0,}
+  local init_settings = {tacet_text = "Tacet", al_fine_text = "tacet al fine", play_x_bars_prefix = "PLAY", play_x_bars_suffix = "BARS", play_x_more_prefix = "PLAY", play_x_more_suffix = "MORE", dynamic_L_cushion = 18, dynamic_R_cushion = 18, noteentry_cushion = 32, staff_cushion = 24, nudge_normal = 12, nudge_large = 24, x_type = 0,}
   local init_count = 0
+  -- This next might not be needed... But doesn't hurt so leaving it in for now...
   for i,k in pairs(init_settings) do
     init_count = init_count + 1
   end
   --
   local file_r = io.open(path.LuaString, "r")
   if file_r == nil then
-    print("Config file does not exist. Creating one.")
-    --[[ DEFAULT JETSTREAM VARIABLES ]]
     config_settings = init_settings
-    ----------------------------------------------
     config_save(config_settings)
     file_r = io.open(path.LuaString, "r")
   end
-  for line in file_r:lines() do
-    line = line:gsub("[\n\r]", "")
-    table.insert(config_settings, line)
-  end
-  --[[This is to take into account older config files so they don't get confused when we add new configurable parameters.
-Instead, it will grab the new parameter default values and insert them in for saving.
-]]
---require('mobdebug').start()
-  for i = 0, init_count do
-    if config_settings[i] == nil then
-      config_settings[i] = init_settings[i]
+
+  config_settings = get_parameters(path.LuaString, config_settings)
+
+  for key, val in pairs(init_settings) do
+    if config_settings[key] == nil then
+      config_settings[key] = val
     end
   end
-  return(config_settings)
+  return config_settings
 end -- config_load()
-
 
 function config_save(config_settings)
   local path = path_set("com.jetstreamfinale.config.txt")
   local file_w = io.open(path.LuaString, "w") 
-  for a, b in pairs(config_settings) do
-    file_w:write(config_settings[a].."\n")
+
+  for key, val in pairs(config_settings) do
+    file_w:write(key.." = "..val.."\n")
   end
   file_w:close()
 end -- config_save()
@@ -91,40 +153,38 @@ function config_jetstream()
   local config_settings = config_load()
 --[[ VARIABLES FOR JETSTREAM ]]--
   local tacet_text = finale.FCString()
-  tacet_text.LuaString = config_settings[1]
+  tacet_text.LuaString = config_settings.tacet_text
   --
   local al_fine_text = finale.FCString()
-  al_fine_text.LuaString = config_settings[2]
+  al_fine_text.LuaString = config_settings.al_fine_text
   --
   local play_x_bars_prefix = finale.FCString()
-  play_x_bars_prefix.LuaString = config_settings[3]
+  play_x_bars_prefix.LuaString = config_settings.play_x_bars_prefix
   local play_x_bars_suffix = finale.FCString()
-  play_x_bars_suffix.LuaString = config_settings[4]
+  play_x_bars_suffix.LuaString = config_settings.play_x_bars_suffix
 --
   local play_x_more_prefix = finale.FCString()
-  play_x_more_prefix.LuaString = config_settings[5]
+  play_x_more_prefix.LuaString = config_settings.play_x_more_prefix
   local play_x_more_suffix = finale.FCString()
-  play_x_more_suffix.LuaString = config_settings[6]
+  play_x_more_suffix.LuaString = config_settings.play_x_more_suffix
 --
   local dynamic_L_cushion = finale.FCString()
-  dynamic_L_cushion.LuaString = config_settings[7]
+  dynamic_L_cushion.LuaString = config_settings.dynamic_L_cushion
   local dynamic_R_cushion = finale.FCString()
-  dynamic_R_cushion.LuaString = config_settings[8]
+  dynamic_R_cushion.LuaString = config_settings.dynamic_R_cushion
 --
   local noteentry_cushion = finale.FCString()
-  noteentry_cushion.LuaString = config_settings[9]
+  noteentry_cushion.LuaString = config_settings.noteentry_cushion
   local staff_cushion = finale.FCString()
-  staff_cushion.LuaString = config_settings[10]
+  staff_cushion.LuaString = config_settings.staff_cushion
   --
   local nudge_normal = finale.FCString()
-  nudge_normal.LuaString = config_settings[11]
+  nudge_normal.LuaString = config_settings.nudge_normal
   local nudge_large = finale.FCString()
-  nudge_large.LuaString = config_settings[12]
+  nudge_large.LuaString = config_settings.nudge_large
   --
-
-  --local x_type = finale.FCString()
-  --x_type.LuaString = config_settings[8]
-  local x_type = tonumber(config_settings[13])
+--  local x_type = tonumber(config_settings.x_type)
+  local x_type = config_settings.x_type
 --
   function add_ctrl(dialog, ctrl_type, text, x, y, h, w, min, max)
     str.LuaString = text
@@ -233,36 +293,36 @@ function config_jetstream()
 --
   if dialog:ExecuteModal(nil) == finale.EXECMODAL_OK then
     tacet_edit:GetText(tacet_text)
-    config_settings[1] = tacet_text.LuaString
+    config_settings.tacet_text = tacet_text.LuaString
     --
     al_fine_edit:GetText(al_fine_text)
-    config_settings[2] = al_fine_text.LuaString
+    config_settings.al_fine_text = al_fine_text.LuaString
     --
     play_x_bars_prefix_edit:GetText(play_x_bars_prefix)
-    config_settings[3] = play_x_bars_prefix.LuaString
+    config_settings.play_x_bars_prefix = play_x_bars_prefix.LuaString
     play_x_bars_suffix_edit:GetText(play_x_bars_suffix)
-    config_settings[4] = play_x_bars_suffix.LuaString
+    config_settings.play_x_bars_suffix = play_x_bars_suffix.LuaString
     --
     play_x_more_prefix_edit:GetText(play_x_more_prefix)
-    config_settings[5] = play_x_more_prefix.LuaString
+    config_settings.play_x_more_prefix = play_x_more_prefix.LuaString
     play_x_more_suffix_edit:GetText(play_x_more_suffix)
-    config_settings[6] = play_x_more_suffix.LuaString
+    config_settings.play_x_more_suffix = play_x_more_suffix.LuaString
     --
     dynamic_L_cushion_edit:GetText(dynamic_L_cushion)
-    config_settings[7] = dynamic_L_cushion.LuaString
+    config_settings.dynamic_L_cushion = dynamic_L_cushion.LuaString
     dynamic_R_cushion_edit:GetText(dynamic_R_cushion)
-    config_settings[8] = dynamic_R_cushion.LuaString
+    config_settings.dynamic_R_cushion = dynamic_R_cushion.LuaString
     noteentry_cushion_edit:GetText(noteentry_cushion)
-    config_settings[9] = noteentry_cushion.LuaString
+    config_settings.noteentry_cushion = noteentry_cushion.LuaString
     staff_cushion_edit:GetText(staff_cushion)
-    config_settings[10] = staff_cushion.LuaString
+    config_settings.staff_cushion = staff_cushion.LuaString
     --
     nudge_normal_edit:GetText(nudge_normal)
-    config_settings[11] = nudge_normal.LuaString
+    config_settings.nudge_normal = nudge_normal.LuaString
     nudge_large_edit:GetText(nudge_large)
-    config_settings[12] = nudge_large.LuaString
+    config_settings.nudge_large = nudge_large.LuaString
     --
-    config_settings[13] = x_type_popup:GetSelectedItem()
+    config_settings.x_type = x_type_popup:GetSelectedItem()
     --
     config_save(config_settings)
   end

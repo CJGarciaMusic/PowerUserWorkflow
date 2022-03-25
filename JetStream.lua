@@ -1034,9 +1034,8 @@ end
 function horizontal_hairpin_adjustment(left_or_right, hairpin, region_settings, cushion_bool, multiple_hairpin_bool)
   local the_seg = hairpin:GetTerminateSegmentLeft()
   local config = config_load()
-  local dynamic_cushion = tonumber(config[7])
-  local left_dynamic_cushion = dynamic_cushion
-  local right_dynamic_cushion = -dynamic_cushion
+  local left_dynamic_cushion = config.dynamic_L_cushion
+  local right_dynamic_cushion = -config.dynamic_R_cushion
   local left_selection_cushion = 0
   local right_selection_cushion = -18
 
@@ -3788,8 +3787,8 @@ function make_tacet_mm()
         text_font = "^fontTxt"..font:CreateEnigmaString(finale.FCString()).LuaString
       end
       local config = config_load()
-      local tacet_text = config[1]
-      local al_fine_text = config[2]
+      local tacet_text = config.tacet_text
+      local al_fine_text = config.al_fine_text
 
       if al_fine_check == true then
         ted_text.LuaString = text_font..al_fine_text
@@ -3903,22 +3902,22 @@ function make_x(bool_kind)
     local x = (region.EndMeasure + 1) - region.StartMeasure
     --
     local config = config_load()
-    if config[3] ~= "" then 
-      config[3] = config[3].." " 
+    if config.play_x_bars_prefix ~= "" then 
+      config.play_x_bars_prefix = config.play_x_bars_prefix.." " 
     end
-    if config[4] ~= "" then 
-      config[4] = " "..config[4] 
+    if config.play_x_bars_suffix ~= "" then 
+      config.play_x_bars_suffix = " "..config.play_x_bars_suffix 
     end
-    if config[5] ~= "" then 
-      config[5] = config[5].." " 
+    if config.play_x_more_prefix ~= "" then 
+      config.play_x_more_prefix = config.play_x_more_prefix.." " 
     end
-    if config[6] ~= "" then 
-      config[6] = " "..config[6] 
+    if config.play_x_more_suffix ~= "" then 
+      config.play_x_more_suffix = " "..config.play_x_more_suffix 
     end
     --
-    local playX_text = config[3]..x..config[4]
+    local playX_text = config.play_x_bars_prefix..x..config.play_x_bars_suffix
     if more then
-      playX_text = config[5]..x..config[6]
+      playX_text = config.play_x_more_prefix..x..config.play_x_more_suffix
     end
     local font = finale.FCFontInfo()
     local categorydefs = finale.FCCategoryDefs()
@@ -6946,7 +6945,7 @@ end
 
 function noteheads_x_default()
   local config = config_load()
-  local x_type = tonumber(config[13])
+  local x_type = tonumber(config.x_type)
   if x_type == 0 then
     noteheads_x_circle()
   elseif x_type == 1 then
@@ -7123,7 +7122,7 @@ function noteheads_x_above_staff()
   nm:SetUseCustomFont(true)
   nm.FontName = default_music_font
   local config = config_load()
-  local x_type = tonumber(config[13])
+  local x_type = tonumber(config.x_type)
   local closed_note = 57513
   local half_note = 0
   if x_type == 0 then
