@@ -1120,9 +1120,9 @@ function find_lowest_item_in_region(region, list_of_items)
     end
 end
 
--- local expression_height = 0
+local expression_midpoint = 0
 
-function set_vertical_pos(region, list_of_items, lowest_item, direction)
+function set_vertical_pos(region, list_of_items, lowest_item_type, lowest_item, direction)
     local page_height = get_current_page_height(region:GetStartMeasure())
     local system_scale = get_system_scaling(region)
     local systems = finale.FCStaffSystemsLookup():GetCurrentPartStaffSystems()
@@ -1135,16 +1135,24 @@ function set_vertical_pos(region, list_of_items, lowest_item, direction)
                 if (systems:FindMeasureNumber(expression:GetMeasure())) then
                     local arg_point_exp = finale.FCPoint(0, 0)
                     if expression:CalcMetricPos(arg_point_exp) then
-                        -- local exp_ted = expression:CreateTextExpressionDef()
-                        -- local exp_string = exp_ted:CreateTextString()
-                        -- local font_info = exp_string:CreateLastFontInfo()
-                        -- exp_string:TrimEnigmaTags()
-                        -- local text_met = finale.FCTextMetrics()
-                        -- text_met:LoadStringA(exp_string, font_info, 100)
-                        -- if (text_met) then
-                        --     expression_height = (text_met:CalcHeightEVPUs() / 6)
-                        -- end
+                        local exp_ted = expression:CreateTextExpressionDef()
+                        local exp_string = exp_ted:CreateTextString()
+                        local font_info = exp_string:CreateLastFontInfo()
+                        exp_string:TrimEnigmaTags()
+                        local text_met = finale.FCTextMetrics()
+                        text_met:LoadStringA(exp_string, font_info, 100)
+                        if (text_met) then
+                            expression_top = math.floor(text_met:GetTopEVPUs() * system_scale)
+                            expression_bottom = math.floor(text_met:GetBottomEVPUs() * system_scale)
+                        end
                         local exp_x, exp_y = math.floor(arg_point_exp.X * system_scale), math.floor(arg_point_exp.Y * system_scale)
+                        local top_y = exp_y + expression_top
+                        local bottom_y = exp_y + expression_bottom
+                        -- expression_midpoint = bottom_y + ((top_y - bottom_y) / 2)
+                        expression_midpoint = (bottom_y + math.floor((top_y - bottom_y) / 2)) - exp_y
+                        -- finenv.UI():AlertInfo("Expression Handle: "..exp_y.."\rExpression Top: "..expression_top.."\rExpression Bottom: "..expression_bottom, nil)
+                        -- finenv.UI():AlertInfo("Expression Handle: "..exp_y.."\rExpression Top: "..top_y.."\rExpression Bottom: "..bottom_y, nil)
+                        -- finenv.UI():AlertInfo("Middle of Expression: "..mid_point, nil)
                         local difference_far = math.floor(math.abs(exp_y - lowest_item) / system_scale)
                         -- local difference_near = math.floor(math.abs(exp_y - nearest_item) / system_scale)
                         if direction == "far" then
@@ -1160,6 +1168,16 @@ function set_vertical_pos(region, list_of_items, lowest_item, direction)
         end
         -- hairpins
         if (list_of_items[1]:ClassName() == "FCSmartShape") then
+
+            -- this is a weird, arbitrary amount.
+            if (expression_midpoint ~= 0) then
+                -- expression_midpoint = math.floor(expression_midpoint / system_scale)
+                -- finenv.UI():AlertInfo("Midpoint? "..expression_midpoint, nil)
+                -- expression_midpoint = 11 * system_scale
+                expression_midpoint = 10
+                -- expression_midpoint = 0
+            end
+
             for k, smartshape in pairs(list_of_items) do
                 local left_seg = smartshape:GetTerminateSegmentLeft()
                 local right_seg = smartshape:GetTerminateSegmentRight()
@@ -1177,11 +1195,11 @@ function set_vertical_pos(region, list_of_items, lowest_item, direction)
                     local difference_far = math.floor(math.abs(hairpin_y - lowest_item) / system_scale)
                     -- local difference_near = math.floor(math.abs(hairpin_y - nearest_item))
                     if direction == "far" then
-                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far)
-                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() - difference_far)
+                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far + expression_midpoint)
+                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() - difference_far + expression_midpoint)
                     else
-                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near)
-                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() + difference_near)
+                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near - expression_midpoint)
+                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() + difference_near - expression_midpoint)
                     end
 
                 end
@@ -1192,13 +1210,13 @@ function set_vertical_pos(region, list_of_items, lowest_item, direction)
                     local hairpin_left_term = smartshape:CalcLeftCellMetricPos(arg_point_hairpin_left)
                     local hairpin_x, hairpin_y = math.floor(arg_point_hairpin_left.X * system_scale), math.floor(arg_point_hairpin_left.Y * system_scale)
                     
-                    local difference_far = math.floor(math.abs(hairpin_y - lowest_item) / system_scale)
+                    local difference_far = math.floor(math.abs(hairpin_y - lowest_item) / system_scale) 
                     -- local difference_near = math.floor(math.abs(hairpin_y - nearest_item))
                     if direction == "far" then
                         -- finenv.UI():AlertInfo("Left seg: "..left_seg:GetEndpointOffsetY().."\rdiff: -"..difference_far, nil)
-                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far)
+                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far + expression_midpoint)
                     else
-                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near)
+                        left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near - expression_midpoint)
                     end
                 end
                 -- broken over system - right side
@@ -1208,18 +1226,18 @@ function set_vertical_pos(region, list_of_items, lowest_item, direction)
                     local cell = finale.FCCell(right_seg:GetMeasure(), right_seg:GetStaff())
                     local cell_metrics = cell:CreateCellMetrics()
                     local highest_staff_line = math.floor(cell_metrics:GetTopStafflinePos() * system_scale)
-                    local right_offset = right_seg:GetEndpointOffsetY()
+                    local right_offset = math.floor(right_seg:GetEndpointOffsetY() * system_scale)
                     local right_seg_pos = highest_staff_line + right_offset
-                    finenv.UI():AlertInfo("Real Pos: "..right_seg_pos, nil)
+                    -- finenv.UI():AlertInfo("Real Pos: "..right_seg_pos, nil)
                     -- finenv.UI():AlertInfo("Right Pos: "..right_seg_pos.."\rLowest Item: "..lowest_item, nil)
-                    local difference_far = math.floor(math.abs(right_seg_pos - lowest_item))
+                    local difference_far = math.abs(math.floor(right_seg_pos - lowest_item) / system_scale)
                     -- local difference_near = math.floor(math.abs(hairpin_y - nearest_item))
                     -- finenv.UI():AlertInfo("Current Pos: "..right_seg_pos.."\rLowest Item: "..lowest_item.."\rFinal Pos: "..(right_seg_pos - difference_far).."\r(difference): "..difference_far, nil)
                     if direction == "far" then
                         -- finenv.UI():AlertInfo("Right seg: "..right_seg:GetEndpointOffsetY().."\rdiff: -"..difference_far, nil)
-                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() - difference_far)
+                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() - difference_far + expression_midpoint)
                     else
-                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() + difference_near)
+                        right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() + difference_near - expression_midpoint)
                     end
                 end
                 smartshape:Save()
@@ -1229,7 +1247,7 @@ function set_vertical_pos(region, list_of_items, lowest_item, direction)
 end
 
 function vertical_dynamic_adjustment(region, expression_list, hairpin_list, notes_in_region_list, direction)
-    local expression_height = 0
+    -- local expression_height = 0
     local lowest_exp = find_lowest_item_in_region(region, expression_list)
     local lowest_hairpin = find_lowest_item_in_region(region, hairpin_list)
     local lowest_entry = find_lowest_item_in_region(region, notes_in_region_list)
@@ -1243,226 +1261,173 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
     
     table.sort(sorted, function(a,b) return a[2] < b[2] end)
     
-    -- local print_string = ""
-    -- for k, v in ipairs(sorted) do
-    --     print_string = print_string..v[1]..v[2].."\r"
-    -- end
-    -- finenv.UI():AlertInfo(print_string, nil)
-    
     lowest_item = sorted[1][2]
+    lowest_item_type = sorted[1][1]
     -- finenv.UI():AlertInfo("Lowest Item: "..sorted[1][1]..": "..sorted[1][2], nil)
-    set_vertical_pos(region, expression_list, lowest_item, direction)
-    set_vertical_pos(region, hairpin_list, lowest_item, direction)
+    set_vertical_pos(region, expression_list, lowest_item_type, lowest_item, direction)
+    set_vertical_pos(region, hairpin_list, lowest_item_type, lowest_item, direction)
+
+    -- attempted to revamp old version
+    --[[
+    local lowest_item = {}
+    local staff_pos = {}
+    local entry_pos = {}
+    local has_dynamics = false
+    local has_hairpins = false
+    local arg_point = finale.FCPoint(0, 0)
+    local system_scale = get_system_scaling(region)
+    local systems = finale.FCStaffSystemsLookup():GetCurrentPartStaffSystems()
+    systems:LoadAll()
+
+    local below_note_cushion = 45
+
+    for k, e in pairs(expression_list) do
+        if e:CalcMetricPos(arg_point) then
+            has_dynamics = true
+            table.insert(lowest_item, math.floor(arg_point:GetY() * system_scale))
+        end
+    end
+
+    for k, smart_shape in pairs(hairpin_list) do
+        has_hairpins = true
+        local left_seg = smart_shape:GetTerminateSegmentLeft()
+        local right_seg = smart_shape:GetTerminateSegmentRight()
+        local hairpin_start_system = systems:FindMeasureNumber(left_seg:GetMeasure())
+        local hairpin_end_system = systems:FindMeasureNumber(right_seg:GetMeasure())
+        local region_system = systems:FindMeasureNumber(region:GetStartMeasure())
+        if ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
+            table.insert(lowest_item, math.floor(arg_point:GetY() * system_scale))
+        elseif ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo > region_system.ItemNo)) then
+            table.insert(lowest_item, math.floor(arg_point:GetY() * system_scale))
+        elseif ((hairpin_start_system.ItemNo < region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
+            local cell = finale.FCCell(right_seg:GetMeasure(), right_seg:GetStaff())
+            local cell_metrics = cell:CreateCellMetrics()
+            local highest_staff_line = math.floor(cell_metrics:GetTopStafflinePos() * system_scale)
+            local right_offset = math.floor(right_seg:GetEndpointOffsetY() * system_scale)
+            local right_seg_pos = highest_staff_line + right_offset
+            table.insert(lowest_item, right_seg_pos)
+        end 
+    end
+      
+    table.sort(lowest_item)
+    finenv.UI():AlertInfo(lowest_item[1], nil)
+    -- finenv.UI():AlertInfo("Lowest Item: "..lowest_item[1], nil)
+    if has_dynamics == true then
+        for k, e in pairs(expression_list) do
+            if (systems:FindMeasureNumber(e:GetMeasure())) then
+
+                if e:CalcMetricPos(arg_point) then
+                    local difference_pos =  math.floor(arg_point:GetY() * system_scale) - lowest_item[1]
+                    if direction == "near" then
+                        difference_pos = lowest_item[#lowest_item] - math.floor(arg_point:GetY() * system_scale)
+                    end
+                        local current_pos = e:GetVerticalPos()
+                    if direction == "far" then
+                        e:SetVerticalPos(current_pos - (difference_pos / system_scale))
+                    else
+                        e:SetVerticalPos(current_pos + (difference_pos / system_scale))
+                    end
+                    e:Save()
+                end
+            end
+        end
+    else
+        for k, noteentry in pairs(notes_in_region_list) do
+            if (systems:FindMeasureNumber(noteentry:GetMeasure())) then
+                local entry_metrics = finale.FCEntryMetrics()
+                entry_metrics:Load(noteentry)
+                local current_entry_pos = entry_metrics:GetBottomPosition()
+                table.insert(entry_pos, current_entry_pos)
+                local entry_cell = finale.FCCell(noteentry:GetMeasure(), noteentry:GetStaff())
+                local entry_cell_metrics = entry_cell:CreateCellMetrics()
+                local lowest_staff_line = math.floor(entry_cell_metrics:GetBottomStafflinePos() * system_scale)
+                table.insert(staff_pos, lowest_staff_line)
+            end
+        end
+        table.sort(entry_pos)
+        table.sort(staff_pos)
     
-    
+        if ((entry_pos[1] ~= nil) and (staff_pos[1] ~= nil)) then
+            if entry_pos[1] < staff_pos[1] then
+                lowest_item[1] = entry_pos[1] - below_note_cushion
+            else
+                lowest_item[1] = staff_pos[1]
+            end
+        end
+    end
 
-    -- for k, e in pairs(expression_list) do
-    --     if (systems:FindMeasureNumber(e:GetMeasure())) then
-    --         local exp_ted = e:CreateTextExpressionDef()
-    --         local exp_string = exp_ted:CreateTextString()
-    --         local font_info = exp_string:CreateLastFontInfo()
-    --         exp_string:TrimEnigmaTags()
-    --         local text_met = finale.FCTextMetrics()
-    --         text_met:LoadStringA(exp_string, font_info, 100)
-            
-    --         local arg_point_exp = finale.FCPoint(0, 0)
-    --         if e:CalcMetricPos(arg_point_exp) then
-    --             local exp_x, exp_y = math.floor(arg_point_exp.X * system_scale), math.floor(arg_point_exp.Y * system_scale)
-    --             local expression_info =  string.format("\rExpression Y: %s", exp_y)
-    --             alert_text = alert_text..expression_info
-    --             if (exp_y < lowest_item) then
-    --                 lowest_item = exp_y
-    --                 lowest_item_measure = e.Measure
-    --                 lowest_item_type = "Expression: " .. e:GetID()
-    --                 expression_height = (text_met:CalcHeightEVPUs() / 6)
-    --             end
-    --             if (exp_y > nearest_item) then
-    --                 nearest_item = exp_y
-    --             end
-    --         end
-    --     end
-    -- end
+    if has_hairpins == true then
+        for k, smart_shape in pairs(hairpin_list) do
+            local left_seg = smart_shape:GetTerminateSegmentLeft()
+            local right_seg = smart_shape:GetTerminateSegmentRight()
+            local hairpin_start_system = systems:FindMeasureNumber(left_seg:GetMeasure())
+            local hairpin_end_system = systems:FindMeasureNumber(right_seg:GetMeasure())
+            local region_system = systems:FindMeasureNumber(region:GetStartMeasure())
+            if ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
+                local current_pos = left_seg:GetEndpointOffsetY()
+                local difference_pos = math.floor(arg_point:GetY() * system_scale) - lowest_item[1]
+                if direction == "near" then
+                    difference_pos = lowest_item[#lowest_item] - math.floor(arg_point:GetY() * system_scale)
+                end
+                if has_dynamics == true then
+                    if direction == "far" then
+                        -- finenv.UI():AlertInfo(current_pos.." "..difference_pos, nil)
+                        -- I think this + 12 is the difference between the handle of the dynamic and the middle of the dynamic
+                        left_seg:SetEndpointOffsetY((current_pos - (difference_pos / system_scale)) + 12)
+                        right_seg:SetEndpointOffsetY((current_pos - (difference_pos / system_scale)) + 12)
+                    else
+                        left_seg:SetEndpointOffsetY((current_pos + (difference_pos / system_scale)) + 12)
+                        right_seg:SetEndpointOffsetY((current_pos + (difference_pos / system_scale)) + 12)
+                    end
+                else
+                    left_seg:SetEndpointOffsetY(lowest_item[1])
+                    right_seg:SetEndpointOffsetY(lowest_item[1])
+                end
+                smart_shape:Save()
+            elseif ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo > region_system.ItemNo)) then
+                local current_pos = left_seg:GetEndpointOffsetY()
+                local difference_pos = math.floor(arg_point:GetY() * system_scale) - lowest_item[1]
+                if direction == "near" then
+                    difference_pos = lowest_item[#lowest_item] - math.floor(arg_point:GetY() * system_scale)
+                end
+                if has_dynamics == true then
+                    if direction == "far" then
+                        -- finenv.UI():AlertInfo(current_pos.." "..difference_pos, nil)
+                        left_seg:SetEndpointOffsetY((current_pos - (difference_pos / system_scale)) + 12)
+                    else
+                        left_seg:SetEndpointOffsetY((current_pos + (difference_pos / system_scale)) + 12)
+                    end
+                else
+                    left_seg:SetEndpointOffsetY(lowest_item[1])
+                end
+                smart_shape:Save()
+            elseif ((hairpin_start_system.ItemNo < region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
+                local cell = finale.FCCell(right_seg:GetMeasure(), right_seg:GetStaff())
+                local cell_metrics = cell:CreateCellMetrics()
+                local highest_staff_line = math.floor(cell_metrics:GetTopStafflinePos() * system_scale)
+                local right_offset = math.floor(right_seg:GetEndpointOffsetY() * system_scale)
+                local right_seg_pos = highest_staff_line + right_offset
 
-    -- for key, smart_shape in pairs(hairpin_list) do
-    --     local arg_point_hairpin_left = finale.FCPoint(0, 0)
-    --     local arg_point_hairpin_right = finale.FCPoint(0, 0)
-    --     -- local hairpin_left_term = smart_shape:CalcLeftCellMetricPos(arg_point_hairpin_left)
-    --     -- local hairpin_right_term = smart_shape:CalcRightCellMetricPos(arg_point_hairpin_right)
-    --     finenv.UI():AlertInfo("Left: "..tostring(hairpin_left_term).."\rRight: "..tostring(hairpin_right_term), nil)
-    --     local left_seg = smart_shape:GetTerminateSegmentLeft()
-    --     local right_seg = smart_shape:GetTerminateSegmentRight()
+                local current_pos = right_offset
+                local difference_pos = right_seg_pos - lowest_item[1]
+                if direction == "near" then
+                    difference_pos = lowest_item[#lowest_item] - right_seg_pos
+                end
 
-    --     local hairpin_start_system = systems:FindMeasureNumber(left_seg:GetMeasure())
-    --     local hairpin_end_system = systems:FindMeasureNumber(right_seg:GetMeasure())
-    --     local region_system = systems:FindMeasureNumber(region:GetStartMeasure())
-
-    --     -- hairpin is on one system
-    --     if ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
-    --         local hairpin_x, hairpin_y = math.floor(arg_point_hairpin_left.X * system_scale), math.floor(arg_point_hairpin_left.Y * system_scale)
-
-    --         -- local hairpin_info =  string.format("\r========\rHairpin Y: %s", hairpin_y)
-
-    --         -- alert_text = alert_text..hairpin_info
-
-    --         if (hairpin_y < lowest_item) then
-    --             lowest_item = hairpin_y
-    --             lowest_item_measure = left_meas
-    --             lowest_item_type = "Hairpin"   
-    --         end
-
-    --         if (hairpin_y > nearest_item) then
-    --             nearest_item = hairpin_y
-    --         end
-    --     end
-
-    --     -- hairpin breaks system, this is the first half
-    --     if ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo > region_system.ItemNo)) then 
-    --         local hairpin_x, hairpin_y = math.floor(arg_point_hairpin_left.X * system_scale), math.floor(arg_point_hairpin_left.Y * system_scale)
-
-    --         -- local hairpin_info =  string.format("\r========\rHairpin Y: %s", hairpin_y)
-
-    --         -- alert_text = alert_text..hairpin_info
-
-    --         if (hairpin_y < lowest_item) then
-    --             lowest_item = hairpin_y
-    --             lowest_item_measure = left_meas
-    --             lowest_item_type = "Hairpin"   
-    --         end
-
-    --         if (hairpin_y > nearest_item) then
-    --             nearest_item = hairpin_y
-    --         end
-    --     end
-
-    --     -- hairpin breaks system, this is the second half.
-    --     if ((hairpin_start_system.ItemNo < region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
-    --         local hairpin_x, hairpin_y = math.floor(arg_point_hairpin_right.X * system_scale), math.floor(arg_point_hairpin_right.Y * system_scale)
-
-    --         -- local hairpin_info =  string.format("\r========\rHairpin Y: %s", hairpin_y)
-
-    --         -- alert_text = alert_text..hairpin_info
-
-    --         if (hairpin_y < lowest_item) then
-    --             lowest_item = hairpin_y
-    --             lowest_item_measure = left_meas
-    --             lowest_item_type = "Hairpin"   
-    --         end
-
-    --         if (hairpin_y > nearest_item) then
-    --             nearest_item = hairpin_y
-    --         end
-    --     end
-    -- end
-
-
-    -- for k, noteentry in pairs(notes_in_region_list) do
-    --     local entry_metrics = finale.FCEntryMetrics()
-    --     entry_metrics:Load(noteentry)
-    --     local current_pos_entry = entry_metrics:GetBottomPosition()
-    --     local entry_info =  string.format("\r========\rEntry Y: %s", current_pos_entry)
-    --     alert_text = alert_text..entry_info
-    --     if (current_pos_entry < lowest_item) then
-    --         lowest_item = current_pos_entry
-    --         lowest_item_measure = noteentry:GetMeasure()
-    --         lowest_item_staff = noteentry:GetStaff()
-    --         lowest_item_type = "Entry"
-    --     end
-    -- end
-
-    -- if lowest_item_type == "Entry" then
-    --     local cell = finale.FCCell(lowest_item_measure, lowest_item_staff)
-    --     local cell_metrics = cell:CreateCellMetrics()
-    --     local lowest_staff_line = math.floor(cell_metrics:GetBottomStafflinePos() * system_scale)
-    --     if (lowest_item <= (lowest_staff_line - 24)) then
-    --         lowest_item = lowest_item - noteentry_cushion
-    --     else
-    --         lowest_item = lowest_staff_line - staff_cushion
-    --     end
-    -- end
-
-    -- -- finenv.UI():AlertInfo(alert_text, nil)
-    -- -- finenv.UI():AlertInfo("Lowest Item: "..lowest_item_type.."\rLowest_Pos: "..lowest_item, "Lowest Item")
-
-    -- for k, e in pairs(expression_list) do
-    --     local arg_point_exp = finale.FCPoint(0, 0)
-    --     if e:CalcMetricPos(arg_point_exp) then
-    --         local exp_x, exp_y = math.floor(arg_point_exp.X * system_scale), math.floor(arg_point_exp.Y * system_scale)
-    --         local difference_far = math.abs(exp_y - lowest_item) / system_scale
-    --         local difference_near = math.abs(exp_y - nearest_item) / system_scale
-    --         -- finenv.UI():AlertInfo(lowest_item.." - "..exp_y.." = "..difference_far.."\rNew Pos:"..(exp_y - difference_far), "Expression")
-    --         if direction == "far" then
-    --             e:SetVerticalPos(e:GetVerticalPos() - difference_far)
-    --         else
-    --             e:SetVerticalPos(e:GetVerticalPos() + difference_near)
-    --         end
-    --         e:Save()
-    --     end
-    -- end
-
-
-    -- for key, smart_shape in pairs(hairpin_list) do
-    --     local arg_point_hairpin = finale.FCPoint(0, 0)
-    --     local hairpin_left_term = smart_shape:CalcLeftCellMetricPos(arg_point_hairpin)
-    --     local hairpin_right_term = smart_shape:CalcRightCellMetricPos(arg_point_hairpin)
-    --     local left_seg = smart_shape:GetTerminateSegmentLeft()
-    --     local right_seg = smart_shape:GetTerminateSegmentRight()
-
-    --     local hairpin_start_system = systems:FindMeasureNumber(left_seg:GetMeasure())
-    --     local hairpin_end_system = systems:FindMeasureNumber(right_seg:GetMeasure())
-    --     local region_system = systems:FindMeasureNumber(region:GetStartMeasure())
-
-    --     -- hairpin alignment when the hairpin starts and ends on the same system
-    --     if ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
-    --         if (hairpin_left_term) then
-    --             local hairpin_x, hairpin_y = math.floor(arg_point_hairpin.X * system_scale), math.floor(arg_point_hairpin.Y * system_scale)
-    --             local difference_far = math.abs(hairpin_y - lowest_item) / system_scale
-    --             local difference_near = math.abs(hairpin_y - nearest_item) / system_scale
-    --             if direction == "far" then
-    --                 left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far + expression_height)
-    --                 right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() - difference_far + expression_height)
-    --             else
-    --                 left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near - expression_height)
-    --                 right_seg:SetEndpointOffsetY(right_seg:GetEndpointOffsetY() + difference_near - expression_height)
-    --             end
-    --         end
-    --         smart_shape:Save()
-    --     end
-    --     -- hairpin alignment for the first hairpin segment on a system break 
-    --     if ((hairpin_start_system.ItemNo == region_system.ItemNo) and (hairpin_end_system.ItemNo ~= region_system.ItemNo)) then
-    --         if (hairpin_left_term) then
-    --             local hairpin_x, hairpin_y = math.floor(arg_point_hairpin.X * system_scale), math.floor(arg_point_hairpin.Y * system_scale)
-    --             local difference_far = math.abs(hairpin_y - lowest_item) / system_scale
-    --             local difference_near = math.abs(hairpin_y - nearest_item) / system_scale
-    --             if direction == "far" then
-    --                 left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() - difference_far + expression_height)
-    --             else
-    --                 left_seg:SetEndpointOffsetY(left_seg:GetEndpointOffsetY() + difference_near - expression_height)
-    --             end
-    --         end
-    --         smart_shape:Save()
-    --     end
-    --     -- hairpin alignment for the second hairpin segment on a system break
-    --     if ((hairpin_start_system.ItemNo ~= region_system.ItemNo) and (hairpin_end_system.ItemNo == region_system.ItemNo)) then
-    --         -- finenv.UI():AlertInfo((lowest_item_measure), nil)
-    --         -- if (lowest_item_measure == 0) then
-    --             local rs_cell = finale.FCCell(lowest_item_measure, lowest_item_staff)
-    --             local rs_cell_metrics = rs_cell:CreateCellMetrics()
-    --             local top_staff_pos = math.floor(rs_cell_metrics:GetTopStafflinePos() * system_scale) 
-                
-    --             local hairpin_x, hairpin_y = math.floor(arg_point_hairpin.X * system_scale), math.floor(arg_point_hairpin.Y * system_scale)
-    --             local difference_far = math.abs(hairpin_y - lowest_item) / system_scale
-    --             local difference_near = math.abs(hairpin_y - nearest_item) / system_scale
-    --             finenv.UI():AlertInfo((top_staff_pos - difference_far + expression_height), nil)
-    --             if direction == "far" then
-    --                 right_seg:SetEndpointOffsetY(top_staff_pos - difference_far + expression_height)
-    --             else
-    --                 right_seg:SetEndpointOffsetY(top_staff_pos + difference_near - expression_height)
-    --             end
-    --         -- end
-    --         smart_shape:Save()
-    --     end
-    -- end
-    
+                if has_dynamics == true then
+                    if direction == "far" then
+                        -- finenv.UI():AlertInfo(current_pos.." "..difference_pos, nil)
+                        right_seg:SetEndpointOffsetY((current_pos - (difference_pos / system_scale)) + 12)
+                    else
+                        right_seg:SetEndpointOffsetY((current_pos + (difference_pos / system_scale)) + 12)
+                    end
+                else
+                    right_seg:SetEndpointOffsetY(lowest_item[1])
+                end
+                smart_shape:Save()
+            end 
+        end
+    end ]] 
 end
 
 function horizontal_hairpin_adjustment(left_or_right, hairpin, hairpin_region, cushion_bool, multiple_hairpin_bool)
