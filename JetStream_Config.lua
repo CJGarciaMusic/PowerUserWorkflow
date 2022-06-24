@@ -122,7 +122,6 @@ end -- config_load()
 function config_save(config_settings)
   local path = path_set("com.jetstreamfinale.config.txt")
   local file_w = io.open(path.LuaString, "w") 
-
   for key, val in pairs(config_settings) do
     file_w:write(key.." = "..val.."\n")
   end
@@ -249,7 +248,7 @@ function config_jetstream()
   --
   add_ctrl(dialog, "horizontalline", "", col[1], row[6] + 10, 1, col_w * 3, 0, 0)
   --
-  local dynamics_cushions_static = add_ctrl(dialog, "static", "Dynamics Cushions (EVPUs)", col[1], row[7], row_h, col_w, 0, 0)
+  local dynamics_cushions_static = add_ctrl(dialog, "static", "Dynamics Cushions (EVPUs: 24 = 1 space)", col[1], row[7], row_h, col_w * 3, 0, 0)
   local dynamic_cushion_1_static = add_ctrl(dialog, "static", "Dynamic to Hairpins:", col[1], row[8], row_h, col_w, 0, 0)
   local L = add_ctrl(dialog, "static", "L", col[2] - 10, row[8], row_h, 20, 0, 0)
   local R = add_ctrl(dialog, "static", "R", col[2] + 50, row[8], row_h, 20, 0, 0)

@@ -7211,6 +7211,58 @@ function noteheads_cross_circle()
   end
 end
 
+function noteheads_x_default()
+  local config = config_load()
+  local x_type = tonumber(config.x_type)
+  if x_type == 0 then
+    noteheads_x_circle()
+  elseif x_type == 1 then
+    noteheads_x_diamond()
+  end
+end
+
+function noteheads_x_above_staff()
+  local nm = finale.FCNoteheadMod()
+  nm:SetUseCustomFont(true)
+  nm.FontName = default_music_font
+  local config = config_load()
+  local x_type = tonumber(config.x_type)
+  local closed_note = 57513
+  local half_note = 0
+  if x_type == 0 then
+    half_note = 57523
+  elseif x_type == 1 then
+    half_note = 57562
+  end
+
+  if not check_SMuFL(nil) then
+    nm.FontName = "Maestro Percussion"
+    closed_note = 120
+    if x_type == 0 then
+      half_note = 88
+    elseif x_type == 1 then
+      half_note = 84
+    end
+  end
+
+  for noteentry in eachentrysaved(finenv.Region()) do 
+    nm:SetNoteEntry(noteentry)
+    for note in each(noteentry) do
+      if note:CalcStaffPosition() >= -1 then
+        if noteentry.Duration < 2048 then
+          nm.CustomChar = closed_note
+          --nm:SetResize(100)
+        end
+        if (noteentry.Duration > 1536) then
+          nm.CustomChar = half_note
+          --nm:SetResize(130)
+        end
+        nm:SaveAt(note)
+      end
+    end
+  end
+end
+
 function noteheads_triangle_up()
   if check_SMuFL(nil) then
     changeNoteheads("", 57534, 57533, 57533, 57533)
