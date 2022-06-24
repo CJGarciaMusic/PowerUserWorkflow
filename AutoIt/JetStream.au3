@@ -501,7 +501,7 @@ Func CheckForUpdate($SDsize, $currentVersion)
    $sHtml =  _INetGetSource($sWebSite)
    If $sHtml Then
 	  If $SDsize = "Standard" Then
-		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%2015key%\d.*\.", $STR_REGEXPARRAYMATCH)
+		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%\d.*\.", $STR_REGEXPARRAYMATCH)
 		 $sNewVersionNumber = StringTrimRight(StringRight($aNewVersion[0], 7), 1)
 	  ElseIf $SDsize = "XL" Then
 		 $aNewVersion = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%20proXL%\d.*\.", $STR_REGEXPARRAYMATCH)
@@ -513,7 +513,7 @@ Func CheckForUpdate($SDsize, $currentVersion)
 		 Return
 	  Else
 		 If $SDsize = "Standard" Then
-			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%2015key%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
+			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
 		 ElseIf $SDsize = "XL" Then
 			$aLinkArray = StringRegExp($sHtml, "https://www.dropbox.com/s/.*/JetStream%20Win%20proXL%\d.*\.zip\?dl=1", $STR_REGEXPARRAYMATCH)
 		 EndIf
