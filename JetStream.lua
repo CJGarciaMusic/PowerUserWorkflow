@@ -3200,6 +3200,18 @@ function tuplet_options(tuplet_parameters)
   end
 end
 
+function clef_change_pre(clef)
+  local staves = finale.FCStaves()
+  staves:LoadAll()
+  for staff in each(staves) do
+    local music_region = finenv.Region()
+    music_region:SetCurrentSelection()
+    if music_region:IsStaffIncluded(staff:GetItemNo()) then
+      clef_change(clef, staff:GetItemNo(), music_region)
+    end
+  end
+end
+
 function clef_change(clef_type, staff, region)
   local cell_frame = finale.FCCellFrameHold()
   for i, j in eachcell(region) do
