@@ -3,8 +3,8 @@ function plugindef()
   -- are both reserved for the plug-in definition.
   finaleplugin.Author = "Jacob Winkler"
   finaleplugin.Copyright = "2022"
-  finaleplugin.Version = ".1"
-  finaleplugin.Date = "2/13/2022"
+  finaleplugin.Version = "1.0"
+  finaleplugin.Date = "6/25/2022"
   return "JetStream Configuration", "JetStream Configuration", "JetStream Configuration"
 end
 -- finalelua library functions
@@ -95,7 +95,7 @@ end
 function config_load()
   local path = path_set("com.jetstreamfinale.config.txt")
   local config_settings = {}
-  local init_settings = {tacet_text = "Tacet", al_fine_text = "tacet al fine", play_x_bars_prefix = "PLAY", play_x_bars_suffix = "BARS", play_x_more_prefix = "PLAY", play_x_more_suffix = "MORE", dynamic_L_cushion = 18, dynamic_R_cushion = 18, noteentry_cushion = 32, staff_cushion = 24, nudge_normal = 12, nudge_large = 24, x_type = 0,}
+  local init_settings = {tacet_text = "Tacet", al_fine_text = "Tacet al fine", play_x_bars_prefix = "PLAY", play_x_bars_suffix = "BARS", play_x_more_prefix = "PLAY", play_x_more_suffix = "MORE", dynamic_L_cushion = 18, dynamic_R_cushion = 18, noteentry_cushion = 30, staff_cushion = 40, nudge_normal = 12, nudge_large = 24, x_type = 0,}
   local init_count = 0
   -- This next might not be needed... But doesn't hurt so leaving it in for now...
   for i,k in pairs(init_settings) do
