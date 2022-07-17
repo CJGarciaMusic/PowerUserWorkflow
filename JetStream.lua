@@ -5,10 +5,6 @@ function plugindef()
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
-
-local path = finale.FCString()
-path:SetRunningLuaFolderPath()
-package.path = package.path .. ";" .. path.LuaString .. "?.lua"
 require("JetStream_Config")
 
 local init_region = finenv.Region()
