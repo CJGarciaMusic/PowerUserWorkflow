@@ -9231,8 +9231,7 @@ for i,k in pairs(execute_function) do
         local mr = finale.FCMusicRegion()
         mr:SetCurrentSelection()
         function compare(compare_to)
-            local result = compare_values(k, compare_to)
-            return result
+            return compare_values(k, compare_to)
         end
 
         if mr:IsEmpty() ~= true then
