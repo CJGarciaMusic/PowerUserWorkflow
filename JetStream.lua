@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "220625"
-    finaleplugin.Date = "06/25/2022"
+    finaleplugin.Version = "220626"
+    finaleplugin.Date = "06/26/2022"
     return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
 end
 
@@ -14,6 +14,7 @@ require("JetStream_Config")
 local init_region = finenv.Region()
 init_region:SetCurrentSelection()
 
+-- repo library functions
 function split(s, delimiter)
     result = {};
     if s == nil then s = "" end
@@ -1115,7 +1116,7 @@ function find_lowest_item_in_region(region, list_of_items)
                     current_lowest_item = lowest_staff_line
                 end
             end
-                         -- Jake: Add padding from config file
+            -- Jake: Add padding from config file
             local config = config_load()
             current_lowest_item = current_lowest_item - config.staff_cushion
         end
@@ -2597,7 +2598,8 @@ function getFirstNoteInRegionText(note_range)
         local music_region = finenv.Region()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+--            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+            if set_first_last_note_in_range(music_region) ~= false then
                 music_region:SetStartStaff(staff:GetItemNo())
                 music_region:SetEndStaff(staff:GetItemNo())
 
@@ -2904,6 +2906,104 @@ function find_double_barlines(rehearsal_mark_type)
     for m in each(measures) do
         if m.Barline == 2 then
             add_rehearsal_marks(m.ItemNo + 1, rehearsal_mark_type)
+        end
+    end
+end
+
+function measure_numbers_adjust_for_leadin()
+    local library = require("general_library")
+
+    local size_prefs = finale.FCSizePrefs()
+    size_prefs:Load(1)
+    local default_barline_thickness = math.floor(size_prefs.ThinBarlineThickness/64.0 + 0.5) -- barline thickness in evpu
+
+-- additional_offset allows you to tweak the result. it is only applied if the measure number is being moved
+
+    local additional_offset = 0 -- here you can add more evpu to taste (positive values move the number to the right)
+    local systems = finale.FCStaffSystems()
+    systems:LoadAll()
+    local meas_num_regions = finale.FCMeasureNumberRegions()
+    meas_num_regions:LoadAll()
+    local parts = finale.FCParts()
+    parts:LoadAll()
+    local current_part = parts:GetCurrent()
+    local current_is_part = not current_part:IsScore()
+    local sel_region = library.get_selected_region_or_whole_doc()
+
+    for system in each(systems) do
+        local system_region = finale.FCMusicRegion()
+        if system:CalcRegion(system_region) and system_region:IsOverlapping(sel_region) then
+            local skip_past_meas_num = 0
+            local previous_meas_num = system_region.StartMeasure
+            for meas_num = system_region.StartMeasure, system_region.EndMeasure do
+                if meas_num > skip_past_meas_num then
+                    local meas_num_region = meas_num_regions:FindMeasure(meas_num)
+                    if nil ~= meas_num_region then
+                        multimeasure_rest = finale.FCMultiMeasureRest()
+                        local is_for_multimeasure_rest = multimeasure_rest:Load(meas_num)
+                        if is_for_multimeasure_rest then
+                            skip_past_meas_num = multimeasure_rest.EndMeasure
+                        end
+                        if sel_region:IsMeasureIncluded(meas_num)  then
+                            for slot = system_region.StartSlot, system_region.EndSlot do
+                                local staff = system_region:CalcStaffNumber(slot)
+                                if sel_region:IsStaffIncluded(staff) then
+                                    local cell = finale.FCCell(meas_num, staff)
+                                    if library.is_default_number_visible_and_left_aligned(meas_num_region, cell, system, current_is_part, is_for_multimeasure_rest) then
+                                        local lead_in = 0
+                                        if cell.Measure ~= system.FirstMeasure then
+                                            local cell_metrics = finale.FCCellMetrics()
+                                            if cell_metrics:LoadAtCell(cell) then
+                                                lead_in = cell_metrics.MusicStartPos - cell_metrics:GetLeftEdge()
+                                                local barline_thickness = default_barline_thickness
+                                                if nil ~= cell_metrics.GetRightBarlineWidth then -- if the property getter exists, then we are at 0.59+
+                                                    local previous_cell_metrics = finale.FCCellMetrics()
+                                                    if previous_cell_metrics:LoadAtCell(finale.FCCell(previous_meas_num, staff)) then
+                                                        barline_thickness = previous_cell_metrics.RightBarlineWidth
+                                                        previous_cell_metrics:FreeMetrics()
+                                                    end
+                                                end
+                                                lead_in = lead_in - barline_thickness
+                                                if (0 ~= lead_in) then
+                                                    lead_in = lead_in - additional_offset
+                                                    -- Finale scales the lead_in by the staff percent, so remove that if any
+                                                    local staff_percent = (cell_metrics.StaffScaling / 10000.0) / (cell_metrics.SystemScaling / 10000.0)
+                                                    lead_in = math.floor(lead_in/staff_percent + 0.5)
+                                                    -- FCSeparateMeasureNumber is scaled by the horizontal stretch
+                                                    local horz_percent = cell_metrics.HorizontalStretch / 10000.0
+                                                    lead_in = math.floor(lead_in/horz_percent + 0.5)
+                                                end
+                                            end
+                                            cell_metrics:FreeMetrics() -- maybe not needed?
+                                        end
+                                        local sep_nums = finale.FCSeparateMeasureNumbers()
+                                        sep_nums:LoadAllInCell(cell)
+                                        if (sep_nums.Count > 0) then
+                                            for sep_num in each(sep_nums) do
+                                                sep_num.HorizontalPosition = -lead_in
+                                                sep_num:Save()
+                                            end
+                                        elseif (0 ~= lead_in) then
+                                            local sep_num = finale.FCSeparateMeasureNumber()
+                                            sep_num:ConnectCell(cell)
+                                            sep_num:AssignMeasureNumberRegion(meas_num_region)
+                                            sep_num.HorizontalPosition = -lead_in
+                                            --sep_num:SetShowOverride(true) -- enable this line if you want to force show the number. otherwise it will show or hide based on the measure number region
+                                            if sep_num:SaveNew() then
+                                                local measure = finale.FCMeasure()
+                                                measure:Load(cell.Measure)
+                                                measure:SetContainsManualMeasureNumbers(true)
+                                                measure:Save()
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    previous_meas_num = meas_num
+                end
+            end
         end
     end
 end
@@ -3435,7 +3535,26 @@ function staff_spacing_adjust(moveBy)
     end
 end
 
-function swap_layers(swap_first, swap_second)
+function layer_copy(region, source_layer, destination_layer)
+    local start = region.StartMeasure
+    local stop = region.EndMeasure
+    local sysstaves = finale.FCSystemStaves()
+    sysstaves:LoadAllForRegion(region)
+    source_layer = source_layer - 1
+    destination_layer = destination_layer - 1
+    for sysstaff in each(sysstaves) do
+        staffNum = sysstaff.Staff
+        local noteentry_source_layer = finale.FCNoteEntryLayer(source_layer, staffNum, start, stop)
+        noteentry_source_layer:Load()
+        local noteentry_destination_layer = noteentry_source_layer:CreateCloneEntries(
+            destination_layer, staffNum, start)
+        noteentry_destination_layer:Save()
+        noteentry_destination_layer:CloneTuplets(noteentry_source_layer)
+        noteentry_destination_layer:Save()
+    end
+end -- function layer_copy
+
+function layer_swap(swap_first, swap_second)
     local region = finenv.Region()
     local start = region.StartMeasure
     local stop = region.EndMeasure
@@ -3463,7 +3582,7 @@ function swap_layers(swap_first, swap_second)
     end
 end
 
-function clear_Layer(lyr)
+function layer_clear(lyr)
     lyr = lyr - 1
     local region = finenv.Region()
     local start=region.StartMeasure
@@ -4918,6 +5037,38 @@ function string_harmonics_touch(interval_num)
     end
 end
 
+function stems_hide(entry)
+    local stem = finale.FCCustomStemMod()
+    stem:SetNoteEntry(entry)
+    stem:UseUpStemData(entry:CalcStemUp())
+    if stem:LoadFirst() then
+        stem.ShapeID = 0
+        stem:Save()
+    else
+        stem.ShapeID = 0
+        stem:SaveNew()
+    end
+end
+
+function stems_hide_inv(entry, stemDir)
+    local stem = finale.FCCustomStemMod()
+    stem:SetNoteEntry(entry)
+    if stemDir then
+        stemDir = false
+    else
+        stemDir =true
+    end
+    stem:UseUpStemData(stemDir)
+    if stem:LoadFirst() then
+        stem.ShapeID = 0   
+        stem:Save()
+    else
+        stem.ShapeID = 0
+        stem:SaveNew()
+    end
+    entry:SetBeamBeat(true)
+end
+
 function entries_mute(layers_input)
     local layers_input = layers_input or {1, 2, 3, 4}
     local layers = {[1] = true, [2] = true, [3] = true, [4] = true}
@@ -5127,8 +5278,8 @@ function cluster_determinate()
             table.insert(stem_dir, entry:CalcStemUp())
         end
 
-        CopyLayer(1, 2)
-        CopyLayer(1, 3)
+        layer_copy(finenv.Region(), 1, 2)
+        layer_copy(finenv.Region(),1, 3)
 
         local i = 1
         local j = 1
@@ -5151,7 +5302,7 @@ function cluster_determinate()
                     noteentry:SetRestDisplacement(6)
                 end
                 if stemDir == false and span > 2 then 
-                    HideStems(noteentry, stemDir)
+                    stems_hide_inv(noteentry, stemDir)
                 end
                 i = i + 1
             elseif noteentry.LayerNumber == 2 then
@@ -5164,7 +5315,7 @@ function cluster_determinate()
                     noteentry:SetRestDisplacement(4)                
                 end
                 if stemDir == true then
-                    HideStems(noteentry, stemDir)
+                    stems_hide_inv(noteentry, stemDir)
                 end 
                 j = j + 1
             elseif noteentry.LayerNumber == 3 then
@@ -5175,7 +5326,7 @@ function cluster_determinate()
                     end
                     noteentry.FreezeStem = true
                     noteentry.StemUp = true
-                    HideStems(noteentry, true)
+                    stems_hide_inv(noteentry, true)
                     DeleteTopBottomNotes(noteentry)
                 elseif noteentry:IsRest() then
                     noteentry:SetRestDisplacement(2)
@@ -5193,44 +5344,24 @@ function cluster_determinate()
         end
     end
 
-
-    function HideStems(entry, stemDir)
-        local stem = finale.FCCustomStemMod()
-        stem:SetNoteEntry(entry)
-        if stemDir then
-            stemDir = false
-        else
-            stemDir =true
-        end
-        stem:UseUpStemData(stemDir)
-        if stem:LoadFirst() then
-            stem.ShapeID = 0   
-            stem:Save()
-        else
-            stem.ShapeID = 0
-            stem:SaveNew()
-        end
-        entry:SetBeamBeat(true)
-    end
-
-    function CopyLayer(src, dest)
-        local region = finenv.Region()
-        local start=region.StartMeasure
-        local stop=region.EndMeasure
-        local sysstaves = finale.FCSystemStaves()
-        sysstaves:LoadAllForRegion(region)
-        src = src - 1
-        dest = dest - 1
-        for sysstaff in each(sysstaves) do
-            staffNum = sysstaff.Staff
-            local noteentrylayerSrc = finale.FCNoteEntryLayer(src,staffNum,start,stop)
-            noteentrylayerSrc:Load()     
-            local noteentrylayerDest = noteentrylayerSrc:CreateCloneEntries(dest,staffNum,start)
-            noteentrylayerDest:Save()
-            noteentrylayerDest:CloneTuplets(noteentrylayerSrc)
-            noteentrylayerDest:Save()
-        end
-    end
+--    function --CopyLayer(src, dest)
+--        local region = finenv.Region()
+--        local start=region.StartMeasure
+--        local stop=region.EndMeasure
+--        local sysstaves = finale.FCSystemStaves()
+--        sysstaves:LoadAllForRegion(region)
+--        src = src - 1
+--        dest = dest - 1
+--        for sysstaff in each(sysstaves) do
+--            staffNum = sysstaff.Staff
+--            local noteentrylayerSrc = finale.FCNoteEntryLayer(src,staffNum,start,stop)
+--            noteentrylayerSrc:Load()     
+--            local noteentrylayerDest = noteentrylayerSrc:CreateCloneEntries(dest,staffNum,start)
+--            noteentrylayerDest:Save()
+--            noteentrylayerDest:CloneTuplets(noteentrylayerSrc)
+--            noteentrylayerDest:Save()
+--        end
+--    end
 
     function DeleteBottomNotes(entry)
         while entry.Count > 1 do
@@ -5267,7 +5398,6 @@ function cluster_determinate()
             end 
         end 
     end 
-
 
     local function create_cluster_line()
         local lineExists = false
@@ -5465,6 +5595,37 @@ function cluster_determinate()
         end
     end    
 end
+
+function bariolage()
+    local region = finenv.Region()
+    layer_copy(region, 1, 2)
+    local layer1_ct = 1
+    local layer2_ct = 1
+    for entry in eachentrysaved(finenv.Region()) do
+        if entry:IsNote() then
+            if entry.LayerNumber == 1 then
+                if entry:CalcBeamedGroupEnd() then
+                    entry.Visible = false
+                end
+                if layer1_ct % 2 == 0 then
+                    print()
+                    stems_hide(entry)
+                end
+                layer1_ct = layer1_ct + 1
+            elseif entry.LayerNumber == 2 then
+                if entry:GetBeamBeat() then
+                    entry.Visible = false
+                end
+                if layer2_ct % 2 == 1 then
+                    print()
+                    stems_hide(entry)
+                end
+                entry:SetPlayback(false)
+                layer2_ct = layer2_ct + 1
+            end
+        end
+    end
+end -- function bariolage
 
 function create_centered_triangles()
     local solid_tri_up = 49
@@ -5740,6 +5901,84 @@ function top_line()
 
     end 
 end
+
+function rebeam()
+    local ui = finenv.UI()
+--    ui:MenuPositionCommand(2, 12, 0)
+    ui:ExecuteOSMenuCommand(1297244781)
+end
+
+function expand_notes() -- inspired by Carl Vine
+    local i = 0
+    while i < 4 do
+        local delete_next = false
+        for e in eachentrysaved(finenv.Region()) do
+            if delete_next then -- last note was expanded
+                e.Duration = 0
+                delete_next = false -- start again
+            elseif e.Duration < finale.QUARTER_NOTE then
+                if e.MeasurePos % finale.QUARTER_NOTE == 0 and e:Next():IsRest() then
+                    e.Duration = e.Duration + e:Next().Duration
+                    delete_next = true
+                elseif e.Duration < finale.NOTE_8TH then
+                    if e.MeasurePos % finale.NOTE_8TH == 0 and e:Next():IsRest() then
+                        e.Duration = e.Duration + e:Next().Duration
+                        delete_next = true
+                    elseif e.Duration < finale.NOTE_16TH then
+                        if e.MeasurePos % finale.NOTE_16TH == 0 and e:Next():IsRest() then
+                            e.Duration = e.Duration + e:Next().Duration
+                            delete_next = true
+                        end
+                    end
+                end
+            end
+        end
+        i = i + 1
+    end
+end
+
+function drum_layers(style)
+    local layer1_entries = {}
+    for entry in eachentry(finenv.Region()) do
+        if entry.LayerNumber == 1 then
+            table.insert(layer1_entries, entry)
+        end
+    end
+    layer_copy(finenv.Region(), 1, 2)
+    --
+    local i = 1
+    for entry in eachentrysaved(finenv.Region()) do
+        if entry.LayerNumber == 2 then
+            entry:CopyEntryPercussionDetails(layer1_entries[i])
+            i = i + 1
+        end
+    end
+    --
+    local split = -7
+    if style == 3 then
+        split = -2
+    end
+
+    for entry in eachentrysaved(finenv.Region()) do
+        local count = entry.Count
+        local i = 0
+        while i < count do
+            for note in each(entry) do
+                local staff_pos = note:CalcStaffPosition()
+                if (entry.LayerNumber == 1 and staff_pos <= split) 
+                or (entry.LayerNumber == 2 and staff_pos > split) then
+                    entry:DeleteNote(note)
+--        note:MarkForErase() -- dopesn't seem to work :/
+                else
+                end
+            end
+            i = i + 1
+        end
+    end
+    expand_notes()
+    rebeam()
+end
+
 
 function ui_switch_to_selected_part()
 
@@ -6238,6 +6477,145 @@ function dynamics_nudge_down()
         nudge_dynamics_and_hairpins(value, music_reg, -nudge)
     end
 end
+
+function dynamics_above_staff()
+    local region = finenv.Region()
+    local start_msr = region.StartMeasure
+    local end_msr = region.EndMeasure
+    local start_staff = region.StartStaff
+    local end_staff = region.EndStaff
+    local measures = finale.FCMeasures()
+    measures:LoadRegion(region)
+    local sysstaves = finale.FCSystemStaves()
+    sysstaves:LoadAllForRegion(region)
+    local staffsystems = finale.FCStaffSystems()
+    staffsystems:LoadAll()
+    local staffsys = finale.FCStaffSystem()
+    local start_staffsys = staffsystems:FindMeasureNumber(start_msr)
+    local end_staffsys = staffsystems:FindMeasureNumber(end_msr)
+    print("Start Staffsys is",start_staffsys.ItemNo,", End is",end_staffsys.ItemNo)
+    local baseline = finale.FCBaseline()
+    baseline.Mode = finale.BASELINEMODE_EXPRESSIONABOVE
+    baseline:LoadDefaultForMode(finale.BASELINEMODE_EXPRESSIONABOVE)
+    baseline_off = baseline.VerticalOffset
+    print("Above Staff Baseline is",baseline_off)
+--    local move_by = -84
+    local e_vert_target = 0
+    local h_vert_target = 0
+    local sys_ref_line = 0
+    local config = config_load()
+    local vocal_dynamic_offset = config.dynamic_above_cushion
+
+    function metrics(sys_region)
+        print("metrics function called")
+        local highest = 0
+        local hairpins = 0
+        measures:LoadRegion(sys_region)
+        for msr in each(measures) do
+            print("Analyzing measure",msr.ItemNo)
+            cell = finale.FCCell(msr.ItemNo, sys_region.StartStaff)
+            cellmetrics = cell:CreateCellMetrics()
+            --**** May need to account for cellmetrics:GetStaffScaling()...
+            staff_scale = cellmetrics:GetStaffScaling() / 10000
+            if cellmetrics.ReferenceLinePos + vocal_dynamic_offset > highest then
+                highest = cellmetrics.ReferenceLinePos + vocal_dynamic_offset
+            end
+        end -- for msr..
+        for entry in eachentry(sys_region) do
+            local e_metrics = finale.FCEntryMetrics()
+            e_metrics:Load(entry)
+            local e_highest = e_metrics:GetTopPosition() / staff_scale
+            if e_highest + vocal_dynamic_offset > highest then 
+                highest = e_highest + vocal_dynamic_offset
+            end
+        end
+        hairpins = highest - cellmetrics.ReferenceLinePos + 12
+
+        return highest, hairpins
+    end -- function metrics
+
+    function expr_move(staff_region, e_vert_target)
+        local expressions = finale.FCExpressions()
+        expressions:LoadAllForRegion(staff_region)
+        for e in each(expressions) do
+            local dynamic = false
+            local sed = e:CreateTextExpressionDef()
+            local cat_ID = sed:GetCategoryID()
+            local cd = finale.FCCategoryDef()
+            if cd:Load(cat_ID) then
+                local cat_name = cd:CreateName()
+                --print(cat_name.LuaString)
+                if cat_name.LuaString == "Dynamics" then
+                    dynamic = true
+                end
+            end
+            if dynamic == true then
+                print("VerticalPos",e.VerticalPos)
+                local e_metric = finale.FCPoint(0, 0)
+                cell = finale.FCCell(e.Measure, e.Staff)
+                cellmetrics = cell:CreateCellMetrics()
+                ---- CHANGE ME!
+                --e_vert_target = cellmetrics.ReferenceLinePos + baseline_off + move_by - 12 -- vert_target could be calculated somehwere else...
+                ----
+                print("Vertical Target is",e_vert_target)
+                e:CalcMetricPos(e_metric)
+                print("Expression Y is",e_metric.Y)
+                e:SetVerticalPos(e.VerticalPos + (e_vert_target - e_metric.Y))
+                e:Save()
+            end -- if dynamic == true
+        end -- for e...
+    end -- func expr_move
+
+
+    function hairpin_move(staff_region, h_vert_target)
+        local ssmm = finale.FCSmartShapeMeasureMarks()
+        ssmm:LoadAllForRegion(staff_region, true)
+        for mark in each(ssmm) do
+            local smart_shape = mark:CreateSmartShape()
+            if smart_shape:IsHairpin() then
+                print("found hairpin")
+                local left_seg = smart_shape:GetTerminateSegmentLeft()
+                local right_seg = smart_shape:GetTerminateSegmentRight()
+                left_seg:SetEndpointOffsetY(h_vert_target)
+                right_seg:SetEndpointOffsetY(h_vert_target)
+
+                smart_shape:Save()
+            end
+        end
+    end -- func hairpin_move
+
+    function analyze_staves()
+        for i = start_staffsys.ItemNo, end_staffsys.ItemNo, 1 do
+            print("Analyzing staffsys",i)
+            staffsys:Load(i)
+            local sys_region_start = 0
+            local sys_region_end = 0
+            if start_msr > staffsys.FirstMeasure then
+                sys_region_start = start_msr
+            else
+                sys_region_start = staffsys.FirstMeasure
+            end
+            if end_msr < (staffsys.NextSysMeasure - 1) then
+                sys_region_end = end_msr
+            else
+                sys_region_end = staffsys.NextSysMeasure - 1
+            end
+            print("Start Measure",sys_region_start, "End", sys_region_end)
+            local sys_region = finenv.Region()
+            sys_region:SetStartMeasure(sys_region_start)
+            sys_region:SetEndMeasure(sys_region_end)
+            for j = start_staff, end_staff, 1 do
+                sys_region:SetStartStaff(j)
+                sys_region:SetEndStaff(j)
+                e_vert_target, h_vert_target = metrics(sys_region)
+                print("vert_target for staff",j,"is",e_vert_target)
+                expr_move(sys_region, e_vert_target)
+                hairpin_move(sys_region, h_vert_target)
+            end -- for j = start_staff...
+        end -- for i...
+    end -- function 
+    analyze_staves()
+end -- function
 
 function dynamics_delete_hairpins()
     deleteHairpins()
@@ -7233,6 +7611,14 @@ function noteheads_cross_circle()
     end
 end
 
+function noteheads_cross_diamond()
+    if check_SMuFL(nil) then
+        changeNoteheads("", 57514, 57565, 57565, 57565)
+    else
+        changeNoteheads("Maestro Percussion", 122, 84, 84, 84)
+    end
+end
+
 function noteheads_x_default()
     local config = config_load()
     local x_type = tonumber(config.x_type)
@@ -7240,6 +7626,10 @@ function noteheads_x_default()
         noteheads_x_circle()
     elseif x_type == 1 then
         noteheads_x_diamond()
+    elseif x_type == 2 then
+        noteheads_cross_circle()
+    elseif x_type == 3 then
+        noteheads_cross_diamond()
     end
 end
 
@@ -7249,21 +7639,27 @@ function noteheads_x_above_staff()
     nm.FontName = default_music_font
     local config = config_load()
     local x_type = tonumber(config.x_type)
-    local closed_note = 57513
-    local half_note = 0
-    if x_type == 0 then
-        half_note = 57523
-    elseif x_type == 1 then
-        half_note = 57562
+    local noteheads = {}
+    if x_type == 0 then -- simple x, circled-x
+        noteheads = {57513, 57523, 57523, 57523}
+    elseif x_type == 1 then -- simple x, diamond
+        noteheads = {57513, 57562, 57562, 57562}
+    elseif x_type == 2 then -- ornate x (cross), circled
+        noteheads = {57514, 57515, 57515, 57515}
+    elseif x_type == 3 then -- ornate x (cross), diamond
+        noteheads = {57514, 57562, 57562, 57562}
     end
 
     if not check_SMuFL(nil) then
         nm.FontName = "Maestro Percussion"
-        closed_note = 120
         if x_type == 0 then
-            half_note = 88
+            noteheads = {120, 88, 88, 88}
         elseif x_type == 1 then
-            half_note = 84
+            noteheads = {120, 84, 84, 84}
+        elseif x_type == 2 then
+            noteheads = {122, 90, 90, 90}
+        elseif x_type == 3 then
+            noteheads = {122, 84, 84, 84}
         end
     end
 
@@ -7272,12 +7668,18 @@ function noteheads_x_above_staff()
         for note in each(noteentry) do
             if note:CalcStaffPosition() >= -1 then
                 if noteentry.Duration < 2048 then
-                    nm.CustomChar = closed_note
+                    nm.CustomChar = noteheads[1]
                     --nm:SetResize(100)
                 end
-                if (noteentry.Duration > 1536) then
-                    nm.CustomChar = half_note
+                if (noteentry.Duration >= 2048) and (noteentry.Duration < 4096) then
+                    nm.CustomChar = noteheads[2]
                     --nm:SetResize(130)
+                end
+                if (noteentry.Duration >= 4096) and (noteentry.Duration < 8192) then
+                    nm.CustomChar = noteheads[3]
+                end
+                if (noteentry.Duration >= 8192) then
+                    nm.CustomChar = noteheads[4]
                 end
                 nm:SaveAt(note)
             end
@@ -7472,6 +7874,7 @@ function noteheads_x_diamond()
     end
 end
 
+--[[
 function noteheads_x_diamond_above_staff()
     local nm = finale.FCNoteheadMod()
     nm:SetUseCustomFont(true)
@@ -7495,13 +7898,14 @@ function noteheads_x_diamond_above_staff()
                 end
                 if (noteentry.Duration > 1536) then
                     nm.CustomChar = 84
-                    nm:SetResize(130)
+--                    nm:SetResize(130)
                 end
                 nm:SaveAt(note)
             end
         end
     end
 end
+]]
 
 function noteheads_center_noteheads()
     local region = finenv.Region()
@@ -7592,6 +7996,191 @@ function reset_baselines_lyrics()
         end
     end
 end
+
+function lyrics_spacing(title)
+    local config = config_load()
+
+    if config.lyrics_all == "true" or config.lyrics_all == true then
+        all_lyrics = true
+    else
+        all_lyrics = false
+    end
+    --
+    local independent_lyrics = false
+    local baseline_verse = finale.FCBaseline()
+    baseline_verse:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSVERSE,1)
+    local verse1_start = -baseline_verse.VerticalOffset
+    baseline_verse:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSVERSE,2)
+    local verse_gap =  -baseline_verse.VerticalOffset - verse1_start
+    --
+    local baseline_chorus = finale.FCBaseline()
+    baseline_chorus:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSCHORUS,1)
+    local chorus1_start = -baseline_chorus.VerticalOffset
+    baseline_chorus:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSCHORUS,2)
+    local chorus_gap =  -baseline_chorus.VerticalOffset - chorus1_start
+    --
+    local baseline_section = finale.FCBaseline()
+    baseline_section:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSSECTION,1)
+    local section1_start = -baseline_section.VerticalOffset
+    baseline_section:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSSECTION,2)
+    local section_gap = -baseline_section.VerticalOffset - section1_start
+    --
+    local row_h = 20
+    local col_w = 60
+    local col_gap = 10
+    local str = finale.FCString()
+    str.LuaString = title
+    local dialog = finale.FCCustomLuaWindow()
+    dialog:SetTitle(str)
+
+    local row = {}
+    for i = 1, 100 do
+        row[i] = (i -1) * row_h
+    end
+--
+    local col = {}
+    for i = 1, 20 do
+        col[i] = (i - 1) * col_w
+    end
+--
+
+    function add_ctrl(dialog, ctrl_type, text, x, y, h, w, min, max)
+        str.LuaString = text
+        local ctrl = ""
+        if ctrl_type == "checkbox" then
+            ctrl = dialog:CreateCheckbox(x, y)
+        elseif ctrl_type == "edit" then
+            ctrl = dialog:CreateEdit(x, y - 2)
+        elseif ctrl_type == "static" then
+            ctrl = dialog:CreateStatic(x, y)
+        end
+        if ctrl_type == "edit" then
+            ctrl:SetHeight(h-2)
+            ctrl:SetWidth(w - col_gap)
+        else
+            ctrl:SetHeight(h)
+            ctrl:SetWidth(w)
+        end
+        ctrl:SetText(str)
+        return ctrl
+    end
+
+--    local control = add_ctrl(dialog, "static", "TESTING!", col[1], row[2], row_h, col_w, 0, 0)
+    local verse_static = add_ctrl(dialog, "static", "All Lyrics", col[3], row[1], row_h, col_w, 0, 0)
+    local chorus_static = add_ctrl(dialog, "static", "", col[4], row[1], row_h, col_w, 0, 0)
+    local section_static = add_ctrl(dialog, "static", "", col[5], row[1], row_h, col_w, 0, 0)
+    --
+    local lyric1_static = add_ctrl(dialog, "static", "Lyric 1 baseline:", col[1] + 31, row[2], row_h, col_w * 2, 0, 0)
+    local verse1_edit = add_ctrl(dialog, "edit", verse1_start, col[3], row[2], row_h, col_w, 0, 0)  
+    local chorus1_edit = add_ctrl(dialog, "edit", chorus1_start, col[4], row[2], row_h, col_w, 0, 0)  
+    local section1_edit = add_ctrl(dialog, "edit", section1_start, col[5], row[2], row_h, col_w, 0, 0)
+    --
+    local gap_static = add_ctrl(dialog, "static", "Gap:", col[2] + 29, row[3], row_h, col_w, 0, 0)
+    local verse_gap_edit = add_ctrl(dialog, "edit", verse_gap, col[3], row[3], row_h, col_w, 0, 0)  
+    local chorus_gap_edit = add_ctrl(dialog, "edit", chorus_gap, col[4], row[3], row_h, col_w, 0, 0)  
+    local section_gap_edit = add_ctrl(dialog, "edit", section_gap, col[5], row[3], row_h, col_w, 0, 0)  
+    --
+    local all_lyrics_static = add_ctrl(dialog, "static", "Edit all:", col[2] + 14, row[4], row_h, col_w, 0, 0)
+    local all_lyrics_check = add_ctrl(dialog, "checkbox", "", col[3], row[4], row_h, col_w * 2, 0, 0) 
+    if all_lyrics == true then
+        all_lyrics_check:SetCheck(1)
+    else
+        all_lyrics_check:SetCheck(0)
+    end
+
+    dialog:CreateOkButton()
+    dialog:CreateCancelButton()
+    --
+    function apply()
+        if all_lyrics == true then
+            verse1_edit:GetText(str)
+            chorus1_edit:SetText(str)
+            section1_edit:SetText(str)
+            --
+            verse_gap_edit:GetText(str)
+            chorus_gap_edit:SetText(str)
+            section_gap_edit:SetText(str)
+        end
+
+        verse1_edit:GetText(str)
+        verse1_start = tonumber(str.LuaString)
+        chorus1_edit:GetText(str)
+        chorus1_start = tonumber(str.LuaString)
+        section1_edit:GetText(str)
+        section1_start = tonumber(str.LuaString)
+--
+        verse_gap_edit:GetText(str)
+        verse_gap = tonumber(str.LuaString)
+        chorus_gap_edit:GetText(str)
+        chorus_gap = tonumber(str.LuaString)
+        section_gap_edit:GetText(str)
+        section_gap = tonumber(str.LuaString)
+        --
+        for i = 1, 100, 1 do
+            baseline_verse:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSVERSE,i)
+            baseline_verse.VerticalOffset = -verse1_start - (verse_gap * (i - 1))
+            baseline_verse:Save()
+            --
+            baseline_chorus:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSCHORUS,i)
+            baseline_chorus.VerticalOffset = -chorus1_start - (chorus_gap * (i - 1))
+            baseline_chorus:Save()
+            --
+            baseline_section:LoadDefaultForLyricNumber(finale.BASELINEMODE_LYRICSSECTION,i)
+            baseline_section.VerticalOffset = -section1_start - (section_gap * (i - 1))
+            baseline_section:Save()
+        end
+        config_save(config)
+    end
+
+    function callback(ctrl)
+        if ctrl:GetControlID() == all_lyrics_check:GetControlID()  then
+
+            if all_lyrics_check:GetCheck() == 1 then
+                all_lyrics = true
+            else
+                all_lyrics = false
+            end
+            update()
+        end
+    end -- callback
+    --
+    dialog:RegisterHandleCommand(callback)
+    --
+    function update()
+        if all_lyrics == false then
+            config.lyrics_all = "false"
+            independent_lyrics = true
+            str.LuaString = "Verse"
+            verse_static:SetText(str)
+            str.LuaString = "Chorus"
+            chorus_static:SetText(str)
+            str.LuaString = "Section"
+            section_static:SetText(str)
+        else
+            config.lyrics_all = "true"
+            independent_lyrics = false
+            str.LuaString = "All Lyrics"
+            verse_static:SetText(str)
+            str.LuaString = ""
+            chorus_static:SetText(str)
+            section_static:SetText(str)
+        end
+        chorus1_edit:SetEnable(independent_lyrics)
+        section1_edit:SetEnable(independent_lyrics)
+        chorus_gap_edit:SetEnable(independent_lyrics)
+        section_gap_edit:SetEnable(independent_lyrics)
+        --
+--        chorus1_edit:SetVisible(independent_lyrics)
+--        section1_edit:SetVisible(independent_lyrics)
+--        chorus_gap_edit:SetVisible(independent_lyrics)
+--        section_gap_edit:SetVisible(independent_lyrics)
+    end
+
+    update()
+    if dialog:ExecuteModal(nil) == finale.EXECMODAL_OK then
+        apply()
+    end
+end -- lyrics_spacing()
 
 function  lyrics_delete_lyrics()
     local confirm_delete = finenv.UI():AlertYesNo("This will completely remove all Verse, Chorus and Section Lyrics from the current document. (To erase lyrics from the score without removing them from the file, use Clear Lyrics.) Are you sure you want to proceed?", "WARNING!")
@@ -8159,7 +8748,7 @@ function expressions_spicc()
     getFirstNoteInRegionText("Region Start")
 end
 
-function expressions_col_lengo()
+function expressions_col_legno()
     findTextExpression({"col legno"}, text_expression, "col legno", 5)
     getFirstNoteInRegionText("Region Start")
 end
@@ -8807,6 +9396,352 @@ function formatting_system_move_up()
     move_system("up")
 end
 
+function formatting_systems_lock(lock)
+    lock = lock or "All"
+
+    local lock_score = true
+    local lock_parts = true
+
+    if lock == "Score" then
+        lock_parts = false
+    elseif lock == "Parts" then
+        lock_score = false
+    end
+
+    function systems_lock()
+        local systems = finale.FCStaffSystems()
+        systems:LoadAll()
+        for sys in each(systems) do
+            local start = sys:GetFirstMeasure()
+            local next_sys = sys:GetNextSysMeasure()
+            local freeze = sys:CreateFreezeSystem(true)
+            if freeze then
+                freeze:SetNextSysMeasure(next_sys)
+                freeze:Save()
+            end
+            sys:Save()
+        end
+    end
+
+    function parts_switch()
+        local part_current = finale.FCPart(1)
+        part_current:SetCurrent()
+        local parts = finale.FCParts()
+        parts:LoadAll()
+        for part in each(parts) do
+            if part:IsScore() and lock_score == true then
+                part:SwitchTo()
+                systems_lock()
+            end
+            if part:IsPart() and lock_parts == true then
+                part:SwitchTo()
+                systems_lock()
+            end
+        end
+        part_current:SwitchTo()
+    end
+    parts_switch()
+end -- formatting_systems_lock()
+
+function staff_rename()
+    local multi_inst = finale.FCMultiStaffInstruments()
+    multi_inst:LoadAll()
+    local multi_inst_grp = {}
+    local multi_fullnames = {}
+    local multi_full_fonts = {}
+    local multi_abbnames = {}
+    local multi_abb_fonts = {}
+    local multi_added = {}
+    local omit_staves = {}
+    local multi_staff = {}
+    local multi_staves = {}
+    local fullnames = {}
+    local abbnames = {}
+    local full_fonts = {}
+    local abb_fonts = {}
+    local staves = {}
+    --  tables for dialog controls
+    local static_staff = {}
+    local edit_fullname = {}
+    local edit_abbname = {}
+    local copy_button = {}
+    -- Transposing instruments (Finale 27)
+    local form0_names = {"Clarinet in B[b]", "Clarinet in A", "Clarinet in E[b]","Horn in F", "Trumpet in B[b]", "Trumpet in C", "Horn in E[b]", "Piccolo Trumpet in A", "Trumpet in D", "Cornet in E[b]", "Pennywhistle in D", "Pennywhistle in G", "Tin Whistle in B[b]", "Melody Sax in C"}
+    local form1_names = {"B[b] Clarinet", "A Clarinet", "E[b] Clarinet", "F Horn", "B[b] Trumpet", "C Trumpet", "E[b] Horn", "A Piccolo Trumpet", "D Trumpet", "E[b] Cornet", "D Pennywhistle", "G Pennywhistle", "B[b] Tin Whistle", "C Melody Sax"}
+
+    function enigma_to_accidental(str)
+        str.LuaString = string.gsub(str.LuaString, "%^flat%(%)", "[b]")
+        str.LuaString = string.gsub(str.LuaString, "%^natural%(%)", "[n]")
+        str.LuaString = string.gsub(str.LuaString, "%^sharp%(%)", "[#]")
+        str:TrimEnigmaTags()
+        return str
+    end
+
+    function accidental_to_enigma(s)
+        s.LuaString = string.gsub(s.LuaString, "%[b%]", "^flat()")
+        s.LuaString = string.gsub(s.LuaString, "%[n%]", "^natural()")
+        s.LuaString = string.gsub(s.LuaString, "%[%#%]", "^sharp()")
+        return s
+    end
+
+    for inst in each(multi_inst) do
+        table.insert(multi_inst_grp, inst.GroupID)
+        local grp = finale.FCGroup()
+        grp:Load(0, inst.GroupID)
+        local str = grp:CreateFullNameString()
+        local font = str:CreateLastFontInfo()
+        enigma_to_accidental(str)
+
+        table.insert(multi_fullnames, str.LuaString)
+        local font_enigma = finale.FCString()
+        font_enigma = font:CreateEnigmaString(NULL)
+        table.insert(multi_full_fonts, font_enigma.LuaString)
+        --
+        str = grp:CreateAbbreviatedNameString()
+        font = str:CreateLastFontInfo()
+        font_enigma = font:CreateEnigmaString(NULL)
+        enigma_to_accidental(str)
+        table.insert(multi_abbnames, str.LuaString)
+        table.insert(multi_abb_fonts, font_enigma.LuaString)
+        table.insert(multi_added, false)
+        table.insert(omit_staves, inst:GetFirstStaff())
+        table.insert(omit_staves, inst:GetSecondStaff())
+        if inst:GetThirdStaff() ~= 0 then
+            table.insert(omit_staves, inst:GetThirdStaff())
+        end
+        table.insert(multi_staff, inst:GetFirstStaff())
+        table.insert(multi_staff, inst:GetSecondStaff())
+        table.insert(multi_staff, inst:GetThirdStaff())
+        table.insert(multi_staves, multi_staff)
+        multi_staff = {}
+    end
+
+    local sysstaves = finale.FCSystemStaves()
+    local region = finale.FCMusicRegion()
+    region = finenv.Region()
+    if region:IsEmpty() then
+        region:SetFullDocument()
+    end
+    sysstaves:LoadAllForRegion(region)
+
+    for sysstaff in each(sysstaves) do
+        -- Process multi-staff instruments
+        for i,j in pairs(multi_staves) do
+
+            for k,l in pairs(multi_staves[i]) do
+                if multi_staves[i][k] == sysstaff.Staff and multi_staves[i][k] ~= 0 then
+                    if multi_added[i] == false then
+                        table.insert(fullnames, multi_fullnames[i])
+                        table.insert(abbnames, multi_abbnames[i])
+                        table.insert(full_fonts, multi_full_fonts[i])
+                        table.insert(abb_fonts, multi_abb_fonts[i])
+                        table.insert(staves, sysstaff.Staff)
+                        multi_added[i] = true
+                        goto done
+                    elseif multi_added == true then
+                        goto done
+                    end
+                end
+            end
+        end
+        for i, j in pairs(omit_staves) do
+            if omit_staves[i] == sysstaff.Staff then
+                goto done
+            end
+        end
+
+        -- Process single-staff instruments
+        local staff = finale.FCStaff()
+        staff:Load(sysstaff.Staff)
+        local str = staff:CreateFullNameString()
+        local font = str:CreateLastFontInfo()
+        enigma_to_accidental(str)
+        table.insert(fullnames, str.LuaString)
+        local font_enigma = finale.FCString()
+        font_enigma = font:CreateEnigmaString(NULL)
+        table.insert(full_fonts, font_enigma.LuaString)
+        str = staff:CreateAbbreviatedNameString()
+        font = str:CreateLastFontInfo()
+        enigma_to_accidental(str)
+        table.insert(abbnames, str.LuaString)
+        font_enigma = font:CreateEnigmaString(NULL)
+        table.insert(abb_fonts, font_enigma.LuaString)
+        table.insert(staves, sysstaff.Staff)
+        ::done::
+    end
+
+    function dialog(title)
+        local row_h = 20
+        local row_count = 1
+        local col_w = 140
+        local col_gap = 20
+        local str = finale.FCString()
+        str.LuaString = title
+        local dialog = finale.FCCustomLuaWindow()
+        dialog:SetTitle(str)
+
+        local row = {}
+        for i = 1, 100 do
+            row[i] = (i -1) * row_h
+        end
+--
+        local col = {}
+        for i = 1, 11 do
+            col[i] = (i - 1) * col_w
+            col[i] = col[i] + 40
+        end
+--
+        function add_ctrl(dialog, ctrl_type, text, x, y, h, w, min, max)
+            str.LuaString = text
+            local ctrl = ""
+            if ctrl_type == "button" then
+                ctrl = dialog:CreateButton(x, y)
+            elseif ctrl_type == "popup" then
+                ctrl = dialog:CreatePopup(x, y)
+            elseif ctrl_type == "checkbox" then
+                ctrl = dialog:CreateCheckbox(x, y)
+            elseif ctrl_type == "edit" then
+                ctrl = dialog:CreateEdit(x, y - 2)
+            elseif ctrl_type == "horizontalline" then
+                ctrl = dialog:CreateHorizontalLine(x, y, w)
+            elseif ctrl_type == "static" then
+                ctrl = dialog:CreateStatic(x, y)
+            elseif ctrl_type == "verticalline" then
+                ctrl = dialog:CreateVerticalLine(x, y, h)
+            end
+            if ctrl_type == "edit" then
+                ctrl:SetHeight(h-2)
+                ctrl:SetWidth(w - col_gap)
+            elseif ctrl_type == "horizontalline" then
+                ctrl:SetY(y + h/2)
+                ctrl:SetWidth(w)
+            else
+                ctrl:SetHeight(h)
+                ctrl:SetWidth(w)
+            end
+            ctrl:SetText(str)
+            return ctrl
+        end
+
+        local staff_num_static = add_ctrl(dialog, "static", "Staff", 0, row[1], row_h, col_w, 0, 0)
+        local staff_name_full_static = add_ctrl(dialog, "static", "Full Name", col[1], row[1], row_h, col_w, 0, 0)
+        local staff_name_abb_static = add_ctrl(dialog, "static", "Abbr. Name", col[2], row[1], row_h, col_w, 0, 0)
+        local copy_all = add_ctrl(dialog, "button", "→", col[2] - col_gap + 2, row[1], row_h-4, 16, 0, 0)
+        --local h_line = add_ctrl(dialog, "horizontalline", 0, row[1], 1, col_w * 3, 0, 0)
+        --
+        for i, j in pairs(staves) do
+            static_staff[i] = add_ctrl(dialog, "static", staves[i], 10, row[i + 1], row_h, col_w, 0, 0)
+            edit_fullname[i] = add_ctrl(dialog, "edit", fullnames[i], col[1], row[i + 1], row_h, col_w, 0, 0)
+            edit_abbname[i] = add_ctrl(dialog, "edit", abbnames[i], col[2], row[i + 1], row_h, col_w, 0, 0)
+            copy_button[i] = add_ctrl(dialog, "button", "→", col[2] - col_gap + 2, row[i + 1], row_h-4, 16, 0, 0)
+            row_count = row_count + 1
+        end
+        --
+        local form_select = add_ctrl(dialog, "popup", "", col[1], row[row_count + 1] + row_h/2, row_h, col_w - col_gap, 0, 0)
+        local forms = {"Inst. in Tr.","Tr. Inst."}
+        for i,j in pairs(forms) do
+            str.LuaString = forms[i]
+            form_select:AddString(str)
+        end   
+        --
+        dialog:CreateOkButton()
+        dialog:CreateCancelButton()
+        --
+        function callback(ctrl)
+            if ctrl:GetControlID() == form_select:GetControlID() then
+                local form = form_select:GetSelectedItem()
+                local search = {}
+                local replace = {}
+                if form == 0 then
+                    search = form1_names
+                    replace = form0_names
+                elseif form == 1 then
+                    search = form0_names
+                    replace = form1_names
+                end
+
+                for a,b in pairs(search) do
+                    search[a] = string.gsub(search[a], "%[", "%%[")
+                    search[a] = string.gsub(search[a], "%]", "%%]")
+                    replace[a] = string.gsub(replace[a], "%%", "")
+                end
+
+                for i,j in pairs(fullnames) do
+                    edit_fullname[i]:GetText(str)
+                    for k,l in pairs(search) do
+                        str.LuaString = string.gsub(str.LuaString, search[k], replace[k])
+                    end                    
+                    edit_fullname[i]:SetText(str)
+                    --
+                    edit_abbname[i]:GetText(str)
+                    for k,l in pairs(search) do
+                        str.LuaString = string.gsub(str.LuaString, search[k], replace[k])
+                    end                    
+                    edit_abbname[i]:SetText(str)
+                end
+            end
+
+            for i, j in pairs(copy_button) do
+                if ctrl:GetControlID() == copy_button[i]:GetControlID() then
+                    edit_fullname[i]:GetText(str)
+                    edit_abbname[i]:SetText(str)
+                end
+            end
+
+            if ctrl:GetControlID() == copy_all:GetControlID() then
+                for i,j in pairs(edit_fullname) do
+                    edit_fullname[i]:GetText(str)
+                    edit_abbname[i]:SetText(str)
+                end
+            end
+        end -- callback
+        --
+        dialog:RegisterHandleCommand(callback)
+        --
+        if dialog:ExecuteModal(nil) == finale.EXECMODAL_OK then
+            local str = finale.FCString()
+            for i, j in pairs(staves) do
+                for k, l in pairs(multi_staves) do 
+                    for m, n in pairs(multi_staves[k]) do
+                        if staves[i] == multi_staves[k][m] then
+                            local grp = finale.FCGroup()
+                            grp:Load(0, multi_inst_grp[k])
+                            edit_fullname[i]:GetText(str)
+                            accidental_to_enigma(str)
+                            str.LuaString = full_fonts[i]..str.LuaString
+                            grp:SaveNewFullNameBlock(str)
+                            edit_abbname[i]:GetText(str)
+                            accidental_to_enigma(str)
+                            str.LuaString = abb_fonts[i]..str.LuaString
+                            grp:SaveNewAbbreviatedNameBlock(str)
+                            grp:Save()
+                        end
+                    end
+                end
+                for k, l in pairs(omit_staves) do
+                    if staves[i] == omit_staves[k] then
+                        goto done2
+                    end
+                end
+                local staff = finale.FCStaff()
+                staff:Load(staves[i])
+                edit_fullname[i]:GetText(str)
+                accidental_to_enigma(str)
+                str.LuaString = full_fonts[i]..str.LuaString
+                staff:SaveNewFullNameString(str)
+                edit_abbname[i]:GetText(str)
+                accidental_to_enigma(str)
+
+                str.LuaString = abb_fonts[i]..str.LuaString
+                staff:SaveNewAbbreviatedNameString(str)
+                staff:Save()
+                ::done2::
+            end
+        end
+    end -- function
+    dialog("Rename Staves")
+end -- staff_rename()
+
 function playback_all_staves_document_beginning_to_document_end()
     playback_type("Document", "Document", "Document") 
 end
@@ -8950,101 +9885,101 @@ function formatting_staff_space_decrease()
 end
 
 function layers_swap_one_two()
-    swap_layers(1, 2)
+    layer_swap(1, 2)
 end
 
 function layers_swap_one_three()
-    swap_layers(1, 3)
+    layer_swap(1, 3)
 end
 
 function layers_swap_one_four()
-    swap_layers(1, 4)
+    layer_swap(1, 4)
 end
 
 function layers_swap_two_three()
-    swap_layers(2, 3)
+    layer_swap(2, 3)
 end
 
 function layers_swap_two_four()
-    swap_layers(2, 4)
+    layer_swap(2, 4)
 end
 
 function layers_swap_three_four()
-    swap_layers(3, 4)
+    layer_swap(3, 4)
 end
 
 function layers_swap_one_three_two_four()
-    swap_layers(1, 3)
-    swap_layers(2, 4)
+    layer_swap(1, 3)
+    layer_swap(2, 4)
 end
 
 function layers_swap_one_two_three_four()
-    swap_layers(1, 2)
-    swap_layers(3, 4)
+    layer_swap(1, 2)
+    layer_swap(3, 4)
 end
 
 function layers_one_clear()
-    clear_Layer(1)
+    layer_clear(1)
 end
 
 function layers_two_clear()
-    clear_Layer(2)
+    layer_clear(2)
 end
 
 function layers_three_clear()
-    clear_Layer(3)
+    layer_clear(3)
 end
 
 function layers_four_clear()
-    clear_Layer(4)
+    layer_clear(4)
 end
 
 function layers_one_two_clear()
-    clear_Layer(1)
-    clear_Layer(2)
+    layer_clear(1)
+    layer_clear(2)
 end
 
 function layers_one_three_clear()
-    clear_Layer(1)
-    clear_Layer(3)
+    layer_clear(1)
+    layer_clear(3)
 end
 
 function layers_one_four_clear()
-    clear_Layer(1)
-    clear_Layer(4)
+    layer_clear(1)
+    layer_clear(4)
 end
 
 function layers_one_two_three_clear()
-    clear_Layer(1)
-    clear_Layer(2)
-    clear_Layer(3)
+    layer_clear(1)
+    layer_clear(2)
+    layer_clear(3)
 end
 
 function layers_one_three_four_clear()
-    clear_Layer(1)
-    clear_Layer(3)
-    clear_Layer(4)
+    layer_clear(1)
+    layer_clear(3)
+    layer_clear(4)
 end
 
 function layers_two_three_clear()
-    clear_Layer(2)
-    clear_Layer(3)
+    layer_clear(2)
+    layer_clear(3)
 end
 
 function layers_two_four_clear()
-    clear_Layer(2)
-    clear_Layer(4)
+    layer_clear(2)
+    layer_clear(4)
 end
 
 function layers_two_three_four_clear()
-    clear_Layer(2)
-    clear_Layer(3)
-    clear_Layer(4)
+    layer_clear(2)
+    layer_clear(3)
+    layer_clear(4)
 end
 
 function layers_three_four_clear()
-    clear_Layer(3)
-    clear_Layer(4)
+    layer_clear(3)
+    layer_clear(4)
 end
 
 function plugin_custom_text_expressive()
@@ -9386,18 +10321,16 @@ for i,k in pairs(execute_function) do
             if compare({"0050","dyn-","softer","quieter"}) == true then
                 dynamics_decrease_dynamic()
             end
-            if compare({"0051","alignfar", "align", "da"}) == true then
+            if compare({"0051","alignfar", "align", "da", "daln"}) == true then
                 dynamics_align_far()
             end
 --      if compare({"0052","alignnear"}) == true then
 --        dynamics_align_near()
 --      end
-            if compare({"0053","dyndn","dd"}) == true then
-                dynamics_align_far()
+            if compare({"0053"}) == true then
                 dynamics_nudge_down()
             end
-            if compare({"0054","dynup","du"}) == true then
-                dynamics_align_far()
+            if compare({"0054"}) == true then
                 dynamics_nudge_up()
             end
             if compare({"0055","cresc","crescendo"}) == true then
@@ -9430,14 +10363,17 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0070" then
                 dynamics_align_hairpins_and_dynamics()         
             end       
-            if execute_function[i] == "0071" then
+            if compare({"0071","dyndn","dd"}) == true then
                 dynamics_align_hairpins_and_dynamics()         
                 dynamics_nudge_down()
             end
-            if execute_function[i] == "0072" then
+            if compare({"0072","dynup","du"}) == true then
                 dynamics_align_hairpins_and_dynamics()           
                 dynamics_nudge_up()
             end 
+            if compare({"0073","dabv","dynabv", "vocal", "dv", "vd"}) == true then
+                dynamics_above_staff()
+            end             
             if compare({"0100","accent","acc"}) == true then
                 articulations_accent()
             end
@@ -9601,6 +10537,7 @@ for i,k in pairs(execute_function) do
                 noteheads_harmonics()
             end
             if compare({"0214","pas","drum"}) == true then
+                noteheads_default()
                 noteheads_x_above_staff()
             end
             if compare({"0215","nh_center"}) == true then
@@ -9675,6 +10612,10 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0419" then
                 barline_clear_rehearsal()
             end
+            if compare({"0450","barnum_leadin", "barnum-leadin"}) == true then
+                measure_numbers_adjust_for_leadin()
+            end
+
             if compare({"0500","2/4"}) == true then
                 meter_2_4()
             end
@@ -9735,16 +10676,16 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0601" then
                 smartshape_trill_extension()
             end
-            if execute_function[i] == "0602" then
+            if compare({"0602","line_dashed", "dashed_line"}) == true then
                 smartshape_dashed_line()
             end
-            if execute_function[i] == "0603" then
+            if compare({"0603","line"}) == true then
                 smartshape_solid_line()
             end
-            if execute_function[i] == "0604" then
+            if compare({"0604","slide"}) == true then
                 smartshape_tab_slide()
             end
-            if execute_function[i] == "0605" then
+            if compare({"0605","gliss"}) == true then
                 smartshape_glissando()
             end
             if execute_function[i] == "0606" then
@@ -9756,10 +10697,10 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0608" then
                 smartshape_custom()
             end
-            if execute_function[i] == "0609" then
+            if compare({"0609","slur", "s"}) == true then
                 smartshape_slur_solid()
             end
-            if execute_function[i] == "0610" then
+            if compare({"0610","slur_dashed", "dashed_slur"}) == true then
                 smartshape_slur_dashed()
             end
             if execute_function[i] == "0611" then
@@ -9768,16 +10709,16 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0612" then
                 smartshape_solid_double_bracket()
             end
-            if execute_function[i] == "0613" then
+            if compare({"0613","8va"}) == true then
                 smartshape_8va()
             end
-            if execute_function[i] == "0614" then
+            if compare({"0614","15ma"}) == true then
                 smartshape_15ma()
             end
-            if execute_function[i] == "0615" then
+            if compare({"0615","8vb", "8ba"}) == true then
                 smartshape_8vb()
             end
-            if execute_function[i] == "0616" then
+            if compare({"0616", "15mb", "15ba"}) == true then
                 smartshape_15mb()
             end
             if compare({"0700","slash", "////", "/s"}) == true then
@@ -9840,40 +10781,40 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0807" then
                 expressions_loco()
             end
-            if execute_function[i] == "0808" then
+            if compare({"0808","breath"}) == true then
                 expressions_breath()
             end
             if execute_function[i] == "0809" then
                 expressions_caesura()
             end
-            if execute_function[i] == "0810" then
+            if compare({"0810","glasses", "look"}) == true then
                 expressions_glasses()
             end
-            if execute_function[i] == "0811" then
+            if compare({"0811","mute"}) == true then
                 expressions_mute()
             end
-            if execute_function[i] == "0812" then
+            if compare({"0812","openx"}) == true then
                 expressions_open()
             end
-            if execute_function[i] == "0813" then
+            if compare({"0813","cup", "cupmute", "cup_mute"}) == true then
                 expressions_cup_mute()
             end
-            if execute_function[i] == "0814" then
+            if compare({"0814","straight", "stmute", "st_mute"}) == true then
                 expressions_straight_mute()
             end
-            if execute_function[i] == "0815" then
+            if compare({"0815","1o"}) == true then
                 expressions_one()
             end
-            if execute_function[i] == "0816" then
+            if compare({"0816","2o"}) == true then
                 expressions_two()
             end
-            if execute_function[i] == "0817" then
+            if compare({"0817","a2"}) == true then
                 expressions_a2()
             end
-            if execute_function[i] == "0818" then
+            if compare({"0818","a3"}) == true then
                 expressions_a3()
             end
-            if execute_function[i] == "0819" then
+            if compare({"0818","a4"}) == true then
                 expressions_a4()
             end
             if compare({"0820","arco"}) == true then
@@ -9882,34 +10823,34 @@ for i,k in pairs(execute_function) do
             if compare({"0821","pizz"}) == true then
                 expressions_pizz()
             end
-            if execute_function[i] == "0822" then
+            if compare({"0822","spicc", "spiccato"}) == true then
                 expressions_spicc()
             end
-            if execute_function[i] == "0823" then
+            if compare({"0823","collegno", "col_legno"}) == true then
                 expressions_col_legno()
             end
-            if execute_function[i] == "0824" then
+            if compare({"0824","consord", "con_sord"}) == true then
                 expressions_con_sord()
             end
-            if execute_function[i] == "0825" then
+            if compare({"0825","ord"}) == true then
                 expressions_ord()
             end
-            if execute_function[i] == "0826" then
+            if compare({"0826","sulpont", "sul_pont", "sul_ponticello"}) == true then
                 expressions_sul_pont()
             end
-            if execute_function[i] == "0827" then
+            if compare({"0827","sultasto", "sul_tasto"}) == true then
                 expressions_sul_tasto()
             end
-            if execute_function[i] == "0828" then
+            if compare({"0828","senza", "senzasord", "senza_sord"}) == true then
                 expressions_senza_sord()
             end
-            if execute_function[i] == "0829" then
+            if compare({"0829","tremx"}) == true then
                 expressions_trem()
             end
-            if execute_function[i] == "0830" then
+            if compare({"0830","halfpizz", "half_pizz", "1/2pizz", "1/2_pizz"}) == true then
                 expressions_half_pizz()
             end
-            if execute_function[i] == "0831" then
+            if compare({"0831","halftrem", "half_trem", "1/2trem", "1/2_trem"}) == true then
                 expressions_half_trem()
             end
             if execute_function[i] == "0832" then
@@ -10287,6 +11228,7 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "1207" then
                 formatting_system_move_up()
             end
+            -- Functions 1208-1210 (lock systems) do not require a selection
             if execute_function[i] == "1300" then
                 layers_one_reduce()
             end
@@ -10461,16 +11403,16 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "1512" then
                 transform_flip_enharmonic()
             end
-            if execute_function[i] == "1513" then
+            if compare({"1513","cluster_in","clust_in","indeterminate"}) == true then
                 transform_cluster_indeterminate()
             end
-            if execute_function[i] == "1514" then
+            if compare({"1514","cluster_det","clust_det","determinate"}) == true then
                 transform_cluster_determinate()
             end
-            if execute_function[i] == "1515" then
+            if compare({"1515","ledger"}) == true then
                 transform_toggle_ledger_lines()
             end
-            if execute_function[i] == "1516" then
+            if compare({"1516","possible","extreme","highlow", "hilo"}) == true then
                 transform_highest_lowest_possible()
             end
             if compare({"1517","kickline","bandhits","kick"}) == true then
@@ -10478,6 +11420,15 @@ for i,k in pairs(execute_function) do
             end
             if compare({"1518","topline"}) == true then
                 transform_topline_notation()
+            end
+            if compare({"1519","handsfeet"}) == true then
+                drum_layers(2)
+            end
+            if compare({"1520","drumscyms"}) == true then
+                drum_layers(3)
+            end
+            if compare({"1521","bariolage"}) == true then
+                bariolage()
             end
             if execute_function[i] == "1600" then
                 chords_altered_bass_after()
@@ -10524,6 +11475,7 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "1709" then
                 reset_baseline_chord_fretboard()
             end
+            -- 1710 in next section
             if execute_function[i] == "1802" then
                 playback_all_staves_document_beginning_to_region_end()
             end
@@ -10571,6 +11523,10 @@ for i,k in pairs(execute_function) do
             end
             if compare({"1905","perc"}) == true then
                 clef_change_pre(12) -- perc clef (new style)
+            end
+            if compare({"2000","harp", "harp_ped", "hp", "harp_diag", "hp_diag"}) == true then
+                require("harp_pedal_wizard_js")
+                harp()
             end
             if execute_function[i] == "9000" then
                 plugin_center_rehearsal_marks()
@@ -10622,6 +11578,16 @@ for i,k in pairs(execute_function) do
             if compare({"0000","config"}) == true then
                 --user_configuration()
                 config_jetstream()
+            elseif compare({"1208","lock_all"}) == true then
+                formatting_systems_lock("All")
+            elseif compare({"1209","lock_score"}) == true then
+                formatting_systems_lock("Score")
+            elseif compare({"1210","lock_parts"}) == true then
+                formatting_systems_lock("Parts")            
+            elseif compare({"1211","rename"}) == true then
+                staff_rename()
+            elseif compare({"1710","lyric_baselines", "lyr_bl", "lyr_spc", "lyric_spacing", "lyrics_spacing"}) == true then
+                lyrics_spacing("Lyrics - Space Baselines")
             elseif execute_function[i] == "1800" then
                 playback_all_staves_document_beginning_to_document_end()
             elseif execute_function[i] == "1801" then
