@@ -16,7 +16,7 @@ init_region:SetCurrentSelection()
 
 function split(s, delimiter)
     result = {};
-    if s == nil then s = "" end
+    s = s or ""
     for match in (s..delimiter):gmatch("(.-)"..delimiter) do
         match = string.lower(match)
         if match ~= "" then
