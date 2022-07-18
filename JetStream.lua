@@ -17,7 +17,7 @@ init_region:SetCurrentSelection()
 -- repo library functions
 function split(s, delimiter)
     result = {};
-    if s == nil then s = "" end
+    s = s or ""
     for match in (s..delimiter):gmatch("(.-)"..delimiter) do
         match = string.lower(match)
         if match ~= "" then
@@ -786,10 +786,10 @@ function articulations_lv_poly()
                 end
                 i = i + 1
             end
-            if rightside_note == true then
+            if rightside_note then
                 horz_pad = horz_pad + 28
             end
-            if ledger == true then
+            if ledger then
                 horz_pad = horz_pad + 6
             end
 
@@ -804,7 +804,7 @@ function articulations_lv_poly()
                     else
                         tiedir[i] = "u"
                     end -- if  
-                    if i == middle and noteentry:CalcStemUp() == true then
+                    if i == middle and noteentry:CalcStemUp() then
                         tiedir[i] = "d"
                     end
                     if i > 1 and interval[i] <= 1 and clashes < 2 then
@@ -1321,7 +1321,7 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
     table.sort(lowest_item)
     finenv.UI():AlertInfo(lowest_item[1], nil)
     -- finenv.UI():AlertInfo("Lowest Item: "..lowest_item[1], nil)
-    if has_dynamics == true then
+    if has_dynamics then
         for k, e in pairs(expression_list) do
             if (systems:FindMeasureNumber(e:GetMeasure())) then
 
@@ -1365,7 +1365,7 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
         end
     end
 
-    if has_hairpins == true then
+    if has_hairpins then
         for k, smart_shape in pairs(hairpin_list) do
             local left_seg = smart_shape:GetTerminateSegmentLeft()
             local right_seg = smart_shape:GetTerminateSegmentRight()
@@ -1378,7 +1378,7 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
                 if direction == "near" then
                     difference_pos = lowest_item[#lowest_item] - math.floor(arg_point:GetY() * system_scale)
                 end
-                if has_dynamics == true then
+                if has_dynamics then
                     if direction == "far" then
                         -- finenv.UI():AlertInfo(current_pos.." "..difference_pos, nil)
                         -- I think this + 12 is the difference between the handle of the dynamic and the middle of the dynamic
@@ -1399,7 +1399,7 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
                 if direction == "near" then
                     difference_pos = lowest_item[#lowest_item] - math.floor(arg_point:GetY() * system_scale)
                 end
-                if has_dynamics == true then
+                if has_dynamics then
                     if direction == "far" then
                         -- finenv.UI():AlertInfo(current_pos.." "..difference_pos, nil)
                         left_seg:SetEndpointOffsetY((current_pos - (difference_pos / system_scale)) + 12)
@@ -1423,7 +1423,7 @@ function vertical_dynamic_adjustment(region, expression_list, hairpin_list, note
                     difference_pos = lowest_item[#lowest_item] - right_seg_pos
                 end
 
-                if has_dynamics == true then
+                if has_dynamics then
                     if direction == "far" then
                         -- finenv.UI():AlertInfo(current_pos.." "..difference_pos, nil)
                         right_seg:SetEndpointOffsetY((current_pos - (difference_pos / system_scale)) + 12)
@@ -1499,7 +1499,7 @@ function horizontal_hairpin_adjustment(left_or_right, hairpin, hairpin_region, c
             the_seg:SetEndpointOffsetX(total_x)
         end
     end
-    if cushion_bool == true then
+    if cushion_bool then
         the_seg = hairpin:GetTerminateSegmentRight()
         the_seg:SetEndpointOffsetX(right_selection_cushion)
     end
@@ -1983,7 +1983,7 @@ function createBBSL(staff, measure_start, measure_end, leftpos, rightpos, shape,
 
     table.sort(staff_pos)
 
-    if above_staff == true then
+    if above_staff then
         if staff_pos[count] == nil then
             y_value = base_line_offset 
         else
@@ -2529,7 +2529,7 @@ function change_notehead_size(layer, size, resize_top_bottom)
                     local top_note = noteentry:CalcHighestNote(nil)
                     local bottom_note = noteentry:CalcLowestNote(nil)
                     local note_exception = bottom_note
-                    if resize_top_bottom == true then
+                    if resize_top_bottom then
                         note_exception = top_note
                     end
                     if note:CalcMIDIKey() ~= note_exception:CalcMIDIKey() then
@@ -5187,7 +5187,7 @@ function cluster_indeterminate()
 
                 if noteentry.Duration < 2048 then
                     notehead.CustomChar = 242
-                    if stemDir == true and rightside == true then
+                    if stemDir == true and rightside then
                         notehead.HorizontalPos = -noteheadOffset
                     end
                     if stemDir == false and rightside == false then
@@ -5203,7 +5203,7 @@ function cluster_indeterminate()
                     else
                         notehead.CustomChar = 58
                     end
-                    if stemDir == true and rightside == true then
+                    if stemDir == true and rightside then
                         notehead.HorizontalPos = -noteheadOffset
                     end
                     if stemDir == false and rightside == false then
@@ -5220,7 +5220,7 @@ function cluster_indeterminate()
                         notehead.CustomChar = 58
                     end
                     noteheadOffset = 32
-                    if stemDir == true and rightside == true then
+                    if stemDir == true and rightside then
                         notehead.HorizontalPos = -noteheadOffset
                     end
                     if stemDir == false and rightside == false then
@@ -5235,7 +5235,7 @@ function cluster_indeterminate()
 
                 if noteentry:IsDotted() then 
                     local horz = 0
-                    if adjust_dots == true then
+                    if adjust_dots then
                         horz = -noteheadOffset
                     end
                     if n ==1 and low_span <= 1 and low_space == 1 then
@@ -5314,7 +5314,7 @@ function cluster_determinate()
                     noteentry.Visible = false
                     noteentry:SetRestDisplacement(4)                
                 end
-                if stemDir == true then
+                if stemDir then
                     stems_hide_inv(noteentry, stemDir)
                 end 
                 j = j + 1
@@ -5584,7 +5584,7 @@ function cluster_determinate()
     for noteentry in eachentrysaved(finenv.Region()) do
         if noteentry:IsNote() and noteentry.Count > 1 then
             for note in each(noteentry) do
-                if note.Accidental == true then
+                if note.Accidental then
                     local am = finale.FCAccidentalMod()
                     am:SetNoteEntry(noteentry)
                     am:SetUseCustomVerticalPos(true)
@@ -5687,11 +5687,11 @@ function create_kicklink_layer_4()
     local onebar = 0
     local twobar = 0
     for ssd in each(ssds) do
-        if ssd:GetAltNotationStyle() == 1 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
+        if ssd:GetAltNotationStyle() == 1 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() then
             slash = ssd:GetItemNo()
-        elseif ssd:GetAltNotationStyle() == 3 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
+        elseif ssd:GetAltNotationStyle() == 3 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() then
             onebar = ssd:GetItemNo()
-        elseif ssd:GetAltNotationStyle() == 4 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() == true then
+        elseif ssd:GetAltNotationStyle() == 4 and ssd:GetAltNotationLayer() == 1 and ssd:GetAltShowOtherNotes() == true and ssd:GetAltShowOtherArticulations() then
             twobar = ssd:GetItemNo()
         end
     end
@@ -5881,7 +5881,7 @@ function top_line()
 
     ::reset::
 
-    if reset_flag == true then
+    if reset_flag then
         for noteentry in eachentrysaved(finenv.Region()) do
             local hi_note_ID = noteentry:CalcHighestNote(NULL)
             local tie_status = hi_note_ID.Tie
@@ -6062,7 +6062,7 @@ function user_configuration()
     local return_values = dialog:Execute() 
 
     if return_values ~= nil then
-        if return_values[#return_values] == true then
+        if return_values[#return_values] then
             config.hairpin.cushion = return_values[1]
             config.hairpin.region_or_notes = return_values[2]
             config.fonts.notehead_font = return_values[3]
@@ -6549,7 +6549,7 @@ function dynamics_above_staff()
                     dynamic = true
                 end
             end
-            if dynamic == true then
+            if dynamic then
                 print("VerticalPos",e.VerticalPos)
                 local e_metric = finale.FCPoint(0, 0)
                 cell = finale.FCCell(e.Measure, e.Staff)
@@ -8000,7 +8000,7 @@ end
 function lyrics_spacing(title)
     local config = config_load()
 
-    if config.lyrics_all == "true" or config.lyrics_all == true then
+    if config.lyrics_all == "true" or config.lyrics_all then
         all_lyrics = true
     else
         all_lyrics = false
@@ -8082,7 +8082,7 @@ function lyrics_spacing(title)
     --
     local all_lyrics_static = add_ctrl(dialog, "static", "Edit all:", col[2] + 14, row[4], row_h, col_w, 0, 0)
     local all_lyrics_check = add_ctrl(dialog, "checkbox", "", col[3], row[4], row_h, col_w * 2, 0, 0) 
-    if all_lyrics == true then
+    if all_lyrics then
         all_lyrics_check:SetCheck(1)
     else
         all_lyrics_check:SetCheck(0)
@@ -8092,7 +8092,7 @@ function lyrics_spacing(title)
     dialog:CreateCancelButton()
     --
     function apply()
-        if all_lyrics == true then
+        if all_lyrics then
             verse1_edit:GetText(str)
             chorus1_edit:SetText(str)
             section1_edit:SetText(str)
@@ -9429,11 +9429,11 @@ function formatting_systems_lock(lock)
         local parts = finale.FCParts()
         parts:LoadAll()
         for part in each(parts) do
-            if part:IsScore() and lock_score == true then
+            if part:IsScore() and lock_score then
                 part:SwitchTo()
                 systems_lock()
             end
-            if part:IsPart() and lock_parts == true then
+            if part:IsPart() and lock_parts then
                 part:SwitchTo()
                 systems_lock()
             end
@@ -9538,7 +9538,7 @@ function staff_rename()
                         table.insert(staves, sysstaff.Staff)
                         multi_added[i] = true
                         goto done
-                    elseif multi_added == true then
+                    elseif multi_added then
                         goto done
                     end
                 end
@@ -10165,85 +10165,84 @@ for i,k in pairs(execute_function) do
     if execute_function ~= nil then
         local mr = finale.FCMusicRegion()
         mr:SetCurrentSelection()
-        function compare(compare_to)
-            local result = compare_values(k, compare_to)
-            return result
+        function compare_code(compare_to)
+            return compare_values(k, compare_to)
         end
 
         if mr:IsEmpty() ~= true then
-            if compare({"0001","ffff"}) == true then
+            if compare_code({"0001","ffff"}) then
                 dynamics_ffff_start()
             end
-            if compare({"0002","fff"}) == true then
+            if compare_code({"0002","fff"}) then
                 dynamics_fff_start()
             end
-            if compare({"0003","ff","fortissimo"}) == true then
+            if compare_code({"0003","ff","fortissimo"}) then
                 dynamics_ff_start()
             end
-            if compare({"0004","f","forte"}) == true then
+            if compare_code({"0004","f","forte"}) then
                 dynamics_f_start()
             end
-            if compare({"0005","mf","mezzoforte"}) == true then
+            if compare_code({"0005","mf","mezzoforte"}) then
                 dynamics_mf_start()
             end
-            if compare({"0006","mp","mezzopiano"}) == true then
+            if compare_code({"0006","mp","mezzopiano"}) then
                 dynamics_mp_start()
             end
-            if compare({"0007","p","piano"}) == true then
+            if compare_code({"0007","p","piano"}) then
                 dynamics_p_start()
             end
-            if compare({"0008","pp","pianissimo"}) == true then
+            if compare_code({"0008","pp","pianissimo"}) then
                 dynamics_pp_start()
             end
-            if compare({"0009","ppp"}) == true then
+            if compare_code({"0009","ppp"}) then
                 dynamics_ppp_start()
             end
-            if compare({"0010","pppp"}) == true then
+            if compare_code({"0010","pppp"}) then
                 dynamics_pppp_start()
             end
-            if compare({"0011","fp"}) == true then
+            if compare_code({"0011","fp"}) then
                 dynamics_fp_start()
             end
-            if compare({"0012","fz"}) == true then
+            if compare_code({"0012","fz"}) then
                 dynamics_fz_start()
             end
-            if compare({"0013","n","niente"}) == true then
+            if compare_code({"0013","n","niente"}) then
                 dynamics_n_start()
             end
-            if compare({"0014","rf"}) == true then
+            if compare_code({"0014","rf"}) then
                 dynamics_rf_start()
             end
-            if compare({"0015","rfz"}) == true then
+            if compare_code({"0015","rfz"}) then
                 dynamics_rfz_start()
             end
-            if compare({"0016","sf"}) == true then
+            if compare_code({"0016","sf"}) then
                 dynamics_sf_start()
             end
-            if compare({"0017","sffz"}) == true then
+            if compare_code({"0017","sffz"}) then
                 dynamics_sffz_start()
             end
-            if compare({"0018","sfp"}) == true then
+            if compare_code({"0018","sfp"}) then
                 dynamics_sfp_start()
             end
-            if compare({"0019","sfpp"}) == true then
+            if compare_code({"0019","sfpp"}) then
                 dynamics_sfpp_start()
             end
-            if compare({"0020","sfz"}) == true then
+            if compare_code({"0020","sfz"}) then
                 dynamics_sfz_start()
             end
-            if compare({"0021","sfzp"}) == true then
+            if compare_code({"0021","sfzp"}) then
                 dynamics_sfzp_start()
             end
-            if compare({"0022","<"}) == true then
+            if compare_code({"0022","<"}) then
                 dynamics_crescendo()
             end
-            if compare({"0023",">"}) == true then
+            if compare_code({"0023",">"}) then
                 dynamics_decrescendo()
             end
-            if compare({"0024","<>"}) == true then
+            if compare_code({"0024","<>"}) then
                 dynamics_messa_di_voce_up()
             end
-            if compare({"0025","><"}) == true then
+            if compare_code({"0025","><"}) then
                 dynamics_messa_di_voce_down()
             end
             if execute_function[i] == "0026" then
@@ -10252,138 +10251,138 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0027" then
                 dynamics_delete_dynamics()
             end
-            if compare({"0028","-ffff"}) == true then
+            if compare_code({"0028","-ffff"}) then
                 dynamics_ffff_end()
             end
-            if compare({"0029","-fff"}) == true then
+            if compare_code({"0029","-fff"}) then
                 dynamics_fff_end()
             end
-            if compare({"0030","-ff"}) == true then
+            if compare_code({"0030","-ff"}) then
                 dynamics_ff_end()
             end
-            if compare({"0031","-f"}) == true then
+            if compare_code({"0031","-f"}) then
                 dynamics_f_end()
             end
-            if compare({"0032","-mf"}) == true then
+            if compare_code({"0032","-mf"}) then
                 dynamics_mf_end()
             end
-            if compare({"0033","-mp"}) == true then
+            if compare_code({"0033","-mp"}) then
                 dynamics_mp_end()
             end
-            if compare({"0034","-p"}) == true then
+            if compare_code({"0034","-p"}) then
                 dynamics_p_end()
             end
-            if compare({"0035","-pp"}) == true then
+            if compare_code({"0035","-pp"}) then
                 dynamics_pp_end()
             end
-            if compare({"0036","-ppp"}) == true then
+            if compare_code({"0036","-ppp"}) then
                 dynamics_ppp_end()
             end
-            if compare({"0037","-pppp"}) == true then
+            if compare_code({"0037","-pppp"}) then
                 dynamics_pppp_end()
             end
-            if compare({"0038","-fp"}) == true then
+            if compare_code({"0038","-fp"}) then
                 dynamics_fp_end()
             end
-            if compare({"0039","-fz"}) == true then
+            if compare_code({"0039","-fz"}) then
                 dynamics_fz_end()
             end
-            if compare({"0040","-n"}) == true then
+            if compare_code({"0040","-n"}) then
                 dynamics_n_end()
             end
-            if compare({"0041","-rf"}) == true then
+            if compare_code({"0041","-rf"}) then
                 dynamics_rf_end()
             end
-            if compare({"0042","-rfz"}) == true then
+            if compare_code({"0042","-rfz"}) then
                 dynamics_rfz_end()
             end
-            if compare({"0043","-sf"}) == true then
+            if compare_code({"0043","-sf"}) then
                 dynamics_sf_end()
             end
-            if compare({"0044","-sffz"}) == true then
+            if compare_code({"0044","-sffz"}) then
                 dynamics_sffz_end()
             end
-            if compare({"0045","-sfp"}) == true then
+            if compare_code({"0045","-sfp"}) then
                 dynamics_sfp_end()
             end
-            if compare({"0046","-sfpp"}) == true then
+            if compare_code({"0046","-sfpp"}) then
                 dynamics_sfpp_end()
             end
-            if compare({"0047","-sfz"}) == true then
+            if compare_code({"0047","-sfz"}) then
                 dynamics_sfz_end()
             end
-            if compare({"0048","-sfzp"}) == true then
+            if compare_code({"0048","-sfzp"}) then
                 dynamics_sfzp_end()
             end
-            if compare({"0049","dyn+","louder"}) == true then
+            if compare_code({"0049","dyn+","louder"}) then
                 dynamics_increase_dynamic()
             end
-            if compare({"0050","dyn-","softer","quieter"}) == true then
+            if compare_code({"0050","dyn-","softer","quieter"}) then
                 dynamics_decrease_dynamic()
             end
-            if compare({"0051","alignfar", "align", "da", "daln"}) == true then
+            if compare_code({"0051","alignfar", "align", "da", "daln"}) then
                 dynamics_align_far()
             end
---      if compare({"0052","alignnear"}) == true then
+--      if compare_code({"0052","alignnear"}) then
 --        dynamics_align_near()
 --      end
-            if compare({"0053"}) == true then
+            if compare_code({"0053"}) then
                 dynamics_nudge_down()
             end
-            if compare({"0054"}) == true then
+            if compare_code({"0054"}) then
                 dynamics_nudge_up()
             end
-            if compare({"0055","cresc","crescendo"}) == true then
+            if compare_code({"0055","cresc","crescendo"}) then
                 dynamics_cresc()
             end
-            if compare({"0056","dim","diminuendo"}) == true then
+            if compare_code({"0056","dim","diminuendo"}) then
                 dynamics_dim()
             end
-            if compare({"0057","piuf","piu_f"}) == true then
+            if compare_code({"0057","piuf","piu_f"}) then
                 dynamics_piu_f()
             end
-            if compare({"0058","ppsub","subpp","pp_sub","sub_pp"}) == true then
+            if compare_code({"0058","ppsub","subpp","pp_sub","sub_pp"}) then
                 dynamics_pp_sub()
             end
-            if compare({"0059","psub","subp","p_sub","sub_p"}) == true then
+            if compare_code({"0059","psub","subp","p_sub","sub_p"}) then
                 dynamics_p_sub()
             end
-            if compare({"0060","submp","mpsub","sub_mp","mp_sub"}) == true then
+            if compare_code({"0060","submp","mpsub","sub_mp","mp_sub"}) then
                 dynamics_mp_sub()
             end
-            if compare({"0061","mfsub","mf_sub","submf","sub_mf"}) == true then
+            if compare_code({"0061","mfsub","mf_sub","submf","sub_mf"}) then
                 dynamics_mf_sub()
             end
-            if compare({"0062","subf","sub_f","fsub","f_sub"}) == true then
+            if compare_code({"0062","subf","sub_f","fsub","f_sub"}) then
                 dynamics_f_sub()
             end
-            if compare({"0063","ffsub","ff_sub","subff","sub_ff"}) == true then
+            if compare_code({"0063","ffsub","ff_sub","subff","sub_ff"}) then
                 dynamics_ff_sub()
             end
             if execute_function[i] == "0070" then
                 dynamics_align_hairpins_and_dynamics()         
             end       
-            if compare({"0071","dyndn","dd"}) == true then
+            if compare_code({"0071","dyndn","dd"}) then
                 dynamics_align_hairpins_and_dynamics()         
                 dynamics_nudge_down()
             end
-            if compare({"0072","dynup","du"}) == true then
+            if compare_code({"0072","dynup","du"}) then
                 dynamics_align_hairpins_and_dynamics()           
                 dynamics_nudge_up()
             end 
-            if compare({"0073","dabv","dynabv", "vocal", "dv", "vd"}) == true then
+            if compare_code({"0073","dabv","dynabv", "vocal", "dv", "vd"}) then
                 dynamics_above_staff()
             end             
-            if compare({"0100","accent","acc"}) == true then
+            if compare_code({"0100","accent","acc"}) then
                 articulations_accent()
             end
-            if compare({"0101","marc"}) == true then
+            if compare_code({"0101","marc"}) then
                 articulations_marcato()
             end
-            if compare({"0102","stacc","staccato", "stac"}) == true then
+            if compare_code({"0102","stacc","staccato", "stac"}) then
                 articulations_staccato()
             end
-            if compare({"0103","ten","tenuto", "-"}) == true then
+            if compare_code({"0103","ten","tenuto", "-"}) then
                 articulations_tenuto()
             end
             if execute_function[i] == "0104" then
@@ -10392,28 +10391,28 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0105" then
                 articulations_round_wedge()
             end
-            if compare({"0106","/"}) == true then
+            if compare_code({"0106","/"}) then
                 articulations_tremolo_single()
             end
-            if compare({"0107","//"}) == true then
+            if compare_code({"0107","//"}) then
                 articulations_tremolo_double()
             end
-            if compare({"0108","///"}) == true then
+            if compare_code({"0108","///"}) then
                 articulations_tremolo_triple()
             end
-            if compare({"0109","fermata","ferm"}) == true then
+            if compare_code({"0109","fermata","ferm"}) then
                 articulations_fermata()
             end
-            if compare({"0110","closed","+"}) == true then
+            if compare_code({"0110","closed","+"}) then
                 articulations_closed()
             end
-            if compare({"0111","open", "o"}) == true then
+            if compare_code({"0111","open", "o"}) then
                 articulations_open()
             end
-            if compare({"0112","upbow"}) == true then
+            if compare_code({"0112","upbow"}) then
                 articulations_upbow()
             end
-            if compare({"0113","downbow"}) == true then
+            if compare_code({"0113","downbow"}) then
                 articulations_downbow()
             end
             if execute_function[i] == "0114" then
@@ -10428,7 +10427,7 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0117" then
                 articulations_turn()
             end
-            if compare({"0118","roll"}) == true then
+            if compare_code({"0118","roll"}) then
                 articulations_roll()
             end
             if execute_function[i] == "0119" then
@@ -10449,7 +10448,7 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0124" then
                 articulations_doit()
             end
-            if compare({"0125","split_art","split"}) == true then
+            if compare_code({"0125","split_art","split"}) then
                 articulations_split_articulations()
             end
             if execute_function[i] == "0126" then
@@ -10458,28 +10457,28 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0127" then
                 articulations_lv()
             end
-            if compare({"0128","lv","let_vibrate"}) == true then
+            if compare_code({"0128","lv","let_vibrate"}) then
                 articulations_lv_poly()
             end
-            if compare({"0132","["}) == true then
+            if compare_code({"0132","["}) then
                 articulations_left_brackets()
             end
-            if compare({"0137","]"}) == true then
+            if compare_code({"0137","]"}) then
                 articulations_right_brackets()
             end
-            if compare({"0138","-.", ".-"}) == true then
+            if compare_code({"0138","-.", ".-"}) then
                 articulations_combo_tenuto_staccato()
             end
-            if compare({"0139",">.", ".>"}) == true then
+            if compare_code({"0139",">.", ".>"}) then
                 articulations_combo_accent_staccato()
             end
-            if compare({"0140",">-", "->"}) == true then
+            if compare_code({"0140",">-", "->"}) then
                 articulations_combo_accent_tenuto()
             end
             if execute_function[i] == "0141" then
                 articulations_combo_marcato_staccato()
             end
-            if compare({"0142","z"}) == true then
+            if compare_code({"0142","z"}) then
                 articulations_tremolo_z()
             end
             if execute_function[i] == "0143" then
@@ -10488,31 +10487,31 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0144" then
                 articulations_delete_articulations_from_rests()
             end
-            if compare({"0145","trem"}) == true then
+            if compare_code({"0145","trem"}) then
                 articulations_metered_tremolo()
             end
-            if compare({"0200", "xo","nh_xo","nh_xcircle"}) == true then
+            if compare_code({"0200", "xo","nh_xo","nh_xcircle"}) then
                 noteheads_x_circle()
             end
-            if compare({"0201","cross","nh_cross"}) == true then
+            if compare_code({"0201","cross","nh_cross"}) then
                 noteheads_cross_circle()
             end
-            if compare({"0202","tri","tri_up", "triup","nh_tri"}) == true then
+            if compare_code({"0202","tri","tri_up", "triup","nh_tri"}) then
                 noteheads_triangle_up()
             end
-            if compare({"0203","tri_dn","tridn","tri_down", "nh_tri_down"}) == true then
+            if compare_code({"0203","tri_dn","tridn","tri_down", "nh_tri_down"}) then
                 noteheads_triangle_down()
             end
-            if compare({"0204","nh_dia","nh_diamond","diamond","dia"}) == true then
+            if compare_code({"0204","nh_dia","nh_diamond","diamond","dia"}) then
                 noteheads_diamond()
             end
-            if compare({"x","nh_x"}) == true then
+            if compare_code({"x","nh_x"}) then
                 noteheads_x_default()
             end
-            if compare({"0205","ghost","nh_ghost","nh_gho","nh_paren"}) == true then
+            if compare_code({"0205","ghost","nh_ghost","nh_gho","nh_paren"}) then
                 noteheads_ghost()
             end
-            if compare({"0206","xstick","crossstick","nh_xstick","nh_circled"}) == true then
+            if compare_code({"0206","xstick","crossstick","nh_xstick","nh_circled"}) then
                 noteheads_cross_stick()
             end
             if execute_function[i] == "0207" then
@@ -10521,26 +10520,26 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0208" then
                 noteheads_square()
             end
-            if compare({"0209","rim","rimshot","nh_rim"}) == true then
+            if compare_code({"0209","rim","rimshot","nh_rim"}) then
                 noteheads_rim()
             end
-            if compare({"0210","nonote","nh_none","nh_no"}) == true then
+            if compare_code({"0210","nonote","nh_none","nh_no"}) then
                 noteheads_no_notehead()
             end
-            if compare({"0211", "defualt", "def","nh_def", "nh_default"}) == true then
+            if compare_code({"0211", "defualt", "def","nh_def", "nh_default"}) then
                 noteheads_default()
             end
-            if compare({"0212","nh_xd","xd"}) == true then
+            if compare_code({"0212","nh_xd","xd"}) then
                 noteheads_x_diamond()
             end
-            if compare({"0213","touchharmonics","touchharmx","touch","harm","hrmx","harmx"}) == true then
+            if compare_code({"0213","touchharmonics","touchharmx","touch","harm","hrmx","harmx"}) then
                 noteheads_harmonics()
             end
-            if compare({"0214","pas","drum"}) == true then
+            if compare_code({"0214","pas","drum"}) then
                 noteheads_default()
                 noteheads_x_above_staff()
             end
-            if compare({"0215","nh_center"}) == true then
+            if compare_code({"0215","nh_center"}) then
                 noteheads_center_noteheads()
             end
             if execute_function[i] == "0300" then
@@ -10555,10 +10554,10 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0400" then
                 barline_right_invisible()
             end
-            if compare({"0401","|"}) == true then
+            if compare_code({"0401","|"}) then
                 barline_right_single()
             end
-            if compare({"0402","||"}) == true then
+            if compare_code({"0402","||"}) then
                 barline_right_double()
             end
             if execute_function[i] == "0403" then
@@ -10567,7 +10566,7 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0404" then
                 barline_right_thick()
             end
-            if compare({"0405","final", "fin"}) == true then
+            if compare_code({"0405","final", "fin"}) then
                 barline_right_final()
             end
             if execute_function[i] == "0406" then
@@ -10612,80 +10611,80 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0419" then
                 barline_clear_rehearsal()
             end
-            if compare({"0450","barnum_leadin", "barnum-leadin"}) == true then
+            if compare_code({"0450","barnum_leadin", "barnum-leadin"}) then
                 measure_numbers_adjust_for_leadin()
             end
 
-            if compare({"0500","2/4"}) == true then
+            if compare_code({"0500","2/4"}) then
                 meter_2_4()
             end
-            if compare({"0501","2/2"}) == true then
+            if compare_code({"0501","2/2"}) then
                 meter_2_2()
             end
-            if compare({"0502","3/2"}) == true then
+            if compare_code({"0502","3/2"}) then
                 meter_3_2()
             end
-            if compare({"0503","3/4"}) == true then
+            if compare_code({"0503","3/4"}) then
                 meter_3_4()
             end
-            if compare({"0504","3/8"}) == true then
+            if compare_code({"0504","3/8"}) then
                 meter_3_8()
             end
-            if compare({"0505","4/4"}) == true then
+            if compare_code({"0505","4/4"}) then
                 meter_4_4()
             end
-            if compare({"0506","5/4"}) == true then
+            if compare_code({"0506","5/4"}) then
                 meter_5_4()
             end
-            if compare({"0507","5/8","5/8_23"}) == true then
+            if compare_code({"0507","5/8","5/8_23"}) then
                 meter_5_8_23()
             end
-            if compare({"0516","5/8_32"}) == true then
+            if compare_code({"0516","5/8_32"}) then
                 meter_5_8_32()
             end
-            if compare({"0508","6/8"}) == true then
+            if compare_code({"0508","6/8"}) then
                 meter_6_8()
             end
-            if compare({"0509","7/8","7/8_223"}) == true then
+            if compare_code({"0509","7/8","7/8_223"}) then
                 meter_7_8_223()
             end
-            if compare({"0517","7/8_322"}) == true then
+            if compare_code({"0517","7/8_322"}) then
                 meter_7_8_322()
             end
-            if compare({"0510","9/8"}) == true then
+            if compare_code({"0510","9/8"}) then
                 meter_9_8()
             end
-            if compare({"0511","12/8"}) == true then
+            if compare_code({"0511","12/8"}) then
                 meter_12_8()
             end
-            if compare({"0512","6/4"}) == true then
+            if compare_code({"0512","6/4"}) then
                 meter_6_4()
             end
-            if compare({"0513","beam_together", "beam"}) == true then
+            if compare_code({"0513","beam_together", "beam"}) then
                 meter_beam_together()
             end
-            if compare({"0514","common","c"}) == true then
+            if compare_code({"0514","common","c"}) then
                 meter_common_time()
             end
-            if compare({"0515","cut"}) == true then
+            if compare_code({"0515","cut"}) then
                 meter_cut_time()
             end
-            if compare({"0600","trill","tr"}) == true then
+            if compare_code({"0600","trill","tr"}) then
                 smartshape_trill()
             end
             if execute_function[i] == "0601" then
                 smartshape_trill_extension()
             end
-            if compare({"0602","line_dashed", "dashed_line"}) == true then
+            if compare_code({"0602","line_dashed", "dashed_line"}) then
                 smartshape_dashed_line()
             end
-            if compare({"0603","line"}) == true then
+            if compare_code({"0603","line"}) then
                 smartshape_solid_line()
             end
-            if compare({"0604","slide"}) == true then
+            if compare_code({"0604","slide"}) then
                 smartshape_tab_slide()
             end
-            if compare({"0605","gliss"}) == true then
+            if compare_code({"0605","gliss"}) then
                 smartshape_glissando()
             end
             if execute_function[i] == "0606" then
@@ -10697,10 +10696,10 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0608" then
                 smartshape_custom()
             end
-            if compare({"0609","slur", "s"}) == true then
+            if compare_code({"0609","slur", "s"}) then
                 smartshape_slur_solid()
             end
-            if compare({"0610","slur_dashed", "dashed_slur"}) == true then
+            if compare_code({"0610","slur_dashed", "dashed_slur"}) then
                 smartshape_slur_dashed()
             end
             if execute_function[i] == "0611" then
@@ -10709,25 +10708,25 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0612" then
                 smartshape_solid_double_bracket()
             end
-            if compare({"0613","8va"}) == true then
+            if compare_code({"0613","8va"}) then
                 smartshape_8va()
             end
-            if compare({"0614","15ma"}) == true then
+            if compare_code({"0614","15ma"}) then
                 smartshape_15ma()
             end
-            if compare({"0615","8vb", "8ba"}) == true then
+            if compare_code({"0615","8vb", "8ba"}) then
                 smartshape_8vb()
             end
-            if compare({"0616", "15mb", "15ba"}) == true then
+            if compare_code({"0616", "15mb", "15ba"}) then
                 smartshape_15mb()
             end
-            if compare({"0700","slash", "////", "/s"}) == true then
+            if compare_code({"0700","slash", "////", "/s"}) then
                 staff_styles_slash()
             end
-            if compare({"0701","rhythm", "rthm"}) == true then
+            if compare_code({"0701","rhythm", "rthm"}) then
                 staff_styles_rhythm()
             end
-            if compare({"0702","blank"}) == true then
+            if compare_code({"0702","blank"}) then
                 staff_styles_blank_ly1()
             end
             if execute_function[i] == "0703" then
@@ -10742,31 +10741,31 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0706" then
                 staff_styles_blank_all()
             end
-            if compare({"0707","%","1barrpt"}) == true then
+            if compare_code({"0707","%","1barrpt"}) then
                 staff_styles_repeat_one()
             end
-            if compare({"0708","%%", "2barrpt"}) == true then
+            if compare_code({"0708","%%", "2barrpt"}) then
                 staff_styles_repeat_two()
             end
-            if compare({"0709","stemless"}) == true then
+            if compare_code({"0709","stemless"}) then
                 staff_styles_stemless()
             end
-            if compare({"0710","cutaway"}) == true then
+            if compare_code({"0710","cutaway"}) then
                 staff_styles_cutaway()
             end
-            if compare({"0711","collapse"}) == true then
+            if compare_code({"0711","collapse"}) then
                 staff_styles_collapse()
             end
-            if compare({"0800","espr","esp","espressivo"}) == true then
+            if compare_code({"0800","espr","esp","espressivo"}) then
                 expressions_espr()
             end
-            if compare({"0801","poco"}) == true then
+            if compare_code({"0801","poco"}) then
                 expressions_poco()
             end
-            if compare({"0802","pocoapoco","poco_a_poco"}) == true then
+            if compare_code({"0802","pocoapoco","poco_a_poco"}) then
                 expressions_pocoapoco()
             end
-            if compare({"0803","molto"}) == true then
+            if compare_code({"0803","molto"}) then
                 expressions_molto()
             end
             if execute_function[i] == "0804" then
@@ -10781,76 +10780,76 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "0807" then
                 expressions_loco()
             end
-            if compare({"0808","breath"}) == true then
+            if compare_code({"0808","breath"}) then
                 expressions_breath()
             end
             if execute_function[i] == "0809" then
                 expressions_caesura()
             end
-            if compare({"0810","glasses", "look"}) == true then
+            if compare_code({"0810","glasses", "look"}) then
                 expressions_glasses()
             end
-            if compare({"0811","mute"}) == true then
+            if compare_code({"0811","mute"}) then
                 expressions_mute()
             end
-            if compare({"0812","openx"}) == true then
+            if compare_code({"0812","openx"}) then
                 expressions_open()
             end
-            if compare({"0813","cup", "cupmute", "cup_mute"}) == true then
+            if compare_code({"0813","cup", "cupmute", "cup_mute"}) then
                 expressions_cup_mute()
             end
-            if compare({"0814","straight", "stmute", "st_mute"}) == true then
+            if compare_code({"0814","straight", "stmute", "st_mute"}) then
                 expressions_straight_mute()
             end
-            if compare({"0815","1o"}) == true then
+            if compare_code({"0815","1o"}) then
                 expressions_one()
             end
-            if compare({"0816","2o"}) == true then
+            if compare_code({"0816","2o"}) then
                 expressions_two()
             end
-            if compare({"0817","a2"}) == true then
+            if compare_code({"0817","a2"}) then
                 expressions_a2()
             end
-            if compare({"0818","a3"}) == true then
+            if compare_code({"0818","a3"}) then
                 expressions_a3()
             end
-            if compare({"0818","a4"}) == true then
+            if compare_code({"0818","a4"}) then
                 expressions_a4()
             end
-            if compare({"0820","arco"}) == true then
+            if compare_code({"0820","arco"}) then
                 expressions_arco()
             end
-            if compare({"0821","pizz"}) == true then
+            if compare_code({"0821","pizz"}) then
                 expressions_pizz()
             end
-            if compare({"0822","spicc", "spiccato"}) == true then
+            if compare_code({"0822","spicc", "spiccato"}) then
                 expressions_spicc()
             end
-            if compare({"0823","collegno", "col_legno"}) == true then
+            if compare_code({"0823","collegno", "col_legno"}) then
                 expressions_col_legno()
             end
-            if compare({"0824","consord", "con_sord"}) == true then
+            if compare_code({"0824","consord", "con_sord"}) then
                 expressions_con_sord()
             end
-            if compare({"0825","ord"}) == true then
+            if compare_code({"0825","ord"}) then
                 expressions_ord()
             end
-            if compare({"0826","sulpont", "sul_pont", "sul_ponticello"}) == true then
+            if compare_code({"0826","sulpont", "sul_pont", "sul_ponticello"}) then
                 expressions_sul_pont()
             end
-            if compare({"0827","sultasto", "sul_tasto"}) == true then
+            if compare_code({"0827","sultasto", "sul_tasto"}) then
                 expressions_sul_tasto()
             end
-            if compare({"0828","senza", "senzasord", "senza_sord"}) == true then
+            if compare_code({"0828","senza", "senzasord", "senza_sord"}) then
                 expressions_senza_sord()
             end
-            if compare({"0829","tremx"}) == true then
+            if compare_code({"0829","tremx"}) then
                 expressions_trem()
             end
-            if compare({"0830","halfpizz", "half_pizz", "1/2pizz", "1/2_pizz"}) == true then
+            if compare_code({"0830","halfpizz", "half_pizz", "1/2pizz", "1/2_pizz"}) then
                 expressions_half_pizz()
             end
-            if compare({"0831","halftrem", "half_trem", "1/2trem", "1/2_trem"}) == true then
+            if compare_code({"0831","halftrem", "half_trem", "1/2trem", "1/2_trem"}) then
                 expressions_half_trem()
             end
             if execute_function[i] == "0832" then
@@ -11108,100 +11107,100 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "1025" then
                 groups_reverse_sub_bracket()
             end
-            if compare({"1100","abmaj"}) == true then
+            if compare_code({"1100","abmaj"}) then
                 key_A_flat_major()
             end
-            if compare({"1101","abmin"}) == true then
+            if compare_code({"1101","abmin"}) then
                 key_A_flat_minor()
             end
-            if compare({"1103","amaj"}) == true then
+            if compare_code({"1103","amaj"}) then
                 key_A_major()
             end
-            if compare({"1104","amin"}) == true then
+            if compare_code({"1104","amin"}) then
                 key_A_minor()
             end
-            if compare({"1104","a#min"}) == true then
+            if compare_code({"1104","a#min"}) then
                 key_A_sharp_minor()
             end
-            if compare({"1105","bbmaj"}) == true then
+            if compare_code({"1105","bbmaj"}) then
                 key_B_flat_major()
             end
-            if compare({"1106","bbmin"}) == true then
+            if compare_code({"1106","bbmin"}) then
                 key_B_flat_minor()
             end
-            if compare({"1107","bmaj"}) == true then
+            if compare_code({"1107","bmaj"}) then
                 key_B_major()
             end
-            if compare({"1108","bmin"}) == true then
+            if compare_code({"1108","bmin"}) then
                 key_B_minor()
             end
-            if compare({"1109","cbmaj"}) == true then
+            if compare_code({"1109","cbmaj"}) then
                 key_C_flat_major()
             end
-            if compare({"1110","cmaj"}) == true then
+            if compare_code({"1110","cmaj"}) then
                 key_C_major()
             end
-            if compare({"1111","cmin"}) == true then
+            if compare_code({"1111","cmin"}) then
                 key_C_minor()
             end
-            if compare({"1112","c#maj"}) == true then
+            if compare_code({"1112","c#maj"}) then
                 key_C_sharp_major()
             end
-            if compare({"1113","c#min"}) == true then
+            if compare_code({"1113","c#min"}) then
                 key_C_sharp_minor()
             end
-            if compare({"1114","dbmaj"}) == true then
+            if compare_code({"1114","dbmaj"}) then
                 key_D_flat_major()
             end
-            if compare({"1115","dmaj"}) == true then
+            if compare_code({"1115","dmaj"}) then
                 key_D_major()
             end
-            if compare({"1116","dmin"}) == true then
+            if compare_code({"1116","dmin"}) then
                 key_D_minor()
             end
-            if compare({"1117","d#min"}) == true then
+            if compare_code({"1117","d#min"}) then
                 key_D_sharp_minor()
             end
-            if compare({"1118","ebmaj"}) == true then
+            if compare_code({"1118","ebmaj"}) then
                 key_E_flat_major()
             end
-            if compare({"1119","ebmin"}) == true then
+            if compare_code({"1119","ebmin"}) then
                 key_E_flat_minor()
             end
-            if compare({"1120","emaj"}) == true then
+            if compare_code({"1120","emaj"}) then
                 key_E_major()
             end
-            if compare({"1121","emin"}) == true then
+            if compare_code({"1121","emin"}) then
                 key_E_minor()
             end
-            if compare({"1122","fmaj"}) == true then
+            if compare_code({"1122","fmaj"}) then
                 key_F_major()
             end
-            if compare({"1123","fmin"}) == true then
+            if compare_code({"1123","fmin"}) then
                 key_F_minor()
             end
-            if compare({"1124","f#maj"}) == true then
+            if compare_code({"1124","f#maj"}) then
                 key_F_sharp_major()
             end
-            if compare({"1125","f#min"}) == true then
+            if compare_code({"1125","f#min"}) then
                 key_F_sharp_minor()
             end
-            if compare({"1126","gbmaj"}) == true then
+            if compare_code({"1126","gbmaj"}) then
                 key_G_flat_major()
             end
-            if compare({"1127","gmaj"}) == true then
+            if compare_code({"1127","gmaj"}) then
                 key_G_major()
             end
-            if compare({"1128","gmin"}) == true then
+            if compare_code({"1128","gmin"}) then
                 key_G_minor()
             end
-            if compare({"1129","g#min"}) == true then
+            if compare_code({"1129","g#min"}) then
                 key_G_sharp_minor()
             end
             if execute_function[i] == "1130" then
                 key_hide_key_show_acc()
             end
-            if compare({"1131","atonal","keyless"}) == true then
+            if compare_code({"1131","atonal","keyless"}) then
                 key_keyless()
             end
             if execute_function[i] == "1200" then
@@ -11403,31 +11402,31 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "1512" then
                 transform_flip_enharmonic()
             end
-            if compare({"1513","cluster_in","clust_in","indeterminate"}) == true then
+            if compare_code({"1513","cluster_in","clust_in","indeterminate"}) then
                 transform_cluster_indeterminate()
             end
-            if compare({"1514","cluster_det","clust_det","determinate"}) == true then
+            if compare_code({"1514","cluster_det","clust_det","determinate"}) then
                 transform_cluster_determinate()
             end
-            if compare({"1515","ledger"}) == true then
+            if compare_code({"1515","ledger"}) then
                 transform_toggle_ledger_lines()
             end
-            if compare({"1516","possible","extreme","highlow", "hilo"}) == true then
+            if compare_code({"1516","possible","extreme","highlow", "hilo"}) then
                 transform_highest_lowest_possible()
             end
-            if compare({"1517","kickline","bandhits","kick"}) == true then
+            if compare_code({"1517","kickline","bandhits","kick"}) then
                 transform_create_kicks()
             end
-            if compare({"1518","topline"}) == true then
+            if compare_code({"1518","topline"}) then
                 transform_topline_notation()
             end
-            if compare({"1519","handsfeet"}) == true then
+            if compare_code({"1519","handsfeet"}) then
                 drum_layers(2)
             end
-            if compare({"1520","drumscyms"}) == true then
+            if compare_code({"1520","drumscyms"}) then
                 drum_layers(3)
             end
-            if compare({"1521","bariolage"}) == true then
+            if compare_code({"1521","bariolage"}) then
                 bariolage()
             end
             if execute_function[i] == "1600" then
@@ -11506,25 +11505,25 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "1811" then
                 navigation_switch_to_slected_part()
             end
-            if compare({"1900","treble"}) == true then
+            if compare_code({"1900","treble"}) then
                 clef_change_pre(0) --treble clef
             end
-            if compare({"1901","alto"}) == true then
+            if compare_code({"1901","alto"}) then
                 clef_change_pre(1) -- alto clef
             end
-            if compare({"1902","tenor"}) == true then
+            if compare_code({"1902","tenor"}) then
                 clef_change_pre(2) -- tenor clef
             end
-            if compare({"1903","bass"}) == true then
+            if compare_code({"1903","bass"}) then
                 clef_change_pre(3) -- bass clef
             end
-            if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8","treb8"}) == true then
+            if compare_code({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8","treb8"}) then
                 clef_change_pre(5) -- treble_8ba clef
             end
-            if compare({"1905","perc"}) == true then
+            if compare_code({"1905","perc"}) then
                 clef_change_pre(12) -- perc clef (new style)
             end
-            if compare({"2000","harp", "harp_ped", "hp", "harp_diag", "hp_diag"}) == true then
+            if compare_code({"2000","harp", "harp_ped", "hp", "harp_diag", "hp_diag"}) then
                 require("harp_pedal_wizard_js")
                 harp()
             end
@@ -11543,13 +11542,13 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "9004" then
                 plugin_custom_text_dynamics()
             end
-            if compare({"9005","tacet"}) == true then
+            if compare_code({"9005","tacet"}) then
                 plugin_tacet()
             end
-            if compare({"9006","playx", "playxtimes", "playxbars"}) == true then
+            if compare_code({"9006","playx", "playxtimes", "playxbars"}) then
                 plugin_make_x_times()
             end
-            if compare({"9007","playxmore","playmore", "more"}) == true then
+            if compare_code({"9007","playxmore","playmore", "more"}) then
                 plugin_make_x_more()
             end
             if execute_function[i] == "9994" then
@@ -11570,23 +11569,23 @@ for i,k in pairs(execute_function) do
             if execute_function[i] == "9999" then
                 update_mac_35()
             end
-            if compare({"0000","config"}) == true then
+            if compare_code({"0000","config"}) then
                 --user_configuration()
                 config_jetstream()
             end
         else
-            if compare({"0000","config"}) == true then
+            if compare_code({"0000","config"}) then
                 --user_configuration()
                 config_jetstream()
-            elseif compare({"1208","lock_all"}) == true then
+            elseif compare_code({"1208","lock_all"}) then
                 formatting_systems_lock("All")
-            elseif compare({"1209","lock_score"}) == true then
+            elseif compare_code({"1209","lock_score"}) then
                 formatting_systems_lock("Score")
-            elseif compare({"1210","lock_parts"}) == true then
+            elseif compare_code({"1210","lock_parts"}) then
                 formatting_systems_lock("Parts")            
-            elseif compare({"1211","rename"}) == true then
+            elseif compare_code({"1211","rename"}) then
                 staff_rename()
-            elseif compare({"1710","lyric_baselines", "lyr_bl", "lyr_spc", "lyric_spacing", "lyrics_spacing"}) == true then
+            elseif compare_code({"1710","lyric_baselines", "lyr_bl", "lyr_spc", "lyric_spacing", "lyrics_spacing"}) then
                 lyrics_spacing("Lyrics - Space Baselines")
             elseif execute_function[i] == "1800" then
                 playback_all_staves_document_beginning_to_document_end()
