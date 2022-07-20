@@ -18,7 +18,7 @@ function add_library_directory()
             return mac_var and os.getenv(mac_var) or ""
         end
     end
-    local library_directory = do_getenv("LOCALAPPDATA", "HOME") or do_getenv("COMMONPROGRAMFILES")
+    local library_directory = do_getenv("COMMONPROGRAMFILES", "HOME") or do_getenv("LOCALAPPDATA") -- borrowed from library SMuFL function, but swapped COMMONPROGRAMFILES and LOCALAPPDATA
     if not is_on_windows then
         library_directory = library_directory..[[/Library/Application Support/JetStream Finale Controller/lua_libraries/?.lua;/Library/Application Support]]
     end
@@ -47,9 +47,9 @@ function run_file(filename)
             return mac_var and os.getenv(mac_var) or ""
         end
     end
-    local library_directory = do_getenv("LOCALAPPDATA", "HOME") or do_getenv("COMMONPROGRAMFILES")
+    local library_directory = do_getenv("COMMONPROGRAMFILES", "HOME") or do_getenv("LOCALAPPDATA") -- borrowed from library SMuFL function, but swapped COMMONPROGRAMFILES and LOCALAPPDATA
     if not is_on_windows then
-        library_directory = "/Library/Application Support/"
+        library_directory = "/Library/Application Support/" -- I know I'm overriding  the os.getenv stuff above... but this is what I need :)
     end
     library_directory = library_directory .. "/JetStream Finale Controller/lua_libraries/"
     dofile(library_directory..filename..".lua")

@@ -2,7 +2,7 @@
     <Author>Robert G. Patterson</Author>
     <RGPLua IncludeUI="true">
         <Scripts>
-            <Script Path="JetStream.lua" IsDirectory="false" Debug="true" UseString="false" FromRGPLuaDirectory="true"/>
+            <Script Path="jetstream.lua" IsDirectory="false" Debug="true" UseString="false" FromRGPLuaDirectory="true"/>
         </Scripts>
     </RGPLua>
 </RGPPluginSettings>
