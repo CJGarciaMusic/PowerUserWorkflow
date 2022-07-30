@@ -70,9 +70,9 @@ function config_jetstream()
     nudge_large.LuaString = config.nudge_large
     --
 --  local x_type = tonumber(config.x_type)
-    local x_type = config.x_type
+--    local x_type = config.x_type
 --
-    local lyrics_all = config.lyrics_all
+--    local lyrics_edit_all_baselines = config.lyrics_edit_all_baselines
 --
     function add_ctrl(dialog, ctrl_type, text, x, y, h, w, min, max)
         str.LuaString = text
@@ -161,7 +161,7 @@ function config_jetstream()
     local nudge_static = add_ctrl(dialog, "static", "Nudge amounts:", col[1], row[11], row_h, col_w, 0, 0)
     local nudge_normal_edit = add_ctrl(dialog, "edit", nudge_normal.LuaString, col[2], row[11], row_h, 40, 0, 0)
     local nudge_large_edit = add_ctrl(dialog, "edit", nudge_large.LuaString, col[2] + 60, row[11], row_h, 40, 0, 0)
-    nudge_large_edit:SetEnable(0)
+    nudge_large_edit:SetEnable(false)
     --
     add_ctrl(dialog, "horizontalline", "", col[1], row[12] + 10, 1, col_w * 3, 0, 0)
     --
@@ -172,19 +172,28 @@ function config_jetstream()
         str.LuaString = x_types[i]
         x_type_popup:AddString(str)
     end   
-    x_type_popup:SetSelectedItem(x_type)
+    x_type_popup:SetSelectedItem(config.x_type)
     --
     add_ctrl(dialog, "horizontalline", "", col[1], row[14] + 10, 1, col_w * 3, 0, 0)
     --
-    local lyrics_all_static = add_ctrl(dialog, "static", "Lyrics | Link Baselines:", col[1], row[15], row_h, col_w, 0, 0)
-    local lyrics_all_check = add_ctrl(dialog, "checkbox", "", col[2], row[15] - 3, row_h, col_w, 0, 0) 
-    if lyrics_all == "true" or lyrics_all == true then
-        lyrics_all_check:SetCheck(1)
+    local lyrics_edit_all_baselines_static = add_ctrl(dialog, "static", "Lyrics | Link Baselines:", col[1], row[15], row_h, col_w, 0, 0)
+    local lyrics_edit_all_baselines_check = add_ctrl(dialog, "checkbox", "", col[2], row[15] - 3, row_h, col_w, 0, 0) 
+    if config.lyrics_edit_all_baselines == "true" or config.lyrics_edit_all_baselines == true then
+        lyrics_edit_all_baselines_check:SetCheck(1)
     else
-        lyrics_all_check:SetCheck(0)
+        lyrics_edit_all_baselines_check:SetCheck(0)
     end
-
-
+--
+-- add engraver font stuff here...
+    local accent_character_static = add_ctrl(dialog, "static", "Accent characters:", col[1], row[16], row_h, col_w, 0, 0)
+    local accent_character_popup = add_ctrl(dialog, "popup", "", col[2], row[16], row_h, col_w * 2, 0, 0)
+        local accent_character_choices = {"Use Defualt", "Engraver > Maestro (legacy) ", "Engraver > Maestro OR Finale Maestro"}
+    for i,j in pairs(accent_character_choices) do
+        str.LuaString = accent_character_choices[i]
+        accent_character_popup:AddString(str)
+    end
+    accent_character_popup:SetSelectedItem(config.accent_character_prefs)
+--
 
 --[[ ]]
     dialog:CreateOkButton()
@@ -230,11 +239,13 @@ function config_jetstream()
         --
         config.x_type = x_type_popup:GetSelectedItem()
         --
-        if lyrics_all_check:GetCheck() == 1 then
-            config.lyrics_all = "true"
+        if lyrics_edit_all_baselines_check:GetCheck() == 1 then
+            config.lyrics_edit_all_baselines = "true"
         else
-            config.lyrics_all = "false"
+            config.lyrics_edit_all_baselines = "false"
         end
+        --
+        config.accent_character_prefs = accent_character_popup:GetSelectedItem()
         --
         configuration.save_user_settings(script_name, config)
     end

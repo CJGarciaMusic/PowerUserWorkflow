@@ -1,9 +1,18 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "220718"
-    finaleplugin.Date = "07/218/2022"
-    return "JetStream Finale Controller", "JetStream Finale Controller", "Input four digit codes to access JetStream Finale Controller features."
+    finaleplugin.Version = "22.07.24"
+    finaleplugin.Date = "07/22/2024"
+    finaleplugin.Notes = [[
+    NOTE: The jetstream.lua file is provided as a reference file for interested developers. It will not run without several other files being in specific places on your hard drive.
+    For that reason, the only supported way to get the JetStream plug-in on your computer is to run an official installer.
+    For more information or to register for JetStream, please visit https://jetstreamfinale.com/
+    ]]
+    return "JetStream Finale Controller", "JetStream Finale Controller", "Input command codes to access JetStream Finale Controller features."
 end
+
+local jetstream_version = finaleplugin.Version
+
+bypass_dialog = bypass_dialog or false
 
 local path = finale.FCString()
 path:SetRunningLuaFolderPath()
@@ -29,9 +38,18 @@ add_library_directory()
 
 local library = require("library.general_library")
 local configuration = require("library.configuration")
+local layer = require("library.layer")
 require("jetstream_config")
 --
-config = {tacet_text = "Tacet", al_fine_text = "Tacet al fine", play_x_bars_prefix = "PLAY", play_x_bars_suffix = "BARS", play_x_more_prefix = "PLAY", play_x_more_suffix = "MORE", dynamic_L_cushion = 18, dynamic_R_cushion = 18, noteentry_cushion = 30, staff_cushion = 40, dynamic_above_cushion = 24, nudge_normal = 12, nudge_large = 24, x_type = 0, lyrics_all = "true"}
+config = {tacet_text = "Tacet", al_fine_text = "Tacet al fine", 
+    play_x_bars_prefix = "PLAY", play_x_bars_suffix = "BARS", 
+    play_x_more_prefix = "PLAY", play_x_more_suffix = "MORE", 
+    dynamic_L_cushion = 18, dynamic_R_cushion = 18, 
+    noteentry_cushion = 30, staff_cushion = 40, dynamic_above_cushion = 24, 
+    nudge_normal = 12, nudge_large = 24, 
+    x_type = 0, 
+    lyrics_edit_all_baselines = "true",
+    accent_character_prefs = 0}
 
 configuration.get_user_settings("jetstream_config", config, create_automatically)
 --
@@ -207,59 +225,75 @@ function to_EVPUs(text)
     return str:GetMeasurement(finale.MEASUREMENTUNIT_DEFAULT)
 end
 
-function getUsedFontName(standard_name)
+function remove_spaces_in_windows_os(standard_name)
     local font_name = standard_name
-    if string.find(os.tmpname(), "/") then
-        font_name = standard_name
-    elseif string.find(os.tmpname(), "\\") then
+    local ui = finenv.UI()
+--    if string.find(os.tmpname(), "/") then
+--        font_name = standard_name
+--    elseif string.find(os.tmpname(), "\\") then
+--        font_name = string.gsub(standard_name, "%s", "")
+--    end
+    if ui:IsOnWindows() then
         font_name = string.gsub(standard_name, "%s", "")
     end
     return font_name
 end
 
-function check_SMuFL(what_to_check)
-    local font_check = {"Maestro", "Engraver Font Set", "Broadway Copyist", "Jazz"}
-    local is_SMuFL = true
-    if what_to_check ~= nil then
-        if what_to_check[1] == "Expression" then
-            local cd = finale.FCCategoryDef()
-            if cd:Load(what_to_check[2]) then
-                local fontinfo = finale.FCFontInfo()
-                if cd:GetMusicFontInfo(fontinfo) then
-                    for k, v in pairs(font_check) do
-                        if fontinfo:GetName() == getUsedFontName(v) then
-                            is_SMuFL = false
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    else
-        local fontinfo = finale.FCFontInfo()
-        if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
-            for k, v in pairs(font_check) do
-                if fontinfo:GetName() == getUsedFontName(v) then
-                    is_SMuFL = false
-                    break
-                end
-            end
-        end
-    end  
-
-    return is_SMuFL
-end
+-- REPLACED BY LIBRARY FUNCTION... BUT LEAVING IT TEMPORARILY JUST IN CASE...
+--function check_SMuFL(what_to_check)
+--    local font_check = {"Maestro", "Engraver Font Set", "Broadway Copyist", "Jazz"}
+--    local is_SMuFL = true
+--    if what_to_check ~= nil then
+--        if what_to_check[1] == "Expression" then
+--            local cd = finale.FCCategoryDef()
+--            if cd:Load(what_to_check[2]) then
+--                local fontinfo = finale.FCFontInfo()
+--                if cd:GetMusicFontInfo(fontinfo) then
+--                    for k, v in pairs(font_check) do
+--                        if fontinfo:GetName() == remove_spaces_in_windows_os(v) then
+--                            is_SMuFL = false
+--                            break
+--                        end
+--                    end
+--                end
+--            end
+--        end
+--    else
+--        local fontinfo = finale.FCFontInfo()
+--        if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
+--            for k, v in pairs(font_check) do
+--                if fontinfo:GetName() == remove_spaces_in_windows_os(v) then
+--                    is_SMuFL = false
+--                    break
+--                end
+--            end
+--        end
+--    end  
+--    return is_SMuFL
+--end
 
 function get_def_mus_font()
     local fontinfo = finale.FCFontInfo()
     if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
-        return getUsedFontName(fontinfo:GetName())
+        local font_name = finale.FCString()
+        fontinfo:GetNameString(font_name)
+        return font_name.LuaString
+--        return remove_spaces_in_windows_os(fontinfo:GetName())
     end
 end
 
 local default_music_font = get_def_mus_font()
+local fontinfo = finale.FCFontInfo()
+local is_default_smufl = library.is_font_smufl_font()
 
-local full_art_table = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local accent_font = default_music_font
+if config.accent_character_prefs == 1 and default_music_font == "Maestro" then
+    accent_font = "Engraver Font Set"
+elseif config.accent_character_prefs == 2 and (default_music_font == "Maestro" or default_music_font == "Finale Maestro") then
+    accent_font = "Engraver Font Set"
+end
+
+local full_art_table = {accent = 0, marcato = 0, staccato = 0, tenuto = 0, flat_wedge = 0, round_wedge = 0, trem_1_stroke = 0, trem_2_stroke = 0, trem_3_stroke = 0, fermata = 0, closed = 0, open = 0, upbow = 0, downbow = 0, trill = 0, short_trill = 0, mordent = 0, turn = 0, roll = 0, fall_short = 0, fall_long = 0, rip_straight = 0, rip_long = 0, scoop_short = 0, doit = 0, lv = 0, l_bracket_1 = 0, l_bracket_2 = 0, l_bracket_3 = 0, l_bracket_4 = 0, r_bracket_1 = 0, r_bracket_2 = 0, r_bracket_3 = 0, r_bracket_4 = 0, tenuto_stacc = 0, accent_stacc = 0, accent_tenuto = 0, marcato_stacc = 0, trem_z = 0}
 
 function tremolo_assignment(tremolo_type)
     if tremolo_type == "metered tremolo" then
@@ -268,13 +302,13 @@ function tremolo_assignment(tremolo_type)
                 local articulation = finale.FCArticulation()
                 articulation:SetNoteEntry(noteentry)
                 if noteentry.Duration < 512 then
-                    articulation:SetID(full_art_table[7])
+                    articulation:SetID(full_art_table["trem_1_stroke"])
                     articulation:SaveNew() 
                 elseif (noteentry.Duration >= 512) and (noteentry.Duration < 1024) then
-                    articulation:SetID(full_art_table[8])
+                    articulation:SetID(full_art_table["trem_2_stroke"])
                     articulation:SaveNew() 
                 elseif noteentry.Duration >= 1024 then
-                    articulation:SetID(full_art_table[9])
+                    articulation:SetID(full_art_table["trem_3_stroke"])
                     articulation:SaveNew() 
                 end
             end
@@ -337,19 +371,19 @@ function roll_articulation_assignment(defualt_roll_num)
 end
 
 function assignArticulation(art_id)
-    if (art_id == "metered tremolo") or (art_id == full_art_table[7]) or (art_id == full_art_table[8]) or (art_id == full_art_table[9]) then
+    if (art_id == "metered tremolo") or (art_id == full_art_table["trem_1_stroke"]) or (art_id == full_art_table["trem_2_stroke"]) or (art_id == full_art_table["trem_3_stroke"]) then
         tremolo_assignment(art_id)
     else
         for noteentry in eachentrysaved(finenv.Region()) do
             local a = finale.FCArticulation()
             a:SetNoteEntry(noteentry)
             local ad = finale.FCArticulationDef()
-            if (art_id == full_art_table[20]) or (art_id == full_art_table[21]) or (art_id == full_art_table[25]) or (art_id == full_art_table[26]) then
+            if (art_id == full_art_table["fall_short"]) or (art_id == full_art_table["fall_long"]) or (art_id == full_art_table["doit"]) or (art_id == full_art_table["lv"]) then
                 if (noteentry:IsNote()) and (noteentry:IsTied() == false) then
                     a:SetID(art_id)
                     a:SaveNew()  
                 end
-            elseif (art_id == full_art_table[12]) or (art_id == full_art_table[11]) then
+            elseif (art_id == full_art_table["open"]) or (art_id == full_art_table["closed"]) then
                 if noteentry:IsNote() then
                     a:SetID(art_id)
                     a:SaveNew()
@@ -372,12 +406,12 @@ end
 function assignNewArticulation(noteentry, art_id)
     local a = finale.FCArticulation()
     a:SetNoteEntry(noteentry)
-    if (art_id == full_art_table[27]) or (art_id == full_art_table[28]) or (art_id == full_art_table[29]) or (art_id == full_art_table[30]) then
+    if (art_id == full_art_table["l_bracket_1"]) or (art_id == full_art_table["l_bracket_2"]) or (art_id == full_art_table["l_bracket_3"]) or (art_id == full_art_table["l_bracket_4"]) then
         if noteentry:IsTiedBackwards() == false then
             a:SetID(art_id)
             a:SaveNew()
         end
-    elseif (art_id == full_art_table[31]) or (art_id == full_art_table[32]) or (art_id == full_art_table[33]) or (art_id == full_art_table[34]) then
+    elseif (art_id == full_art_table["r_bracket_1"]) or (art_id == full_art_table["r_bracket_2"]) or (art_id == full_art_table["r_bracket_3"]) or (art_id == full_art_table["r_bracket_4"]) then
         if noteentry:IsTied() == false then
             a:SetID(art_id)
             a:SaveNew()
@@ -963,7 +997,7 @@ function split_articulations()
     local tenuto_staccato = 0
     local marcato_staccato = 0
 
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         pairs_to_use = {58530, 58528, 58532, 58540}
         accent_staccato = 58544
         accent_tenuto_def = 58548
@@ -1136,11 +1170,12 @@ function find_lowest_item_in_region(region, list_of_items)
                     local entry_metrics = finale.FCEntryMetrics()
                     entry_metrics:Load(noteentry)
                     local current_entry_pos = entry_metrics:GetBottomPosition()
-                    if (current_entry_pos < current_lowest_item) then
-                        current_lowest_item = current_entry_pos - config.noteentry_cushion
+                    if ((current_entry_pos - config.noteentry_cushion) < current_lowest_item) then
+                        current_lowest_item = (current_entry_pos - config.noteentry_cushion)
                     end
                 end
             end
+
         end
     else
         if (list_of_items == "Staff Lines") then
@@ -1148,8 +1183,8 @@ function find_lowest_item_in_region(region, list_of_items)
                 local cell = finale.FCCell(region_measure, region:GetStartStaff())
                 local cell_metrics = cell:CreateCellMetrics()
                 local lowest_staff_line = math.floor(cell_metrics:GetBottomStafflinePos() * system_scale)
-                if (lowest_staff_line < current_lowest_item) then
-                    current_lowest_item = lowest_staff_line - config.staff_cushion
+                if ((lowest_staff_line - config.staff_cushion) < current_lowest_item) then
+                    current_lowest_item = (lowest_staff_line - config.staff_cushion)
                 end
             end
         end
@@ -1847,10 +1882,10 @@ function nudge_dynamics_and_hairpins(hairpin, region, nudge_value)
 end
 
 function deleteHairpins()
-    local del_haripin_region = finale.FCMusicRegion()
-    del_haripin_region:SetCurrentSelection()
+    local del_hairpin_region = finale.FCMusicRegion()
+    del_hairpin_region:SetCurrentSelection()
     local ssmm = finale.FCSmartShapeMeasureMarks()
-    ssmm:LoadAllForRegion(del_haripin_region, true)
+    ssmm:LoadAllForRegion(del_hairpin_region, true)
     for mark in eachbackwards(ssmm) do
         local sm = mark:CreateSmartShape()
         if sm ~= nil then
@@ -1864,7 +1899,7 @@ end
 function createEntryBasedSL(staff, measure_start, measure_end, leftnote, rightnote, shape)
     local smartshape = finale.FCSmartShape()
     smartshape.ShapeType = shape
-    smartshape:SetEntryAttachedFlags(true)
+    smartshape:SetEntryAttachedFlags(true)smartshape:SetEntryAttachedFlags(true)
     if smartshape:IsAutoSlur() then
         smartshape:SetSlurFlags(true)
     end
@@ -2236,7 +2271,7 @@ function increase_decrease_dynamics(direction)
     local single_dyn_char = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     local dyn_char = {58662, 58665, 58666, 58667, 58656, 58668, 58669, 58658, 58671, 58672, 58673}
     local char_check = 3
-    if not check_SMuFL(nil) then
+    if not is_default_smufl then
         dyn_char = {150, 175, 184, 185, 112, 80, 70, 102, 196, 236, 235}
         char_check = 2
     end
@@ -2506,10 +2541,12 @@ function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, brev
     if font_name == "" then
         local fontinfo = finale.FCFontInfo()
         if fontinfo:LoadFontPrefs(23) then
-            font_name = getUsedFontName(fontinfo:GetName()) 
+            local font_name_string = finale.FCString()
+            fontinfo:GetNameString(font_name_string)
+            font_name = remove_spaces_in_windows_os(font_name_string.LuaSstring) 
         end
     else
-        --font_name = getUsedFontName(font_name)
+        --font_name = remove_spaces_in_windows_os(font_name)
         use_custom = true 
     end
 
@@ -2627,7 +2664,7 @@ function getFirstNoteInRegionText(note_range)
         local music_region = finenv.Region()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+            if set_first_last_note_in_range(music_region) ~= false then
                 music_region:SetStartStaff(staff:GetItemNo())
                 music_region:SetEndStaff(staff:GetItemNo())
 
@@ -3462,49 +3499,6 @@ function staff_spacing_adjust(moveBy)
             else
             end
         end
-    end
-end
-
-function swap_layers(swap_first, swap_second)
-    local region = finenv.Region()
-    local start = region.StartMeasure
-    local stop = region.EndMeasure
-    local sys_staves = finale.FCSystemStaves()
-    sys_staves:LoadAllForRegion(region)
-
-    swap_first = swap_first - 1
-    swap_second = swap_second - 1
-
-    for sys_staff in each(sys_staves) do
-        staff_num = sys_staff.Staff
-        local noteentry_layer_first = finale.FCNoteEntryLayer(swap_first, staff_num, start, stop)
-        noteentry_layer_first:SetUseVisibleLayer(false)
-        if noteentry_layer_first:Load() then
-            noteentry_layer_first.LayerIndex = swap_second
-        end
-
-        local noteentry_layer_second = finale.FCNoteEntryLayer(swap_second, staff_num, start, stop)
-        noteentry_layer_second:SetUseVisibleLayer(false)
-        if noteentry_layer_second:Load() then
-            noteentry_layer_second.LayerIndex = swap_first
-        end
-        noteentry_layer_first:Save()
-        noteentry_layer_second:Save()
-    end
-end
-
-function clear_Layer(lyr)
-    lyr = lyr - 1
-    local region = finenv.Region()
-    local start=region.StartMeasure
-    local stop=region.EndMeasure
-    local sysstaves = finale.FCSystemStaves()
-    sysstaves:LoadAllForRegion(region)
-    for sysstaff in each(sysstaves) do
-        staffNum = sysstaff.Staff
-        local noteentrylayer = finale.FCNoteEntryLayer(lyr,staffNum,start,stop)
-        noteentrylayer:Load()
-        noteentrylayer:ClearAllEntries()
     end
 end
 
@@ -4707,7 +4701,7 @@ function string_harmonics_touch(interval_num)
 
             local notehead = finale.FCNoteheadMod()
             notehead:EraseAt(new_note)
-            if check_SMuFL(nil) then
+            if is_default_smufl then
                 notehead.CustomChar = 57562
             else
                 notehead.CustomChar = 79
@@ -4811,481 +4805,6 @@ function flip_enharmonic()
     end
 end
 
-function cluster_indeterminate()
-    local distance_prefs = finale.FCDistancePrefs()
-    distance_prefs:Load(1)
-    local dot_horz = distance_prefs.AugmentationDotNoteSpace
-    local dot_vert = distance_prefs.AugmentationDotVerticalAdjust
-    local sizeprefs = finale.FCSizePrefs()
-    sizeprefs:Load(1)
-    local stem_thickness = sizeprefs.StemLineThickness
-    stem_thickness = stem_thickness/64
-
-    for noteentry in eachentrysaved(finenv.Region()) do
-        if noteentry:IsNote() and noteentry.Count > 1 then
-            local max = noteentry.Count
-            local n = 1
-            local dot = finale.FCDotMod()
-            local lowest_note = noteentry:CalcLowestNote(nil)
-            local lowest_note_pos = lowest_note:CalcStaffPosition()
-            local low_space = lowest_note_pos % 2
-            local low_span = 0
-            local adjust_dots = false
-
-            local i = 1
-            for note in each(noteentry) do
-                local stemDir = noteentry:CalcStemUp()
-                local rightside = note:CalcRightsidePlacement()
-                if (stemDir == true and rightside == true) then
-                    adjust_dots = true
-                end
-                if i ==  2 then
-                    low_span = note:CalcStaffPosition() - lowest_note_pos
-                end 
-                i = i + 1
-            end 
-
-            for note in each(noteentry) do
-                local stemDir = noteentry:CalcStemUp()
-                local notehead = finale.FCNoteheadMod()
-                notehead:EraseAt(note)
-                notehead:SetUseCustomFont(true)
-                notehead.FontName = "Engraver Font Set"
-                local noteheadOffset = 35
-                local rightside = note:CalcRightsidePlacement()
-
-                if noteentry.Duration < 2048 then
-                    notehead.CustomChar = 242
-                    if stemDir == true and rightside then
-                        notehead.HorizontalPos = -noteheadOffset
-                    end
-                    if stemDir == false and rightside == false then
-                        notehead.HorizontalPos = noteheadOffset
-                    end      
-                end 
-
-                if (noteentry.Duration >= 2048) and (noteentry.Duration < 4096) then
-                    if n == 1 then
-                        notehead.CustomChar = 201
-                    elseif n == max then
-                        notehead.CustomChar = 59
-                    else
-                        notehead.CustomChar = 58
-                    end
-                    if stemDir == true and rightside then
-                        notehead.HorizontalPos = -noteheadOffset
-                    end
-                    if stemDir == false and rightside == false then
-                        notehead.HorizontalPos = noteheadOffset
-                    end
-                end
-
-                if (noteentry.Duration >= 4096) then
-                    if n == 1 then
-                        notehead.CustomChar = 201
-                    elseif n == max then
-                        notehead.CustomChar = 59
-                    else
-                        notehead.CustomChar = 58
-                    end
-                    noteheadOffset = 32
-                    if stemDir == true and rightside then
-                        notehead.HorizontalPos = -noteheadOffset
-                    end
-                    if stemDir == false and rightside == false then
-                        notehead.HorizontalPos = noteheadOffset
-                    end
-                end
-
-                if n > 1 and n < max then 
-                    note.Tie = false
-                end 
-
-
-                if noteentry:IsDotted() then 
-                    local horz = 0
-                    if adjust_dots then
-                        horz = -noteheadOffset
-                    end
-                    if n ==1 and low_span <= 1 and low_space == 1 then
-                        dot.VerticalPos = 24
-                    elseif n > 1 and n < max then
-                        dot.VerticalPos = 10000
-                        dot.HorizontalPos = 10000
-                    else
-                        dot.VerticalPos = 0
-                    end 
-                    dot.HorizontalPos = horz
-                    dot:SaveAt(note)
-                end 
-
-                note.AccidentalFreeze = true
-                note.Accidental = false
-                notehead:SaveAt(note)
-                n = n + 1
-            end 
-            noteentry.LedgerLines = false
-        end 
-    end 
-end
-
-function cluster_determinate()
-    local region = finenv.Region()      
-
-    local layer1note = {}
-    local layer2note = {}
-    local measure = {}
-
-    local stemDir = false
-
-    local horz_off = -20
-
-    local function ProcessNotes(music_region)
-        local stem_dir = {}
-        for entry in eachentrysaved(region) do
-            entry.FreezeStem = false
-            table.insert(stem_dir, entry:CalcStemUp())
-        end
-
-        CopyLayer(1, 2)
-        CopyLayer(1, 3)
-
-        local i = 1
-        local j = 1
-        local stemDir = stem_dir[i]
-
-        for noteentry in eachentrysaved(music_region) do
-            local span = noteentry:CalcDisplacementRange(nil)
-            local stemDir = stem_dir[i]
-            if noteentry.LayerNumber == 1 then
-                stemDir = stem_dir[i]
-                if noteentry:IsNote() then  
-                    if span > 2 then
-                        DeleteBottomNotes(noteentry)
-                    else
-                        DeleteMiddleNotes(noteentry)
-                        noteentry.FreezeStem = true
-                        noteentry.StemUp = stemDir
-                    end
-                elseif noteentry:IsRest() then
-                    noteentry:SetRestDisplacement(6)
-                end
-                if stemDir == false and span > 2 then 
-                    HideStems(noteentry, stemDir)
-                end
-                i = i + 1
-            elseif noteentry.LayerNumber == 2 then
-                stemDir = stem_dir[j]
-                if noteentry:IsNote() and span > 2 then            
-                    DeleteTopNotes(noteentry)
-                else
-                    noteentry:MakeRest()
-                    noteentry.Visible = false
-                    noteentry:SetRestDisplacement(4)                
-                end
-                if stemDir then
-                    HideStems(noteentry, stemDir)
-                end 
-                j = j + 1
-            elseif noteentry.LayerNumber == 3 then
-                if noteentry:IsNote() then
-                    for note in each(noteentry) do
-                        note.AccidentalFreeze = true
-                        note.Accidental = false
-                    end
-                    noteentry.FreezeStem = true
-                    noteentry.StemUp = true
-                    HideStems(noteentry, true)
-                    DeleteTopBottomNotes(noteentry)
-                elseif noteentry:IsRest() then
-                    noteentry:SetRestDisplacement(2)
-                end
-                noteentry.Visible = false
-            end 
-            noteentry.CheckAccidentals = true
-            if noteentry:IsNote() then
-                n = 1
-                for note in each(noteentry) do
-                    note.NoteID = n
-                    n = n +1
-                end 
-            end
-        end
-    end
-
-
-    function HideStems(entry, stemDir)
-        local stem = finale.FCCustomStemMod()
-        stem:SetNoteEntry(entry)
-        if stemDir then
-            stemDir = false
-        else
-            stemDir =true
-        end
-        stem:UseUpStemData(stemDir)
-        if stem:LoadFirst() then
-            stem.ShapeID = 0   
-            stem:Save()
-        else
-            stem.ShapeID = 0
-            stem:SaveNew()
-        end
-        entry:SetBeamBeat(true)
-    end
-
-    function CopyLayer(src, dest)
-        local region = finenv.Region()
-        local start=region.StartMeasure
-        local stop=region.EndMeasure
-        local sysstaves = finale.FCSystemStaves()
-        sysstaves:LoadAllForRegion(region)
-        src = src - 1
-        dest = dest - 1
-        for sysstaff in each(sysstaves) do
-            staffNum = sysstaff.Staff
-            local noteentrylayerSrc = finale.FCNoteEntryLayer(src,staffNum,start,stop)
-            noteentrylayerSrc:Load()     
-            local noteentrylayerDest = noteentrylayerSrc:CreateCloneEntries(dest,staffNum,start)
-            noteentrylayerDest:Save()
-            noteentrylayerDest:CloneTuplets(noteentrylayerSrc)
-            noteentrylayerDest:Save()
-        end
-    end
-
-    function DeleteBottomNotes(entry)
-        while entry.Count > 1 do
-            local lowestnote = entry:CalcLowestNote(nil)
-            entry:DeleteNote(lowestnote)
-        end
-    end
-
-    function DeleteTopNotes(entry)
-        while entry.Count > 1 do
-            local highestnote = entry:CalcHighestNote(nil)
-            entry:DeleteNote(highestnote)
-        end
-    end
-
-    function DeleteTopBottomNotes(entry)
-        local highestnote = entry:CalcHighestNote(nil)
-        entry:DeleteNote(highestnote)
-        local lowestnote = entry:CalcLowestNote(nil)
-        entry:DeleteNote(lowestnote)
-    end
-
-    function DeleteMiddleNotes(entry)
-        while entry.Count > 2 do
-            local n = 1
-            for note in each(entry) do
-                note.NoteID = n
-                n = n +1
-            end 
-            for note in each(entry) do
-                if note.NoteID == 2 then
-                    entry:DeleteNote(note)
-                end
-            end 
-        end 
-    end 
-
-
-    local function create_cluster_line()
-        local lineExists = false
-        local myLine = 0
-        local myLineWidth = 64 * 24 * 0.5
-        local customsmartlinedefs = finale.FCCustomSmartLineDefs()
-        customsmartlinedefs:LoadAll()
-        for csld in each(customsmartlinedefs) do
-            if csld.LineStyle == finale.CUSTOMLINE_SOLID and csld.LineWidth == myLineWidth then
-                if csld.StartArrowheadStyle == finale.CLENDPOINT_NONE and  csld.EndArrowheadStyle == finale.CLENDPOINT_NONE then 
-                    if csld.Horizontal == false then
-                        myLine = csld.ItemNo
-                        lineExists = true
-                    end 
-                end 
-            end 
-        end 
-
-        if lineExists == false then
-            local csld = finale.FCCustomSmartLineDef()
-            csld.Horizontal = false
-            csld.LineStyle = finale.CUSTOMLINE_SOLID
-            csld.StartArrowheadStyle = finale.CLENDPOINT_NONE
-            csld.EndArrowheadStyle = finale.CLENDPOINT_NONE
-            csld.LineWidth = myLineWidth
-            csld:SaveNew()
-            myLine = csld.ItemNo
-        end
-        return myLine
-    end
-
-    local function create_short_cluster_line()
-        local lineExists = false
-        local myLine = 0
-        local myLineWidth = 64 * 24 * 0.333 
-        local customsmartlinedefs = finale.FCCustomSmartLineDefs()
-        customsmartlinedefs:LoadAll()
-        for csld in each(customsmartlinedefs) do
-            if csld.LineStyle == finale.CUSTOMLINE_SOLID and csld.LineWidth == myLineWidth then 
-                if csld.StartArrowheadStyle == finale.CLENDPOINT_NONE and  csld.EndArrowheadStyle == finale.CLENDPOINT_NONE then 
-                    if csld.Horizontal == false then
-                        myLine = csld.ItemNo
-                        lineExists = true
-                    end 
-                end 
-            end 
-        end
-
-        if lineExists == false then
-            local csld = finale.FCCustomSmartLineDef()
-            csld.Horizontal = false
-            csld.LineStyle = finale.CUSTOMLINE_SOLID
-            csld.StartArrowheadStyle = finale.CLENDPOINT_NONE
-            csld.EndArrowheadStyle = finale.CLENDPOINT_NONE
-            csld.LineWidth = myLineWidth
-            csld:SaveNew()
-            myLine = csld.ItemNo
-        end
-        return myLine
-    end
-
-    function add_cluster_line(leftnote, rightnote, lineID)
-        if leftnote:IsNote() and leftnote.Count == 1 and rightnote:IsNote() then
-            local smartshape = finale.FCSmartShape()
-            local layer1highest = leftnote:CalcHighestNote(nil)
-            local noteWidth = layer1highest:CalcNoteheadWidth()
-            local layer1noteY = layer1highest:CalcStaffPosition()
-
-            local layer2highest = rightnote:CalcHighestNote(nil)
-            local layer2noteY = layer2highest:CalcStaffPosition()
-
-            local topPad = 0
-            local bottomPad = 0
-            if leftnote.Duration >= 2048 and leftnote.Duration < 4096 then 
-                topPad = 9
-                bottomPad = topPad
-            elseif leftnote.Duration >= 4096 then 
-                topPad = 10
-                bottomPad = 11.5
-            end 
-            layer1noteY = (layer1noteY * 12) - topPad 
-            layer2noteY = (layer2noteY * 12) + bottomPad 
-
-            smartshape.ShapeType = finale.SMARTSHAPE_CUSTOM
-            smartshape.EntryBased = false
-            smartshape.MakeHorizontal = false
-            smartshape.BeatAttached= true
-            smartshape.PresetShape = true
-            smartshape.Visible = true
-            smartshape.LineID = lineID
-
-            local leftseg = smartshape:GetTerminateSegmentLeft()
-            leftseg:SetMeasure(leftnote.Measure)
-            leftseg:SetStaff(leftnote.Staff)
-            leftseg:SetMeasurePos(leftnote.MeasurePos)
-            leftseg:SetEndpointOffsetX(noteWidth/2)
-            leftseg:SetEndpointOffsetY(layer1noteY)
-
-            local rightseg = smartshape:GetTerminateSegmentRight()
-            rightseg:SetMeasure(rightnote.Measure)
-            rightseg:SetStaff(rightnote.Staff)
-            rightseg:SetMeasurePos(rightnote.MeasurePos)
-            rightseg:SetEndpointOffsetX(noteWidth/2)
-            rightseg:SetEndpointOffsetY(layer2noteY)
-
-            smartshape:SaveNewEverything(NULL,NULL)
-        end 
-    end 
-
-    function add_short_cluster_line(entry, short_lineID)
-        if entry:IsNote() and entry.Count > 1 then
-            local smartshape = finale.FCSmartShape()
-            local leftnote = entry:CalcHighestNote(nil)
-            local leftnoteY = leftnote:CalcStaffPosition() * 12 + 12
-
-            local rightnote = entry:CalcLowestNote(nil)
-            local rightnoteY = rightnote:CalcStaffPosition() * 12 - 12
-
-            smartshape.ShapeType = finale.SMARTSHAPE_CUSTOM
-            smartshape.EntryBased = false
-            smartshape.MakeHorizontal = false
-            smartshape.PresetShape = true
-            smartshape.Visible = true
-            smartshape.BeatAttached= true
-            smartshape.LineID = short_lineID
-
-            local leftseg = smartshape:GetTerminateSegmentLeft()
-            leftseg:SetMeasure(entry.Measure)
-            leftseg:SetStaff(entry.Staff)
-            leftseg:SetMeasurePos(entry.MeasurePos)
-            leftseg:SetEndpointOffsetX(horz_off)
-            leftseg:SetEndpointOffsetY(leftnoteY)
-
-            local rightseg = smartshape:GetTerminateSegmentRight()
-            rightseg:SetMeasure(entry.Measure)
-            rightseg:SetStaff(entry.Staff)
-            rightseg:SetMeasurePos(entry.MeasurePos)
-            rightseg:SetEndpointOffsetX(horz_off)
-            rightseg:SetEndpointOffsetY(rightnoteY)
-
-            smartshape:SaveNewEverything(NULL,NULL)
-        end 
-    end 
-
-    local lineID = create_cluster_line()
-    local short_lineID = create_short_cluster_line()
-
-    for addstaff = region:GetStartStaff(), region:GetEndStaff() do
-        local count = 0
-
-        for k,v in pairs(layer1note) do
-            layer1note [k] = nil
-        end
-        for k,v in pairs(layer2note) do
-            layer2note [k] = nil
-        end
-        for k,v in pairs(measure) do
-            measure[k] = nil
-        end
-
-        region:SetStartStaff(addstaff)
-        region:SetEndStaff(addstaff)
-        local measures = finale.FCMeasures()
-        measures:LoadRegion(region)
-        ProcessNotes(region)
-
-        for entry in eachentrysaved(region) do
-            if entry.LayerNumber == 1 then
-                table.insert(layer1note, entry)
-                table.insert(measure, entry.Measure)
-                staff = entry.Staff
-                count = count + 1
-            elseif entry.LayerNumber == 2 then
-                table.insert(layer2note, entry)
-            end
-        end
-
-        for i = 1, count do
-            add_short_cluster_line(layer1note[i], short_lineID)
-            add_cluster_line(layer1note[i], layer2note[i], lineID)
-        end 
-    end
-
-    for noteentry in eachentrysaved(finenv.Region()) do
-        if noteentry:IsNote() and noteentry.Count > 1 then
-            for note in each(noteentry) do
-                if note.Accidental then
-                    local am = finale.FCAccidentalMod()
-                    am:SetNoteEntry(noteentry)
-                    am:SetUseCustomVerticalPos(true)
-                    am:SetHorizontalPos(horz_off*1.5)
-                    am:SaveAt(note)
-                end
-            end
-        end
-    end    
-end
-
 function create_centered_triangles()
     local solid_tri_up = 49
     local hollow_tri_up = 33
@@ -5332,7 +4851,7 @@ function create_centered_triangles()
     end
 end
 
-function create_kicklink_layer_4()
+function create_kickline_layer_4()
     local music_region = finenv.Region()
     music_region:SetCurrentSelection()
     local staves = finale.FCStaves()
@@ -5704,7 +5223,16 @@ function check_for_update(temp_dir, sd_type)
     end
 end
 
-local dyn_smufl = check_SMuFL({"Expression", finale.DEFAULTCATID_DYNAMICS})
+--local dyn_smufl = check_SMuFL({"Expression", finale.DEFAULTCATID_DYNAMICS})
+local dyn_smufl = is_default_smufl
+
+local cd = finale.FCCategoryDef()
+if cd:Load(finale.DEFAULTCATID_DYNAMICS) then
+    local fontinfo = finale.FCFontInfo()
+    if cd:GetMusicFontInfo(fontinfo) then
+        dyn_smufl = library.is_font_smufl_font(fontinfo)
+    end
+end
 
 function staff_check()
     local staff_list = {}
@@ -5945,7 +5473,7 @@ function dynamics_messa_di_voce_up()
         local music_region = finenv.Region()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+            if set_first_last_note_in_range(music_region) ~= false then
                 messa_di_voce(staff:GetItemNo(), finale.SMARTSHAPE_CRESCENDO, finale.SMARTSHAPE_DIMINUENDO)
             end
         end
@@ -5961,7 +5489,7 @@ function dynamics_messa_di_voce_down()
         local music_region = finenv.Region()
         music_region:SetCurrentSelection()
         if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            if set_first_last_note_in_range(staff:GetItemNo()) ~= false then
+            if set_first_last_note_in_range(music_region) ~= false then
                 messa_di_voce(staff:GetItemNo(), finale.SMARTSHAPE_DIMINUENDO, finale.SMARTSHAPE_CRESCENDO)
             end
         end
@@ -6253,534 +5781,538 @@ function dynamics_decrease_dynamic()
 end
 
 function articulations_accent()
-    if check_SMuFL(nil) then
-        findArticulation(1, 58528, "")
-        if full_art_table[1] == 0 then
-            createArticulation(1, 58528, default_music_font, 58528, true, true, false, false, 1, false, 58529, false, 0, 0, 125, true, false, false, 14, false, 0, 0, 0, 0, 58529, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl and not (default_music_font == "Finale Maestro" and config.accent_character_prefs == 2) then
+        findArticulation("accent", 58528, "")
+        if full_art_table["accent"] == 0 then
+            createArticulation("accent", 58528, default_music_font, 58528, true, true, false, false, 1, false, 58529, false, 0, 0, 125, true, false, false, 14, false, 0, 0, 0, 0, 58529, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[1])
+            addArticulation(full_art_table["accent"])
         end
-    else
-        findArticulation(1, 62, "")
-        if full_art_table[1] == 0 then
-            createArticulation(1, 62, "Maestro", 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, -25, 62, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+    else        
+        findArticulation("accent", 62, "")
+        local below_off = -25
+        if config.accent_character_prefs > 0 then
+            below_off = -16
+        end
+        if full_art_table["accent"] == 0 then
+            createArticulation("accent", 62, accent_font, 62, true, true, false, false, 1, false, 62, false, 0, 0, 125, true, false, false, 14, false, 0, -4, 0, below_off, 62, accent_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, accent_font, 24, 24, false, false, false, false, 0, false, false, accent_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[1])
+            addArticulation(full_art_table["accent"])
         end
     end
 end
 
 function articulations_marcato()
-    if check_SMuFL(nil) then
-        findArticulation(2, 58540, "")
-        if full_art_table[2] == 0 then
-            createArticulation(2, 58540, default_music_font, 58540, true, true, false, false, 5, false, 58541, false, 0, 0, 140, true, false, false, 16, false, 0, 0, 0, 0, 58541, default_music_font, false, false, true, 0, 0, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("marcato", 58540, "")
+        if full_art_table["marcato"] == 0 then
+            createArticulation("marcato", 58540, default_music_font, 58540, true, true, false, false, 5, false, 58541, false, 0, 0, 140, true, false, false, 16, false, 0, 0, 0, 0, 58541, default_music_font, false, false, true, 0, 0, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[2])
+            addArticulation(full_art_table["marcato"])
         end
     else
-        findArticulation(2, 94, "")
-        if full_art_table[2] == 0 then
-            createArticulation(2, 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("marcato", 94, "")
+        if full_art_table["marcato"] == 0 then
+            createArticulation("marcato", 94, "Maestro", 94, true, true, false, false, 5, false, 118, false, 0, 0, 140, true, false, false, 16, false, 0, -4, 0, -18, 118, "Maestro", false, false, true, 0, 0, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[2])
+            addArticulation(full_art_table["marcato"])
         end
     end
 end
 
 function articulations_staccato()
-    if check_SMuFL(nil) then
-        findArticulation(3, 58530, "")
-        if full_art_table[3] == 0 then
-            createArticulation(3, 58530, default_music_font, 58530, true, false, false, false, 1, true, 58531, false, 0, 40, 0, true, false, false, 16, true, 0, -4, 0, 4, 58531, default_music_font, true, false, true, 0, 40, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("staccato", 58530, "")
+        if full_art_table["staccato"] == 0 then
+            createArticulation("staccato", 58530, default_music_font, 58530, true, false, false, false, 1, true, 58531, false, 0, 40, 0, true, false, false, 16, true, 0, -4, 0, 4, 58531, default_music_font, true, false, true, 0, 40, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[3])
+            addArticulation(full_art_table["staccato"])
         end
     else
-        findArticulation(3, 46, "")
-        if full_art_table[3] == 0 then
-            createArticulation(3, 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("staccato", 46, "")
+        if full_art_table["staccato"] == 0 then
+            createArticulation("staccato", 46, "Maestro", 46, true, false, false, false, 1, true, 46, false, 0, 40, 0, true, false, false, 16, true, 0, -3, 0, -3, 46, "Maestro", true, false, true, 0, 40, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[3])
+            addArticulation(full_art_table["staccato"])
         end
     end
 end
 
 function articulations_tenuto()
-    if check_SMuFL(nil) then
-        findArticulation(4, 58532, "")
-        if full_art_table[4] == 0 then
-            createArticulation(4, 58532, default_music_font, 58532, true, false, false, false, 1, true, 58533, false, 0, 0, 0, true, false, false, 14, false, 0, -2, 0, 2, 58533, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 26, 26, false, false, false, false, 0, false, false, default_music_font, 26, 26, false, false)
+    if is_default_smufl then
+        findArticulation("tenuto", 58532, "")
+        if full_art_table["tenuto"] == 0 then
+            createArticulation("tenuto", 58532, default_music_font, 58532, true, false, false, false, 1, true, 58533, false, 0, 0, 0, true, false, false, 14, false, 0, -2, 0, 2, 58533, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 26, 26, false, false, false, false, 0, false, false, default_music_font, 26, 26, false, false)
         else
-            addArticulation(full_art_table[4])
+            addArticulation(full_art_table["tenuto"])
         end
     else
-        findArticulation(4, 45, "")
-        if full_art_table[4] == 0 then
-            createArticulation(4, 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
+        findArticulation("tenuto", 45, "")
+        if full_art_table["tenuto"] == 0 then
+            createArticulation("tenuto", 45, "Maestro", 45, true, false, false, false, 1, true, 45, false, 0, 0, 0, true, false, false, 14, false, 0, -3, 0, -3, 45, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 26, 26, false, false, false, false, 0, false, false, "Maestro", 26, 26, false, false)
         else
-            addArticulation(full_art_table[4])
+            addArticulation(full_art_table["tenuto"])
         end
     end
 end
 
 function articulations_flat_wedge()
-    if check_SMuFL(nil) then
-        findArticulation(5, 58536, "")
-        if full_art_table[5] == 0 then
-            createArticulation(5, 58536, default_music_font, 58536, true, true, false, false, 1, true, 58537, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58537, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("flat_wedge", 58536, "")
+        if full_art_table["flat_wedge"] == 0 then
+            createArticulation("flat_wedge", 58536, default_music_font, 58536, true, true, false, false, 1, true, 58537, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58537, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[5])
+            addArticulation(full_art_table["flat_wedge"])
         end
     else
-        findArticulation(5, 171, "")
-        if full_art_table[5] == 0 then
-            createArticulation(5, 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("flat_wedge", 171, "")
+        if full_art_table["flat_wedge"] == 0 then
+            createArticulation("flat_wedge", 171, "Maestro", 171, true, true, false, false, 1, true, 216, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 216, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[5])
+            addArticulation(full_art_table["flat_wedge"])
         end
     end
 end
 
 function articulations_round_wedge()
-    if check_SMuFL(nil) then
-        findArticulation(6, 58534, "")
-        if full_art_table[6] == 0 then
-            createArticulation(6, 58534, default_music_font, 58534, true, true, false, false, 1, true, 58535, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58535, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("round_wedge", 58534, "")
+        if full_art_table["round_wedge"] == 0 then
+            createArticulation("round_wedge", 58534, default_music_font, 58534, true, true, false, false, 1, true, 58535, false, 0, 30, 0, true, false, false, 12, true, 0, 0, 0, 0, 58535, default_music_font, false, false, true, 0, 30, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[6])
+            addArticulation(full_art_table["round_wedge"])
         end
     else
-        findArticulation(6, 174, "")
-        if full_art_table[6] == 0 then
-            createArticulation(6, 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("round_wedge", 174, "")
+        if full_art_table["round_wedge"] == 0 then
+            createArticulation("round_wedge", 174, "Maestro", 174, true, true, false, false, 1, true, 39, false, 0, 30, 0, true, false, false, 12, true, 0, 12, 0, -22, 39, "Maestro", false, false, true, 0, 30, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[6])
+            addArticulation(full_art_table["round_wedge"])
         end
     end
 end
 
 function articulations_metered_tremolo()
-    if check_SMuFL(nil) then
-        findArticulation(7, 57888, "")
-        findArticulation(8, 57889, "")
-        findArticulation(9, 57890, "")
-        if full_art_table[7] == 0 then
-            createArticulation(7, 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("trem_1_stroke", 57888, "")
+        findArticulation("trem_2_stroke", 57889, "")
+        findArticulation("trem_3_stroke", 57890, "")
+        if full_art_table["trem_1_stroke"] == 0 then
+            createArticulation("trem_1_stroke", 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         end
-        if full_art_table[8] == 0 then
-            createArticulation(8, 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        if full_art_table["trem_2_stroke"] == 0 then
+            createArticulation("trem_2_stroke", 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         end
-        if full_art_table[9] == 0 then
-            createArticulation(9, 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+        if full_art_table["trem_3_stroke"] == 0 then
+            createArticulation("trem_3_stroke", 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         end
-        deleteArticulation(full_art_table[7])
-        deleteArticulation(full_art_table[8])
-        deleteArticulation(full_art_table[9])
+        deleteArticulation(full_art_table["trem_1_stroke"])
+        deleteArticulation(full_art_table["trem_2_stroke"])
+        deleteArticulation(full_art_table["trem_3_stroke"])
         addArticulation("metered tremolo")
     else
-        findArticulation(7, 33, "")
-        findArticulation(8, 64, "")
-        findArticulation(9, 190, "")
-        if full_art_table[7] == 0 then
-            createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("trem_1_stroke", 33, "")
+        findArticulation("trem_2_stroke", 64, "")
+        findArticulation("trem_3_stroke", 190, "")
+        if full_art_table["trem_1_stroke"] == 0 then
+            createArticulation("trem_1_stroke", 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         end
-        if full_art_table[8] == 0 then
-            createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        if full_art_table["trem_2_stroke"] == 0 then
+            createArticulation("trem_2_stroke", 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         end
-        if full_art_table[9] == 0 then
-            createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        if full_art_table["trem_3_stroke"] == 0 then
+            createArticulation("trem_3_stroke", 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         end
-        deleteArticulation(full_art_table[7])
-        deleteArticulation(full_art_table[8])
-        deleteArticulation(full_art_table[9])
+        deleteArticulation(full_art_table["trem_1_stroke"])
+        deleteArticulation(full_art_table["trem_2_stroke"])
+        deleteArticulation(full_art_table["trem_3_stroke"])
         addArticulation("metered tremolo")
     end
 end
 
 function articulations_tremolo_single()
-    if check_SMuFL(nil) then
-        findArticulation(7, 57888, "")
-        if full_art_table[7] == 0 then
-            createArticulation(7, 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("trem_1_stroke", 57888, "")
+        if full_art_table["trem_1_stroke"] == 0 then
+            createArticulation("trem_1_stroke", 57888, default_music_font, 57888, true, false, false, false, 0, false, 57888, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 57888, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            findArticulation(8, 57889, "")
-            deleteArticulation(full_art_table[8])
-            findArticulation(9, 57890, "")
-            deleteArticulation(full_art_table[9])
-            assignArticulation(full_art_table[7])
+            findArticulation("trem_2_stroke", 57889, "")
+            deleteArticulation(full_art_table["trem_2_stroke"])
+            findArticulation("trem_3_stroke", 57890, "")
+            deleteArticulation(full_art_table["trem_3_stroke"])
+            assignArticulation(full_art_table["trem_1_stroke"])
         end
     else
-        findArticulation(7, 33, "")
-        if full_art_table[7] == 0 then
-            createArticulation(7, 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("trem_1_stroke", 33, "")
+        if full_art_table["trem_1_stroke"] == 0 then
+            createArticulation("trem_1_stroke", 33, "Maestro", 33, true, false, false, false, 0, false, 33, false, 0, 0, 0, true, false, false, 21, false, 0, 0, 0, 0, 33, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            findArticulation(8, 64, "")
-            deleteArticulation(full_art_table[8])
-            findArticulation(9, 190, "")
-            deleteArticulation(full_art_table[9])
-            assignArticulation(full_art_table[7])
+            findArticulation("trem_2_stroke", 64, "")
+            deleteArticulation(full_art_table["trem_2_stroke"])
+            findArticulation("trem_3_stroke", 190, "")
+            deleteArticulation(full_art_table["trem_3_stroke"])
+            assignArticulation(full_art_table["trem_1_stroke"])
         end
     end
 end
 
 function articulations_tremolo_double()
-    if check_SMuFL(nil) then
-        findArticulation(8, 57889, "")
-        if full_art_table[8] == 0 then
-            createArticulation(8, 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("trem_2_stroke", 57889, "")
+        if full_art_table["trem_2_stroke"] == 0 then
+            createArticulation("trem_2_stroke", 57889, default_music_font, 57889, true, false, false, false, 0, false, 57889, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 57889, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            findArticulation(7, 57888, "")
-            deleteArticulation(full_art_table[7])
-            findArticulation(9, 57890, "")
-            deleteArticulation(full_art_table[9])
-            assignArticulation(full_art_table[8])
+            findArticulation("trem_1_stroke", 57888, "")
+            deleteArticulation(full_art_table["trem_1_stroke"])
+            findArticulation("trem_3_stroke", 57890, "")
+            deleteArticulation(full_art_table["trem_3_stroke"])
+            assignArticulation(full_art_table["trem_2_stroke"])
         end
     else
-        findArticulation(8, 64, "")
-        if full_art_table[8] == 0 then
-            createArticulation(8, 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("trem_2_stroke", 64, "")
+        if full_art_table["trem_2_stroke"] == 0 then
+            createArticulation("trem_2_stroke", 64, "Maestro", 64, true, false, false, false, 0, false, 64, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 64, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            findArticulation(7, 33, "")
-            deleteArticulation(full_art_table[7])
-            findArticulation(9, 190, "")
-            deleteArticulation(full_art_table[9])
-            assignArticulation(full_art_table[8])
+            findArticulation("trem_1_stroke", 33, "")
+            deleteArticulation(full_art_table["trem_1_stroke"])
+            findArticulation("trem_3_stroke", 190, "")
+            deleteArticulation(full_art_table["trem_3_stroke"])
+            assignArticulation(full_art_table["trem_2_stroke"])
         end
     end
 end
 
 function articulations_tremolo_triple()
-    if check_SMuFL(nil) then
-        findArticulation(9, 57890, "")
-        if full_art_table[9] == 0 then
-            createArticulation(9, 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("trem_3_stroke", 57890, "")
+        if full_art_table["trem_3_stroke"] == 0 then
+            createArticulation("trem_3_stroke", 57890, default_music_font, 57890, true, false, false, false, 0, false, 57890, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 57890, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            findArticulation(7, 57888, "")
-            deleteArticulation(full_art_table[7])
-            findArticulation(8, 57889, "")
-            deleteArticulation(full_art_table[8])
-            assignArticulation(full_art_table[9])
+            findArticulation("trem_1_stroke", 57888, "")
+            deleteArticulation(full_art_table["trem_1_stroke"])
+            findArticulation("trem_2_stroke", 57889, "")
+            deleteArticulation(full_art_table["trem_2_stroke"])
+            assignArticulation(full_art_table["trem_3_stroke"])
         end
     else
-        findArticulation(9, 190, "")
-        if full_art_table[9] == 0 then
-            createArticulation(9, 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("trem_3_stroke", 190, "")
+        if full_art_table["trem_3_stroke"] == 0 then
+            createArticulation("trem_3_stroke", 190, "Maestro", 190, true, false, false, false, 0, false, 190, false, 0, 0, 0, true, false, false, 11, false, 0, 0, 0, 0, 190, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            findArticulation(7, 33, "")
-            deleteArticulation(full_art_table[7])
-            findArticulation(8, 64, "")
-            deleteArticulation(full_art_table[8])
-            assignArticulation(full_art_table[9])
+            findArticulation("trem_1_stroke", 33, "")
+            deleteArticulation(full_art_table["trem_1_stroke"])
+            findArticulation("trem_2_stroke", 64, "")
+            deleteArticulation(full_art_table["trem_2_stroke"])
+            assignArticulation(full_art_table["trem_3_stroke"])
         end
     end
 end
 
 function articulations_fermata()
-    if check_SMuFL(nil) then
-        findArticulation(10, 58560, "")
-        if full_art_table[10] == 0 then
-            createArticulation(10, 58560, default_music_font, 58560, true, true, false, false, 5, false, 58561, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 58561, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 22, 22, false, false, false, false, 0, false, false, default_music_font, 22, 22, false, false)
+    if is_default_smufl then
+        findArticulation("fermata", 58560, "")
+        if full_art_table["fermata"] == 0 then
+            createArticulation("fermata", 58560, default_music_font, 58560, true, true, false, false, 5, false, 58561, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 58561, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 22, 22, false, false, false, false, 0, false, false, default_music_font, 22, 22, false, false)
         else
-            addArticulation(full_art_table[10])
+            addArticulation(full_art_table["fermata"])
         end
     else
-        findArticulation(10, 85, "")
-        if full_art_table[10] == 0 then
-            createArticulation(10, 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
+        findArticulation("fermata", 85, "")
+        if full_art_table["fermata"] == 0 then
+            createArticulation("fermata", 85, "Maestro", 85, true, true, false, false, 5, false, 117, false, 0, 0, 0, true, false, false, 14, false, 0, 0, 0, 0, 117, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 22, 22, false, false, false, false, 0, false, false, "Maestro", 22, 22, false, false)
         else
-            addArticulation(full_art_table[10])
+            addArticulation(full_art_table["fermata"])
         end
     end
 end
 
 function articulations_closed()
-    if check_SMuFL(nil) then
-        findArticulation(11, 58853, "")
-        if full_art_table[11] == 0 then
-            createArticulation(11, 58853, default_music_font, 58853, true, true, false, false, 5, true, 58853, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58853, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("closed", 58853, "")
+        if full_art_table["closed"] == 0 then
+            createArticulation("closed", 58853, default_music_font, 58853, true, true, false, false, 5, true, 58853, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58853, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[11])
+            addArticulation(full_art_table["closed"])
         end
     else
-        findArticulation(11, 43, "")
-        if full_art_table[11] == 0 then
-            createArticulation(11, 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("closed", 43, "")
+        if full_art_table["closed"] == 0 then
+            createArticulation("closed", 43, "Maestro", 43, true, true, false, false, 5, true, 43, false, 0, 0, 0, true, false, false, 12, false, 0, 12, 0, -12, 43, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[11])
+            addArticulation(full_art_table["closed"])
         end
     end
 end
 
 function articulations_open()
-    if check_SMuFL(nil) then
-        findArticulation(12, 58900, "")
-        if full_art_table[12] == 0 then
-            createArticulation(12, 58900, default_music_font, 58900, true, true, false, false, 5, true, 58900, false, 0, 0, 0, true, false, false, 20, false, 0, 0, 0, 0, 58900, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("open", 58900, "")
+        if full_art_table["open"] == 0 then
+            createArticulation("open", 58900, default_music_font, 58900, true, true, false, false, 5, true, 58900, false, 0, 0, 0, true, false, false, 20, false, 0, 0, 0, 0, 58900, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[12])
+            addArticulation(full_art_table["open"])
         end
     else
-        findArticulation(12, 111, "")
-        if full_art_table[12] == 0 then
-            createArticulation(12, 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("open", 111, "")
+        if full_art_table["open"] == 0 then
+            createArticulation("open", 111, "Maestro", 111, true, true, false, false, 5, true, 111, false, 0, 0, 0, true, false, false, 14, false, 0, 8, 0, 0, 111, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[12])
+            addArticulation(full_art_table["open"])
         end
     end
 end
 
 function articulations_upbow()
-    if check_SMuFL(nil) then
-        findArticulation(13, 58898, "")
-        if full_art_table[13] == 0 then
-            createArticulation(13, 58898, default_music_font, 58898, true, true, false, false, 5, false, 58898, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("upbow", 58898, "")
+        if full_art_table["upbow"] == 0 then
+            createArticulation("upbow", 58898, default_music_font, 58898, true, true, false, false, 5, false, 58898, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[13])
+            addArticulation(full_art_table["upbow"])
         end
     else
-        findArticulation(13, 178, "")
-        if full_art_table[13] == 0 then
-            createArticulation(13, 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("upbow", 178, "")
+        if full_art_table["upbow"] == 0 then
+            createArticulation("upbow", 178, "Maestro", 178, true, true, false, false, 5, false, 178, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 178, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[13])
+            addArticulation(full_art_table["upbow"])
         end
     end
 end
 
 function articulations_downbow()
-    if check_SMuFL(nil) then
-        findArticulation(14, 58896, "")
-        if full_art_table[14] == 0 then
-            createArticulation(14, 58896, default_music_font, 58896, true, true, false, false, 5, false, 58896, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58896, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("downbow", 58896, "")
+        if full_art_table["downbow"] == 0 then
+            createArticulation("downbow", 58896, default_music_font, 58896, true, true, false, false, 5, false, 58896, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58896, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[14])
+            addArticulation(full_art_table["downbow"])
         end
     else
-        findArticulation(14, 179, "")
-        if full_art_table[14] == 0 then
-            createArticulation(14, 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("downbow", 179, "")
+        if full_art_table["downbow"] == 0 then
+            createArticulation("downbow", 179, "Maestro", 179, true, true, false, false, 5, false, 179, true, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 179, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[14])
+            addArticulation(full_art_table["downbow"])
         end
     end
 end
 
 function articulations_trill()
-    if check_SMuFL(nil) then
-        findArticulation(15, 58726, "")
-        if full_art_table[15] == 0 then
-            createArticulation(15, 58726, default_music_font, 58726, true, true, false, false, 5, true, 58726, false, 0, 0, 0, true, false, false, 14, false, 3, 0, -3, 0, 58726, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("trill", 58726, "")
+        if full_art_table["trill"] == 0 then
+            createArticulation("trill", 58726, default_music_font, 58726, true, true, false, false, 5, true, 58726, false, 0, 0, 0, true, false, false, 14, false, 3, 0, -3, 0, 58726, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[15])
+            addArticulation(full_art_table["trill"])
         end
     else
-        findArticulation(15, 217, "")
-        if full_art_table[15] == 0 then
-            createArticulation(15, 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("trill", 217, "")
+        if full_art_table["trill"] == 0 then
+            createArticulation("trill", 217, "Maestro", 217, true, true, false, false, 5, true, 217, false, 0, 0, 0, true, false, false, 14, false, 3, 12, -3, -20, 217, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[15])
+            addArticulation(full_art_table["trill"])
         end
     end
 end
 
 function articulations_short_trill()
-    if check_SMuFL(nil) then
-        findArticulation(16, 58732, "")
-        if full_art_table[16] == 0 then
-            createArticulation(16, 58732, default_music_font, 58732, true, true, false, false, 5, true, 58732, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58732, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("short_trill", 58732, "")
+        if full_art_table["short_trill"] == 0 then
+            createArticulation("short_trill", 58732, default_music_font, 58732, true, true, false, false, 5, true, 58732, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58732, default_music_font, true, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[16])
+            addArticulation(full_art_table["short_trill"])
         end
     else
-        findArticulation(16, 109, "")
-        if full_art_table[16] == 0 then
-            createArticulation(16, 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("short_trill", 109, "")
+        if full_art_table["short_trill"] == 0 then
+            createArticulation("short_trill", 109, "Maestro", 109, true, true, false, false, 5, true, 109, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, -28, 109, "Maestro", true, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[16])
+            addArticulation(full_art_table["short_trill"])
         end
     end
 end
 
 function articulations_mordent()
-    if check_SMuFL(nil) then
-        findArticulation(17, 58733, "")
-        if full_art_table[17] == 0 then
-            createArticulation(17, 58733, default_music_font, 58733, true, true, false, false, 5, true, 58733, false, 0, 0, 0, true, false, false, 16, false, 0, 0, 0, 0, 58733, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("mordent", 58733, "")
+        if full_art_table["mordent"] == 0 then
+            createArticulation("mordent", 58733, default_music_font, 58733, true, true, false, false, 5, true, 58733, false, 0, 0, 0, true, false, false, 16, false, 0, 0, 0, 0, 58733, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[17])
+            addArticulation(full_art_table["mordent"])
         end
     else
-        findArticulation(17, 77, "")
-        if full_art_table[17] == 0 then
-            createArticulation(17, 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("mordent", 77, "")
+        if full_art_table["mordent"] == 0 then
+            createArticulation("mordent", 77, "Maestro", 77, true, true, false, false, 5, true, 77, false, 0, 0, 0, true, false, false, 16, false, 0, 4, 0, -28, 77, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[17])
+            addArticulation(full_art_table["mordent"])
         end
     end
 end
 
 function articulations_turn()
-    if check_SMuFL(nil) then
-        findArticulation(18, 58727, "")
-        if full_art_table[18] == 0 then
-            createArticulation(18, 58727, default_music_font, 58727, true, true, false, false, 5, true, 58727, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58727, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("turn", 58727, "")
+        if full_art_table["turn"] == 0 then
+            createArticulation("turn", 58727, default_music_font, 58727, true, true, false, false, 5, true, 58727, false, 0, 0, 0, true, false, false, 12, false, 0, 0, 0, 0, 58727, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[18])
+            addArticulation(full_art_table["turn"])
         end
     else
-        findArticulation(18, 84, "")
-        if full_art_table[18] == 0 then
-            createArticulation(18, 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("turn", 84, "")
+        if full_art_table["turn"] == 0 then
+            createArticulation("turn", 84, "Maestro", 84, true, true, false, false, 5, true, 84, false, 0, 0, 0, true, false, false, 12, false, 0, 18, 0, -18, 84, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[18])
+            addArticulation(full_art_table["turn"])
         end
     end
 end
 
 function articulations_roll()
-    if check_SMuFL(nil) then
-        findArticulation(19, 63232, "")
-        if full_art_table[19] == 0 then
-            createArticulation(19, 63232, default_music_font, 63232, true, false, false, false, 0, false, 63232, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 63232, default_music_font, false, false, true, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("roll", 63232, "")
+        if full_art_table["roll"] == 0 then
+            createArticulation("roll", 63232, default_music_font, 63232, true, false, false, false, 0, false, 63232, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 63232, default_music_font, false, false, true, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[19])
+            addArticulation(full_art_table["roll"])
         end
         roll_articulation_assignment(63232)
     else
-        findArticulation(19, 103, "")
-        if full_art_table[19] == 0 then
-            createArticulation(19, 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("roll", 103, "")
+        if full_art_table["roll"] == 0 then
+            createArticulation("roll", 103, "Maestro", 103, true, false, false, false, 0, false, 103, true, -256, 0, 0, false, true, false, 0, false, -28, -28, -22, 0, 103, "Maestro", false, false, true, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[19])
+            addArticulation(full_art_table["roll"])
         end
         roll_articulation_assignment(103)
     end
 end
 
 function articulations_fall_short()
-    if check_SMuFL(nil) then
-        findArticulation(20, 58839, "")
-        if full_art_table[20] == 0 then
-            createArticulation(20, 58839, default_music_font, 58839, true, false, false, false, 2, false, 58839, false, 0, 0, 0, true, false, false, 0, false, 42, -12, 42, 12, 58839, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("fall_short", 58839, "")
+        if full_art_table["fall_short"] == 0 then
+            createArticulation("fall_short", 58839, default_music_font, 58839, true, false, false, false, 2, false, 58839, false, 0, 0, 0, true, false, false, 0, false, 42, -12, 42, 12, 58839, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[20])
+            addArticulation(full_art_table["fall_short"])
         end
     else
-        findArticulation(20, 152, "Broadway Copyist")
-        if full_art_table[20] == 0 then
-            createArticulation(20, 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
+        findArticulation("fall_short", 152, "Broadway Copyist")
+        if full_art_table["fall_short"] == 0 then
+            createArticulation("fall_short", 152, "Broadway Copyist", 152, true, false, false, false, 2, false, 152, false, 0, 0, 0, true, false, false, 0, false, 36, -30, 36, 0, 152, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
         else
-            addArticulation(full_art_table[20])
+            addArticulation(full_art_table["fall_short"])
         end
     end 
 end
 
 function articulations_fall_long()
-    if check_SMuFL(nil) then
-        findArticulation(21, 58846, "")
-        if full_art_table[21] == 0 then
-            createArticulation(21, 58846, default_music_font, 58846, true, false, false, false, 2, false, 58846, false, 0, 0, 0, true, false, false, 0, false, 72, -76, 72, -48, 58846, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("fall_long", 58846, "")
+        if full_art_table["fall_long"] == 0 then
+            createArticulation("fall_long", 58846, default_music_font, 58846, true, false, false, false, 2, false, 58846, false, 0, 0, 0, true, false, false, 0, false, 72, -76, 72, -48, 58846, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[21])
+            addArticulation(full_art_table["fall_long"])
         end
     else
-        findArticulation(21, 92, "Broadway Copyist")
-        if full_art_table[21] == 0 then
-            createArticulation(21, 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
+        findArticulation("fall_long", 92, "Broadway Copyist")
+        if full_art_table["fall_long"] == 0 then
+            createArticulation("fall_long", 92, "Broadway Copyist", 92, true, false, false, false, 2, false, 92, false, 0, 0, 0, true, false, false, 0, false, 54, -54, 54, -30, 92, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false, false, false, 0, false, false, "Broadway Copyist", 24, 24, false, false)
         else
-            addArticulation(full_art_table[21])
+            addArticulation(full_art_table["fall_long"])
         end
     end
 end
 
 function articulations_rip_straight()
-    if check_SMuFL(nil) then
-        findArticulation(22, 58833, "")
-        if full_art_table[22] == 0 then
-            createArticulation(22, 58833, default_music_font, 58833, true, false, false, false, 2, false, 58833, false, 0, 0, 0, true, false, false, 0, false, -54, -60, -54, -26, 58833, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("rip_straight", 58833, "")
+        if full_art_table["rip_straight"] == 0 then
+            createArticulation("rip_straight", 58833, default_music_font, 58833, true, false, false, false, 2, false, 58833, false, 0, 0, 0, true, false, false, 0, false, -54, -60, -54, -26, 58833, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[22])
+            addArticulation(full_art_table["rip_straight"])
         end
     else
-        findArticulation(22, 151, "Broadway Copyist")
-        if full_art_table[22] == 0 then
-            createArticulation(22, 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+        findArticulation("rip_straight", 151, "Broadway Copyist")
+        if full_art_table["rip_straight"] == 0 then
+            createArticulation("rip_straight", 151, "Broadway Copyist", 151, true, false, false, false, 2, false, 151, false, 0, 0, 0, true, false, false, 0, false, -48, -36, -48, -6, 151, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
         else
-            addArticulation(full_art_table[22])
+            addArticulation(full_art_table["rip_straight"])
         end
     end
 end
 
 function articulations_rip_long()
-    if check_SMuFL(nil) then
-        findArticulation(23, 58834, "")
-        if full_art_table[23] == 0 then
-            createArticulation(23, 58834, default_music_font, 58834, true, false, false, false, 2, false, 58834, false, 0, 0, 0, true, false, false, 0, false, -70, -80, -70, -48, 58834, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("rip_long", 58834, "")
+        if full_art_table["rip_long"] == 0 then
+            createArticulation("rip_long", 58834, default_music_font, 58834, true, false, false, false, 2, false, 58834, false, 0, 0, 0, true, false, false, 0, false, -70, -80, -70, -48, 58834, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[23])
+            addArticulation(full_art_table["rip_long"])
         end
     else
-        findArticulation(23, 149, "Broadway Copyist")
-        if full_art_table[23] == 0 then
-            createArticulation(23, 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+        findArticulation("rip_long", 149, "Broadway Copyist")
+        if full_art_table["rip_long"] == 0 then
+            createArticulation("rip_long", 149, "Broadway Copyist", 149, true, false, false, false, 2, false, 149, false, 0, 0, 0, true, false, false, 0, false, -54, -36, -54, -12, 149, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
         else
-            addArticulation(full_art_table[23])
+            addArticulation(full_art_table["rip_long"])
         end
     end
 end
 
 function articulations_scoop_short()
-    if check_SMuFL(nil) then
-        findArticulation(24, 58834, "")
-        if full_art_table[24] == 0 then
-            createArticulation(24, 58832, default_music_font, 58832, true, false, false, false, 1, false, 58832, false, 0, 0, 0, false, false, false, 0, false, -48, -18, -48, 0, 58832, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("scoop_short", 58834, "")
+        if full_art_table["scoop_short"] == 0 then
+            createArticulation("scoop_short", 58832, default_music_font, 58832, true, false, false, false, 1, false, 58832, false, 0, 0, 0, false, false, false, 0, false, -48, -18, -48, 0, 58832, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[24])
+            addArticulation(full_art_table["scoop_short"])
         end  
     else
-        findArticulation(24, 155, "Broadway Copyist")
-        if full_art_table[24] == 0 then
-            createArticulation(24, 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
+        findArticulation("scoop_short", 155, "Broadway Copyist")
+        if full_art_table["scoop_short"] == 0 then
+            createArticulation("scoop_short", 155, "Broadway Copyist", 155, true, false, false, false, 2, false, 155, false, 0, 0, 0, true, false, false, 0, false, -36, -24, -36, 0, 155, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false, false, false, 0, false, false, "Broadway Copyist", 18, 18, false, false)
         else
-            addArticulation(full_art_table[24])
+            addArticulation(full_art_table["scoop_short"])
         end
     end
 end
 
 function articulations_doit()
-    if check_SMuFL(nil) then
-        findArticulation(25, 58860, "")
-        if full_art_table[25] == 0 then
-            createArticulation(25, 58860, default_music_font, 58860, true, false, false, false, 2, false, 58860, false, 0, 0, 0, true, false, false, 0, false, 44, 0, 44, 12, 58860, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("doit", 58860, "")
+        if full_art_table["doit"] == 0 then
+            createArticulation("doit", 58860, default_music_font, 58860, true, false, false, false, 2, false, 58860, false, 0, 0, 0, true, false, false, 0, false, 44, 0, 44, 12, 58860, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[25])
+            addArticulation(full_art_table["doit"])
         end   
     else
-        findArticulation(25, 243, "Broadway Copyist")
-        if full_art_table[25] == 0 then
-            createArticulation(25, 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
+        findArticulation("doit", 243, "Broadway Copyist")
+        if full_art_table["doit"] == 0 then
+            createArticulation("doit", 243, "Broadway Copyist", 243, true, false, false, false, 2, false, 243, false, 0, 0, 0, true, false, false, 0, false, 42, 6, 42, 30, 243, "Broadway Copyist", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false, false, false, 0, false, false, "Broadway Copyist", 20, 20, false, false)
         else
-            addArticulation(full_art_table[25])
+            addArticulation(full_art_table["doit"])
         end
     end
 end
 
 function articulations_lv()
-    if check_SMuFL(nil) then
-        findArticulation(26, 58554, "")
-        if full_art_table[26] == 0 then
-            createArticulation(26, 58554, default_music_font, 58554, true, false, false, false, 2, true, 58555, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 58555, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 28, 28, false, false, false, false, 0, false, false, default_music_font, 28, 28, false, false)
+    if is_default_smufl then
+        findArticulation("lv", 58554, "")
+        if full_art_table["lv"] == 0 then
+            createArticulation("lv", 58554, default_music_font, 58554, true, false, false, false, 2, true, 58555, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 58555, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 28, 28, false, false, false, false, 0, false, false, default_music_font, 28, 28, false, false)
         else
-            addArticulation(full_art_table[26])
+            addArticulation(full_art_table["lv"])
         end    
     else
-        local font_name = getUsedFontName("Engraver Font Set")
-        findArticulation(26, 105, font_name)
-        if full_art_table[26] == 0 then
-            createArticulation(26, 105, font_name, 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 28, 28, false, false, false, false, 0, false, false, font_name, 28, 28, false, false)
+        local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+        findArticulation("lv", 105, font_name)
+        if full_art_table["lv"] == 0 then
+            createArticulation("lv", 105, font_name, 105, true, false, false, false, 2, true, 73, false, 0, 0, 0, true, false, false, 0, false, 39, -6, 39, 7, 73, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 28, 28, false, false, false, false, 0, false, false, font_name, 28, 28, false, false)
         else
-            addArticulation(full_art_table[26])
+            addArticulation(full_art_table["lv"])
         end
     end
 end
@@ -6800,46 +6332,46 @@ function articulations_delete_articulations()
 end
 
 function articulations_left_bracket_1(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(27, 193, font_name)
-    if full_art_table[27] == 0 then
-        createNewArticulation(27, 193, font_name, 193, true, false, false, false, 2, false, 193, false, 0, 0, 0, true, false, false, 0, false, -66, -12, -36, 24, 193, font_name, true, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[27])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("l_bracket_1", 193, font_name)
+    if full_art_table["l_bracket_1"] == 0 then
+        createNewArticulation("l_bracket_1", 193, font_name, 193, true, false, false, false, 2, false, 193, false, 0, 0, 0, true, false, false, 0, false, -66, -12, -36, 24, 193, font_name, true, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["l_bracket_1"])
     else
-        addNewArticulation(noteentry, full_art_table[27])
+        addNewArticulation(noteentry, full_art_table["l_bracket_1"])
     end
 end
 
 function articulations_left_bracket_2(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(28, 170, font_name)
-    if full_art_table[28] == 0 then
-        createNewArticulation(28, 170, font_name, 170, true, false, false, false, 2, false, 170, false, 0, 0, 0, true, false, false, 0, false, -36, -12, -36, 42, 170, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[28])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("l_bracket_2", 170, font_name)
+    if full_art_table["l_bracket_2"] == 0 then
+        createNewArticulation("l_bracket_2", 170, font_name, 170, true, false, false, false, 2, false, 170, false, 0, 0, 0, true, false, false, 0, false, -36, -12, -36, 42, 170, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["l_bracket_2"])
     else
-        addNewArticulation(noteentry, full_art_table[28])
+        addNewArticulation(noteentry, full_art_table["l_bracket_2"])
     end
 end
 
 function articulations_left_bracket_3(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(29, 163, font_name)
-    if full_art_table[29] == 0 then
-        createNewArticulation(29, 163, font_name, 163, true, false, false, false, 2, false, 163, false, 0, 0, 0, true, false, false, 0, false, -36, -18, -36, 66, 163, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[29])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("l_bracket_3", 163, font_name)
+    if full_art_table["l_bracket_3"] == 0 then
+        createNewArticulation("l_bracket_3", 163, font_name, 163, true, false, false, false, 2, false, 163, false, 0, 0, 0, true, false, false, 0, false, -36, -18, -36, 66, 163, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["l_bracket_3"])
     else
-        addNewArticulation(noteentry, full_art_table[29])
+        addNewArticulation(noteentry, full_art_table["l_bracket_3"])
     end
 end
 
 function articulations_left_bracket_4(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(30, 162, font_name)
-    if full_art_table[30] == 0 then
-        createNewArticulation(30, 162, font_name, 162, true, false, false, false, 2, false, 162, false, 0, 0, 0, true, false, false, 0, false, -36, -18, -36, 90, 162, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[30])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("l_bracket_4", 162, font_name)
+    if full_art_table["l_bracket_4"] == 0 then
+        createNewArticulation("l_bracket_4", 162, font_name, 162, true, false, false, false, 2, false, 162, false, 0, 0, 0, true, false, false, 0, false, -36, -18, -36, 90, 162, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["l_bracket_4"])
     else
-        addNewArticulation(noteentry, full_art_table[30])
+        addNewArticulation(noteentry, full_art_table["l_bracket_4"])
     end
 end
 
@@ -6862,46 +6394,46 @@ function articulations_left_brackets()
 end
 
 function articulations_right_bracket_1(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(31, 176, font_name)
-    if full_art_table[31] == 0 then
-        createNewArticulation(31, 176, font_name, 176, true, false, false, false, 2, false, 176, false, 0, 0, 0, true, false, false, 0, false, 36, -12, 66, 24, 176, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[31])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("r_bracket_1", 176, font_name)
+    if full_art_table["r_bracket_1"] == 0 then
+        createNewArticulation("r_bracket_1", 176, font_name, 176, true, false, false, false, 2, false, 176, false, 0, 0, 0, true, false, false, 0, false, 36, -12, 66, 24, 176, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["r_bracket_1"])
     else
-        addNewArticulation(noteentry, full_art_table[31])
+        addNewArticulation(noteentry, full_art_table["r_bracket_1"])
     end
 end
 
 function articulations_right_bracket_2(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(32, 164, font_name)
-    if full_art_table[32] == 0 then
-        createNewArticulation(32, 164, font_name, 164, true, false, false, false, 2, false, 164, false, 0, 0, 0, true, false, false, 0, false, 36, -12, 36, 42, 164, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[32])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("r_bracket_2", 164, font_name)
+    if full_art_table["r_bracket_2"] == 0 then
+        createNewArticulation("r_bracket_2", 164, font_name, 164, true, false, false, false, 2, false, 164, false, 0, 0, 0, true, false, false, 0, false, 36, -12, 36, 42, 164, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["r_bracket_2"])
     else
-        addNewArticulation(noteentry, full_art_table[32])
+        addNewArticulation(noteentry, full_art_table["r_bracket_2"])
     end
 end
 
 function articulations_right_bracket_3(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(33, 166, font_name)
-    if full_art_table[33] == 0 then
-        createNewArticulation(33, 166, font_name, 166, true, false, false, false, 2, false, 166, false, 0, 0, 0, true, false, false, 0, false, 36, -18, 36, 66, 166, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[33])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("r_bracket_3", 166, font_name)
+    if full_art_table["r_bracket_3"] == 0 then
+        createNewArticulation("r_bracket_3", 166, font_name, 166, true, false, false, false, 2, false, 166, false, 0, 0, 0, true, false, false, 0, false, 36, -18, 36, 66, 166, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["r_bracket_3"])
     else
-        addNewArticulation(noteentry, full_art_table[33])
+        addNewArticulation(noteentry, full_art_table["r_bracket_3"])
     end
 end
 
 function articulations_right_bracket_4(noteentry)
-    local font_name = getUsedFontName("Engraver Font Set")
-    findArticulation(34, 165, font_name)
-    if full_art_table[34] == 0 then
-        createNewArticulation(34, 165, font_name, 165, true, false, false, false, 2, false, 165, false, 0, 0, 0, true, false, false, 0, false, 36, -18, 36, 90, 165, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
-        assignNewArticulation(noteentry, full_art_table[34])
+    local font_name = remove_spaces_in_windows_os("Engraver Font Set")
+    findArticulation("r_bracket_4", 165, font_name)
+    if full_art_table["r_bracket_4"] == 0 then
+        createNewArticulation("r_bracket_4", 165, font_name, 165, true, false, false, false, 2, false, 165, false, 0, 0, 0, true, false, false, 0, false, 36, -18, 36, 90, 165, font_name, false, false, false, 0, 0, 0, false, false, false, 0, false, false, font_name, 24, 24, false, false, false, false, 0, false, false, font_name, 24, 24, false, false)
+        assignNewArticulation(noteentry, full_art_table["r_bracket_4"])
     else
-        addNewArticulation(noteentry, full_art_table[34])
+        addNewArticulation(noteentry, full_art_table["r_bracket_4"])
     end
 end
 
@@ -6924,95 +6456,103 @@ function articulations_right_brackets()
 end
 
 function articulations_combo_tenuto_staccato()
-    if check_SMuFL(nil) then
-        findArticulation(35, 58546, "")
-        if full_art_table[35] == 0 then
-            createArticulation(35, 58546, default_music_font, 58546, true, true, false, false, 1, true, 58547, false, 0, 75, 110, true, false, false, 16, true, 0, 0, 0, 0, 58547, default_music_font, true, false, true, 0, 75, 110, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("tenuto_stacc", 58546, "")
+        if full_art_table["tenuto_stacc"] == 0 then
+            createArticulation("tenuto_stacc", 58546, default_music_font, 58546, true, true, false, false, 1, true, 58547, false, 0, 75, 110, true, false, false, 16, true, 0, 0, 0, 0, 58547, default_music_font, true, false, true, 0, 75, 110, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[35])
+            addArticulation(full_art_table["tenuto_stacc"])
         end
     else
-        findArticulation(35, 248, "")
-        if full_art_table[35] == 0 then
-            createArticulation(35, 248, "Maestro", 248, true, true, false, false, 1, true, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("tenuto_stacc", 248, "")
+        if full_art_table["tenuto_stacc"] == 0 then
+            createArticulation("tenuto_stacc", 248, "Maestro", 248, true, true, false, false, 1, true, 60, false, 0, 75, 110, true, false, false, 16, true, 0, -2, 0, -21, 60, "Maestro", true, false, true, 0, 75, 110, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[35])
+            addArticulation(full_art_table["tenuto_stacc"])
         end
     end
 end
 
 function articulations_combo_accent_staccato()
-    if check_SMuFL(nil) then
-        findArticulation(36, 58544, "")
-        if full_art_table[36] == 0 then
-            createArticulation(36, 58544, default_music_font, 58544, true, true, false, false, 1, false, 58545, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, 0, 58545, default_music_font, false, false, true, 0, 50, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl and not (default_music_font == "Finale Maestro" and config.accent_character_prefs == 2) then
+        findArticulation("accent_stacc", 58544, "")
+        if full_art_table["accent_stacc"] == 0 then
+            createArticulation("accent_stacc", 58544, default_music_font, 58544, true, true, false, false, 1, false, 58545, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, 0, 58545, default_music_font, false, false, true, 0, 50, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[36])
+            addArticulation(full_art_table["accent_stacc"])
         end
     else
-        findArticulation(36, 249, "")
-        if full_art_table[36] == 0 then
-            createArticulation(36, 249, "Maestro", 249, true, true, false, false, 1, false, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, -35, 223, "Maestro", false, false, true, 0, 50, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("accent_stacc", 249, "")
+        local below_off = -35
+        if config.accent_character_prefs > 0 then
+            below_off = -24
+        end
+        if full_art_table["accent_stacc"] == 0 then
+            createArticulation("accent_stacc", 249, accent_font, 249, true, true, false, false, 1, false, 223, false, 0, 50, 125, true, false, false, 19, true, 0, 0, 0, below_off, 223, accent_font, false, false, true, 0, 50, 125, true, false, false, 0, false, false, accent_font, 24, 24, false, false, false, false, 0, false, false, accent_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[36])
+            addArticulation(full_art_table["accent_stacc"])
         end
     end
 end
 
 function articulations_combo_accent_tenuto()
-    if check_SMuFL(nil) then
-        findArticulation(37, 58548, "")
-        if full_art_table[37] == 0 then
-            createArticulation(37, 58548, default_music_font, 58548, true, true, false, false, 1, false, 58549, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, 0, 58549, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl and not (default_music_font == "Finale Maestro" and config.accent_character_prefs == 2) then
+        findArticulation("accent_tenuto", 58548, "")
+        if full_art_table["accent_tenuto"] == 0 then
+            createArticulation("accent_tenuto", 58548, default_music_font, 58548, true, true, false, false, 1, false, 58549, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, 0, 58549, default_music_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[37])
+            addArticulation(full_art_table["accent_tenuto"])
         end
     else
-        findArticulation(37, 138, "")
-        if full_art_table[37] == 0 then
-            local font_name = getUsedFontName("Engraver Font Set")
-            findArticulation(37, 251, font_name)
-            if full_art_table[37] == 0 then
-                createArticulation(37, 138, "Maestro", 138, true, true, false, false, 1, false, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, -30, 137, "Maestro", false, false, true, 0, 0, 125, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
-            end
+        local above_char = 138
+        local below_char = 137
+        local below_off = -30
+        if config.accent_character_prefs > 0 then
+            above_char = 251
+            below_char = 240
+            below_off = 0
+        end
+        findArticulation("accent_tenuto", above_char, accent_font)
+        if full_art_table["accent_tenuto"] == 0 then
+            createArticulation("accent_tenuto", above_char, accent_font, above_char, true, true, false, false, 1, false, below_char, false, 0, 0, 125, true, false, false, 12, false, 0, 0, 0, below_off, below_char, accent_font, false, false, true, 0, 0, 125, true, false, false, 0, false, false, accent_font, 24, 24, false, false, false, false, 0, false, false, accent_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[37])
+            addArticulation(full_art_table["accent_tenuto"])
         end
     end
 end
 
 function articulations_combo_marcato_staccato()
-    if check_SMuFL(nil) then
-        findArticulation(38, 58542, "")
-        if full_art_table[38] == 0 then
-            createArticulation(38, 58542, default_music_font, 58542, true, true, false, false, 5, false, 58543, false, 0, 75, 140, true, false, false, 16, true, 0, 0, 0, 0, 58543, default_music_font, false, false, true, 0, 75, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
+    if is_default_smufl then
+        findArticulation("marcato_stacc", 58542, "")
+        if full_art_table["marcato_stacc"] == 0 then
+            createArticulation("marcato_stacc", 58542, default_music_font, 58542, true, true, false, false, 5, false, 58543, false, 0, 75, 140, true, false, false, 16, true, 0, 0, 0, 0, 58543, default_music_font, false, false, true, 0, 75, 140, true, false, false, 0, false, false, default_music_font, 24, 24, false, false, false, false, 0, false, false, default_music_font, 24, 24, false, false)
         else
-            addArticulation(full_art_table[38])
+            addArticulation(full_art_table["marcato_stacc"])
         end
     else
-        findArticulation(38, 172, "")
-        if full_art_table[38] == 0 then
-            createArticulation(38, 172, "Maestro", 172, true, true, false, false, 5, false, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
+        findArticulation("marcato_stacc", 172, "")
+        if full_art_table["marcato_stacc"] == 0 then
+            createArticulation("marcato_stacc", 172, "Maestro", 172, true, true, false, false, 5, false, 232, false, 0, 75, 140, true, false, false, 16, true, 0, -4, 0, -18, 232, "Maestro", false, false, true, 0, 75, 140, true, false, false, 0, false, false, "Maestro", 24, 24, false, false, false, false, 0, false, false, "Maestro", 24, 24, false, false)
         else
-            addArticulation(full_art_table[38])
+            addArticulation(full_art_table["marcato_stacc"])
         end
     end
 end
 
 function articulations_tremolo_z()
-    if check_SMuFL(nil) then
-        findArticulation(39, 57898, "")
-        if full_art_table[39] == 0 then
-            createArticulation(39, 57898, default_music_font, 57898, true, false, false, false, 0, false, 57898, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, 0, 57898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 30, 30, false, false, false, false, 0, false, false, default_music_font, 30, 30, false, false)
+    if is_default_smufl then
+        findArticulation("trem_z", 57898, "")
+        if full_art_table["trem_z"] == 0 then
+            createArticulation("trem_z", 57898, default_music_font, 57898, true, false, false, false, 0, false, 57898, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, 0, 57898, default_music_font, false, false, false, 0, 0, 0, false, false, false, 0, false, false, default_music_font, 30, 30, false, false, false, false, 0, false, false, default_music_font, 30, 30, false, false)
         else
-            addArticulation(full_art_table[39])
+            addArticulation(full_art_table["trem_z"])
         end
     else
-        findArticulation(39, 122, "")
-        if full_art_table[39] == 0 then
-            createArticulation(39, 122, "Maestro", 122, true, false, false, false, 0, false, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
+        findArticulation("trem_z", 122, "")
+        if full_art_table["trem_z"] == 0 then
+            createArticulation("trem_z", 122, "Maestro", 122, true, false, false, false, 0, false, 122, false, 0, 0, 0, true, false, false, 10, false, 0, 0, 0, -9, 122, "Maestro", false, false, false, 0, 0, 0, false, false, false, 0, false, false, "Maestro", 30, 30, false, false, false, false, 0, false, false, "Maestro", 30, 30, false, false)
         else
-            addArticulation(full_art_table[39])
+            addArticulation(full_art_table["trem_z"])
         end
     end
 end
@@ -7024,7 +6564,7 @@ function articulations_delete_duplicate_articulations()
 end
 
 function noteheads_x_circle()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57513, 57523, 57523, 57523)
     else
         changeNoteheads("Maestro Percussion", 120, 88, 88, 88)
@@ -7032,7 +6572,7 @@ function noteheads_x_circle()
 end
 
 function noteheads_cross_circle()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57514, 57515, 57515, 57515)
     else
         changeNoteheads("Maestro Percussion", 122, 90, 90, 90)
@@ -7063,7 +6603,7 @@ function noteheads_x_above_staff()
         half_note = 57562
     end
 
-    if not check_SMuFL(nil) then
+    if not is_default_smufl then
         nm.FontName = "Maestro Percussion"
         closed_note = 120
         if x_type == 0 then
@@ -7092,7 +6632,7 @@ function noteheads_x_above_staff()
 end
 
 function noteheads_triangle_up()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57534, 57533, 57533, 57533)
     else
         changeNoteheads("Maestro Percussion", 49, 33, 33, 33)
@@ -7100,7 +6640,7 @@ function noteheads_triangle_up()
 end
 
 function noteheads_triangle_down()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57543, 57542, 57542, 57542)
     else
         changeNoteheads("Maestro Percussion", 45, 95, 95, 95)
@@ -7108,7 +6648,7 @@ function noteheads_triangle_down()
 end
 
 function noteheads_diamond()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57564, 57566, 57566, 57566)
     else
         changeNoteheads("Maestro Percussion", 51, 35, 35, 35)
@@ -7116,7 +6656,7 @@ function noteheads_diamond()
 end
 
 function noteheads_ghost()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 62929, 62930, 62931, 62931)
     else
         changeNoteheads("Maestro Percussion", 101, 69, 69, 69)
@@ -7124,7 +6664,7 @@ function noteheads_ghost()
 end
 
 function noteheads_cross_stick()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57576, 57577, 57578, 57578)
     else
         changeNoteheads("Maestro Percussion", 102, 70, 70, 70)
@@ -7132,7 +6672,7 @@ function noteheads_cross_stick()
 end
 
 function noteheads_small_slash()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57600, 57604, 57604, 57604)
     else
         changeNoteheads("Maestro", 243, 124, 124, 218)
@@ -7140,7 +6680,7 @@ function noteheads_small_slash()
 end
 
 function noteheads_square()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57529, 57528, 57528, 57528)
     else
         changeNoteheads("Maestro Percussion", 54, 94, 94, 94)
@@ -7148,7 +6688,7 @@ function noteheads_square()
 end
 
 function noteheads_rim()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57552, 57554, 57556, 57556)
     else
         changeNoteheads("Maestro Percussion", 104, 72, 72, 72)
@@ -7156,7 +6696,7 @@ function noteheads_rim()
 end
 
 function noteheads_no_notehead()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57509, 57509, 57509, 57509)
     else
         changeNoteheads("Maestro", 32, 32, 32, 32)
@@ -7253,7 +6793,7 @@ function layers_all_reduce()
 end
 
 function noteheads_x_diamond()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         changeNoteheads("", 57513, 57565, 57565, 57565)
     else
         changeNoteheads("Maestro Percussion", 120, 84, 84, 84)
@@ -7285,7 +6825,7 @@ function noteheads_x_diamond_above_staff()
     local standard_note = 57513
     local open_note = 57565
 
-    if not check_SMuFL(nil) then
+    if not is_default_smufl then
         nm.FontName = "Maestro Percussion"
         standard_note = 120
         open_note = 84
@@ -7796,7 +7336,7 @@ function expressions_molto()
 end
 
 function dynamics_piu_f()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({"più", 58658}, text_expression, "piu forte", 1)
     else
         findTextExpression({"più", 102}, text_expression, "piu forte", 1)
@@ -7805,7 +7345,7 @@ function dynamics_piu_f()
 end
 
 function dynamics_pp_sub()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({58667, "sub."}, text_expression, "pianissimo subito", 1)
     else
         findTextExpression({185, "sub."}, text_expression, "pianissimo subito", 1)
@@ -7814,7 +7354,7 @@ function dynamics_pp_sub()
 end
 
 function dynamics_p_sub()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({58656, "sub."}, text_expression, "piano subito", 1)
     else
         findTextExpression({112, "sub."}, text_expression, "piano subito", 1)
@@ -7823,7 +7363,7 @@ function dynamics_p_sub()
 end
 
 function dynamics_mp_sub()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({58668, "sub."}, text_expression, "mezzo piano subito", 1)
     else
         findTextExpression({80, "sub."}, text_expression, "mezzo piano subito", 1)
@@ -7832,7 +7372,7 @@ function dynamics_mp_sub()
 end
 
 function dynamics_mf_sub()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({58669, "sub."}, text_expression, "mezzo forte subito", 1)
     else
         findTextExpression({70, "sub."}, text_expression, "mezzo forte subito", 1)
@@ -7841,7 +7381,7 @@ function dynamics_mf_sub()
 end
 
 function dynamics_f_sub()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({58658, "sub."}, text_expression, "forte subito", 1)
     else
         findTextExpression({102, "sub."}, text_expression, "forte subito", 1)
@@ -7850,7 +7390,7 @@ function dynamics_f_sub()
 end
 
 function dynamics_ff_sub()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findTextExpression({58671, "sub."}, text_expression, "fortissimo subito", 1)
     else
         findTextExpression({196, "sub."}, text_expression, "fortissimo subito", 1)
@@ -7879,7 +7419,7 @@ function expressions_loco()
 end
 
 function expressions_breath()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({58574}, {nil, 0, 24, 0}, text_expression, "Breath Mark", 7)
     else
         findSpecialExpression({44}, {"Font0", 0, 24, 0}, text_expression, "Breath Mark", 5)
@@ -7888,7 +7428,7 @@ function expressions_breath()
 end
 
 function expressions_caesura()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({58577}, {nil, 0, 24, 0}, text_expression, "Caesura", 7)
     else
         findSpecialExpression({34}, {"Font0", 0, 24, 0}, text_expression, "Caesura", 5)
@@ -7897,7 +7437,7 @@ function expressions_caesura()
 end
 
 function expressions_glasses()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({60514}, {nil, 0, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
     else
         findSpecialExpression({59}, {"Broadway Copyist", 8191, 24, 0}, text_expression, "Eyeglasses (WATCH!)", 5)
@@ -8011,7 +7551,7 @@ function expressions_half_trem()
 end
 
 function expressions_mallet_BD_hard()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59292}, {nil, 0, 24, 0}, text_expression, "Bass Drum, hard", 5)
     else
         findSpecialExpression({100}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, hard", 5)
@@ -8020,7 +7560,7 @@ function expressions_mallet_BD_hard()
 end
 
 function expressions_mallet_BD_medium()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59290}, {nil, 0, 24, 0}, text_expression, "Bass Drum, medium", 5)
     else
         findSpecialExpression({115}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, medium", 5)
@@ -8029,7 +7569,7 @@ function expressions_mallet_BD_medium()
 end
 
 function expressions_mallet_BD_soft()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59288}, {nil, 0, 24, 0}, text_expression, "Bass Drum, soft", 5)
     else
         findSpecialExpression({97}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Bass Drum, soft", 5)
@@ -8038,7 +7578,7 @@ function expressions_mallet_BD_soft()
 end
 
 function expressions_mallet_brass()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59353}, {nil, 0, 24, 0}, text_expression, "Brass Mallet", 5)
     else
         findSpecialExpression({106}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Brass Mallet", 5)
@@ -8047,7 +7587,7 @@ function expressions_mallet_brass()
 end
 
 function expressions_mallet_sticks()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59345}, {nil, 0, 24, 0}, text_expression, "Sticks", 5)
     else
         findSpecialExpression({103}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Sticks", 5)
@@ -8056,7 +7596,7 @@ function expressions_mallet_sticks()
 end
 
 function expressions_mallet_timp_hard()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59280}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
     else
         findSpecialExpression({101}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, hard", 5)
@@ -8065,7 +7605,7 @@ function expressions_mallet_timp_hard()
 end
 
 function expressions_mallet_timp_medium()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59276}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
     else
         findSpecialExpression({119}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, medium", 5)
@@ -8074,7 +7614,7 @@ function expressions_mallet_timp_medium()
 end
 
 function expressions_mallet_timp_soft()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59272}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
     else
         findSpecialExpression({113}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, soft", 5)
@@ -8083,7 +7623,7 @@ function expressions_mallet_timp_soft()
 end
 
 function expressions_mallet_timp_wood()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59284}, {nil, 0, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
     else
         findSpecialExpression({114}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Timpani Mallet, wood", 5)
@@ -8092,7 +7632,7 @@ function expressions_mallet_timp_wood()
 end
 
 function expressions_mallet_xylo_hard()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59256}, {nil, 0, 24, 0}, text_expression, "Xylophone, hard", 5)
     else
         findSpecialExpression({117}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, hard", 5)
@@ -8101,7 +7641,7 @@ function expressions_mallet_xylo_hard()
 end
 
 function expressions_mallet_xylo_medium()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59252}, {nil, 0, 24, 0}, text_expression, "Xylophone, medium", 5)
     else
         findSpecialExpression({121}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, medium", 5)
@@ -8110,7 +7650,7 @@ function expressions_mallet_xylo_medium()
 end
 
 function expressions_mallet_xylo_soft()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59248}, {nil, 0, 24, 0}, text_expression, "Xylophone, soft", 5)
     else
         findSpecialExpression({116}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Xylophone, soft", 5)
@@ -8119,7 +7659,7 @@ function expressions_mallet_xylo_soft()
 end
 
 function expressions_mallet_yarn_med()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59302}, {nil, 0, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
     else
         findSpecialExpression({112}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, medium", 5)
@@ -8128,7 +7668,7 @@ function expressions_mallet_yarn_med()
 end
 
 function expressions_mallet_yarn_soft()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         findSpecialExpression({59298}, {nil, 0, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
     else
         findSpecialExpression({111}, {"Finale Percussion", 8191, 24, 0}, text_expression, "Yarn Mallet, soft", 5)
@@ -8698,7 +8238,7 @@ function noteheads_harmonics()
         local notehead = finale.FCNoteheadMod()
         notehead:EraseAt(lowest_note)
         notehead:EraseAt(highest_note)
-        if check_SMuFL(nil) then
+        if is_default_smufl then
             notehead.CustomChar = 57562
         else
             notehead.CustomChar = 79
@@ -8755,104 +8295,6 @@ function formatting_staff_space_decrease()
     staff_spacing_adjust(-24)
 end
 
-function layers_swap_one_two()
-    swap_layers(1, 2)
-end
-
-function layers_swap_one_three()
-    swap_layers(1, 3)
-end
-
-function layers_swap_one_four()
-    swap_layers(1, 4)
-end
-
-function layers_swap_two_three()
-    swap_layers(2, 3)
-end
-
-function layers_swap_two_four()
-    swap_layers(2, 4)
-end
-
-function layers_swap_three_four()
-    swap_layers(3, 4)
-end
-
-function layers_swap_one_three_two_four()
-    swap_layers(1, 3)
-    swap_layers(2, 4)
-end
-
-function layers_swap_one_two_three_four()
-    swap_layers(1, 2)
-    swap_layers(3, 4)
-end
-
-function layers_one_clear()
-    clear_Layer(1)
-end
-
-function layers_two_clear()
-    clear_Layer(2)
-end
-
-function layers_three_clear()
-    clear_Layer(3)
-end
-
-function layers_four_clear()
-    clear_Layer(4)
-end
-
-function layers_one_two_clear()
-    clear_Layer(1)
-    clear_Layer(2)
-end
-
-function layers_one_three_clear()
-    clear_Layer(1)
-    clear_Layer(3)
-end
-
-function layers_one_four_clear()
-    clear_Layer(1)
-    clear_Layer(4)
-end
-
-function layers_one_two_three_clear()
-    clear_Layer(1)
-    clear_Layer(2)
-    clear_Layer(3)
-end
-
-function layers_one_three_four_clear()
-    clear_Layer(1)
-    clear_Layer(3)
-    clear_Layer(4)
-end
-
-function layers_two_three_clear()
-    clear_Layer(2)
-    clear_Layer(3)
-end
-
-function layers_two_four_clear()
-    clear_Layer(2)
-    clear_Layer(4)
-end
-
-function layers_two_three_four_clear()
-    clear_Layer(2)
-    clear_Layer(3)
-    clear_Layer(4)
-end
-
-function layers_three_four_clear()
-    clear_Layer(3)
-    clear_Layer(4)
-end
-
 function plugin_custom_text_expressive()
     user_expression_input("Expressive")
 end
@@ -8904,7 +8346,7 @@ function reset_baseline_chord_fretboard()
 end
 
 function transform_breath_to_expression()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         simple_art_to_exp_swap(nil, "Breath Mark", 58574)
     else
         simple_art_to_exp_swap(",", "Breath Mark", 44)
@@ -8912,7 +8354,7 @@ function transform_breath_to_expression()
 end
 
 function transform_caesura_to_expression()
-    if check_SMuFL(nil) then
+    if is_default_smufl then
         simple_art_to_exp_swap(nil, "Caesura", 58577)
     else
         simple_art_to_exp_swap("\"", "Caesura", 34)
@@ -8961,14 +8403,6 @@ function transform_flip_enharmonic()
     flip_enharmonic()
 end
 
-function transform_cluster_indeterminate()
-    cluster_indeterminate()
-end
-
-function transform_cluster_determinate()
-    cluster_determinate()
-end
-
 function transform_toggle_ledger_lines()
     local region = finenv.Region()
     for entry in eachentrysaved(region) do
@@ -8982,14 +8416,6 @@ end
 
 function transform_highest_lowest_possible()
     create_centered_triangles()
-end
-
-function transform_create_kicks()
-    create_kicklink_layer_4()
-end
-
-function transform_topline_notation()
-    top_line()
 end
 
 function update_mac_48()
@@ -9024,1434 +8450,1454 @@ dialog:SetDescriptions("Enter a JetStream Finale Controller code:")
 local return_values = dialog:Execute() 
 ]]
 
-local return_value = simple_input("JetStream Finale Controller", "Enter a JetStream Finale Controller code:")
-local execute_function = split(return_value, " ")
+if not bypass_dialog then
+    local return_value = simple_input("JetStream Finale Controller", "Enter a JetStream Finale Controller code:")
+    local execute_function = split(return_value, " ")
 
-for i,k in pairs(execute_function) do
-    finale.FCCellMetrics.MarkMetricsForRebuild()
-    if execute_function ~= nil then
-        local mr = finale.FCMusicRegion()
-        mr:SetCurrentSelection()
-        function compare(compare_to)
-            local result = compare_values(k, compare_to)
-            return result
-        end
+    for i,k in pairs(execute_function) do
+        finale.FCCellMetrics.MarkMetricsForRebuild()
+        if execute_function ~= nil then
+            local mr = finale.FCMusicRegion()
+            mr:SetCurrentSelection()
+            function compare(compare_to)
+                local result = compare_values(k, compare_to)
+                return result
+            end
 
-        if mr:IsEmpty() ~= true then
-            if compare({"0001","ffff"}) then
-                dynamics_ffff_start()
-            end
-            if compare({"0002","fff"}) then
-                dynamics_fff_start()
-            end
-            if compare({"0003","ff","fortissimo"}) then
-                dynamics_ff_start()
-            end
-            if compare({"0004","f","forte"}) then
-                dynamics_f_start()
-            end
-            if compare({"0005","mf","mezzoforte"}) then
-                dynamics_mf_start()
-            end
-            if compare({"0006","mp","mezzopiano"}) then
-                dynamics_mp_start()
-            end
-            if compare({"0007","p","piano"}) then
-                dynamics_p_start()
-            end
-            if compare({"0008","pp","pianissimo"}) then
-                dynamics_pp_start()
-            end
-            if compare({"0009","ppp"}) then
-                dynamics_ppp_start()
-            end
-            if compare({"0010","pppp"}) then
-                dynamics_pppp_start()
-            end
-            if compare({"0011","fp"}) then
-                dynamics_fp_start()
-            end
-            if compare({"0012","fz"}) then
-                dynamics_fz_start()
-            end
-            if compare({"0013","n","niente"}) then
-                dynamics_n_start()
-            end
-            if compare({"0014","rf"}) then
-                dynamics_rf_start()
-            end
-            if compare({"0015","rfz"}) then
-                dynamics_rfz_start()
-            end
-            if compare({"0016","sf"}) then
-                dynamics_sf_start()
-            end
-            if compare({"0017","sffz"}) then
-                dynamics_sffz_start()
-            end
-            if compare({"0018","sfp"}) then
-                dynamics_sfp_start()
-            end
-            if compare({"0019","sfpp"}) then
-                dynamics_sfpp_start()
-            end
-            if compare({"0020","sfz"}) then
-                dynamics_sfz_start()
-            end
-            if compare({"0021","sfzp"}) then
-                dynamics_sfzp_start()
-            end
-            if compare({"0022","<"}) then
-                dynamics_crescendo()
-            end
-            if compare({"0023",">"}) then
-                dynamics_decrescendo()
-            end
-            if compare({"0024","<>"}) then
-                dynamics_messa_di_voce_up()
-            end
-            if compare({"0025","><"}) then
-                dynamics_messa_di_voce_down()
-            end
-            if execute_function[i] == "0026" then
-                dynamics_delete_hairpins()
-            end
-            if execute_function[i] == "0027" then
-                dynamics_delete_dynamics()
-            end
-            if compare({"0028","-ffff"}) then
-                dynamics_ffff_end()
-            end
-            if compare({"0029","-fff"}) then
-                dynamics_fff_end()
-            end
-            if compare({"0030","-ff"}) then
-                dynamics_ff_end()
-            end
-            if compare({"0031","-f"}) then
-                dynamics_f_end()
-            end
-            if compare({"0032","-mf"}) then
-                dynamics_mf_end()
-            end
-            if compare({"0033","-mp"}) then
-                dynamics_mp_end()
-            end
-            if compare({"0034","-p"}) then
-                dynamics_p_end()
-            end
-            if compare({"0035","-pp"}) then
-                dynamics_pp_end()
-            end
-            if compare({"0036","-ppp"}) then
-                dynamics_ppp_end()
-            end
-            if compare({"0037","-pppp"}) then
-                dynamics_pppp_end()
-            end
-            if compare({"0038","-fp"}) then
-                dynamics_fp_end()
-            end
-            if compare({"0039","-fz"}) then
-                dynamics_fz_end()
-            end
-            if compare({"0040","-n"}) then
-                dynamics_n_end()
-            end
-            if compare({"0041","-rf"}) then
-                dynamics_rf_end()
-            end
-            if compare({"0042","-rfz"}) then
-                dynamics_rfz_end()
-            end
-            if compare({"0043","-sf"}) then
-                dynamics_sf_end()
-            end
-            if compare({"0044","-sffz"}) then
-                dynamics_sffz_end()
-            end
-            if compare({"0045","-sfp"}) then
-                dynamics_sfp_end()
-            end
-            if compare({"0046","-sfpp"}) then
-                dynamics_sfpp_end()
-            end
-            if compare({"0047","-sfz"}) then
-                dynamics_sfz_end()
-            end
-            if compare({"0048","-sfzp"}) then
-                dynamics_sfzp_end()
-            end
-            if compare({"0049","dyn+","louder"}) then
-                dynamics_increase_dynamic()
-            end
-            if compare({"0050","dyn-","softer","quieter"}) then
-                dynamics_decrease_dynamic()
-            end
-            if compare({"0051","alignfar", "align", "da"}) then
-                dynamics_align_far()
-            end
+            if mr:IsEmpty() ~= true then
+                if compare({"0001","ffff"}) then
+                    dynamics_ffff_start()
+                end
+                if compare({"0002","fff"}) then
+                    dynamics_fff_start()
+                end
+                if compare({"0003","ff","fortissimo"}) then
+                    dynamics_ff_start()
+                end
+                if compare({"0004","f","forte"}) then
+                    dynamics_f_start()
+                end
+                if compare({"0005","mf","mezzoforte"}) then
+                    dynamics_mf_start()
+                end
+                if compare({"0006","mp","mezzopiano"}) then
+                    dynamics_mp_start()
+                end
+                if compare({"0007","p","piano"}) then
+                    dynamics_p_start()
+                end
+                if compare({"0008","pp","pianissimo"}) then
+                    dynamics_pp_start()
+                end
+                if compare({"0009","ppp"}) then
+                    dynamics_ppp_start()
+                end
+                if compare({"0010","pppp"}) then
+                    dynamics_pppp_start()
+                end
+                if compare({"0011","fp"}) then
+                    dynamics_fp_start()
+                end
+                if compare({"0012","fz"}) then
+                    dynamics_fz_start()
+                end
+                if compare({"0013","n","niente"}) then
+                    dynamics_n_start()
+                end
+                if compare({"0014","rf"}) then
+                    dynamics_rf_start()
+                end
+                if compare({"0015","rfz"}) then
+                    dynamics_rfz_start()
+                end
+                if compare({"0016","sf"}) then
+                    dynamics_sf_start()
+                end
+                if compare({"0017","sffz"}) then
+                    dynamics_sffz_start()
+                end
+                if compare({"0018","sfp"}) then
+                    dynamics_sfp_start()
+                end
+                if compare({"0019","sfpp"}) then
+                    dynamics_sfpp_start()
+                end
+                if compare({"0020","sfz"}) then
+                    dynamics_sfz_start()
+                end
+                if compare({"0021","sfzp"}) then
+                    dynamics_sfzp_start()
+                end
+                if compare({"0022","<"}) then
+                    dynamics_crescendo()
+                end
+                if compare({"0023",">"}) then
+                    dynamics_decrescendo()
+                end
+                if compare({"0024","<>"}) then
+                    dynamics_messa_di_voce_up()
+                end
+                if compare({"0025","><"}) then
+                    dynamics_messa_di_voce_down()
+                end
+                if execute_function[i] == "0026" then
+                    dynamics_delete_hairpins()
+                end
+                if execute_function[i] == "0027" then
+                    dynamics_delete_dynamics()
+                end
+                if compare({"0028","-ffff"}) then
+                    dynamics_ffff_end()
+                end
+                if compare({"0029","-fff"}) then
+                    dynamics_fff_end()
+                end
+                if compare({"0030","-ff"}) then
+                    dynamics_ff_end()
+                end
+                if compare({"0031","-f"}) then
+                    dynamics_f_end()
+                end
+                if compare({"0032","-mf"}) then
+                    dynamics_mf_end()
+                end
+                if compare({"0033","-mp"}) then
+                    dynamics_mp_end()
+                end
+                if compare({"0034","-p"}) then
+                    dynamics_p_end()
+                end
+                if compare({"0035","-pp"}) then
+                    dynamics_pp_end()
+                end
+                if compare({"0036","-ppp"}) then
+                    dynamics_ppp_end()
+                end
+                if compare({"0037","-pppp"}) then
+                    dynamics_pppp_end()
+                end
+                if compare({"0038","-fp"}) then
+                    dynamics_fp_end()
+                end
+                if compare({"0039","-fz"}) then
+                    dynamics_fz_end()
+                end
+                if compare({"0040","-n"}) then
+                    dynamics_n_end()
+                end
+                if compare({"0041","-rf"}) then
+                    dynamics_rf_end()
+                end
+                if compare({"0042","-rfz"}) then
+                    dynamics_rfz_end()
+                end
+                if compare({"0043","-sf"}) then
+                    dynamics_sf_end()
+                end
+                if compare({"0044","-sffz"}) then
+                    dynamics_sffz_end()
+                end
+                if compare({"0045","-sfp"}) then
+                    dynamics_sfp_end()
+                end
+                if compare({"0046","-sfpp"}) then
+                    dynamics_sfpp_end()
+                end
+                if compare({"0047","-sfz"}) then
+                    dynamics_sfz_end()
+                end
+                if compare({"0048","-sfzp"}) then
+                    dynamics_sfzp_end()
+                end
+                if compare({"0049","dyn+","louder"}) then
+                    dynamics_increase_dynamic()
+                end
+                if compare({"0050","dyn-","softer","quieter"}) then
+                    dynamics_decrease_dynamic()
+                end
+                if compare({"0051","alignfar", "align", "da"}) then
+                    dynamics_align_far()
+                end
 --      if compare({"0052","alignnear"}) then
 --        dynamics_align_near()
 --      end
-            if compare({"0053","dyndn","dd"}) then
-                dynamics_align_far()
-                dynamics_nudge_down()
-            end
-            if compare({"0054","dynup","du"}) then
-                dynamics_align_far()
-                dynamics_nudge_up()
-            end
-            if compare({"0055","cresc","crescendo"}) then
-                dynamics_cresc()
-            end
-            if compare({"0056","dim","diminuendo"}) then
-                dynamics_dim()
-            end
-            if compare({"0057","piuf","piu_f"}) then
-                dynamics_piu_f()
-            end
-            if compare({"0058","ppsub","subpp","pp_sub","sub_pp"}) then
-                dynamics_pp_sub()
-            end
-            if compare({"0059","psub","subp","p_sub","sub_p"}) then
-                dynamics_p_sub()
-            end
-            if compare({"0060","submp","mpsub","sub_mp","mp_sub"}) then
-                dynamics_mp_sub()
-            end
-            if compare({"0061","mfsub","mf_sub","submf","sub_mf"}) then
-                dynamics_mf_sub()
-            end
-            if compare({"0062","subf","sub_f","fsub","f_sub"}) then
-                dynamics_f_sub()
-            end
-            if compare({"0063","ffsub","ff_sub","subff","sub_ff"}) then
-                dynamics_ff_sub()
-            end
-            if execute_function[i] == "0070" then
-                dynamics_align_hairpins_and_dynamics()         
-            end       
-            if execute_function[i] == "0071" then
-                dynamics_align_hairpins_and_dynamics()         
-                dynamics_nudge_down()
-            end
-            if execute_function[i] == "0072" then
-                dynamics_align_hairpins_and_dynamics()           
-                dynamics_nudge_up()
-            end 
-            if compare({"0100","accent","acc"}) then
-                articulations_accent()
-            end
-            if compare({"0101","marc"}) then
-                articulations_marcato()
-            end
-            if compare({"0102","stacc","staccato", "stac"}) then
-                articulations_staccato()
-            end
-            if compare({"0103","ten","tenuto", "-"}) then
-                articulations_tenuto()
-            end
-            if execute_function[i] == "0104" then
-                articulations_flat_wedge()
-            end
-            if execute_function[i] == "0105" then
-                articulations_round_wedge()
-            end
-            if compare({"0106","/"}) then
-                articulations_tremolo_single()
-            end
-            if compare({"0107","//"}) then
-                articulations_tremolo_double()
-            end
-            if compare({"0108","///"}) then
-                articulations_tremolo_triple()
-            end
-            if compare({"0109","fermata","ferm"}) then
-                articulations_fermata()
-            end
-            if compare({"0110","closed","+"}) then
-                articulations_closed()
-            end
-            if compare({"0111","open", "o"}) then
-                articulations_open()
-            end
-            if compare({"0112","upbow"}) then
-                articulations_upbow()
-            end
-            if compare({"0113","downbow"}) then
-                articulations_downbow()
-            end
-            if execute_function[i] == "0114" then
-                articulations_trill()
-            end
-            if execute_function[i] == "0115" then
-                articulations_short_trill()
-            end
-            if execute_function[i] == "0116" then
-                articulations_mordent()
-            end
-            if execute_function[i] == "0117" then
-                articulations_turn()
-            end
-            if compare({"0118","roll"}) then
-                articulations_roll()
-            end
-            if execute_function[i] == "0119" then
-                articulations_fall_short()
-            end
-            if execute_function[i] == "0120" then
-                articulations_fall_long()
-            end
-            if execute_function[i] == "0121" then
-                articulations_rip_straight()
-            end
-            if execute_function[i] == "0122" then
-                articulations_rip_long()
-            end
-            if execute_function[i] == "0123" then
-                articulations_scoop_short()
-            end
-            if execute_function[i] == "0124" then
-                articulations_doit()
-            end
-            if compare({"0125","split_art","split"}) then
-                articulations_split_articulations()
-            end
-            if execute_function[i] == "0126" then
-                articulations_delete_articulations()
-            end
-            if execute_function[i] == "0127" then
-                articulations_lv()
-            end
-            if compare({"0128","lv","let_vibrate"}) then
-                articulations_lv_poly()
-            end
-            if compare({"0132","["}) then
-                articulations_left_brackets()
-            end
-            if compare({"0137","]"}) then
-                articulations_right_brackets()
-            end
-            if compare({"0138","-.", ".-"}) then
-                articulations_combo_tenuto_staccato()
-            end
-            if compare({"0139",">.", ".>"}) then
-                articulations_combo_accent_staccato()
-            end
-            if compare({"0140",">-", "->"}) then
-                articulations_combo_accent_tenuto()
-            end
-            if execute_function[i] == "0141" then
-                articulations_combo_marcato_staccato()
-            end
-            if compare({"0142","z"}) then
-                articulations_tremolo_z()
-            end
-            if execute_function[i] == "0143" then
-                articulations_delete_duplicate_articulations()
-            end
-            if execute_function[i] == "0144" then
-                articulations_delete_articulations_from_rests()
-            end
-            if compare({"0145","trem"}) then
-                articulations_metered_tremolo()
-            end
-            if compare({"0200", "xo","nh_xo","nh_xcircle"}) then
-                noteheads_x_circle()
-            end
-            if compare({"0201","cross","nh_cross"}) then
-                noteheads_cross_circle()
-            end
-            if compare({"0202","tri","tri_up", "triup","nh_tri"}) then
-                noteheads_triangle_up()
-            end
-            if compare({"0203","tri_dn","tridn","tri_down", "nh_tri_down"}) then
-                noteheads_triangle_down()
-            end
-            if compare({"0204","nh_dia","nh_diamond","diamond","dia"}) then
-                noteheads_diamond()
-            end
-            if compare({"x","nh_x"}) then
-                noteheads_x_default()
-            end
-            if compare({"0205","ghost","nh_ghost","nh_gho","nh_paren"}) then
-                noteheads_ghost()
-            end
-            if compare({"0206","xstick","crossstick","nh_xstick","nh_circled"}) then
-                noteheads_cross_stick()
-            end
-            if execute_function[i] == "0207" then
-                noteheads_small_slash()
-            end
-            if execute_function[i] == "0208" then
-                noteheads_square()
-            end
-            if compare({"0209","rim","rimshot","nh_rim"}) then
-                noteheads_rim()
-            end
-            if compare({"0210","nonote","nh_none","nh_no"}) then
-                noteheads_no_notehead()
-            end
-            if compare({"0211", "defualt", "def","nh_def", "nh_default"}) then
-                noteheads_default()
-            end
-            if compare({"0212","nh_xd","xd"}) then
-                noteheads_x_diamond()
-            end
-            if compare({"0213","touchharmonics","touchharmx","touch","harm","hrmx","harmx"}) then
-                noteheads_harmonics()
-            end
-            if compare({"0214","pas","drum"}) then
-                noteheads_x_above_staff()
-            end
-            if compare({"0215","nh_center"}) then
-                noteheads_center_noteheads()
-            end
-            if execute_function[i] == "0300" then
-                lyrics_clear_lyrics()
-            end
-            if execute_function[i] == "0302" then
-                lyrics_move_baseline_down()
-            end
-            if execute_function[i] == "0303" then
-                lyrics_move_baseline_up()
-            end
-            if execute_function[i] == "0400" then
-                barline_right_invisible()
-            end
-            if compare({"0401","|"}) then
-                barline_right_single()
-            end
-            if compare({"0402","||"}) then
-                barline_right_double()
-            end
-            if execute_function[i] == "0403" then
-                barline_right_dashed()
-            end
-            if execute_function[i] == "0404" then
-                barline_right_thick()
-            end
-            if compare({"0405","final", "fin"}) then
-                barline_right_final()
-            end
-            if execute_function[i] == "0406" then
-                barline_right_tick()
-            end
-            if execute_function[i] == "0407" then
-                barline_right_custom()
-            end
-            if execute_function[i] == "0408" then
-                barline_bookend_invisible()
-            end
-            if execute_function[i] == "0409" then
-                barline_bookend_single()
-            end
-            if execute_function[i] == "0410" then
-                barline_bookend_double()
-            end
-            if execute_function[i] == "0411" then
-                barline_bookend_dashed()
-            end
-            if execute_function[i] == "0412" then
-                barline_bookend_thick()
-            end
-            if execute_function[i] == "0413" then
-                barline_bookend_final()
-            end
-            if execute_function[i] == "0414" then
-                barline_bookend_tick()
-            end
-            if execute_function[i] == "0415" then
-                barline_bookend_custom()
-            end
-            if execute_function[i] == "0416" then
-                barline_add_at_double_rehearsal_letter()
-            end
-            if execute_function[i] == "0417" then
-                barline_add_at_double_rehearsal_number()
-            end
-            if execute_function[i] == "0418" then
-                barline_add_at_double_rehearsal_measure()
-            end
-            if execute_function[i] == "0419" then
-                barline_clear_rehearsal()
-            end
-            if compare({"0500","2/4"}) then
-                meter_2_4()
-            end
-            if compare({"0501","2/2"}) then
-                meter_2_2()
-            end
-            if compare({"0502","3/2"}) then
-                meter_3_2()
-            end
-            if compare({"0503","3/4"}) then
-                meter_3_4()
-            end
-            if compare({"0504","3/8"}) then
-                meter_3_8()
-            end
-            if compare({"0505","4/4"}) then
-                meter_4_4()
-            end
-            if compare({"0506","5/4"}) then
-                meter_5_4()
-            end
-            if compare({"0507","5/8","5/8_23"}) then
-                meter_5_8_23()
-            end
-            if compare({"0516","5/8_32"}) then
-                meter_5_8_32()
-            end
-            if compare({"0508","6/8"}) then
-                meter_6_8()
-            end
-            if compare({"0509","7/8","7/8_223"}) then
-                meter_7_8_223()
-            end
-            if compare({"0517","7/8_322"}) then
-                meter_7_8_322()
-            end
-            if compare({"0510","9/8"}) then
-                meter_9_8()
-            end
-            if compare({"0511","12/8"}) then
-                meter_12_8()
-            end
-            if compare({"0512","6/4"}) then
-                meter_6_4()
-            end
-            if compare({"0513","beam_together", "beam"}) then
-                meter_beam_together()
-            end
-            if compare({"0514","common","c"}) then
-                meter_common_time()
-            end
-            if compare({"0515","cut"}) then
-                meter_cut_time()
-            end
-            if compare({"0600","trill","tr"}) then
-                smartshape_trill()
-            end
-            if execute_function[i] == "0601" then
-                smartshape_trill_extension()
-            end
-            if execute_function[i] == "0602" then
-                smartshape_dashed_line()
-            end
-            if execute_function[i] == "0603" then
-                smartshape_solid_line()
-            end
-            if execute_function[i] == "0604" then
-                smartshape_tab_slide()
-            end
-            if execute_function[i] == "0605" then
-                smartshape_glissando()
-            end
-            if execute_function[i] == "0606" then
-                smartshape_dashed_bracket()
-            end
-            if execute_function[i] == "0607" then
-                smartshape_solid_bracket()
-            end
-            if execute_function[i] == "0608" then
-                smartshape_custom()
-            end
-            if execute_function[i] == "0609" then
-                smartshape_slur_solid()
-            end
-            if execute_function[i] == "0610" then
-                smartshape_slur_dashed()
-            end
-            if execute_function[i] == "0611" then
-                smartshape_dashed_double_bracket()
-            end
-            if execute_function[i] == "0612" then
-                smartshape_solid_double_bracket()
-            end
-            if execute_function[i] == "0613" then
-                smartshape_8va()
-            end
-            if execute_function[i] == "0614" then
-                smartshape_15ma()
-            end
-            if execute_function[i] == "0615" then
-                smartshape_8vb()
-            end
-            if execute_function[i] == "0616" then
-                smartshape_15mb()
-            end
-            if compare({"0700","slash", "////", "/s"}) then
-                staff_styles_slash()
-            end
-            if compare({"0701","rhythm", "rthm"}) then
-                staff_styles_rhythm()
-            end
-            if compare({"0702","blank"}) then
-                staff_styles_blank_ly1()
-            end
-            if execute_function[i] == "0703" then
-                staff_styles_blank_rests_ly1()
-            end
-            if execute_function[i] == "0704" then
-                staff_styles_blank_ly4()
-            end
-            if execute_function[i] == "0705" then
-                staff_styles_blank_rests_ly4()
-            end
-            if execute_function[i] == "0706" then
-                staff_styles_blank_all()
-            end
-            if compare({"0707","%","1barrpt"}) then
-                staff_styles_repeat_one()
-            end
-            if compare({"0708","%%", "2barrpt"}) then
-                staff_styles_repeat_two()
-            end
-            if compare({"0709","stemless"}) then
-                staff_styles_stemless()
-            end
-            if compare({"0710","cutaway"}) then
-                staff_styles_cutaway()
-            end
-            if compare({"0711","collapse"}) then
-                staff_styles_collapse()
-            end
-            if compare({"0800","espr","esp","espressivo"}) then
-                expressions_espr()
-            end
-            if compare({"0801","poco"}) then
-                expressions_poco()
-            end
-            if compare({"0802","pocoapoco","poco_a_poco"}) then
-                expressions_pocoapoco()
-            end
-            if compare({"0803","molto"}) then
-                expressions_molto()
-            end
-            if execute_function[i] == "0804" then
-                expressions_solo()
-            end
-            if execute_function[i] == "0805" then
-                expressions_unis()
-            end
-            if execute_function[i] == "0806" then
-                expressions_tutti()
-            end
-            if execute_function[i] == "0807" then
-                expressions_loco()
-            end
-            if execute_function[i] == "0808" then
-                expressions_breath()
-            end
-            if execute_function[i] == "0809" then
-                expressions_caesura()
-            end
-            if execute_function[i] == "0810" then
-                expressions_glasses()
-            end
-            if execute_function[i] == "0811" then
-                expressions_mute()
-            end
-            if execute_function[i] == "0812" then
-                expressions_open()
-            end
-            if execute_function[i] == "0813" then
-                expressions_cup_mute()
-            end
-            if execute_function[i] == "0814" then
-                expressions_straight_mute()
-            end
-            if execute_function[i] == "0815" then
-                expressions_one()
-            end
-            if execute_function[i] == "0816" then
-                expressions_two()
-            end
-            if execute_function[i] == "0817" then
-                expressions_a2()
-            end
-            if execute_function[i] == "0818" then
-                expressions_a3()
-            end
-            if execute_function[i] == "0819" then
-                expressions_a4()
-            end
-            if compare({"0820","arco"}) then
-                expressions_arco()
-            end
-            if compare({"0821","pizz"}) then
-                expressions_pizz()
-            end
-            if execute_function[i] == "0822" then
-                expressions_spicc()
-            end
-            if execute_function[i] == "0823" then
-                expressions_col_legno()
-            end
-            if execute_function[i] == "0824" then
-                expressions_con_sord()
-            end
-            if execute_function[i] == "0825" then
-                expressions_ord()
-            end
-            if execute_function[i] == "0826" then
-                expressions_sul_pont()
-            end
-            if execute_function[i] == "0827" then
-                expressions_sul_tasto()
-            end
-            if execute_function[i] == "0828" then
-                expressions_senza_sord()
-            end
-            if execute_function[i] == "0829" then
-                expressions_trem()
-            end
-            if execute_function[i] == "0830" then
-                expressions_half_pizz()
-            end
-            if execute_function[i] == "0831" then
-                expressions_half_trem()
-            end
-            if execute_function[i] == "0832" then
-                expressions_mallet_BD_hard()
-            end
-            if execute_function[i] == "0833" then
-                expressions_mallet_BD_medium()
-            end
-            if execute_function[i] == "0834" then
-                expressions_mallet_BD_soft()
-            end
-            if execute_function[i] == "0835" then
-                expressions_mallet_brass()
-            end
-            if execute_function[i] == "0836" then
-                expressions_mallet_sticks()
-            end
-            if execute_function[i] == "0837" then
-                expressions_mallet_timp_hard()
-            end
-            if execute_function[i] == "0838" then
-                expressions_mallet_timp_medium()
-            end
-            if execute_function[i] == "0839" then
-                expressions_mallet_timp_soft()
-            end
-            if execute_function[i] == "0840" then
-                expressions_mallet_timp_wood()
-            end
-            if execute_function[i] == "0841" then
-                expressions_mallet_xylo_hard()
-            end
-            if execute_function[i] == "0842" then
-                expressions_mallet_xylo_medium()
-            end
-            if execute_function[i] == "0843" then
-                expressions_mallet_xylo_soft()
-            end
-            if execute_function[i] == "0844" then
-                expressions_mallet_yarn_med()
-            end
-            if execute_function[i] == "0845" then
-                expressions_mallet_yarn_soft()
-            end
-            if execute_function[i] == "0846" then
-                expressions_div()
-            end
-            if execute_function[i] == "0847" then
-                expressions_three()
-            end
-            if execute_function[i] == "0848" then
-                expressions_four()
-            end
-            if execute_function[i] == "0849" then
-                expressions_marc()
-            end
-            if execute_function[i] == "0850" then
-                expressions_stacc()
-            end
-            if execute_function[i] == "0851" then
-                expressions_straight_jazz()
-            end
-            if execute_function[i] == "0852" then
-                expressions_move_baseline_down()
-            end
-            if execute_function[i] == "0853" then
-                expressions_move_baseline_up()
-            end
-            if execute_function[i] == "0900" then
-                tuplet_manual()
-            end
-            if execute_function[i] == "0901" then
-                tuplet_stem_beam_side()
-            end
-            if execute_function[i] == "0902" then
-                tuplet_note_side()
-            end
-            if execute_function[i] == "0903" then
-                tuplet_above()
-            end
-            if execute_function[i] == "0904" then
-                tuplet_below()
-            end
-            if execute_function[i] == "0905" then
-                tuplet_flip()
-            end
-            if execute_function[i] == "0906" then
-                tuplet_flat_on()
-            end
-            if execute_function[i] == "0907" then
-                tuplet_flat_off()
-            end
-            if execute_function[i] == "0908" then
-                tuplet_avoid_staff_on()
-            end
-            if execute_function[i] == "0909" then
-                tuplet_avoid_staff_off()
-            end
-            if execute_function[i] == "0910" then
-                tuplet_bracket_always()
-            end
-            if execute_function[i] == "0911" then
-                tuplet_unbeamed()
-            end
-            if execute_function[i] == "0912" then
-                tuplet_bracket_never_beamed()
-            end
-            if execute_function[i] == "0913" then
-                tuplet_increase_space()
-            end
-            if execute_function[i] == "0914" then
-                tuplet_decrease_space()
-            end
-            if execute_function[i] == "0915" then
-                tuplet_increase_bracket()
-            end
-            if execute_function[i] == "0916" then
-                tuplet_decrease_bracket()
-            end
-            if execute_function[i] == "0917" then
-                tuplet_shape_none()
-            end
-            if execute_function[i] == "0918" then
-                tuplet_shape_bracket()
-            end
-            if execute_function[i] == "0919" then
-                tuplet_shape_slur()
-            end
-            if execute_function[i] == "0920" then
-                tuplet_number_none()
-            end
-            if execute_function[i] == "0921" then
-                tuplet_number_regular()
-            end
-            if execute_function[i] == "0922" then
-                tuplet_number_ratio()
-            end
-            if execute_function[i] == "0923" then
-                tuplet_number_ratio_last()
-            end
-            if execute_function[i] == "0924" then
-                tuplet_number_ratio_both()
-            end
-            if execute_function[i] == "0925" then
-                tuplet_combo_hide_num_shape()
-            end
-            if execute_function[i] == "0926" then
-                tuplet_combo_num_in_staff()
-            end
-            if execute_function[i] == "0927" then
-                tuplet_combo_bracket_stem_side()
-            end
-            if execute_function[i] == "0928" then
-                tuplet_combo_bracket_flat_below_outside()
-            end
-            if execute_function[i] == "0929" then
-                tuplet_combo_bracket_flat_maintain()
-            end
-            if execute_function[i] == "0930" then
-                tuplet_combo_bracket_flat_above_outside()
-            end
-            if execute_function[i] == "0931" then
-                tuplet_combo_number_beam_outside()
-            end
-            if execute_function[i] == "0932" then
-                tuplet_combo_number_note_outside()
-            end
-            if execute_function[i] == "0933" then
-                tuplet_combo_number_beam_inside()
-            end
-            if execute_function[i] == "0934" then
-                tuplet_combo_number_note_inside()
-            end
-            if execute_function[i] == "0935" then
-                tuplet_horizontal_drag_on()
-            end
-            if execute_function[i] == "0936" then
-                tuplet_horizontal_drag_off()
-            end
-            if execute_function[i] == "1000" then
-                groups_none_on()
-            end
-            if execute_function[i] == "1001" then
-                groups_none_between()
-            end
-            if execute_function[i] == "1002" then
-                groups_none_through()
-            end
-            if execute_function[i] == "1003" then
-                groups_plain_on()
-            end
-            if execute_function[i] == "1004" then
-                groups_plain_between()
-            end
-            if execute_function[i] == "1005" then
-                groups_plain_through()
-            end
-            if execute_function[i] == "1006" then
-                groups_chorus_straight_on()
-            end
-            if execute_function[i] == "1007" then
-                groups_chorus_straight_between()
-            end
-            if execute_function[i] == "1008" then
-                groups_chorus_straight_through()
-            end
-            if execute_function[i] == "1009" then
-                groups_piano_on()
-            end
-            if execute_function[i] == "1010" then
-                groups_piano_between()
-            end
-            if execute_function[i] == "1011" then
-                groups_piano_through()
-            end
-            if execute_function[i] == "1012" then
-                groups_reverse_chorus_on()
-            end
-            if execute_function[i] == "1013" then
-                groups_reverse_chorus_between()
-            end
-            if execute_function[i] == "1014" then
-                groups_reverse_chorus_through()
-            end
-            if execute_function[i] == "1015" then
-                groups_reverse_piano_on()
-            end
-            if execute_function[i] == "1016" then
-                groups_reverse_piano_between()
-            end
-            if execute_function[i] == "1017" then
-                groups_reverse_piano_through()
-            end
-            if execute_function[i] == "1018" then
-                groups_chorus_curved_on()
-            end
-            if execute_function[i] == "1019" then
-                groups_chorus_curved_between()
-            end
-            if execute_function[i] == "1020" then
-                groups_chorus_curved_through()
-            end
-            if execute_function[i] == "1021" then
-                groups_reverse_chorus_curved_on()
-            end
-            if execute_function[i] == "1022" then
-                groups_reverse_chorus_curved_between()
-            end
-            if execute_function[i] == "1023" then
-                groups_reverse_chorus_curved_through()
-            end
-            if execute_function[i] == "1024" then
-                groups_sub_bracket()
-            end
-            if execute_function[i] == "1025" then
-                groups_reverse_sub_bracket()
-            end
-            if compare({"1100","abmaj"}) then
-                key_A_flat_major()
-            end
-            if compare({"1101","abmin"}) then
-                key_A_flat_minor()
-            end
-            if compare({"1103","amaj"}) then
-                key_A_major()
-            end
-            if compare({"1104","amin"}) then
-                key_A_minor()
-            end
-            if compare({"1104","a#min"}) then
-                key_A_sharp_minor()
-            end
-            if compare({"1105","bbmaj"}) then
-                key_B_flat_major()
-            end
-            if compare({"1106","bbmin"}) then
-                key_B_flat_minor()
-            end
-            if compare({"1107","bmaj"}) then
-                key_B_major()
-            end
-            if compare({"1108","bmin"}) then
-                key_B_minor()
-            end
-            if compare({"1109","cbmaj"}) then
-                key_C_flat_major()
-            end
-            if compare({"1110","cmaj"}) then
-                key_C_major()
-            end
-            if compare({"1111","cmin"}) then
-                key_C_minor()
-            end
-            if compare({"1112","c#maj"}) then
-                key_C_sharp_major()
-            end
-            if compare({"1113","c#min"}) then
-                key_C_sharp_minor()
-            end
-            if compare({"1114","dbmaj"}) then
-                key_D_flat_major()
-            end
-            if compare({"1115","dmaj"}) then
-                key_D_major()
-            end
-            if compare({"1116","dmin"}) then
-                key_D_minor()
-            end
-            if compare({"1117","d#min"}) then
-                key_D_sharp_minor()
-            end
-            if compare({"1118","ebmaj"}) then
-                key_E_flat_major()
-            end
-            if compare({"1119","ebmin"}) then
-                key_E_flat_minor()
-            end
-            if compare({"1120","emaj"}) then
-                key_E_major()
-            end
-            if compare({"1121","emin"}) then
-                key_E_minor()
-            end
-            if compare({"1122","fmaj"}) then
-                key_F_major()
-            end
-            if compare({"1123","fmin"}) then
-                key_F_minor()
-            end
-            if compare({"1124","f#maj"}) then
-                key_F_sharp_major()
-            end
-            if compare({"1125","f#min"}) then
-                key_F_sharp_minor()
-            end
-            if compare({"1126","gbmaj"}) then
-                key_G_flat_major()
-            end
-            if compare({"1127","gmaj"}) then
-                key_G_major()
-            end
-            if compare({"1128","gmin"}) then
-                key_G_minor()
-            end
-            if compare({"1129","g#min"}) then
-                key_G_sharp_minor()
-            end
-            if execute_function[i] == "1130" then
-                key_hide_key_show_acc()
-            end
-            if compare({"1131","atonal","keyless"}) then
-                key_keyless()
-            end
-            if execute_function[i] == "1200" then
-                formatting_page_break_insert()
-            end
-            if execute_function[i] == "1201" then
-                formatting_page_break_remove()
-            end
-            if execute_function[i] == "1202" then
-                formatting_measure_width_increase()
-            end
-            if execute_function[i] == "1203" then
-                formatting_measure_width_decrease()
-            end
-            if execute_function[i] == "1204" then
-                formatting_staff_space_increase()
-            end
-            if execute_function[i] == "1205" then
-                formatting_staff_space_decrease()
-            end
-            if execute_function[i] == "1206" then
-                formatting_system_move_down()
-            end
-            if execute_function[i] == "1207" then
-                formatting_system_move_up()
-            end
-            if execute_function[i] == "1300" then
-                layers_one_reduce()
-            end
-            if execute_function[i] == "1301" then
-                layers_two_reduce()
-            end
-            if execute_function[i] == "1302" then
-                layers_three_reduce()
-            end
-            if execute_function[i] == "1303" then
-                layers_four_reduce()
-            end
-            if execute_function[i] == "1304" then
-                layers_one_melody_top()
-            end
-            if execute_function[i] == "1305" then
-                layers_two_melody_top()
-            end
-            if execute_function[i] == "1306" then
-                layers_three_melody_top()
-            end
-            if execute_function[i] == "1307" then
-                layers_four_melody_top()
-            end
-            if execute_function[i] == "1308" then
-                layers_one_melody_bottom()
-            end
-            if execute_function[i] == "1309" then
-                layers_two_melody_bottom()
-            end
-            if execute_function[i] == "1310" then
-                layers_three_melody_bottom()
-            end
-            if execute_function[i] == "1311" then
-                layers_four_melody_bottom()
-            end
-            if execute_function[i] == "1312" then
-                layers_all_reset()
-            end
-            if execute_function[i] == "1313" then
-                layers_all_reduce()
-            end
-            if execute_function[i] == "1314" then
-                layers_swap_one_two()
-            end
-            if execute_function[i] == "1315" then
-                layers_swap_one_three()
-            end
-            if execute_function[i] == "1316" then
-                layers_swap_one_four()
-            end
-            if execute_function[i] == "1317" then
-                layers_swap_two_three()
-            end
-            if execute_function[i] == "1318" then
-                layers_swap_two_four()
-            end
-            if execute_function[i] == "1319" then
-                layers_swap_three_four()
-            end
-            if execute_function[i] == "1320" then
-                layers_swap_one_three_two_four()
-            end
-            if execute_function[i] == "1321" then
-                layers_swap_one_two_three_four()
-            end
-            if execute_function[i] == "1322" then
-                layers_one_clear()
-            end
-            if execute_function[i] == "1323" then
-                layers_two_clear()
-            end
-            if execute_function[i] == "1324" then
-                layers_three_clear()
-            end
-            if execute_function[i] == "1325" then
-                layers_four_clear()
-            end
-            if execute_function[i] == "1326" then
-                layers_one_two_clear()
-            end
-            if execute_function[i] == "1327" then
-                layers_one_three_clear()
-            end
-            if execute_function[i] == "1328" then
-                layers_one_four_clear()
-            end
-            if execute_function[i] == "1329" then
-                layers_one_two_three_clear()
-            end
-            if execute_function[i] == "1330" then
-                layers_one_three_four_clear()
-            end
-            if execute_function[i] == "1331" then
-                layers_two_three_clear()
-            end
-            if execute_function[i] == "1332" then
-                layers_two_four_clear()
-            end
-            if execute_function[i] == "1333" then
-                layers_two_three_four_clear()
-            end
-            if execute_function[i] == "1334" then
-                layers_three_four_clear()
-            end
-            if execute_function[i] == "1400" then
-                polyphony_add_octave_up()
-            end
-            if execute_function[i] == "1401" then
-                polyphony_add_octave_down()
-            end
-            if execute_function[i] == "1402" then
-                polyphony_add_diatonic_third_up()
-            end
-            if execute_function[i] == "1403" then
-                polyphony_add_diatonic_third_down()
-            end
-            if execute_function[i] == "1404" then
-                polyphony_rotate_up()
-            end
-            if execute_function[i] == "1405" then
-                polyphony_rotate_down()
-            end
-            if execute_function[i] == "1406" then
-                polyphony_delete_top_note()
-            end
-            if execute_function[i] == "1407" then
-                polyphony_delete_bottom_note()
-            end
-            if execute_function[i] == "1408" then
-                polyphony_keep_top_note()
-            end
-            if execute_function[i] == "1409" then
-                polyphony_keep_bottom_note()
-            end
-            if execute_function[i] == "1500" then
-                transform_harmonics_third()
-            end
-            if execute_function[i] == "1501" then
-                transform_harmonics_fourth()
-            end
-            if execute_function[i] == "1502" then
-                transform_harmonics_fifth()
-            end
-            if execute_function[i] == "1503" then
-                transform_breath_to_expression()
-            end
-            if execute_function[i] == "1504" then
-                transform_caesura_to_expression()
-            end
-            if execute_function[i] == "1505" then
-                transform_single_pitch_F4()
-            end
-            if execute_function[i] == "1506" then
-                transform_single_pitch_F5()
-            end
-            if execute_function[i] == "1507" then
-                transform_single_pitch_C5()
-            end
-            if execute_function[i] == "1508" then
-                transform_single_pitch_G5()
-            end
-            if execute_function[i] == "1509" then
-                transform_single_pitch_A5()
-            end
-            if execute_function[i] == "1510" then
-                transform_semitone_up()
-            end
-            if execute_function[i] == "1511" then
-                transform_semitone_down()
-            end
-            if execute_function[i] == "1512" then
-                transform_flip_enharmonic()
-            end
-            if execute_function[i] == "1513" then
-                transform_cluster_indeterminate()
-            end
-            if execute_function[i] == "1514" then
-                transform_cluster_determinate()
-            end
-            if execute_function[i] == "1515" then
-                transform_toggle_ledger_lines()
-            end
-            if execute_function[i] == "1516" then
-                transform_highest_lowest_possible()
-            end
-            if compare({"1517","kickline","bandhits","kick"}) then
-                transform_create_kicks()
-            end
-            if compare({"1518","topline"}) then
-                transform_topline_notation()
-            end
-            if execute_function[i] == "1600" then
-                chords_altered_bass_after()
-            end
-            if execute_function[i] == "1601" then
-                chords_altered_bass_under()
-            end
-            if execute_function[i] == "1602" then
-                chords_altered_bass_subtext()
-            end
-            if execute_function[i] == "1603" then
-                chords_move_baseline_down()
-            end
-            if execute_function[i] == "1604" then
-                chords_move_baseline_up()
-            end
-            if execute_function[i] == "1700" then
-                reset_rests()
-            end
-            if execute_function[i] == "1701" then
-                reset_baselines_lyrics()
-            end
-            if execute_function[i] == "1702" then
-                reset_barlines()
-            end
-            if execute_function[i] == "1703" then
-                reset_chord_symbol_pos()
-            end
-            if execute_function[i] == "1704" then
-                reset_baseline_expression_below()
-            end
-            if execute_function[i] == "1705" then
-                reset_baseline_expression_above()
-            end
-            if execute_function[i] == "1706" then
-                reset_baseline_expression_all()
-            end
-            if execute_function[i] == "1707" then
-                reset_baseline_chord()
-            end
-            if execute_function[i] == "1708" then
-                reset_baseline_fretboard()
-            end
-            if execute_function[i] == "1709" then
-                reset_baseline_chord_fretboard()
-            end
-            if execute_function[i] == "1802" then
-                playback_all_staves_document_beginning_to_region_end()
-            end
-            if execute_function[i] == "1803" then
-                playback_selected_staves_document_beginning_to_region_end()
-            end
-            if execute_function[i] == "1804" then
-                playback_all_staves_region_beginning_to_document_end()
-            end
-            if execute_function[i] == "1805" then
-                playback_selected_staves_region_beginning_to_document_end()
-            end
-            if execute_function[i] == "1806" then
-                playback_all_staves_region_beginning_to_region_end()
-            end
-            if execute_function[i] == "1807" then
-                playback_selected_staves_region_beginning_to_region_end()
-            end
-            if execute_function[i] == "1808" then
-                playback_mute_cue_notes()
-            end
-            if execute_function[i] == "1809" then
-                playback_mute_all_notes()
-            end
-            if execute_function[i] == "1810" then
-                playback_unmute_all_notes()
-            end
-            if execute_function[i] == "1811" then
-                navigation_switch_to_slected_part()
-            end
-            if compare({"1900","treble"}) then
-                clef_change_pre(0) --treble clef
-            end
-            if compare({"1901","alto"}) then
-                clef_change_pre(1) -- alto clef
-            end
-            if compare({"1902","tenor"}) then
-                clef_change_pre(2) -- tenor clef
-            end
-            if compare({"1903","bass"}) then
-                clef_change_pre(3) -- bass clef
-            end
-            if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8","treb8"}) then
-                clef_change_pre(5) -- treble_8ba clef
-            end
-            if compare({"1905","perc"}) then
-                clef_change_pre(12) -- perc clef (new style)
-            end
-            if execute_function[i] == "9000" then
-                plugin_center_rehearsal_marks()
-            end
-            if execute_function[i] == "9001" then
-                plugin_custom_text_expressive()
-            end
-            if execute_function[i] == "9002" then
-                plugin_custom_text_technique()
-            end
-            if execute_function[i] == "9003" then
-                plugin_custom_text_tempo()
-            end
-            if execute_function[i] == "9004" then
-                plugin_custom_text_dynamics()
-            end
-            if compare({"9005","tacet"}) then
-                tacet_text = config.tacet_text
-                al_fine_text = config.al_fine_text
-                run_file("region_multimeasure_rest_tacet")
-            end
-            if compare({"9006","playx", "playxtimes", "playxbars"}) then
-                plugin_make_x_times()
-            end
-            if compare({"9007","playxmore","playmore", "more"}) then
-                plugin_make_x_more()
-            end
-            if compare({"9008","harp","hp_ped", "hp_pedals"}) then
-                run_file("harp_pedal_wizard")
-            end     
-            if execute_function[i] == "9994" then
-                update_win_ahk()
-            end
-            if execute_function[i] == "9995" then
-                update_mac_km()
-            end
-            if execute_function[i] == "9996" then
-                update_win_35()
-            end
-            if execute_function[i] == "9997" then
-                update_win_48()
-            end
-            if execute_function[i] == "9998" then
-                update_mac_35()
-            end
-            if execute_function[i] == "9999" then
-                update_mac_35()
-            end
-            if compare({"0000","config"}) then
-                config_jetstream()
-            end
-        else
-            if compare({"0000","config"}) then
-                config_jetstream()
-            elseif execute_function[i] == "1800" then
-                playback_all_staves_document_beginning_to_document_end()
-            elseif execute_function[i] == "1801" then
-                playback_selected_staves_document_beginning_to_document_end()
-            elseif execute_function[i] == "9000" then
-                plugin_center_rehearsal_marks()
-            elseif execute_function[i] == "0301" then
-                lyrics_delete_lyrics()
-            elseif compare({"9008","harp","hp_ped", "hp_pedals"}) then
-                run_file("harp_pedal_wizard")
-            elseif execute_function[i] == "9994" then
-                update_win_ahk()
-            elseif execute_function[i] == "9995" then
-                update_mac_km()
-            elseif execute_function[i] == "9996" then
-                update_win_35()
-            elseif execute_function[i] == "9997" then
-                update_win_48()
-            elseif execute_function[i] == "9998" then
-                update_mac_35()
-            elseif execute_function[i] == "9999" then
-                update_mac_35()
+                if compare({"0053","dyndn","dd"}) then
+--                dynamics_align_far() -- functions 0071 and 0072 align AND move...
+                    dynamics_nudge_down()
+                end
+                if compare({"0054","dynup","du"}) then
+--                dynamics_align_far()  -- functions 0071 and 0072 align AND move...
+                    dynamics_nudge_up()
+                end
+                if compare({"0055","cresc","crescendo"}) then
+                    dynamics_cresc()
+                end
+                if compare({"0056","dim","diminuendo"}) then
+                    dynamics_dim()
+                end
+                if compare({"0057","piuf","piu_f"}) then
+                    dynamics_piu_f()
+                end
+                if compare({"0058","ppsub","subpp","pp_sub","sub_pp"}) then
+                    dynamics_pp_sub()
+                end
+                if compare({"0059","psub","subp","p_sub","sub_p"}) then
+                    dynamics_p_sub()
+                end
+                if compare({"0060","submp","mpsub","sub_mp","mp_sub"}) then
+                    dynamics_mp_sub()
+                end
+                if compare({"0061","mfsub","mf_sub","submf","sub_mf"}) then
+                    dynamics_mf_sub()
+                end
+                if compare({"0062","subf","sub_f","fsub","f_sub"}) then
+                    dynamics_f_sub()
+                end
+                if compare({"0063","ffsub","ff_sub","subff","sub_ff"}) then
+                    dynamics_ff_sub()
+                end
+                if execute_function[i] == "0070" then
+                    dynamics_align_hairpins_and_dynamics()         
+                end       
+                if execute_function[i] == "0071" then
+                    dynamics_align_hairpins_and_dynamics()         
+                    dynamics_nudge_down()
+                end
+                if execute_function[i] == "0072" then
+                    dynamics_align_hairpins_and_dynamics()           
+                    dynamics_nudge_up()
+                end 
+                if compare({"0100","accent","acc"}) then
+                    articulations_accent()
+                end
+                if compare({"0101","marc"}) then
+                    articulations_marcato()
+                end
+                if compare({"0102","stacc","staccato", "stac"}) then
+                    articulations_staccato()
+                end
+                if compare({"0103","ten","tenuto", "-"}) then
+                    articulations_tenuto()
+                end
+                if execute_function[i] == "0104" then
+                    articulations_flat_wedge()
+                end
+                if execute_function[i] == "0105" then
+                    articulations_round_wedge()
+                end
+                if compare({"0106","/"}) then
+                    articulations_tremolo_single()
+                end
+                if compare({"0107","//"}) then
+                    articulations_tremolo_double()
+                end
+                if compare({"0108","///"}) then
+                    articulations_tremolo_triple()
+                end
+                if compare({"0109","fermata","ferm"}) then
+                    articulations_fermata()
+                end
+                if compare({"0110","closed","+"}) then
+                    articulations_closed()
+                end
+                if compare({"0111", "o"}) then
+                    articulations_open()
+                end
+                if compare({"0112","upbow"}) then
+                    articulations_upbow()
+                end
+                if compare({"0113","downbow"}) then
+                    articulations_downbow()
+                end
+                if execute_function[i] == "0114" then
+                    articulations_trill()
+                end
+                if execute_function[i] == "0115" then
+                    articulations_short_trill()
+                end
+                if execute_function[i] == "0116" then
+                    articulations_mordent()
+                end
+                if execute_function[i] == "0117" then
+                    articulations_turn()
+                end
+                if compare({"0118","roll"}) then
+                    articulations_roll()
+                end
+                if execute_function[i] == "0119" then
+                    articulations_fall_short()
+                end
+                if execute_function[i] == "0120" then
+                    articulations_fall_long()
+                end
+                if execute_function[i] == "0121" then
+                    articulations_rip_straight()
+                end
+                if execute_function[i] == "0122" then
+                    articulations_rip_long()
+                end
+                if execute_function[i] == "0123" then
+                    articulations_scoop_short()
+                end
+                if execute_function[i] == "0124" then
+                    articulations_doit()
+                end
+                if compare({"0125","split_art","split"}) then
+                    articulations_split_articulations()
+                end
+                if execute_function[i] == "0126" then
+                    articulations_delete_articulations()
+                end
+                if execute_function[i] == "0127" then
+                    articulations_lv()
+                end
+                if compare({"0128","lv","let_vibrate"}) then
+                    articulations_lv_poly()
+                end
+                if compare({"0132","["}) then
+                    articulations_left_brackets()
+                end
+                if compare({"0137","]"}) then
+                    articulations_right_brackets()
+                end
+                if compare({"0138","-.", ".-"}) then
+                    articulations_combo_tenuto_staccato()
+                end
+                if compare({"0139",">.", ".>"}) then
+                    articulations_combo_accent_staccato()
+                end
+                if compare({"0140",">-", "->"}) then
+                    articulations_combo_accent_tenuto()
+                end
+                if compare({"0141","^.", ".^"}) then
+                    articulations_combo_marcato_staccato()
+                end
+                if compare({"0142","z", "tremz", "ztrem", "buzz"}) then
+                    articulations_tremolo_z()
+                end
+                if execute_function[i] == "0143" then
+                    articulations_delete_duplicate_articulations()
+                end
+                if execute_function[i] == "0144" then
+                    articulations_delete_articulations_from_rests()
+                end
+                if compare({"0145","trem"}) then
+                    articulations_metered_tremolo()
+                end
+                if compare({"0200", "xo","nh_xo","nh_xcircle"}) then
+                    noteheads_x_circle()
+                end
+                if compare({"0201","cross","nh_cross"}) then
+                    noteheads_cross_circle()
+                end
+                if compare({"0202","tri","tri_up", "triup","nh_tri"}) then
+                    noteheads_triangle_up()
+                end
+                if compare({"0203","tri_dn","tridn","tri_down", "nh_tri_down"}) then
+                    noteheads_triangle_down()
+                end
+                if compare({"0204","nh_dia","nh_diamond","diamond","dia"}) then
+                    noteheads_diamond()
+                end
+                if compare({"x","nh_x"}) then
+                    noteheads_x_default()
+                end
+                if compare({"0205","ghost","nh_ghost","nh_gho","nh_paren"}) then
+                    noteheads_ghost()
+                end
+                if compare({"0206","xstick","crossstick","nh_xstick","nh_circled"}) then
+                    noteheads_cross_stick()
+                end
+                if execute_function[i] == "0207" then
+                    noteheads_small_slash()
+                end
+                if execute_function[i] == "0208" then
+                    noteheads_square()
+                end
+                if compare({"0209","rim","rimshot","nh_rim"}) then
+                    noteheads_rim()
+                end
+                if compare({"0210","nonote","nh_none","nh_no"}) then
+                    noteheads_no_notehead()
+                end
+                if compare({"0211", "defualt", "def","nh_def", "nh_default"}) then
+                    noteheads_default()
+                end
+                if compare({"0212","nh_xd","xd"}) then
+                    noteheads_x_diamond()
+                end
+                if compare({"0213","touchharmonics","touchharmx","touch","harm","hrmx","harmx"}) then
+                    noteheads_harmonics()
+                end
+                if compare({"0214","pas","drum"}) then
+                    noteheads_x_above_staff()
+                end
+                if compare({"0215","nh_center", "center"}) then
+                    noteheads_center_noteheads()
+                end
+                if compare({"0300","lyr_clr", "lyrx"}) then
+                    lyrics_clear_lyrics()
+                end
+                if compare({"0301","lyr_dn", "lyrd"}) then
+                    lyrics_move_baseline_down()
+                end
+                if compare({"0302","lyr_up", "lyru"}) then
+                    lyrics_move_baseline_up()
+                end
+                if execute_function[i] == "0400" then
+                    barline_right_invisible()
+                end
+                if compare({"0401","|"}) then
+                    barline_right_single()
+                end
+                if compare({"0402","||"}) then
+                    barline_right_double()
+                end
+                if execute_function[i] == "0403" then
+                    barline_right_dashed()
+                end
+                if execute_function[i] == "0404" then
+                    barline_right_thick()
+                end
+                if compare({"0405","final", "fin"}) then
+                    barline_right_final()
+                end
+                if execute_function[i] == "0406" then
+                    barline_right_tick()
+                end
+                if execute_function[i] == "0407" then
+                    barline_right_custom()
+                end
+                if execute_function[i] == "0408" then
+                    barline_bookend_invisible()
+                end
+                if execute_function[i] == "0409" then
+                    barline_bookend_single()
+                end
+                if execute_function[i] == "0410" then
+                    barline_bookend_double()
+                end
+                if execute_function[i] == "0411" then
+                    barline_bookend_dashed()
+                end
+                if execute_function[i] == "0412" then
+                    barline_bookend_thick()
+                end
+                if execute_function[i] == "0413" then
+                    barline_bookend_final()
+                end
+                if execute_function[i] == "0414" then
+                    barline_bookend_tick()
+                end
+                if execute_function[i] == "0415" then
+                    barline_bookend_custom()
+                end
+                if execute_function[i] == "0416" then
+                    barline_add_at_double_rehearsal_letter()
+                end
+                if execute_function[i] == "0417" then
+                    barline_add_at_double_rehearsal_number()
+                end
+                if execute_function[i] == "0418" then
+                    barline_add_at_double_rehearsal_measure()
+                end
+                if execute_function[i] == "0419" then
+                    barline_clear_rehearsal()
+                end
+                if compare({"0500","2/4"}) then
+                    meter_2_4()
+                end
+                if compare({"0501","2/2"}) then
+                    meter_2_2()
+                end
+                if compare({"0502","3/2"}) then
+                    meter_3_2()
+                end
+                if compare({"0503","3/4"}) then
+                    meter_3_4()
+                end
+                if compare({"0504","3/8"}) then
+                    meter_3_8()
+                end
+                if compare({"0505","4/4"}) then
+                    meter_4_4()
+                end
+                if compare({"0506","5/4"}) then
+                    meter_5_4()
+                end
+                if compare({"0507","5/8","5/8_23"}) then
+                    meter_5_8_23()
+                end
+                if compare({"0516","5/8_32"}) then
+                    meter_5_8_32()
+                end
+                if compare({"0508","6/8"}) then
+                    meter_6_8()
+                end
+                if compare({"0509","7/8","7/8_223"}) then
+                    meter_7_8_223()
+                end
+                if compare({"0517","7/8_322"}) then
+                    meter_7_8_322()
+                end
+                if compare({"0510","9/8"}) then
+                    meter_9_8()
+                end
+                if compare({"0511","12/8"}) then
+                    meter_12_8()
+                end
+                if compare({"0512","6/4"}) then
+                    meter_6_4()
+                end
+                if compare({"0513","beam_together", "beam"}) then
+                    meter_beam_together()
+                end
+                if compare({"0514","common","c"}) then
+                    meter_common_time()
+                end
+                if compare({"0515","cut"}) then
+                    meter_cut_time()
+                end
+                if compare({"0600","trill","tr"}) then
+                    smartshape_trill()
+                end
+                if execute_function[i] == "0601" then
+                    smartshape_trill_extension()
+                end
+                if execute_function[i] == "0602" then
+                    smartshape_dashed_line()
+                end
+                if execute_function[i] == "0603" then
+                    smartshape_solid_line()
+                end
+                if execute_function[i] == "0604" then
+                    smartshape_tab_slide()
+                end
+                if execute_function[i] == "0605" then
+                    smartshape_glissando()
+                end
+                if execute_function[i] == "0606" then
+                    smartshape_dashed_bracket()
+                end
+                if execute_function[i] == "0607" then
+                    smartshape_solid_bracket()
+                end
+                if execute_function[i] == "0608" then
+                    smartshape_custom()
+                end
+                if execute_function[i] == "0609" then
+                    smartshape_slur_solid()
+                end
+                if execute_function[i] == "0610" then
+                    smartshape_slur_dashed()
+                end
+                if execute_function[i] == "0611" then
+                    smartshape_dashed_double_bracket()
+                end
+                if execute_function[i] == "0612" then
+                    smartshape_solid_double_bracket()
+                end
+                if compare({"0613","8va"}) then
+                    smartshape_8va()
+                end
+                if compare({"0614","15ma"}) then
+                    smartshape_15ma()
+                end
+                if compare({"0615","8vb", "8ba"}) then
+                    smartshape_8vb()
+                end
+                if compare({"0616","15mb", "15ba"}) then
+                    smartshape_15mb()
+                end
+                if compare({"0700","slash", "////", "/s"}) then
+                    staff_styles_slash()
+                end
+                if compare({"0701","rhythm", "rthm"}) then
+                    staff_styles_rhythm()
+                end
+                if compare({"0702","blank"}) then
+                    staff_styles_blank_ly1()
+                end
+                if execute_function[i] == "0703" then
+                    staff_styles_blank_rests_ly1()
+                end
+                if execute_function[i] == "0704" then
+                    staff_styles_blank_ly4()
+                end
+                if execute_function[i] == "0705" then
+                    staff_styles_blank_rests_ly4()
+                end
+                if execute_function[i] == "0706" then
+                    staff_styles_blank_all()
+                end
+                if compare({"0707","%","1barrpt"}) then
+                    staff_styles_repeat_one()
+                end
+                if compare({"0708","%%", "2barrpt"}) then
+                    staff_styles_repeat_two()
+                end
+                if compare({"0709","stemless"}) then
+                    staff_styles_stemless()
+                end
+                if compare({"0710","cutaway"}) then
+                    staff_styles_cutaway()
+                end
+                if compare({"0711","collapse"}) then
+                    staff_styles_collapse()
+                end
+                if compare({"0800","espr","esp","espressivo"}) then
+                    expressions_espr()
+                end
+                if compare({"0801","poco"}) then
+                    expressions_poco()
+                end
+                if compare({"0802","pocoapoco","poco_a_poco"}) then
+                    expressions_pocoapoco()
+                end
+                if compare({"0803","molto"}) then
+                    expressions_molto()
+                end
+                if compare({"0804","solo"}) then
+                    expressions_solo()
+                end
+                if compare({"0805","unis"}) then
+                    expressions_unis()
+                end
+                if compare({"0806","tutti"}) then
+                    expressions_tutti()
+                end
+                if compare({"0807","loco"}) then
+                    expressions_loco()
+                end
+                if compare({"0808","breath", ","}) then
+                    expressions_breath()
+                end
+                if compare({"0809","caesura"}) then
+                    expressions_caesura()
+                end
+                if compare({"0810","glasses", "watch", "look"}) then
+                    expressions_glasses()
+                end
+                if compare({"0811","mute"}) then
+                    expressions_mute()
+                end
+                if compare({"0812","open"}) then
+                    expressions_open()
+                end
+                if compare({"0813","cup_mute", "cup"}) then
+                    expressions_cup_mute()
+                end
+                if compare({"0814","straight_mute", "st_mute", "straight"}) then
+                    expressions_straight_mute()
+                end
+                if compare({"0815","1o"}) then
+                    expressions_one()
+                end
+                if compare({"0816","2o"}) then
+                    expressions_two()
+                end
+                if compare({"0817","a2"}) then
+                    expressions_a2()
+                end
+                if compare({"0818","a3"}) then
+                    expressions_a3()
+                end
+                if compare({"0819","a4"}) then
+                    expressions_a4()
+                end
+                if compare({"0820","arco"}) then
+                    expressions_arco()
+                end
+                if compare({"0821","pizz"}) then
+                    expressions_pizz()
+                end
+                if execute_function[i] == "0822" then
+                    expressions_spicc()
+                end
+                if execute_function[i] == "0823" then
+                    expressions_col_legno()
+                end
+                if compare({"0824","con_sord", "sord", "consord"}) then
+                    expressions_con_sord()
+                end
+                if compare({"0825","ord"}) then
+                    expressions_ord()
+                end
+                if execute_function[i] == "0826" then
+                    expressions_sul_pont()
+                end
+                if execute_function[i] == "0827" then
+                    expressions_sul_tasto()
+                end
+                if execute_function[i] == "0828" then
+                    expressions_senza_sord()
+                end
+                if execute_function[i] == "0829" then
+                    expressions_trem()
+                end
+                if execute_function[i] == "0830" then
+                    expressions_half_pizz()
+                end
+                if execute_function[i] == "0831" then
+                    expressions_half_trem()
+                end
+                if execute_function[i] == "0832" then
+                    expressions_mallet_BD_hard()
+                end
+                if execute_function[i] == "0833" then
+                    expressions_mallet_BD_medium()
+                end
+                if execute_function[i] == "0834" then
+                    expressions_mallet_BD_soft()
+                end
+                if execute_function[i] == "0835" then
+                    expressions_mallet_brass()
+                end
+                if execute_function[i] == "0836" then
+                    expressions_mallet_sticks()
+                end
+                if execute_function[i] == "0837" then
+                    expressions_mallet_timp_hard()
+                end
+                if execute_function[i] == "0838" then
+                    expressions_mallet_timp_medium()
+                end
+                if execute_function[i] == "0839" then
+                    expressions_mallet_timp_soft()
+                end
+                if execute_function[i] == "0840" then
+                    expressions_mallet_timp_wood()
+                end
+                if execute_function[i] == "0841" then
+                    expressions_mallet_xylo_hard()
+                end
+                if execute_function[i] == "0842" then
+                    expressions_mallet_xylo_medium()
+                end
+                if execute_function[i] == "0843" then
+                    expressions_mallet_xylo_soft()
+                end
+                if execute_function[i] == "0844" then
+                    expressions_mallet_yarn_med()
+                end
+                if execute_function[i] == "0845" then
+                    expressions_mallet_yarn_soft()
+                end
+                if execute_function[i] == "0846" then
+                    expressions_div()
+                end
+                if execute_function[i] == "0847" then
+                    expressions_three()
+                end
+                if execute_function[i] == "0848" then
+                    expressions_four()
+                end
+                if execute_function[i] == "0849" then
+                    expressions_marc()
+                end
+                if execute_function[i] == "0850" then
+                    expressions_stacc()
+                end
+                if execute_function[i] == "0851" then
+                    expressions_straight_jazz()
+                end
+                if execute_function[i] == "0852" then
+                    expressions_move_baseline_down()
+                end
+                if execute_function[i] == "0853" then
+                    expressions_move_baseline_up()
+                end
+                if execute_function[i] == "0900" then
+                    tuplet_manual()
+                end
+                if execute_function[i] == "0901" then
+                    tuplet_stem_beam_side()
+                end
+                if execute_function[i] == "0902" then
+                    tuplet_note_side()
+                end
+                if execute_function[i] == "0903" then
+                    tuplet_above()
+                end
+                if execute_function[i] == "0904" then
+                    tuplet_below()
+                end
+                if execute_function[i] == "0905" then
+                    tuplet_flip()
+                end
+                if execute_function[i] == "0906" then
+                    tuplet_flat_on()
+                end
+                if execute_function[i] == "0907" then
+                    tuplet_flat_off()
+                end
+                if execute_function[i] == "0908" then
+                    tuplet_avoid_staff_on()
+                end
+                if execute_function[i] == "0909" then
+                    tuplet_avoid_staff_off()
+                end
+                if execute_function[i] == "0910" then
+                    tuplet_bracket_always()
+                end
+                if execute_function[i] == "0911" then
+                    tuplet_unbeamed()
+                end
+                if execute_function[i] == "0912" then
+                    tuplet_bracket_never_beamed()
+                end
+                if execute_function[i] == "0913" then
+                    tuplet_increase_space()
+                end
+                if execute_function[i] == "0914" then
+                    tuplet_decrease_space()
+                end
+                if execute_function[i] == "0915" then
+                    tuplet_increase_bracket()
+                end
+                if execute_function[i] == "0916" then
+                    tuplet_decrease_bracket()
+                end
+                if execute_function[i] == "0917" then
+                    tuplet_shape_none()
+                end
+                if execute_function[i] == "0918" then
+                    tuplet_shape_bracket()
+                end
+                if execute_function[i] == "0919" then
+                    tuplet_shape_slur()
+                end
+                if execute_function[i] == "0920" then
+                    tuplet_number_none()
+                end
+                if execute_function[i] == "0921" then
+                    tuplet_number_regular()
+                end
+                if execute_function[i] == "0922" then
+                    tuplet_number_ratio()
+                end
+                if execute_function[i] == "0923" then
+                    tuplet_number_ratio_last()
+                end
+                if execute_function[i] == "0924" then
+                    tuplet_number_ratio_both()
+                end
+                if execute_function[i] == "0925" then
+                    tuplet_combo_hide_num_shape()
+                end
+                if execute_function[i] == "0926" then
+                    tuplet_combo_num_in_staff()
+                end
+                if execute_function[i] == "0927" then
+                    tuplet_combo_bracket_stem_side()
+                end
+                if execute_function[i] == "0928" then
+                    tuplet_combo_bracket_flat_below_outside()
+                end
+                if execute_function[i] == "0929" then
+                    tuplet_combo_bracket_flat_maintain()
+                end
+                if execute_function[i] == "0930" then
+                    tuplet_combo_bracket_flat_above_outside()
+                end
+                if execute_function[i] == "0931" then
+                    tuplet_combo_number_beam_outside()
+                end
+                if execute_function[i] == "0932" then
+                    tuplet_combo_number_note_outside()
+                end
+                if execute_function[i] == "0933" then
+                    tuplet_combo_number_beam_inside()
+                end
+                if execute_function[i] == "0934" then
+                    tuplet_combo_number_note_inside()
+                end
+                if execute_function[i] == "0935" then
+                    tuplet_horizontal_drag_on()
+                end
+                if execute_function[i] == "0936" then
+                    tuplet_horizontal_drag_off()
+                end
+                if execute_function[i] == "1000" then
+                    groups_none_on()
+                end
+                if execute_function[i] == "1001" then
+                    groups_none_between()
+                end
+                if execute_function[i] == "1002" then
+                    groups_none_through()
+                end
+                if execute_function[i] == "1003" then
+                    groups_plain_on()
+                end
+                if execute_function[i] == "1004" then
+                    groups_plain_between()
+                end
+                if execute_function[i] == "1005" then
+                    groups_plain_through()
+                end
+                if execute_function[i] == "1006" then
+                    groups_chorus_straight_on()
+                end
+                if execute_function[i] == "1007" then
+                    groups_chorus_straight_between()
+                end
+                if execute_function[i] == "1008" then
+                    groups_chorus_straight_through()
+                end
+                if execute_function[i] == "1009" then
+                    groups_piano_on()
+                end
+                if execute_function[i] == "1010" then
+                    groups_piano_between()
+                end
+                if execute_function[i] == "1011" then
+                    groups_piano_through()
+                end
+                if execute_function[i] == "1012" then
+                    groups_reverse_chorus_on()
+                end
+                if execute_function[i] == "1013" then
+                    groups_reverse_chorus_between()
+                end
+                if execute_function[i] == "1014" then
+                    groups_reverse_chorus_through()
+                end
+                if execute_function[i] == "1015" then
+                    groups_reverse_piano_on()
+                end
+                if execute_function[i] == "1016" then
+                    groups_reverse_piano_between()
+                end
+                if execute_function[i] == "1017" then
+                    groups_reverse_piano_through()
+                end
+                if execute_function[i] == "1018" then
+                    groups_chorus_curved_on()
+                end
+                if execute_function[i] == "1019" then
+                    groups_chorus_curved_between()
+                end
+                if execute_function[i] == "1020" then
+                    groups_chorus_curved_through()
+                end
+                if execute_function[i] == "1021" then
+                    groups_reverse_chorus_curved_on()
+                end
+                if execute_function[i] == "1022" then
+                    groups_reverse_chorus_curved_between()
+                end
+                if execute_function[i] == "1023" then
+                    groups_reverse_chorus_curved_through()
+                end
+                if execute_function[i] == "1024" then
+                    groups_sub_bracket()
+                end
+                if execute_function[i] == "1025" then
+                    groups_reverse_sub_bracket()
+                end
+                if compare({"1100","abmaj"}) then
+                    key_A_flat_major()
+                end
+                if compare({"1101","abmin"}) then
+                    key_A_flat_minor()
+                end
+                if compare({"1103","amaj"}) then
+                    key_A_major()
+                end
+                if compare({"1104","amin"}) then
+                    key_A_minor()
+                end
+                if compare({"1104","a#min"}) then
+                    key_A_sharp_minor()
+                end
+                if compare({"1105","bbmaj"}) then
+                    key_B_flat_major()
+                end
+                if compare({"1106","bbmin"}) then
+                    key_B_flat_minor()
+                end
+                if compare({"1107","bmaj"}) then
+                    key_B_major()
+                end
+                if compare({"1108","bmin"}) then
+                    key_B_minor()
+                end
+                if compare({"1109","cbmaj"}) then
+                    key_C_flat_major()
+                end
+                if compare({"1110","cmaj"}) then
+                    key_C_major()
+                end
+                if compare({"1111","cmin"}) then
+                    key_C_minor()
+                end
+                if compare({"1112","c#maj"}) then
+                    key_C_sharp_major()
+                end
+                if compare({"1113","c#min"}) then
+                    key_C_sharp_minor()
+                end
+                if compare({"1114","dbmaj"}) then
+                    key_D_flat_major()
+                end
+                if compare({"1115","dmaj"}) then
+                    key_D_major()
+                end
+                if compare({"1116","dmin"}) then
+                    key_D_minor()
+                end
+                if compare({"1117","d#min"}) then
+                    key_D_sharp_minor()
+                end
+                if compare({"1118","ebmaj"}) then
+                    key_E_flat_major()
+                end
+                if compare({"1119","ebmin"}) then
+                    key_E_flat_minor()
+                end
+                if compare({"1120","emaj"}) then
+                    key_E_major()
+                end
+                if compare({"1121","emin"}) then
+                    key_E_minor()
+                end
+                if compare({"1122","fmaj"}) then
+                    key_F_major()
+                end
+                if compare({"1123","fmin"}) then
+                    key_F_minor()
+                end
+                if compare({"1124","f#maj"}) then
+                    key_F_sharp_major()
+                end
+                if compare({"1125","f#min"}) then
+                    key_F_sharp_minor()
+                end
+                if compare({"1126","gbmaj"}) then
+                    key_G_flat_major()
+                end
+                if compare({"1127","gmaj"}) then
+                    key_G_major()
+                end
+                if compare({"1128","gmin"}) then
+                    key_G_minor()
+                end
+                if compare({"1129","g#min"}) then
+                    key_G_sharp_minor()
+                end
+                if execute_function[i] == "1130" then
+                    key_hide_key_show_acc()
+                end
+                if compare({"1131","atonal","keyless"}) then
+                    key_keyless()
+                end
+                if execute_function[i] == "1200" then
+                    formatting_page_break_insert()
+                end
+                if execute_function[i] == "1201" then
+                    formatting_page_break_remove()
+                end
+                if execute_function[i] == "1202" then
+                    formatting_measure_width_increase()
+                end
+                if execute_function[i] == "1203" then
+                    formatting_measure_width_decrease()
+                end
+                if execute_function[i] == "1204" then
+                    formatting_staff_space_increase()
+                end
+                if execute_function[i] == "1205" then
+                    formatting_staff_space_decrease()
+                end
+                if execute_function[i] == "1206" then
+                    formatting_system_move_down()
+                end
+                if execute_function[i] == "1207" then
+                    formatting_system_move_up()
+                end
+                if execute_function[i] == "1300" then
+                    layers_one_reduce()
+                end
+                if execute_function[i] == "1301" then
+                    layers_two_reduce()
+                end
+                if execute_function[i] == "1302" then
+                    layers_three_reduce()
+                end
+                if execute_function[i] == "1303" then
+                    layers_four_reduce()
+                end
+                if execute_function[i] == "1304" then
+                    layers_one_melody_top()
+                end
+                if execute_function[i] == "1305" then
+                    layers_two_melody_top()
+                end
+                if execute_function[i] == "1306" then
+                    layers_three_melody_top()
+                end
+                if execute_function[i] == "1307" then
+                    layers_four_melody_top()
+                end
+                if execute_function[i] == "1308" then
+                    layers_one_melody_bottom()
+                end
+                if execute_function[i] == "1309" then
+                    layers_two_melody_bottom()
+                end
+                if execute_function[i] == "1310" then
+                    layers_three_melody_bottom()
+                end
+                if execute_function[i] == "1311" then
+                    layers_four_melody_bottom()
+                end
+                if execute_function[i] == "1312" then
+                    layers_all_reset()
+                end
+                if execute_function[i] == "1313" then
+                    layers_all_reduce()
+                end
+                if compare({"1314","swap12"}) then
+                    layer.swap(init_region, 1, 2)
+                end
+                if compare({"1315","swap13"}) then
+                    layer.swap(init_region, 1, 3)
+                end
+                if compare({"1316","swap14"}) then
+                    layer.swap(init_region, 1, 4)
+                end
+                if compare({"1317","swap23"}) then
+                    layer.swap(init_region, 2, 4)
+                end
+                if compare({"1318","swap24"}) then
+                    layer.swap(init_region, 2, 4)
+                end
+                if compare({"1319","swap34"}) then
+                    layer.swap(init_region, 3, 4)
+                end
+                if compare({"1320","swap1324"}) then
+                    layer.swap(init_region, 1, 3)
+                    layer.swap(init_region, 2, 4)
+                end
+                if compare({"1321","swap1234"}) then
+                    layer.swap(init_region, 1, 2)
+                    layer.swap(init_region, 3, 4)
+                end
+                if compare({"1322","clear1"}) then
+                    layer.clear(init_region, 1)
+                end
+                if compare({"1323","clear2"}) then
+                    layer.clear(init_region, 2)
+                end
+                if compare({"1324","clear3"}) then
+                    layer.clear(init_region, 3)
+                end
+                if compare({"1325","clear4"}) then
+                    layer.clear(init_region, 4)
+                end
+                if compare({"1326","clear12"}) then
+                    layer.clear(init_region, 1)
+                    layer.clear(init_region, 2)
+                end
+                if compare({"1327","clear13"}) then
+                    layer.clear(init_region, 1)
+                    layer.clear(init_region, 3)
+                end
+                if compare({"1328","clear14"}) then
+                    layer.clear(init_region, 1)
+                    layer.clear(init_region, 4)
+                end
+                if compare({"1329","clear123"}) then
+                    layer.clear(init_region, 1)
+                    layer.clear(init_region, 2)
+                    layer.clear(init_region, 3)
+                end
+                if compare({"1330","clear134"}) then
+                    layer.clear(init_region, 1)
+                    layer.clear(init_region, 3)
+                    layer.clear(init_region, 4)
+                end
+                if compare({"1331","clear23"}) then
+                    layer.clear(init_region, 2)
+                    layer.clear(init_region, 3)
+                end
+                if compare({"1332","clear24"}) then
+                    layer.clear(init_region, 2)
+                    layer.clear(init_region, 4)
+                end
+                if compare({"1333","clear234"}) then
+                    layer.clear(init_region, 2)
+                    layer.clear(init_region, 3)
+                    layer.clear(init_region, 4)
+                end
+                if compare({"1334","clear34"}) then
+                    layer.clear(init_region, 3)
+                    layer.clear(init_region, 4)
+                end
+                if execute_function[i] == "1400" then
+                    polyphony_add_octave_up()
+                end
+                if execute_function[i] == "1401" then
+                    polyphony_add_octave_down()
+                end
+                if execute_function[i] == "1402" then
+                    polyphony_add_diatonic_third_up()
+                end
+                if execute_function[i] == "1403" then
+                    polyphony_add_diatonic_third_down()
+                end
+                if execute_function[i] == "1404" then
+                    polyphony_rotate_up()
+                end
+                if execute_function[i] == "1405" then
+                    polyphony_rotate_down()
+                end
+                if execute_function[i] == "1406" then
+                    polyphony_delete_top_note()
+                end
+                if execute_function[i] == "1407" then
+                    polyphony_delete_bottom_note()
+                end
+                if execute_function[i] == "1408" then
+                    polyphony_keep_top_note()
+                end
+                if execute_function[i] == "1409" then
+                    polyphony_keep_bottom_note()
+                end
+                if execute_function[i] == "1500" then
+                    transform_harmonics_third()
+                end
+                if execute_function[i] == "1501" then
+                    transform_harmonics_fourth()
+                end
+                if execute_function[i] == "1502" then
+                    transform_harmonics_fifth()
+                end
+                if execute_function[i] == "1503" then
+                    transform_breath_to_expression()
+                end
+                if execute_function[i] == "1504" then
+                    transform_caesura_to_expression()
+                end
+                if execute_function[i] == "1505" then
+                    transform_single_pitch_F4()
+                end
+                if execute_function[i] == "1506" then
+                    transform_single_pitch_F5()
+                end
+                if execute_function[i] == "1507" then
+                    transform_single_pitch_C5()
+                end
+                if execute_function[i] == "1508" then
+                    transform_single_pitch_G5()
+                end
+                if execute_function[i] == "1509" then
+                    transform_single_pitch_A5()
+                end
+                if execute_function[i] == "1510" then
+                    transform_semitone_up()
+                end
+                if execute_function[i] == "1511" then
+                    transform_semitone_down()
+                end
+                if execute_function[i] == "1512" then
+                    transform_flip_enharmonic()
+                end
+                if compare({"1513","cluster_indeterminate", "clstr_in", "clstri"}) then
+                    run_file("note_cluster_indeterminate")
+                end
+                if compare({"1514","cluster_determinate", "clstr_det", "clstrd"}) then
+                    run_file("note_cluster_determinate")
+                end
+                if execute_function[i] == "1515" then
+                    transform_toggle_ledger_lines()
+                end
+                if execute_function[i] == "1516" then
+                    transform_highest_lowest_possible()
+                end
+                if compare({"1517","kickline","bandhits","kick"}) then
+                end
+                if compare({"1518","topline"}) then
+                    top_line()
+                end
+                if execute_function[i] == "1600" then
+                    chords_altered_bass_after()
+                end
+                if execute_function[i] == "1601" then
+                    chords_altered_bass_under()
+                end
+                if execute_function[i] == "1602" then
+                    chords_altered_bass_subtext()
+                end
+                if execute_function[i] == "1603" then
+                    chords_move_baseline_down()
+                end
+                if execute_function[i] == "1604" then
+                    chords_move_baseline_up()
+                end
+                if execute_function[i] == "1700" then
+                    reset_rests()
+                end
+                if execute_function[i] == "1701" then
+                    reset_baselines_lyrics()
+                end
+                if execute_function[i] == "1702" then
+                    reset_barlines()
+                end
+                if execute_function[i] == "1703" then
+                    reset_chord_symbol_pos()
+                end
+                if execute_function[i] == "1704" then
+                    reset_baseline_expression_below()
+                end
+                if execute_function[i] == "1705" then
+                    reset_baseline_expression_above()
+                end
+                if execute_function[i] == "1706" then
+                    reset_baseline_expression_all()
+                end
+                if execute_function[i] == "1707" then
+                    reset_baseline_chord()
+                end
+                if execute_function[i] == "1708" then
+                    reset_baseline_fretboard()
+                end
+                if execute_function[i] == "1709" then
+                    reset_baseline_chord_fretboard()
+                end
+                if execute_function[i] == "1802" then
+                    playback_all_staves_document_beginning_to_region_end()
+                end
+                if execute_function[i] == "1803" then
+                    playback_selected_staves_document_beginning_to_region_end()
+                end
+                if execute_function[i] == "1804" then
+                    playback_all_staves_region_beginning_to_document_end()
+                end
+                if execute_function[i] == "1805" then
+                    playback_selected_staves_region_beginning_to_document_end()
+                end
+                if execute_function[i] == "1806" then
+                    playback_all_staves_region_beginning_to_region_end()
+                end
+                if execute_function[i] == "1807" then
+                    playback_selected_staves_region_beginning_to_region_end()
+                end
+                if execute_function[i] == "1808" then
+                    playback_mute_cue_notes()
+                end
+                if execute_function[i] == "1809" then
+                    playback_mute_all_notes()
+                end
+                if execute_function[i] == "1810" then
+                    playback_unmute_all_notes()
+                end
+                if execute_function[i] == "1811" then
+                    navigation_switch_to_slected_part()
+                end
+                if compare({"1900","treble"}) then
+                    clef_change_pre(0) --treble clef
+                end
+                if compare({"1901","alto"}) then
+                    clef_change_pre(1) -- alto clef
+                end
+                if compare({"1902","tenor"}) then
+                    clef_change_pre(2) -- tenor clef
+                end
+                if compare({"1903","bass"}) then
+                    clef_change_pre(3) -- bass clef
+                end
+                if compare({"1904","treble8ba", "treble8vb", "treble_8vb", "treble_8ba", "treble8","treb8", "tnrvoc"}) then
+                    clef_change_pre(5) -- treble_8ba clef
+                end
+                if compare({"1905","perc"}) then
+                    clef_change_pre(12) -- perc clef (new style)
+                end
+                if execute_function[i] == "9000" then
+                    plugin_center_rehearsal_marks()
+                end
+                if execute_function[i] == "9001" then
+                    plugin_custom_text_expressive()
+                end
+                if execute_function[i] == "9002" then
+                    plugin_custom_text_technique()
+                end
+                if execute_function[i] == "9003" then
+                    plugin_custom_text_tempo()
+                end
+                if execute_function[i] == "9004" then
+                    plugin_custom_text_dynamics()
+                end
+                if compare({"9005","tacet"}) then
+                    tacet_text = config.tacet_text
+                    al_fine_text = config.al_fine_text
+                    run_file("region_multimeasure_rest_tacet")
+                end
+                if compare({"9006","playx", "playxtimes", "playxbars"}) then
+                    plugin_make_x_times()
+                end
+                if compare({"9007","playxmore","playmore", "more"}) then
+                    plugin_make_x_more()
+                end
+                if compare({"9008","harp","hp_ped", "hp_pedals"}) then
+                    run_file("harp_pedal_wizard")
+                end     
+                if execute_function[i] == "9994" then
+                    update_win_ahk()
+                end
+                if execute_function[i] == "9995" then
+                    update_mac_km()
+                end
+                if execute_function[i] == "9996" then
+                    update_win_35()
+                end
+                if execute_function[i] == "9997" then
+                    update_win_48()
+                end
+                if execute_function[i] == "9998" then
+                    update_mac_35()
+                end
+                if execute_function[i] == "9999" then
+                    update_mac_35()
+                end
+                if compare({"0000","config"}) then
+                    config_jetstream()
+                end
+                if compare({"about","version"}) then
+                    finenv.UI():AlertInfo("JetStream v"..jetstream_version, nil)
+                end
             else
-                finenv.UI():AlertInfo("Please select a region and try again.", nil)
-                return
+                if compare({"0000","config"}) then
+                    config_jetstream()
+                elseif execute_function[i] == "1800" then
+                    playback_all_staves_document_beginning_to_document_end()
+                elseif execute_function[i] == "1801" then
+                    playback_selected_staves_document_beginning_to_document_end()
+                elseif execute_function[i] == "9000" then
+                    plugin_center_rehearsal_marks()
+                elseif execute_function[i] == "0301" then
+                    lyrics_delete_lyrics()
+                elseif compare({"9008","harp","hp_ped", "hp_pedals"}) then
+                    run_file("harp_pedal_wizard")
+                elseif execute_function[i] == "9994" then
+                    update_win_ahk()
+                elseif execute_function[i] == "9995" then
+                    update_mac_km()
+                elseif execute_function[i] == "9996" then
+                    update_win_35()
+                elseif execute_function[i] == "9997" then
+                    update_win_48()
+                elseif execute_function[i] == "9998" then
+                    update_mac_35()
+                elseif execute_function[i] == "9999" then
+                    update_mac_35()
+                elseif compare({"about","version"}) then
+                    finenv.UI():AlertNeutral("Version "..jetstream_version, "JetStream Info")
+                else
+                    finenv.UI():AlertInfo("Please select a region and try again.", nil)
+                    return
+                end
             end
         end
     end
