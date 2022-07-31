@@ -9516,16 +9516,16 @@ if not bypass_dialog then
                 if execute_function[i] == "1207" then
                     formatting_system_move_up()
                 end
-                if execute_function[i] == "1300" then
+                if compare({"1300","1_75","lyr1_sm"}) then
                     layers_one_reduce()
                 end
-                if execute_function[i] == "1301" then
+                if compare({"1302","2_75","lyr2_sm"}) then
                     layers_two_reduce()
                 end
-                if execute_function[i] == "1302" then
+                if compare({"1302","3_75","lyr3_sm"}) then
                     layers_three_reduce()
                 end
-                if execute_function[i] == "1303" then
+                if compare({"1303","4_75","lyr4_sm"}) then
                     layers_four_reduce()
                 end
                 if execute_function[i] == "1304" then
@@ -9552,10 +9552,10 @@ if not bypass_dialog then
                 if execute_function[i] == "1311" then
                     layers_four_melody_bottom()
                 end
-                if execute_function[i] == "1312" then
+                if compare({"1312","100%"}) then
                     layers_all_reset()
                 end
-                if execute_function[i] == "1313" then
+                if compare({"1313","75%"}) then
                     layers_all_reduce()
                 end
                 if compare({"1314","swap12"}) then
