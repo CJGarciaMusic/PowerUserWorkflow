@@ -99,47 +99,6 @@ function compare_values(source,compare_to)
     return result
 end
 
-function simple_input(title, text)
-    local return_value = finale.FCString()
-    return_value.LuaString = ""
-    local str = finale.FCString()
-    local min_width = 160
-
-    function format_ctrl(ctrl, h, w, st)
-        ctrl:SetHeight(h)
-        ctrl:SetWidth(w)
-        str.LuaString = st
-        ctrl:SetText(str)
-    end
-
-    title_width = string.len(title) * 6 + 54
-    if title_width > min_width then min_width = title_width end
-    text_width = string.len(text) * 6
-    if text_width > min_width then min_width = text_width end
-
-    str.LuaString = title
-    local dialog = finale.FCCustomLuaWindow()
-    dialog:SetTitle(str)
-    local descr = dialog:CreateStatic(0, 0)
-    format_ctrl(descr, 16, min_width, text)
-    local input = dialog:CreateEdit(0, 20)
-    format_ctrl(input, 20, min_width, "")
-    local ok = dialog:CreateOkButton()
-    str.LuaString = "OK"
-    ok:SetText(str)
-    dialog:CreateCancelButton()
-
-    function callback(ctrl)
-    end
-
-    dialog:RegisterHandleCommand(callback)
-    if dialog:ExecuteModal(nil) == finale.EXECMODAL_OK then
-        return_value.LuaString = input:GetText(return_value)
-        return return_value.LuaString
-    end
-end
-
-
 function get_region(per_system_bool)
     local single_region = {}
     local music_region = finale.FCMusicRegion()
@@ -228,61 +187,12 @@ end
 function remove_spaces_in_windows_os(standard_name)
     local font_name = standard_name
     local ui = finenv.UI()
---    if string.find(os.tmpname(), "/") then
---        font_name = standard_name
---    elseif string.find(os.tmpname(), "\\") then
---        font_name = string.gsub(standard_name, "%s", "")
---    end
     if ui:IsOnWindows() then
         font_name = string.gsub(standard_name, "%s", "")
     end
     return font_name
 end
-
--- REPLACED BY LIBRARY FUNCTION... BUT LEAVING IT TEMPORARILY JUST IN CASE...
---function check_SMuFL(what_to_check)
---    local font_check = {"Maestro", "Engraver Font Set", "Broadway Copyist", "Jazz"}
---    local is_SMuFL = true
---    if what_to_check ~= nil then
---        if what_to_check[1] == "Expression" then
---            local cd = finale.FCCategoryDef()
---            if cd:Load(what_to_check[2]) then
---                local fontinfo = finale.FCFontInfo()
---                if cd:GetMusicFontInfo(fontinfo) then
---                    for k, v in pairs(font_check) do
---                        if fontinfo:GetName() == remove_spaces_in_windows_os(v) then
---                            is_SMuFL = false
---                            break
---                        end
---                    end
---                end
---            end
---        end
---    else
---        local fontinfo = finale.FCFontInfo()
---        if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
---            for k, v in pairs(font_check) do
---                if fontinfo:GetName() == remove_spaces_in_windows_os(v) then
---                    is_SMuFL = false
---                    break
---                end
---            end
---        end
---    end  
---    return is_SMuFL
---end
-
-function get_def_mus_font()
-    local fontinfo = finale.FCFontInfo()
-    if fontinfo:LoadFontPrefs(finale.FONTPREF_MUSIC) then
-        local font_name = finale.FCString()
-        fontinfo:GetNameString(font_name)
-        return font_name.LuaString
---        return remove_spaces_in_windows_os(fontinfo:GetName())
-    end
-end
-
-local default_music_font = get_def_mus_font()
+local default_music_font = library.get_default_music_font_name()
 local fontinfo = finale.FCFontInfo()
 local is_default_smufl = library.is_font_smufl_font()
 
@@ -3920,15 +3830,9 @@ function user_expression_input(the_expression)
     end
 
     function user_input(display_type)
-        --[[
-        local input_dialog = finenv.UserValueInput()
-        input_dialog.Title = "JetStream Expression Input"
-        input_dialog:SetTypes("String")
-        input_dialog:SetDescriptions("Please Enter Your "..display_type.." Text")
-        local return_values = input_dialog:Execute()
-        ]]
+
         local return_values = {}
-        return_values[1] = userValueInput("JetStream Expression Input", "Please Enter Your "..display_type.." Text").LuaString
+        return_values[1] = library.simple_input("JetStream Expression Input", "Please Enter Your "..display_type.." Text")
 
         if return_values ~= nil then
             if return_values[1] ~= "" then
@@ -5173,7 +5077,7 @@ end
 ]]
 
 function check_for_update(temp_dir, sd_type)
-    local temp_dir = ""
+    temp_dir = ""
     local check_string = ""
     local current_file = ""
     local open_command = ""
@@ -5223,7 +5127,6 @@ function check_for_update(temp_dir, sd_type)
     end
 end
 
---local dyn_smufl = check_SMuFL({"Expression", finale.DEFAULTCATID_DYNAMICS})
 local dyn_smufl = is_default_smufl
 
 local cd = finale.FCCategoryDef()
@@ -8451,7 +8354,7 @@ local return_values = dialog:Execute()
 ]]
 
 if not bypass_dialog then
-    local return_value = simple_input("JetStream Finale Controller", "Enter a JetStream Finale Controller code:")
+    local return_value = library.simple_input("JetStream Finale Controller", "Enter a JetStream Finale Controller code:")
     local execute_function = split(return_value, " ")
 
     for i,k in pairs(execute_function) do
