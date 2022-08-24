@@ -2543,7 +2543,7 @@ function changeNoteheads(font_name, quarter_glyph, half_glyph, whole_glyph, brev
         if fontinfo:LoadFontPrefs(23) then
             local font_name_string = finale.FCString()
             fontinfo:GetNameString(font_name_string)
-            font_name = remove_spaces_in_windows_os(font_name_string.LuaSstring) 
+            font_name = remove_spaces_in_windows_os(font_name_string.LuaString) 
         end
     else
         --font_name = remove_spaces_in_windows_os(font_name)
