@@ -1,7 +1,7 @@
 function plugindef()
     finaleplugin.RequireSelection = false
-    finaleplugin.Version = "22.07.24"
-    finaleplugin.Date = "07/22/2024"
+    finaleplugin.Version = "22.08.29"
+    finaleplugin.Date = "08/29/2024"
     finaleplugin.Notes = [[
     NOTE: The jetstream.lua file is provided as a reference file for interested developers. It will not run without several other files being in specific places on your hard drive.
     For that reason, the only supported way to get the JetStream plug-in on your computer is to run an official installer.
@@ -3201,14 +3201,17 @@ function clef_change(clef_type, staff, region)
     local cell_frame = finale.FCCellFrameHold()
     for i, j in eachcell(region) do
         local cell = finale.FCCell(i, j)
-        if (region:IsFullMeasureIncluded(region:GetStartMeasure()) == false) or (region:IsFullMeasureIncluded(region:GetEndMeasure()) == false) then
+        if (not region:IsFullMeasureIncluded(region:GetStartMeasure())) or (not region:IsFullMeasureIncluded(region:GetEndMeasure())) then
             cell_frame:ConnectCell(cell)
             if cell_frame:Load() then
-                local mid_measure_clef = cell_frame:CreateCellClefChanges()
-                if mid_measure_clef == nil then
-                    mid_measure_clef:SaveNew(2)
+                local mid_measure_clefs = cell_frame:CreateCellClefChanges()
+                local mid_measure_clef = finale.FCCellClefChange()
+                if not mid_measure_clefs then
+                    mid_measure_clefs = finale.FCCellClefChanges()
+                    mid_measure_clefs:InsertCellClefChange(mid_measure_clef)
+                    mid_measure_clefs:SaveAllAsNew()
                 end
-                for item in each(mid_measure_clef) do
+                for item in each(mid_measure_clefs) do
                     if (item:GetMeasurePos() ~= 0) or (item:GetMeasurePos() ~= region:GetEndMeasurePos()) then
                         item:SetMeasurePos(item:GetMeasurePos())
                         item:SetClefIndex(clef_type)
@@ -3230,7 +3233,6 @@ function clef_change(clef_type, staff, region)
 end
 
 function clef_change_bass()
-
     local staves = finale.FCStaves()
     staves:LoadAll()
     for staff in each(staves) do
@@ -5354,15 +5356,10 @@ end
 
 function dynamics_decrescendo()
     deleteHairpins()
-    local staves = finale.FCStaves()
-    staves:LoadAll()
-    for staff in each(staves) do
-        local music_region = finenv.Region()
-        music_region:SetCurrentSelection()
-        if music_region:IsStaffIncluded(staff:GetItemNo()) then
-            if set_first_last_note_in_range(music_region) ~= false then
-                createHairpin(set_first_last_note_in_range(music_region), finale.SMARTSHAPE_DIMINUENDO)
-            end
+    for key, region in pairs(get_region(false)) do
+        local return_dynamic_region = set_first_last_note_in_range(region)
+        if return_dynamic_region ~= false then
+            createHairpin(return_dynamic_region, finale.SMARTSHAPE_DIMINUENDO)
         end
     end
     dynamics_align_hairpins_and_dynamics()
